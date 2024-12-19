@@ -13,7 +13,7 @@
 	Format		:	$AM_Services, 35
 	
 	Option		:	Dummy			:	##AM_Refresh
-	
+	;;;
 [Collection:AM_OrdersSrc]
 	Type		:	Vouchers:VoucherType
 	Child Of	:	$$VchTypeSalesOrder
