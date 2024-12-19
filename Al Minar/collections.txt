@@ -1,0 +1,132 @@
+<DefType:Collection>
+
+[Collection:AM_CMPServices]
+	Title		:	"Services"
+	
+	Type		:	AM_Services:Company
+	Child Of	:	$$CurrentCompany
+	Fetch		:	*
+
+	Full Height	:	Yes
+	Align		:	Right
+	
+	Format		:	$AM_Services, 35
+	
+	Option		:	Dummy			:	##AM_Refresh
+	
+[Collection:AM_OrdersSrc]
+	Type		:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSalesOrder
+	Belongs To	:	Yes
+	
+	Fetch		:	PartyLedgerName, Amount
+	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+	Compute		:	IsTracked		:	$$ReportObject:$$CollectionFieldByKey:Yes:@@AM_JOSearchKey:AM_TrackedVouchers
+	Compute		:	TrackStatus		:	If $$TgtObject:$IsTracked then "Completed" else "Pending"
+	
+	Option		:	AM_QuotationSrc	:	##AM_IsQuotation
+	Option		:	AM_JobOrderSrc	:	Not ##AM_IsQuotation
+	
+[!Collection:AM_QuotationSrc]
+	Filter		:	SB_AM_VTYPQuotation_FRMLA
+	
+[!Collection:AM_JobOrderSrc]
+	Filter		:	SB_AM_VTYPJobOrder_FRMLA
+	
+[Collection:AM_Orders]
+	Source Collection	:	AM_OrdersSrc
+	
+	Fetch		:	*
+	
+	Filter		:	AM_IsSameParty, AM_IsSameVCHType, AM_IsSameStatus
+	
+[Collection:AM_TrackedVouchers]
+	Parm Var	:	SVFromDate			:	Date		:	$StartingFrom:Company:##SVCurrentCompany
+	Parm Var	:	SVToDate			:	Date		:	$EndingAt:Company:##SVCurrentCompany
+	
+	Type		:	Vouchers:VoucherType
+	Belongs To	:	Yes
+	
+	Fetch		:	PartyLedgerName, SB_AM_JobOrderInSales, Amount
+	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+	Option		:	AM_JobOrders		:	##AM_IsQuotation
+	Option		:	AM_Sales			:	Not ##AM_IsQuotation
+	
+[!Collection:AM_JobOrders]
+	Child Of	:	$$VchTypeSalesOrder
+	
+	Search Key	:	$$Sprintf:"%s-%s":$PartyLedgerName:$SB_AM_QuotInJobOrder
+	
+	Filter		:	SB_AM_VTYPJobOrder_FRMLA, AM_IsQuotationTracked
+	
+[!Collection:AM_Sales]
+	Child Of	:	$$VchTypeSales
+	
+	Search Key	:	$$Sprintf:"%s-%s":$PartyLedgerName:$SB_AM_JobOrderInSales
+	
+	Filter		:	AM_IsJobOrderTracked
+		
+[Collection:AM_OrderVCHTypes]
+	Title		:	"Voucher Types"
+	
+	Use			:	AliasCollection
+	
+	Type		:	VoucherType
+	Child Of	:	$$VchTypeSalesOrder
+	Belongs To	:	Yes
+	
+	Option		:	AM_QuotationVCHTypes	:	##AM_IsQuotation
+	Option		:	AM_JobOrderVCHTypes		:	Not ##AM_IsQuotation
+	
+[!Collection:AM_QuotationVCHTypes]
+	Filter		:	AM_ISQuotationType
+	
+[!Collection:AM_JobOrderVCHTypes]
+	Filter		:	AM_IsJOBWorkType
+	
+[Collection:AM_SalesVCHTypes]
+	Title		:	"Voucher Types"
+	
+	Use			:	AliasCollection
+	
+	Type		:	VoucherType
+	Child Of	:	$$VchTypeSales
+	Belongs To	:	Yes
+	
+[Collection:AM_TrackStatus]
+	Title		:	"Status"
+	
+	List		:	"Completed", "Pending"
+	
+[Collection:AM_QuotationVchs]
+	Type		:	Vouchers:VoucherType
+;	Child Of	:	$$VchTypeSales
+	Child Of	:	$$VchTypeSalesOrder
+	Belongs To	:	Yes
+	
+	Fetch		:	PartyLedgerName, Amount
+	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+	Filter		:	AM_IsSameParty, AM_IsSameVCHType,SB_AM_QuotationAndJobOrder	
+	Compute	:	InvAmount		:	$$FilterAmtTotal:AM_QuoTracked:AM_QuotFilterInsales:$Amount
+	
+	Fetch	:	SB_AM_QuotInJobOrder
+		
+[Collection:AM_QuoTracked]
+	
+	Type	:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSales
+	Belongs To	:	Yes
+	
+	Fetch	:	SB_AM_QuotInSales,Amount,SB_AM_JobOrderInSales
+	
+;;;;; select $VoucherNumber,$SB_AM_JobOrderInSales,$SB_AM_QuotInSales,$Amount from AM_QuoTracked
+	

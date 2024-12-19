@@ -1,0 +1,37 @@
+<DefType:System:UDF>
+
+[System:UDF]
+	;;;;;;;;;;;;;;;  Cmp UDF	;;;;;;;;;;
+	
+	SB_AM_CmpEnable			:	Logical		:	1001
+
+	;;;;;;;;;;;;;;;  Vtype UDF	;;;;;;;;;;
+
+	SB_AM_VTYPQuotation		:	Logical		:	1002
+	SB_AM_VTYPJobOrder		:	Logical		:	1003
+	SB_AM_VTYPPurcJobWork	:	Logical		:	1004	
+
+	;;;;;;;;;;;;  Voucher UDF	;;;;;;;;;;;;
+	
+	SB_AM_QuotStatus		:	String		:	1005
+	SB_AM_QuotInJobOrder	:	String		:	1007
+	SB_AM_JobOrderInSales	:	String		:	1008
+	
+	;;;;;;;;;;;;;	USER UDF	;;;;;;;;;;;;;
+
+	SB_AM_IsApprovalUser	:	Logical		:	1006
+
+
+	AM_HeaderPath			:	String		:	1000
+	AM_Services				:	String		:	1010
+	
+	AM_Width				:	Number		:	2000
+	AM_Height				:	Number		:	2010
+	AM_Qty					:	Number		:	2020
+	AM_SQM					:	Number		:	2030
+	AM_Remarks				:	String		:	2040
+	AM_GlassDetails			:	Aggregate	:	2050
+	AM_NatureOfTrans		:	String		:	2060
+	
+	SB_AM_QuotInSales		:	String		:	2070
+	

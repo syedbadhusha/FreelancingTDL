@@ -1,0 +1,17 @@
+<DefType:Variable>
+
+[Variable:AM_TrackStatus]
+	Type		:	String
+	Volatile	:	Yes
+	
+[Variable:AM_IsQuotation]
+	Type		:	Logical
+	Volatile	:	Yes
+	
+[Variable:AM_Refresh]
+	Type		:	Logical
+	
+[System:Variable]
+	AM_TrackStatus		:	$$SysName:AllItems
+	AM_IsQuotation		:	No
+	AM_Refresh			:	No			

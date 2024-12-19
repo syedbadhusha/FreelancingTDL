@@ -1,0 +1,83 @@
+
+
+
+[Include:Configuration.txt]
+[Include:VoucherChanges.txt]
+[Include:QuotApprovalRep.txt]
+[Include:CMPUSERUDF.txt]
+[Include:QuotDetReport.txt]
+;[Include:ServicesMasters.txt]
+[Include:UDF.txt]
+[Include:collections.txt]
+[Include:Formulas.txt]
+[Include:Changes/main.txt]
+[Include:Reports/main.txt]
+[Include:Print/main.txt]
+[Include:Variables.txt]
+[Include:Buttons.txt]
+
+[#Menu: GatewayofTally]
+	
+	Option	:	SB_AM_GWAYTally	:	@@SB_AM_CmpEnable_FRMLA
+	
+[!Menu:SB_AM_GWAYTally]
+	
+	Add	:	Key Item	:	Before	:	@@LocQuit	:	"Al Minar Menu"	:	A	:	Menu	:	SB_AM_Menu
+	Add	:	Key Item	:	Before	:	"Al Minar Menu"	:	Blank
+	
+[Menu:SB_AM_Menu]
+	
+	Title	:	"Al Minar Menu"
+
+	Indent	:	"Masters"
+	Item	:	"Services Master"				:	Alter	:	AM_CMPServices
+	Item	:	Blank
+	Indent	:	"Transactions"
+	Item	:	"Quotation"						:	Call	:	AM_Quotation
+	Item	:	"Job Order"						:	Call	:	AM_JobOrder
+	Item	:	"Job Work"						:	Call	:	AM_JobWork
+	Item	:	Blank
+	Indent	:	"Reports"
+	Item	:	"Pending Quotation Approval"	:	Display	:	SB_AM_QuotApproval
+	Item	:	"Detailed Approved Quotation"	:	Display	:	SB_AM_QuotDetReport
+;	Item	:	"Quotation Tracking"			:	Display	:	AM_QuotationTracking
+	Item	:	"Job Order Tracking"			:	Display	:	AM_JobOrderTracking
+	Item	:	"Invoiced Quotation and Balance":	Display	:	AM_SalesRegister
+	
+[Function:AM_Quotation]
+	Variable	:	Name		:	String
+	
+	000			:	Set			:	Name		:	$$FilterValue:$Name:VoucherType:1:AM_ISQuotationType
+	010			:	Call		:	AM_Voucher	:	##Name
+
+[Function:AM_JobOrder]
+
+	Variable	:	Name		:	String
+	
+	000			:	Set			:	Name		:	$$FilterValue:$Name:VoucherType:1:AM_IsJOBWorkType
+	010			:	Call		:	AM_Voucher	:	##Name
+
+[Function:AM_JobWork]
+	Variable	:	Name		:	String
+	
+	000			:	Set			:	Name		:	$$FilterValue:$Name:VoucherType:1:AM_IsJobPurcType
+	010			:	Call		:	AM_Voucher	:	##Name
+	
+		
+[Function:AM_Voucher]
+	Parameter	:	Name		:	String
+	
+	IfEmpty		:	If			:	$$IsEmpty:##Name
+	msgBox		:	Msg Box		:	"Error!!!"	:	"Voucher Type not found"
+	qbox		:	Query Box	:	"Create Voucher"		:	Yes	:	No
+	creVch		:	Do If		:	$$LastResult:	Create Collection		:	VoucherType
+	ret			:	Return
+	endIf		:	End If
+	
+	000			:	Set			:	SVVoucherType	:	##Name
+	
+	001			:	Set			:	SVViewName	:	if $$IsPurchase:##Name then $$SysName:AcctgVchView	else $$SysName:InvVchView	
+	002			:	Set			:	InvoicingModeFlag	:	Yes
+
+	010			:	Create Collection			:	Company Vouchers
+	

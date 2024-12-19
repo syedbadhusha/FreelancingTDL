@@ -1,0 +1,81 @@
+[Report:AM_JobOrderTracking]
+	Title		:	"Job Order Tracking"
+	Set			:	AM_IsQuotation		:	No
+
+	Use			:	AM_OrderTracking
+	
+	Local		:	Line		:	SB_AM_CMPReporttit		:	+
+		Local	:	Field		:	NameField				:	Set as			:	"Job Order Tracking"
+
+;[Report:AM_QuotationTracking]
+;	Title		:	"Quotation Tracking"
+;	Set			:	AM_IsQuotation		:	Yes
+;
+;	Use			:	AM_OrderTracking
+;	
+;	Local		:	Line		:	SB_AM_CMPReporttit		:	+
+;		Local	:	Field		:	NameField				:	Set as			:	"Quotation Tracking"
+
+[Report:AM_SalesRegister]
+
+	Title		:	"Sales Register"
+	
+	Use			:	AM_OrderTracking
+	
+	Local		:	Form		:	Default					:	Delete			:	Button		:	AM_ChangeTrackStatus
+	
+	Local		:	Button		:	AM_ChangeVCHType		:	Replace			:	Action		:	Modify Variables	:	AM_VCHSalesTypeName
+	
+	Local		:	Line		:	SB_AM_CMPReporttit		:	+
+	Local		:	Field		:	NameField				:	Set as			:	"Sales Register"
+
+	Local		:	Field		:	AM_ORDStatus			:	Invisible		:	Yes
+
+	Local		:	Line		:	AM_ORDColumnTitle		:	Option			:	AM_SalesTitle
+	Local		:	Line		:	AM_ORDColumn			:	Option			:	AM_SalesFields
+	Local		:	Line		:	AM_ORDColumnTotal		:	Option			:	AM_SalesTotal
+
+	Local		:	Part		:	AM_ORDColumn			:	Delete			:	Repeat
+	Local		:	Part		:	AM_ORDColumn			:	Add				:	Repeat		:	AM_ORDColumn:AM_QuotationVchs
+	
+[!Line:AM_SalesTitle]
+	Use			:	AM_SalesFields
+
+	Local		:	Field	:	AM_ORDVCHAmount			:	Set as			:	"Quotation Amount"
+	Local		:	Field	:	AM_QuoAmount			:	Set as			:	"Invoiced Amount"
+	Local		:	Field	:	AM_DeliverdPerc			:	Set as			:	"Invoiced (%)"
+	Local		:	Field	:	AM_DeliverdBalancePerc	:	Set as			:	"Balance (%)"
+	
+[!Line:AM_SalesFields]
+	Add				:	Right Field		:	AM_QuoAmount, AM_DeliverdPerc,AM_DeliverdBalancePerc
+	
+[!Line:AM_SalesTotal]
+	Use			:	AM_SalesFields
+	
+	Local		:	Field		:	AM_QuoAmount			:	Set as			:	$$Total:AM_QuoAmount
+	Local		:	Field		:	AM_DeliverdPerc			:	Set as			:	#AM_QuoAmount* 100 / #AM_ORDVCHAmount
+	
+[Field:AM_QuoAmount]
+	Use			:	AmountField
+	Set as		:	$InvAmount
+	Width		:	30 mms
+	Border		:	ThinLeft
+	
+[Field:AM_DeliverdPerc]
+
+	Use			:	NumberField
+	Set as		:	 #AM_QuoAmount* 100 / #AM_ORDVCHAmount
+	Width		:	25 mms
+	Border		:	ThinLeft
+	Align		:	Right
+	Format		:	"No Zero, Percentage"
+	
+[Field:AM_DeliverdBalancePerc]
+	
+	Use			:	NumberField
+	Set as		:	 100-#AM_DeliverdPerc
+	Width		:	25 mms
+	Border		:	ThinLeft
+	Align		:	Right
+	Format		:	"No Zero, Percentage"
+	

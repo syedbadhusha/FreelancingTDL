@@ -1,0 +1,143 @@
+
+
+
+;;;;;;;;;;;;;;;   Approval Status UDF	;;;;;;;;;;;
+
+[#Part: VCH Narration]
+	
+	Option	:	SB_AM_QuotStatus	:	@@SB_AM_VTYPQuotation_FRMLA
+
+[!Part:SB_AM_QuotStatus]
+	
+	Add	:	Line	:	AtBeginning	:	SB_AM_QuotStatus
+	
+[Line:SB_AM_QuotStatus]
+	
+	Field	:	Medium Prompt,SB_AM_QuotStatus
+	
+	Local	:	Field	:	Medium Prompt	:	Set as	:	"Quotation Approval Status"
+
+[Field:SB_AM_QuotStatus]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Storage	:	SB_AM_QuotStatus
+	Table	:	SB_AM_QuotStatusTbl
+	Show Table	:	Always
+	Set as	:	if $$InCreateMode then "Pending" else $SB_AM_QuotStatus
+	Read Only	:	Yes
+	
+[Collection:SB_AM_QuotStatusTbl]
+	
+	Title	:	"List Of Status"	
+	List	:	"Approved","Pending","Declined"
+
+;;;;;;;;;;;;;;;;;;;    Quotation List UDF In Job Order	;;;;;;;;;;;;
+
+[#Part: EI Consignee]
+	
+	Option	:	SB_AM_QuotInJobOrder		:	@@IssalesOrder and @@SB_AM_VTYPJobOrder_FRMLA
+	Option	:	SB_AM_JobOrderInSales		:	@@Issales
+	Option	:	SB_AM_Purchase				:	@@AM_IsPurchase
+	
+[!Part:SB_AM_QuotInJobOrder]
+		
+	Add	:	Line	:	After	:	EIConsignee	:	SB_AM_QuotInJobOrder
+	
+[Line:SB_AM_QuotInJobOrder]
+	
+	Field	:	Simple Prompt,SB_AM_QuotInJobOrder
+	
+	Local	:	Field	:	Simple Prompt	:	Set as	:	"Quotation No"
+	
+[Field:SB_AM_QuotInJobOrder]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Storage	:	SB_AM_QuotInJobOrder
+	Show Table	:	Always
+	Table	:	SB_AM_IsQuotCll,NotApplicable
+	
+[Collection:SB_AM_IsQuotCll]
+	
+	Title	:	"List Of Quotation"
+	Sub Title	:	"Quotations","Amount"
+	Type	:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSalesOrder
+	Belongs To	:	Yes
+	Filter	:	SB_AM_VTYPQuotation_FRMLA
+	Format	:	$VoucherNumber
+	Format	:	$Amount
+	Fetch	:	VoucherNumber,PartyLedgerName,SB_AM_QuotStatus
+
+	Filter	:	SB_AM_CustomerFilert
+	
+[System:Formula]
+	
+	SB_AM_CustomerFilert	:	#EIConsignee = $PartyLedgerName and $SB_AM_QuotStatus = "Approved"
+
+;;;;;;;;;;;;;;;   JobOrder In sales	;;;;;;;;;;;;;;
+
+[!Part:SB_AM_JobOrderInSales]
+		
+	Add	:	Line	:	After	:	EIConsignee	:	SB_AM_JobOrderInSales
+	
+[Line:SB_AM_JobOrderInSales]
+	
+	Field	:	Simple Prompt,SB_AM_JobOrderInSales,MediumPrompt,SB_AM_QuotInSales
+	
+	Local	:	Field	:	Simple Prompt	:	Set as	:	"Job Order No"
+	Local	:	Field	:	MediumPrompt	:	Set as	:	"Quotation"
+	Local	:	Field	:	MediumPrompt	:	Width	:	20 MMS
+
+[Field:SB_AM_JobOrderInSales]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Storage	:	SB_AM_JobOrderInSales
+	Show Table	:	Always
+	Table	:	SB_AM_IsJobOrderCll,NotApplicable
+	
+[Field:SB_AM_QuotInSales]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Set as	:	if $$IsNotApplicable:$SB_AM_JobOrderInSales then "" else $$Table:SB_AM_JobOrderInSales:$SB_AM_QuotInJobOrder
+	Storage	:	SB_AM_QuotInSales
+	Show Table	:	Always
+	Width	:	20 MMS
+	Read Only:Yes
+
+[Collection:SB_AM_IsJobOrderCll]
+	
+	Title	:	"List Of Job Order"
+	Sub Title	:	"Job Order","Amount","Quotations"
+	Type	:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSalesOrder
+	Belongs To	:	Yes
+	Filter	:	SB_AM_VTYPJobOrder_FRMLA
+	Format	:	$VoucherNumber
+	Format	:	$Amount
+	Format	:	$SB_AM_QuotInJobOrder
+	Fetch	:	VoucherNumber,PartyLedgerName
+
+	Filter	:	SB_AM_IsApprovalUserFltr
+	
+[System:Formula]
+	
+	SB_AM_IsApprovalUserFltr	:	#EIConsignee = $PartyLedgerName; and $SB_AM_QuotStatus = "Approved"
+	
+[!Part:SB_AM_Purchase]
+	Add	:	Line	:	After	:	EIConsignee	:	AM_VCHNatureOfTrans
+	
+[Line:AM_VCHNatureOfTrans]
+	Field		:	SimplePrompt, AM_VCHNatureOfTrans
+	
+	Local		:	Field		:	SimplePrompt		:	Set as		:	"Nature Of Transaction"
+	
+[Field:AM_VCHNatureOfTrans]
+	Use			:	NameField
+	Storage		:	AM_NatureOfTrans
+	Table		:	AM_CMPServices, NotApplicable
+	Show Table	:	Always
+	Key			:	AM_CreateService

@@ -1,0 +1,166 @@
+
+
+
+
+
+[Report:AM_VCHGlassDetails]
+	Title		:	"Glass Details"
+	Form		:	AM_VCHGlassDetails
+	
+[Form:AM_VCHGlassDetails]
+	Width		:	80 % Page
+	Height		:	80 % Page
+	
+	Space Left	:	5 mms
+	Space Right	:	5 mms
+	Space Bottom:	5 mms
+	
+	Part		:	FormSubtitle, AM_VCHGlassDetails
+	
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"Glass Details"
+	
+	On			:	Form Accept	:	Yes						:	Form Accept
+	On			:	Form Accept	:	@@isPurchase			:	Call	:	AM_SetQty
+	
+[Function:AM_SetQty]
+
+	Variable	:	Quantity, Rate, Amount		:	Number
+	
+	setQty		:	Set			:	Quantity	:	@@AM_GlassQty
+	setRate		:	Set			:	Rate		:	@@AM_GlassRate
+	setAMount	:	Set			:	Amount		:	@@AM_GlassRate;@@AM_GlassQty * @@AM_GlassRate
+	
+	copyInv		:	Call		:	AM_CopyInventory
+	
+;	setTarget	:	Set Target	:	BatchAllocations[1]
+;	CopyBatch	:	Call		:	AM_CopyInventory	
+;	1000		:	Set Value	:	BatchRate	:	$$AsRate:##Rate
+	
+	
+[Function:AM_CopyInventory]
+;	0001		:	Set Value	:	BilledQty	:	$$AsQty:##Quantity
+;	0002		:	Set Value	:	ActualQty	:	$$AsQty:##Quantity
+;	0003		:	Set Value	:	Rate		:	$$AsRate:##Rate
+	0004		:	Set Value	:	Amount		:	$$AsAmount:##Amount
+;	0005		:	Set Value	:	IsdeemedPositive		:	Yes
+	
+[Part:AM_VCHGlassDetails]
+	Border		:	ThinBox
+	
+	Line		:	AM_VCHGlassDetailsTitle, AM_VCHGlassDetails
+	Bottom Line	:	AM_VCHGlassDetailsTotal
+
+	Repeat		:	AM_VCHGlassDetails:AM_GlassDetails
+	
+	Float		:	No
+	CommonBorder:	Yes
+	Scroll		:	Vertical
+	
+	Break On	:	$$IsEmpty:$AM_Width
+	
+	Total		:	AM_VCHQty, AM_VCHSqm
+	
+[Line:AM_VCHGlassDetailsTitle]
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Border		:	ThinBottom
+	
+	Use			:	AM_VCHGlassDetails
+	
+	Local		:	Field		:	Default					:	Type			:	String
+	Local		:	Field		:	Default					:	Delete			:	Storage
+	Local		:	Field		:	Default					:	Delete			:	Inactive
+	Local		:	Field		:	Default					:	Align			:	Center
+	Local		:	Field		:	Default					:	Line			:	0
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Skip			:	Yes
+	
+	Local		:	Field		:	AM_CMPSNo				:	Set as			:	"S. No"
+	Local		:	Field		:	AM_VCHWidth				:	Set as			:	"Width"
+	Local		:	Field		:	AM_VCHHeight			:	Set as			:	"Height"
+	Local		:	Field		:	AM_VCHQty				:	Set as			:	"Qty"
+	Local		:	Field		:	AM_VCHSqm				:	Set as			:	"Sqm"
+	Local		:	Field		:	AM_VCHServices			:	Set as			:	"Services"
+	Local		:	Field		:	AM_VCHRemarks			:	Set as			:	"Remarks"
+	
+[Line:AM_VCHGlassDetails]
+	Field		:	AM_CMPSNo, AM_VCHWidth, AM_VCHHeight, AM_VCHQty, AM_VCHSqm, AM_VCHServices, AM_VCHRemarks
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+[Field:AM_VCHWidth]
+	Use			:	NumberField
+	Width		:	25 mms
+	Storage		:	AM_Width
+	Format		:	"NoZero, NoComma"
+	Border		:	ThinLeft
+	
+[Field:AM_VCHHeight]
+	Use			:	NumberField
+	Width		:	25 mms
+	Storage		:	AM_Height
+	Format		:	"NoZero, NoComma"
+	Border		:	ThinLeft
+	Validate	:	Not $$IsEmpty:$$Value
+	Inactive	:	$$IsEmpty:$AM_Width
+	
+[Field:AM_VCHQty]
+	Use			:	NumberField
+	Width		:	25 mms
+	Storage		:	AM_Qty
+	Format		:	"NoZero, NoComma"
+	Border		:	ThinLeft
+	Validate	:	Not $$IsEmpty:$$Value
+	Inactive	:	$$IsEmpty:$AM_Width
+	
+[Field:AM_VCHSqm]
+	Use			:	NumberField
+	Width		:	25 mms
+	Storage		:	AM_SQM
+	Set as		:	$AM_Width * $AM_Height * $AM_Qty / (1000 * 1000)
+	Set Always	:	Yes
+	Format		:	"NoZero, NoComma, Decimal:2"
+	Border		:	ThinLeft
+	Inactive	:	$$IsEmpty:$AM_Width
+	Skip		:	Yes
+	Invisible	:	Not @@isPurchase
+
+[Field:AM_VCHServices]
+	Use			:	NameField
+	Width		:	40 mms
+	Storage		:	AM_Services
+	Table		:	AM_CMPServices, NotApplicable
+	Show Table	:	Always
+	Border		:	ThinLeft
+	Inactive	:	$$IsEmpty:$AM_Width
+	Key			:	AM_CreateService
+	Invisible	:	Not @@isSalesOrder
+		
+[Field:AM_VCHRemarks]
+	Use			:	NameField
+	Full Width	:	Yes
+	Storage		:	AM_Remarks
+	Border		:	ThinLeft
+	Inactive	:	$$IsEmpty:$AM_Width
+	
+[Line:AM_VCHGlassDetailsTotal]
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Border		:	ThinTop
+	
+	Use			:	AM_VCHGlassDetails
+	
+	Local		:	Field		:	Default					:	Delete			:	Storage
+	Local		:	Field		:	Default					:	Delete			:	Inactive
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Skip			:	Yes
+	Local		:	Field		:	Default					:	Set as			:	""
+	
+	Local		:	Field		:	AM_VCHWidth				:	Set as			:	"Total"
+	Local		:	Field		:	AM_VCHWidth				:	Type			:	String
+	
+	Local		:	Field		:	AM_VCHQty				:	Set as			:	$$Total:AM_VCHQty
+	Local		:	Field		:	AM_VCHSqm				:	Set as			:	$$Total:AM_VCHSqm
+	

@@ -1,0 +1,234 @@
+
+
+
+
+[Report:SB_AM_QuotApproval]
+	
+	Form	:	SB_AM_QuotApproval
+	Family      : "Quotation Approval Report"	
+	Title	:	"Quotation Approval Report"
+	
+	Variable:SVCurrentCompany,SVFromDate,SVToDate,SVCurrentDate
+	
+[Form:SB_AM_QuotApproval]
+
+	Button		 : ChangePeriod,BTN_ChangeStatus
+    Part         :  SB_AM_QuotApprovalTop,SB_AM_QuotationAppMain
+	Page Break  : EXPINV PageBreak,SB_AM_QuotApprovalTop
+
+[Button:BTN_ChangeStatus]
+	
+	Key		:	ALT+A
+	Title	:	"Change Status"
+	Action:Execute:BTN_ChangeStatusRep
+	Inactive	:	Not $$SB_AM_AppUser
+	
+[Function:SB_AM_AppUser]
+	
+	Variable	:	SB_AM_AppUserVar	:	Logical
+	
+	100	:	Set	:	SB_AM_AppUserVar	:	if $$IsCmpOwner	then yes else ($$CollectionField:$SB_AM_IsApprovalUser:1:SB_AM_AppUserCll)
+
+	500	:	Return	:	##SB_AM_AppUserVar
+
+[Collection:SB_AM_AppUserCll]
+	
+	Type	:	UserList:Company
+	Child Of	:	$$CurrentCompany
+	Fetch	:	SB_AM_IsApprovalUser
+
+	Filter	:	SB_AM_AppUserFltr
+	
+[System:Formula]
+	
+	SB_AM_AppUserFltr	:	$$CmpUserName = $Name
+
+[Report:BTN_ChangeStatusRep]
+	
+	Use     : Collection Variable
+	Title	: $$LocaleString:"Change Selected Quotation Status"
+	Local   : Line : Collection Variable : Field : BTN_ChangeStatusRep
+	Local   : Field: MV Title            : Info  : $$LocaleString:"Change Status"
+	Local	:	Form	:	Default		 : On	:	Form Accept	:	Yes:Call:FN_Quot_ChangeStatus
+	
+[Field:BTN_ChangeStatusRep]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Table	:	SB_AM_QuotChngStatusTbl
+	Show Table	:	Always
+	Modifies	:	ChangeStatusRepVar	:	Yes
+	
+[System:Variable]
+	
+	ChangeStatusRepVar	:	""
+	
+[Variable:ChangeStatusRepVar]
+	
+	Type	:	String
+	
+[Collection:SB_AM_QuotChngStatusTbl]
+	
+	Title	:	"List Of Status"	
+	List	:	"Approved","Declined"
+	
+;;;;;;;;;;;;;  Chabge Status Function	;;;;;;;;;;
+
+[Function:FN_Quot_ChangeStatus]
+	
+	Variable	:	SVMasterId	:	String
+
+	100	:	Walk Collection	:	FN_Quot_ChangeStatuscll
+	150	:	Set	:	SVMasterId	:	$$SPrintf:@@VchMasterID:$MasterID
+	200	:	Modify Object	: (Voucher,##SVMasterId).SB_AM_QuotStatus[1].SB_AM_QuotStatus:##ChangeStatusRepVar	
+	300	:	End Walk
+	
+[Collection:FN_Quot_ChangeStatuscll]
+	
+	Data Source	:	Report	:	Selected
+	
+[Part:SB_AM_QuotApprovalTop]
+	
+	Part	:	SB_AM_QuotApprovalTop1,SB_AM_QuotApprovalTop2
+	Vertical	:	Yes
+		
+[Part:SB_AM_QuotApprovalTop1]
+	
+	Line	:	SB_AM_CMPName,SB_AM_CMPReporttit,SB_AM_CMPReportPeriod
+
+[Line:SB_AM_CMPName]
+	
+	Field	:	Name Field
+		
+	Local	:	Field	:	Name Field	:	Set as	:	@@CMPMailname
+	Local	:	Field	:	Name Field	:	Align	:	Center
+	Local	:	Field	:	Name Field	:	Full Width	:	Yes
+	Local	:	Field	:	Name Field	:	Style	:	Large Bold
+
+[Line:SB_AM_CMPReporttit]
+	
+	Field	:	Name Field
+		
+	Local	:	Field	:	Name Field	:	Set as	:	"QUOTATION APPROVAL"
+	Local	:	Field	:	Name Field	:	Align	:	Center
+	Local	:	Field	:	Name Field	:	Full Width	:	Yes
+	Local	:	Field	:	Name Field	:	Style	:	Large Bold
+	
+[Line:SB_AM_CMPReportPeriod]
+		
+	Field	:	Name Field
+
+	Local	:	Field	:	Name Field	:	Set as		:	@@DSPDateStr
+	Local	:	Field	:	Name Field	:	Align		:	Center
+	Local	:	Field	:	Name Field	:	Full Width	:	Yes
+	Local	:	Field	:	Name Field	:	Style		:	Small Bold
+
+[Part:SB_AM_QuotApprovalTop2]
+
+	Line	:	SM_AM_ContractDocReportTit
+	Float	:	No		
+	Background	:	Aquamarine
+	Local	:	Field	:	Default	:	Color	:	white
+	
+[Line:SM_AM_ContractDocReportTit]
+	
+	Height	:	7 MMS
+	
+	Field		:	SB_AM_QuotAppDate,SB_AM_QuotAppCustName,SB_AM_QuotAppNo,SB_AM_QuotAppAmount,SB_AM_QuotAppStatus
+	
+	Border	:	Thin top bottom
+
+	Local	:	Field	:	Default	:	Background	:	Aquamarine
+
+	Local	:	Field	:	Default	:	Type	:	String
+	Local	:	Field	:	Default	:	Style	:	Small Bold
+	
+	Local	:	Field	:	SB_AM_QuotAppDate			:	Set as	:	"Date"
+	Local	:	Field	:	SB_AM_QuotAppCustName		:	Set as	:	"Customer Name"
+	Local	:	Field	:	SB_AM_QuotAppNo				:	Set as	:	"Quotation No"
+	Local	:	Field	:	SB_AM_QuotAppAmount			:	Set as	:	"Quotation Amount"
+	Local	:	Field	:	SB_AM_QuotAppStatus			:	Set as	:	"Status"
+
+[Part:SB_AM_QuotationAppMain]
+	
+	Line	:	SB_AM_QuotationAppMain
+	Repeat	:	SB_AM_QuotationAppMain	:	SB_AM_QuotationAppMainCll
+	Scroll	:	Vertical
+	Float	:	No
+	Common Border	:	Yes
+	
+[Collection:SB_AM_QuotationAppMainCll]
+	
+	Type	:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSalesOrder
+	Belongs To	:	Yes
+	Fetch	:	VoucherTypeName,PartyLedgerName,MasterID,Amount,Date
+	Filter	:	SB_AM_VTYPQuotation_FRMLA
+	Filter	:	SB_AM_VTYPQuotation_Apprvd
+	
+[System:Formula]
+	
+	SB_AM_VTYPQuotation_Apprvd	:	$SB_AM_QuotStatus	!=	"Approved"
+
+[Line:SB_AM_QuotationAppMain]
+	
+	Field		:	SB_AM_QuotAppDate,SB_AM_QuotAppCustName,SB_AM_QuotAppNo,SB_AM_QuotMastrID,SB_AM_QuotAppAmount,SB_AM_QuotAppStatus
+	Option	:	AlterOnEnter	
+[Field:SB_AM_QuotAppDate]
+	
+	Use	:	Short Date field
+	Set Always	:	Yes
+	Set as	:	$Date
+	Width	:	 20 MMS
+	Style	:	Normal
+	
+[Field:SB_AM_QuotAppCustName]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Set as	:	$PartyLedgerName
+	Full Width	:	Yes
+	Style	:	Normal
+	Border	:	Thin Left
+	
+[Field:SB_AM_QuotMastrID]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Set as	:	$MasterId
+	Width	:	20 MMS
+	Style	:	Normal	
+	Alter	:	Voucher
+	Invisible	:	Yes
+		
+[Field:SB_AM_QuotAppNo]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Set as	:	$VoucherNumber
+	Width	:	50 MMS
+	Style	:	Normal
+	Border	:	Thin Left
+	
+[Field:SB_AM_QuotAppAmount]
+	
+	Use	:	Amount Field
+	Set Always	:	Yes
+	Set as	:	$Amount
+	Width	:	50 MMS
+	Style	:	Normal
+	Border	:	Thin Left
+	
+[Field:SB_AM_QuotAppStatus]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Set as	:	$SB_AM_QuotStatus
+	Width	:	50 MMS
+	Style	:	Normal	
+	Border	:	Thin Left
+	
+
+	
+	
+

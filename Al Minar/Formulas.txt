@@ -1,0 +1,30 @@
+<DefType:System:Formula>
+
+[System:Formula]
+	AM_IsPurchase		:	@@IsPurchase and @@SB_AM_VTYPPurcJobWork_FRMLA
+	AM_IsSalesOrder		:	@@IsSalesOrder and @@SB_AM_VTYPJobOrder_FRMLA
+	
+	AM_Rate				:	If $AM_SQM < .5 then 1 else $AM_SQM
+	AM_GlassRate		:	$$CollNumTotal:AM_GlassDetails:@@AM_Rate
+	
+	AM_GlassQty			:	$$CollNumTotal:AM_GlassDetails:$AM_Qty
+	
+	AM_HeaderPath		:	$AM_HeaderPath:Company:$$CurrentCompany
+	
+	AM_IsJobOrderTracked:	Not $$IsSysName:$SB_AM_JobOrderInSales
+	AM_IsQuotationTracked	:	Not $$IsSysName:$SB_AM_QuotInJobOrder
+	
+	AM_IsJOBWorkType	:	$SB_AM_VTYPJobOrder
+	AM_ISQuotationType	:	$SB_AM_VTYPQuotation
+	AM_IsJobPurcType	:	$SB_AM_VTYPPurcJobWork
+	
+	AM_JOSearchKey			:	$$Sprintf:"%s-%s":$PartyLedgerName:$VoucherNumber
+	AM_SalesSearchKey		:	$$Sprintf:"%s-%s":$PartyLedgerName:$SB_AM_JobOrderInSales
+	AM_QuotSearchKey		:	$$Sprintf:"%s-%s":$PartyLedgerName:$SB_AM_QuotInJobOrder
+	
+	AM_IsSameParty		:	If $$IsSysName:##JWLedgerName then Yes else $PartyLedgerName = ##JWLedgerName
+	AM_IsSameVCHType	:	If $$IsSysName:##VoucherTypeName then Yes else $VoucherTypeName = ##VoucherTypeName
+	AM_IsSameStatus		:	If $$IsSysName:##AM_TrackStatus then Yes else ##AM_TrackStatus = $TrackStatus
+	
+	AM_QuotFilterInsales	:	if $$IsEmpty:$SB_AM_QuotInSales then $SB_AM_JobOrderInSales = $$ReqObject:$VoucherNumber else $SB_AM_QuotInSales = $$ReqObject:$VoucherNumber
+	

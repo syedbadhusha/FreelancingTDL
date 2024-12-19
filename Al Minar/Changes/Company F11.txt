@@ -1,0 +1,40 @@
+[#Part: Company F11 Features Right]
+	Option		:	AM_IsCustomConfig		:	@@SB_AM_CmpEnable_FRMLA
+	
+[!Part:AM_IsCustomConfig]
+	Add			:	Part		:	Before	:	Company F11 Online Access	:	AM_CustomConfig
+	
+[Part:AM_CustomConfig]
+	Use			:	Cfg PartContent
+	
+	Space Top	:	@@CfgTitleSpaceBottom
+	
+	Line		:	Cfg PartTitle, SB_AM_CmpServices, AM_HeaderPath
+	
+	Local		:	Field		:	Default				:	Color		:	RoyalBlue
+	
+	Local		:	Field		:	Cfg PartTitle		:	Set as		:	"Order Processing Config"
+	Local		:	Field		:	Cfg PartTitle		:	Style		:	NormalBold
+	
+[Line:SB_AM_CmpServices]
+	Fields		:	Medium Prompt, SB_AM_CmpServices
+	
+	Local       :	Field 		:	Medium Prompt		:	Info		:	$$LocaleString:"Create Service Masters"
+	
+[Field:SB_AM_CmpServices]
+	Use			:	Logical Field
+	Set Always	:	Yes
+	Set as		:	No
+	Sub Form	:	AM_CreateService	:	$$Value
+	
+[Line:AM_HeaderPath]
+	Field		:	SimplePrompt, AM_HeaderPath
+	
+	Local		:	Field		:	SimplePrompt		:	Set as		:	"Header Path"
+	
+[Field:AM_HeaderPath]
+	Use			:	NameField
+	Storage		:	AM_HeaderPath
+	Full Width	:	Yes
+	Max			:	2500
+	Control		:	FiledonotExist		:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
