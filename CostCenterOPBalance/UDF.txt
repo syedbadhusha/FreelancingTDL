@@ -1,0 +1,9 @@
+
+
+
+[System:UDF]
+	
+	SB_CC_OP_Module						:	Logical			:	2000
+	SB_CC_OP_LedOpBalAg					:	Aggregate		:	2100
+	SB_CC_OP_LedCCName					:	String			:	2200
+	SB_CC_OP_LedOpAmnt					:	Amount			:	2300

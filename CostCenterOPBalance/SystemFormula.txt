@@ -1,0 +1,6 @@
+
+
+
+[System:Formula]
+	
+	SB_AM_CmpEnableFrmla	:	$SB_AM_CmpEnable:Company:$$CurrentCompany	

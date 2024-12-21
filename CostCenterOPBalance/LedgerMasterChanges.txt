@@ -1,0 +1,93 @@
+[#Field:LEDIsCostCentred]
+	
+	Option:	SB_CC_OP_LedOpBal	:	@@SB_AM_CmpEnableFrmla
+
+[!Field:SB_CC_OP_LedOpBal]
+	
+	Add	:	Sub Form	:	SB_CC_OP_LedOpBalSF	:	$$Value
+
+[Report:SB_CC_OP_LedOpBalSF]
+	
+	Form	:	SB_CC_OP_LedOpBalSF
+	
+[Form:SB_CC_OP_LedOpBalSF]
+	
+	Horizontal Align	:	Left
+	Vertical Align	:	Top
+	Width	:	150 MMS
+	
+	Part	:	FormSubTitle,SB_CC_OP_LedOpBalSF
+
+	Local	:	Part	:	FormSubTitle	:	Local	:	Line:FormSubTitle:Local:Field:FormSubTitle:Set as:"Cost center wise OP Breakup"
+
+[Part:SB_CC_OP_LedOpBalSF]
+	
+	Line	:	SB_CC_OP_LedOpTit,SB_CC_OP_LedOpBal
+	
+	Common Border	:	Yes
+	Repeat	:	SB_CC_OP_LedOpBal	:	SB_CC_OP_LedOpBalAg
+	Scroll	:	Vertical
+
+	Break On	:	$$IsEnd:$SB_CC_OP_LedCCName
+
+[Line:SB_CC_OP_LedOpTit]
+	
+	Field	:	SB_CC_OP_LedCCName,SB_CC_OP_LedOpAmnt,SB_CC_OP_LedOpDRCR
+	
+	Local	:	Field	:	Default	:	Type	:	String
+	Local	:	Field	:	Default	:	Style	:	Small Bold
+	Local	:	Field	:	Default	:	Align	:	Center
+	Local	:	Field	:	Default	:	Skip	:	Yes
+	
+	Local	:	Field	:	Default	:	Delete	:	Storage
+	Local	:	Field	:	Default	:	Delete	:	Inactive
+
+	Local	:	Field	:	SB_CC_OP_LedCCName	:	Set as	:	"Cost Center Name"
+	Local	:	Field	:	SB_CC_OP_LedOpAmnt	:	Set as	:	"Amount"
+	Local	:	Field	:	SB_CC_OP_LedOpDRCR	:	Set as	:	"DRCR"
+	Border	:	Thin Top Bottom
+
+[Line:SB_CC_OP_LedOpBal]
+	
+	Field	:	SB_CC_OP_LedCCName,SB_CC_OP_LedOpAmnt,SB_CC_OP_LedOpDRCR
+
+[Field:SB_CC_OP_LedCCName]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Table	:	SB_CC_OP_LedCCNameCll	:	$$Line=1
+	Table	:	SB_CC_OP_LedCCNameCll,EndOfList	:	$$Line!=1
+	Storage	:	SB_CC_OP_LedCCName	
+	Style	:	Normal
+	Full Width	:	Yes
+	Key	:	Create Costcentre
+	Show Table	:	Always
+	
+[Collection:SB_CC_OP_LedCCNameCll]
+	
+    Use     : Alias Collection
+    Title   : $$LocaleString:"List of Cost Centres"
+    Type    : Cost Centre
+    Format  : $CostOrEmployee, 15
+    Unique  : $Name
+	Fetch	: CostOrEmployee
+
+[Field:SB_CC_OP_LedOpAmnt]
+	
+	Use	:LED Opening
+	Set Always	:	Yes
+	Storage	:	SB_CC_OP_LedOpAmnt
+	Width	:	30 MMS
+	Style	:	Normal
+	Inactive	:	$$IsEnd:$SB_CC_OP_LedCCName
+	Format      : "AllSymbols,NoZero"
+	
+[Field:SB_CC_OP_LedOpDRCR]
+	
+	Use	:Amount DrCr Field
+	Set Always	:	Yes
+	Storage	:	SB_CC_OP_LedOpAmnt
+	Width	:	30 MMS
+	Style	:	Normal
+	Inactive	:	$$IsEnd:$SB_CC_OP_LedCCName
+	

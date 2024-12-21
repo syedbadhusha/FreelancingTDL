@@ -1,0 +1,28 @@
+
+
+
+
+[Include:UDF.txt]
+[Include:SystemFormula.txt]
+[Include:LedgerMasterChanges.txt]
+[Include:CCOpBalInAllReports.txt]
+
+
+;;;;;;;;;;;;;;  CMP UDF
+
+[#Part: CMP TallyShopFeatures Left]
+	
+	Add	:	Line	:	SB_CC_OP_Module
+	
+[Line:SB_CC_OP_Module]
+	
+	Field	:	Long Prompt,SB_CC_OP_Module
+	
+	Local	:	Field	:	Long Prompt : Set as	:	"Enable Cost Center Opening Balance"
+	
+[Field:SB_CC_OP_Module]
+	
+	Use	:	Logical Field
+	Set Always	:	Yes
+	Storage	:	SB_CC_OP_Module
+

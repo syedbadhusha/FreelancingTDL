@@ -1,0 +1,13 @@
+
+
+
+
+
+[#Field: DSP OpAmtA]
+	
+	FldValue	:	$$SB_CC_TotlaOpBalFn
+
+
+[Function:SB_CC_TotlaOpBalFn]
+	
+	100	:	Return	:	100
