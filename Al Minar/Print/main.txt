@@ -1,7 +1,0 @@
-<DefType:Include>
-
-[Include:Common Template.txt]
-
-[Include:Purchase.txt]
-
-[Include:Sales Order.txt]

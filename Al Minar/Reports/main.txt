@@ -1,9 +1,0 @@
-<DefType:Include>
-
-[Include:ServicesMasters.txt]
-
-[Include:StockItem Subform.txt]
-
-[Include:Order Tracking Template.txt]
-
-[Include:Job Order Tracking.txt]

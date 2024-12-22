@@ -6,8 +6,11 @@
 [#Field: DSP OpAmtA]
 	
 ;	FldValue	:	$$SB_CC_TotlaOpBalFn
+
 	FldValue	:	100
-	Set as	:	100
+	Add			:	Set as	:	100
+
 [Function:SB_CC_TotlaOpBalFn]
 	
 	100	:	Return	:	100
+	

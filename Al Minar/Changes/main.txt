@@ -1,5 +1,0 @@
-<DefType:Include>
-
-[Include:Company F11.txt]
-
-[Include:Vouchers.txt]
