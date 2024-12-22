@@ -1,0 +1,45 @@
+[Collection:CC_Ledgers]
+	Type		:	Ledgers
+	
+	Compute		:	CCName			:	$$LoopCollObj:$Name
+	Compute		:	CCClosing		:	$$BaseValue:$$CCClosing:$$LoopCollObj:$Name
+	Compute		:	CCClosingNum	:	If $$IsDr:@@CC_CCClosing then -$$Number:@@CC_CCClosing else $$Number:@@CC_CCClosing
+	
+	Fetch		:	Name, ClosingBalance
+	
+	Filter		:	AffectsCC, UsedOnly
+	
+;Select $Name, $Parent, $ClosingBalance from CC_Ledgers
+
+[Collection:CC_CostCentres]
+	Type		:	Costcentres
+	
+	Fetch		:	Name
+	
+	Filter		:	UsedOnly
+;Select $Name, $Parent, $ClosingBalance from CC_CostCentres
+
+[Collection:CC_LedgerCCs]
+	Collection	:	CC_Ledgers:CC_CostCentres
+	
+	Fetch		:	*
+	
+;Select $Name, $CCName, $ClosingBalance, $CCClosing from CC_LedgerCCs
+	
+[Collection:CC_LedCCs]
+	Source Collection	:	CC_LedgerCCs
+	
+	Fetch		:	*
+	
+	Filter		:	NotEmptyCCClosing
+	
+	Sort		:	@@Default		:	$Name, $CCName
+	
+;Select $Name, $CCName, $ClosingBalance, $CCClosing, $CCClosingNum from CC_LedCCs
+
+[Collection:CC_ExcelSrc]
+	ODBC		:	"Driver={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};DBQ=" + ##CC_ImportPath
+    SQL			:	"Select * From [Sheet1$]"
+	Fetch		:	*.*
+    Client Only	:	Yes
+	

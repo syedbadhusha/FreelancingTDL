@@ -1,0 +1,35 @@
+[Report:CC_CCImport]
+	Title		:	"Cost Centre Import"
+		
+	Use			:	ModifyVariables
+	
+	Local		:	Form		:	Default				:	Option		:	CC_CCImport
+	Local		:	Field		:	MVTitle				:	Set as		:	"Cost Centre Import"
+	
+	Local		:	Part		:	ModifyVariables		:	Line		:	CC_ImportPath
+
+[!Form:CC_CCImport]
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	Yes		:	Call	:	CC_CCImport
+
+[Function:CC_CCImport]
+	000			:	Return
+	
+[Line:CC_ImportPath]
+	Field		:	MediumPrompt, CC_ImportPath
+	
+	Local		:	Field		:	MediumPrompt		:	Set as		:	"Excel Path"
+	
+[Field:CC_ImportPath]
+	Use			:	NameField
+	Width		:	50 % Page
+	Modifies	:	CC_ImportPath
+	Control		:	FileNotExist		:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
+	Control		:	CC_SelectExcelFile	:	Not $$IsEmpty:$$Value and not @@CC_ExcelFileType
+	
+[Variable:CC_ImportPath]
+	Type		:	String
+	Volatile	:	Yes
+	
+[System:Variable]
+	CC_ImportPath				:	""

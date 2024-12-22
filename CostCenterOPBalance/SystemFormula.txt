@@ -3,4 +3,12 @@
 
 [System:Formula]
 	
-	SB_AM_CmpEnableFrmla	:	$SB_AM_CmpEnable:Company:$$CurrentCompany	
+	SB_AM_CmpEnableFrmla	:	$SB_CC_OP_Module:Company:$$CurrentCompany	
+	
+	UsedOnly				:	Not $$CanDelete
+	NotEmptyCCClosing		:	Not $$IsEmpty:$CCClosing
+	CC_CCClosing			:	$$TgtObject:$CCClosing
+	
+	CC_ExcelFileType		:	$$Value Ending With "xls" or $$Value Ending with "xlsx" or $$Value Ending with "xlsm" or $$Value Ending With "xlsb"
+	
+	CC_SelectExcelFile		:	"Only Excel file type is allowed"
