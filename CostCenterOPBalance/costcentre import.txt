@@ -1,0 +1,100 @@
+[Report:CC_CCImport]
+	Title		:	"Cost Centre Import"
+		
+	Use			:	ModifyVariables
+	
+	Local		:	Form		:	Default				:	Option		:	CC_CCImport
+	Local		:	Field		:	MVTitle				:	Set as		:	"Cost Centre Import"
+	
+	Local		:	Part		:	ModifyVariables		:	Line		:	CC_ImportPath
+
+[!Form:CC_CCImport]
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	Yes		:	Call	:	CC_CCImport
+
+[Function:CC_CCImport]
+	Variable	:	NumLedgers		:	Number
+	
+	setNumLeds	:	Set				:	NumLedgers			:	$$NumItems:CC_CCLedgers
+	
+	ifEmpLed	:	If				:	($$IsEmpty:##NumLedgers)
+	empMsg		:	Msg Box			:	"Error!!!"			:	"Ledgers not found"
+	retIf		:	Return
+	endEmpLed	:	End If
+	
+	srtBatch	:	Start Batch Post:	If ##NumLedgers < 500 then 100 else (##NumLedgers / 5)
+	srtPrg		:	Start Progress	:	##NumLedgers		:	$$CurrentCompany		:	"Importing Cost centre openings"	:	"Please wait"
+	wlkLedMain	:	Walk Collection	:	CC_CCLedgers
+	
+	shwprg		:	Show Progress	:	##NumLedgers
+	decNumLedger:	Decrement		:	NumLedgers
+
+	ifLedNotFnd	:	If				:	$$IsEmpty:$Name:Ledger:$LedgerName
+	LgNameNotFnd:	Log				:	$$Sprintf:"Ledger: %s not found":$LedgerName
+	cntNamNotFnd:	Continue
+	endLedNotFnd:	End If
+	
+	DoIfEmpNumCC:	Do If			:	($$IsEmptyCollection:CC_CCNames)				:	Continue
+	
+	NwObject	:	New Object		:	Ledger				:	$LedgerName
+	
+	setVIsCCOn	:	Set Value		:	IsCostCentresOn		:	Yes
+	
+	dltCCcll	:	Call			:	CC_DeleteCollections
+	
+	WlkLedCC	:	Walk Collection	:	CC_CCNames
+	
+	InsLedCC	:	Insert Collection Object				:	SB_CC_OP_LedOpBalAg
+	setVCCName	:	Set Value		:	SB_CC_OP_LedCCName	:	$CCName
+	setVCCAmount:	Set Value		:	SB_CC_OP_LedOpAmnt	:	$Amount
+	setTgtRoot	:	Set Target		:	..
+	
+	endWlkLedCC	:	End Walk
+	
+	svObject	:	Save Target
+	
+	endWlkMain	:	End Walk
+	
+	endPrg		:	End Progress
+	endBatch	:	End Batch Post
+	
+[Function:CC_DeleteCollections]
+	Parameter	:	requiredItems	:	Number		:	0
+	
+	Variable	:	totalItems		:	Number
+	
+	Return		:	Number
+	
+	setTotal	:	Set				:	totalItems	:	$$TgtObject:$$NumItems:SB_CC_OP_LedOpBalAg
+	
+	iftotal		:	If				:	##totalItems > ##requiredItems
+	
+		while	:	While			:	##totalItems != ##requiredItems
+		
+			01	:	Delete Collection Object		:	SB_CC_OP_LedOpBalAg		:	##totalItems	:	Yes
+			10	:	Decr			:	totalItems
+			
+		endWhile:	End While
+	
+	endtotal	:	End If
+	
+	retTotal	:	Return			:	##totalItems
+	
+[Line:CC_ImportPath]
+	Field		:	MediumPrompt, CC_ImportPath
+	
+	Local		:	Field		:	MediumPrompt		:	Set as		:	"Excel Path"
+	
+[Field:CC_ImportPath]
+	Use			:	NameField
+	Width		:	50 % Page
+	Modifies	:	CC_ImportPath
+	Control		:	FileNotExist		:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
+	Control		:	CC_SelectExcelFile	:	Not $$IsEmpty:$$Value and not @@CC_ExcelFileType
+	
+[Variable:CC_ImportPath]
+	Type		:	String
+	Volatile	:	Yes
+	
+[System:Variable]
+	CC_ImportPath				:	""
