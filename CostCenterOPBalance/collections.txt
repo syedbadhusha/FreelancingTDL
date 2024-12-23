@@ -39,7 +39,29 @@
 
 [Collection:CC_ExcelSrc]
 	ODBC		:	"Driver={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};DBQ=" + ##CC_ImportPath
-    SQL			:	"Select * From [Sheet1$]"
+    SQL			:	"Select * From [Cost Centre Closing$]"
+
 	Fetch		:	*.*
-    Client Only	:	Yes
 	
+    Client Only	:	Yes
+	Keep Source	:	().
+	
+	Filter		:	CC_NotIsEmpty123
+	
+[Collection:CC_CCLedgers]
+	Source Collection		:	CC_ExcelSrc
+	
+	By			:	LedgerName		:	$_1
+	
+	Aggr Compute:	Amount			:	Sum		:	$$AsAmount:$_3
+	
+	Client Only	:	Yes
+	Keep Source	:	().
+	
+[Collection:CC_CCNames]
+	Use			:	CC_CCLedgers
+	
+	By			:	CCName			:	$_2
+	
+	Filter		:	CC_IsSameLedger
+

@@ -12,3 +12,6 @@
 	CC_ExcelFileType		:	$$Value Ending With "xls" or $$Value Ending with "xlsx" or $$Value Ending with "xlsm" or $$Value Ending With "xlsb"
 	
 	CC_SelectExcelFile		:	"Only Excel file type is allowed"
+	
+	CC_NotIsEmpty123		:	Not ($$IsEmpty:$_1 or $$IsEmpty:$_2 or $$IsEmpty:$_3)
+	CC_IsSameLedger			:	$LedgerName = $$ReqObject:$LedgerName

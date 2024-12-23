@@ -92,7 +92,9 @@
 	Border		:	ThinLeft
 	
 [Field:CC_Closing]
-	Use			:	NumberField
-	Set as		:	$CCClosingNum
+	Use			:	NameField
+	Set as		:	$$String:$CCClosing:"DrCr"
 	Full Width	:	Yes
 	Border		:	ThinLeft
+	Align		:	Right
+	
