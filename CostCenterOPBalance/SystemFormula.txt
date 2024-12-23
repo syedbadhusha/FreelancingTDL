@@ -3,4 +3,5 @@
 
 [System:Formula]
 	
-	SB_AM_CmpEnableFrmla	:	$SB_AM_CmpEnable:Company:$$CurrentCompany	
+	SB_AM_CmpEnableFrmla	:	$SB_CC_OP_Module:Company:$$CurrentCompany	
+	SB_CC_CCName			:	$SB_CC_OP_LedCCName = $$ReqObject:$name

@@ -2,15 +2,42 @@
 
 
 
-
-[#Field: DSP OpAmtA]
+;[#Collection: CostCentreChildOfCCName]
+;	
+;	Delete	:	Filter
+[#Line: DSP AccLine]
 	
-;	FldValue	:	$$SB_CC_TotlaOpBalFn
+	Delete	:	Empty
 
-	FldValue	:	100
-	Add			:	Set as	:	100
+[#Object: Cost Centre]
+	
+	
+	SB_CC_OpenBal					:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenBal else ""
 
-[Function:SB_CC_TotlaOpBalFn]
+	DirectTBalOpening				: If ##IsCCBkUp then $$AsPositive:$DirectBkOpening + $SB_CC_OpenBal else $$AsPositive:$DirectOpeningBalance + $SB_CC_OpenBal
+	TBalOpeningTotals				: If ##IsCCBkUp then $$AsPositive:$BkOpeningTotals + $SB_CC_OpenBal else $$AsPositive:$OpeningBalance + $SB_CC_OpenBal
+
+	DirectTBalClosing				: If ##IsCCBkUp then $$AsPositive:$DirectBkClosing + $SB_CC_OpenBal else $$AsPositive:$DirectClosingBalance  + $SB_CC_OpenBal
+	TBalClosingTotals				: If ##IsCCBkUp then $$AsPositive:$BkClosingTotals +$SB_CC_OpenBal else $$AsPositive:$ClosingBalance+$SB_CC_OpenBal
+
+;[#Field: DSP OpAmtA]
+;
+;	FldValue	:	if ##SVVariance then @@VarOpValue + $SB_CC_OpenBal else @@OpValue + $SB_CC_OpenBal
+
+[Function:SB_CC_OpenBal]
 	
-	100	:	Return	:	100
+	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CC_CCName:$SB_CC_OP_LedOpAmnt
 	
+
+[Collection:SB_CC_OpWithOpBreakCll]
+	
+	Source Collection	:	SB_CC_OpWithOpBreakSrc
+	Walk	:	SB_CC_OP_LedOpBalAg
+	Fetch	:	SB_CC_OP_LedOpBalAg.*,SB_CC_OP_LedCCName,SB_CC_OP_LedOpAmnt,Name
+	
+[Collection:SB_CC_OpWithOpBreakSrc]
+	
+	Type	:	Ledger	
+
+;;;; select $Name,$SB_CC_OP_LedCCName,$SB_CC_OP_LedOpAmnt from SB_CC_OpWithOpBreakCll
+
