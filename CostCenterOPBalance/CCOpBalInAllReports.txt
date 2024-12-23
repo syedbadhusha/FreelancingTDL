@@ -5,6 +5,7 @@
 ;[#Collection: CostCentreChildOfCCName]
 ;	
 ;	Delete	:	Filter
+
 [#Line: DSP AccLine]
 	
 	Delete	:	Empty
@@ -12,7 +13,7 @@
 [#Object: Cost Centre]
 	
 	
-	SB_CC_OpenBal					:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenBal else ""
+	SB_CC_OpenBal					:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
 
 	DirectTBalOpening				: If ##IsCCBkUp then $$AsPositive:$DirectBkOpening + $SB_CC_OpenBal else $$AsPositive:$DirectOpeningBalance + $SB_CC_OpenBal
 	TBalOpeningTotals				: If ##IsCCBkUp then $$AsPositive:$BkOpeningTotals + $SB_CC_OpenBal else $$AsPositive:$OpeningBalance + $SB_CC_OpenBal

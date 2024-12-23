@@ -4,9 +4,9 @@
 [System:Formula]
 	
 	SB_AM_CmpEnableFrmla	:	$SB_CC_OP_Module:Company:$$CurrentCompany	
-<<<<<<< HEAD
+;;;<<<<<<< HEAD
 	SB_CC_CCName			:	$SB_CC_OP_LedCCName = $$ReqObject:$name
-=======
+;;;=======
 	
 	UsedOnly				:	Not $$CanDelete
 	NotEmptyCCClosing		:	Not $$IsEmpty:$CCClosing
@@ -18,4 +18,4 @@
 	
 	CC_NotIsEmpty123		:	Not ($$IsEmpty:$_1 or $$IsEmpty:$_2 or $$IsEmpty:$_3)
 	CC_IsSameLedger			:	$LedgerName = $$ReqObject:$LedgerName
->>>>>>> 24efcd5a26c913ac7fca596a3f06030092bbec7e
+;;;; >>>>>>> 24efcd5a26c913ac7fca596a3f06030092bbec7e
