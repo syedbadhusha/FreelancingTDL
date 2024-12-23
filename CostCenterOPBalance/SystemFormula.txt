@@ -4,13 +4,19 @@
 [System:Formula]
 	
 	SB_AM_CmpEnableFrmla	:	$SB_CC_OP_Module:Company:$$CurrentCompany	
-;;;<<<<<<< HEAD
+
+;;;<<<<<<< CC Filter
+
 	SB_CC_CCName			:	$SB_CC_OP_LedCCName = $$ReqObject:$name
+	SB_CCG_CCName			:	$$IsLedOfGrp:$Name:$$ReqObject:$Name and #CostCentreName = $SB_CC_OP_LedCCName
+	SB_CCL_CCName			:	#CostCentreName = $SB_CC_OP_LedCCName and $Name = $$ReqObject:$Name
+	SB_CCCstCat_CCName		:	$$ReqObject:$Name = $Category:CostCentre:$SB_CC_OP_LedCCName
+
 ;;;=======
 	
 	UsedOnly				:	Not $$CanDelete
 	NotEmptyCCClosing		:	Not $$IsEmpty:$CCClosing
-	CC_CCClosing			:	$$TgtObject:$CCClosing
+	CC_CCClosing			:	$$TgtObject:$CCClosing 
 	
 	CC_ExcelFileType		:	$$Value Ending With "xls" or $$Value Ending with "xlsx" or $$Value Ending with "xlsm" or $$Value Ending With "xlsb"
 	

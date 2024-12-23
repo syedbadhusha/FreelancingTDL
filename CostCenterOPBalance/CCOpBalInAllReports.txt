@@ -2,24 +2,50 @@
 
 
 
-;[#Collection: CostCentreChildOfCCName]
-;	
-;	Delete	:	Filter
-
-[#Line: DSP AccLine]
+[#Object: Ledger]
 	
-	Delete	:	Empty
+	SB_CCL_OpenBal			:	if @@SB_AM_CmpEnableFrmla then $$SB_CCL_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
+
+	TBalOpening         	: if ##IsCCBkup then $$NettAmount:($$AsPositive:$$CCOpening:#CostCentreName):$SB_CCL_OpenBal else $$AsPositive:$ForexOpeningBalance
+
+
+    TBalClosing         	: if ##IsCCBkup then $$NettAmount:($$AsPositive:$$CCClosing:#CostCentreName):$SB_CCL_OpenBal else +
+							  if $$IsStockLedger then $$AsPositive:$OpeningBalance else +
+							  if $$IsLedgerProfit then $$AsPositive:$$AmountSubtract:$ClosingBalance:@@BSClosingProfit else +
+							  $$AsPositive:$ForexClosingBalance
+
+[#Object: Group]
+
+	SB_CCG_OpenBal			:	if @@SB_AM_CmpEnableFrmla then $$SB_CCG_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
+
+	TBalOpening         	: if ##IsCCBkup then $$NettAmount:($$CollAmtTotal:GetCCOpAmt:$CCGRPOpening):$SB_CCG_OpenBal else $$AsPositive:$OpeningBalance	
+
+	TBalClosing         	: if ##IsCCBkup then $$NettAmount:($$CollAmtTotal:GetCCAmt:$CCGrpClosing):$SB_CCG_OpenBal else +
+							if $$IsGroupStock then @@BSOpeningStock else +
+							if $$IsGroupCurrentAssets then $$AsPositive:$$AmountSubtract:$ClosingBalance:$$AmountSubtract:@@BSClosingStock:@@BSOpeningStock else +
+							$$AsPositive:$ClosingBalance
+							
+
+[#Object: Cost Category]
+
+	SB_CCCstCat_OpenBal			:	if @@SB_AM_CmpEnableFrmla then $$SB_CCCstCat_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
+
+    TBalClosing         : if ##IsCCBkup then $$NettAmount:($$AsPositive:$BkClosing):$SB_CCCstCat_OpenBal else +
+                          $$NettAmount:($$AsPositive:$ClosingBalance):$SB_CCCstCat_OpenBal
+    TBalOpening         : if ##IsCCBkup then $$NettAmount:($$AsPositive:$BkOpening):$SB_CCCstCat_OpenBal else +
+                          $$NettAmount:($$AsPositive:$OpeningBalance):$SB_CCCstCat_OpenBal
+
 
 [#Object: Cost Centre]
 	
 	
 	SB_CC_OpenBal					:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
 
-	DirectTBalOpening				: If ##IsCCBkUp then $$AsPositive:$DirectBkOpening + $SB_CC_OpenBal else $$AsPositive:$DirectOpeningBalance + $SB_CC_OpenBal
-	TBalOpeningTotals				: If ##IsCCBkUp then $$AsPositive:$BkOpeningTotals + $SB_CC_OpenBal else $$AsPositive:$OpeningBalance + $SB_CC_OpenBal
+	DirectTBalOpening				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$DirectBkOpening):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$DirectOpeningBalance):$SB_CC_OpenBal
+	TBalOpeningTotals				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$BkOpeningTotals):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$OpeningBalance):$SB_CC_OpenBal
 
-	DirectTBalClosing				: If ##IsCCBkUp then $$AsPositive:$DirectBkClosing + $SB_CC_OpenBal else $$AsPositive:$DirectClosingBalance  + $SB_CC_OpenBal
-	TBalClosingTotals				: If ##IsCCBkUp then $$AsPositive:$BkClosingTotals +$SB_CC_OpenBal else $$AsPositive:$ClosingBalance+$SB_CC_OpenBal
+	DirectTBalClosing				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$DirectBkClosing):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$DirectClosingBalance):$SB_CC_OpenBal
+	TBalClosingTotals				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$BkClosingTotals):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$ClosingBalance):$SB_CC_OpenBal
 
 ;[#Field: DSP OpAmtA]
 ;
@@ -29,6 +55,17 @@
 	
 	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CC_CCName:$SB_CC_OP_LedOpAmnt
 	
+[Function:SB_CCG_OpenBal]
+	
+	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCG_CCName:$SB_CC_OP_LedOpAmnt
+
+[Function:SB_CCL_OpenBal]
+	
+	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCL_CCName:$SB_CC_OP_LedOpAmnt
+
+[Function:SB_CCCstCat_OpenBal]
+	
+	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCCstCat_CCName:$SB_CC_OP_LedOpAmnt
 
 [Collection:SB_CC_OpWithOpBreakCll]
 	
