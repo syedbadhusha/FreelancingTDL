@@ -8,7 +8,6 @@
 
 	TBalOpening         	: if ##IsCCBkup then $$NettAmount:($$AsPositive:$$CCOpening:#CostCentreName):$SB_CCL_OpenBal else $$AsPositive:$ForexOpeningBalance
 
-
     TBalClosing         	: if ##IsCCBkup then $$NettAmount:($$AsPositive:$$CCClosing:#CostCentreName):$SB_CCL_OpenBal else +
 							  if $$IsStockLedger then $$AsPositive:$OpeningBalance else +
 							  if $$IsLedgerProfit then $$AsPositive:$$AmountSubtract:$ClosingBalance:@@BSClosingProfit else +
@@ -29,32 +28,37 @@
 [#Object: Cost Category]
 
 	SB_CCCstCat_OpenBal			:	if @@SB_AM_CmpEnableFrmla then $$SB_CCCstCat_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
-
-    TBalClosing         : if ##IsCCBkup then $$NettAmount:($$AsPositive:$BkClosing):$SB_CCCstCat_OpenBal else +
+	SB_CCCstCat_OpenWithLedBal	:	if @@SB_AM_CmpEnableFrmla then $$SB_CCCstCat_OpenWithLedBal else ""
+	
+    TBalClosing         : if ##IsCCBkup then $$NettAmount:($$AsPositive:$BkClosing):$SB_CCCstCat_OpenWithLedBal else +
                           $$NettAmount:($$AsPositive:$ClosingBalance):$SB_CCCstCat_OpenBal
-    TBalOpening         : if ##IsCCBkup then $$NettAmount:($$AsPositive:$BkOpening):$SB_CCCstCat_OpenBal else +
+    TBalOpening         : if ##IsCCBkup then $$NettAmount:($$AsPositive:$BkOpening):$SB_CCCstCat_OpenWithLedBal else +
                           $$NettAmount:($$AsPositive:$OpeningBalance):$SB_CCCstCat_OpenBal
 
 
 [#Object: Cost Centre]
 	
 	
-	SB_CC_OpenBal					:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenBal else "" ;:#LedgerName:#GroupName:"Yes" 
+	SB_CC_OpenBal					:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenBal else ""
 
-	DirectTBalOpening				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$DirectBkOpening):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$DirectOpeningBalance):$SB_CC_OpenBal
-	TBalOpeningTotals				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$BkOpeningTotals):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$OpeningBalance):$SB_CC_OpenBal
+	SB_CC_OpenCCWithLedBal			:	if @@SB_AM_CmpEnableFrmla then $$SB_CC_OpenCCWithLedBal else "" 
 
-	DirectTBalClosing				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$DirectBkClosing):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$DirectClosingBalance):$SB_CC_OpenBal
-	TBalClosingTotals				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$BkClosingTotals):$SB_CC_OpenBal else $$NettAmount:($$AsPositive:$ClosingBalance):$SB_CC_OpenBal
+	DirectTBalOpening				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$DirectBkOpening):$SB_CC_OpenCCWithLedBal else $$NettAmount:($$AsPositive:$DirectOpeningBalance):$SB_CC_OpenBal
 
-;[#Field: DSP OpAmtA]
-;
-;	FldValue	:	if ##SVVariance then @@VarOpValue + $SB_CC_OpenBal else @@OpValue + $SB_CC_OpenBal
+	DirectTBalClosing				: If ##IsCCBkUp then $$NettAmount:($$AsPositive:$DirectBkClosing):$SB_CC_OpenCCWithLedBal else $$NettAmount:($$AsPositive:$DirectClosingBalance):$SB_CC_OpenBal
 
+[Function:SB_CC_OpenCCWithLedBal]
+	
+	0001	:	If:##IsLedBkup
+	1000	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CC_OpenCCWithLedBal:$SB_CC_OP_LedOpAmnt
+	2000	:	Else
+	3000	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CC_OpenCCWithGrpBal:$SB_CC_OP_LedOpAmnt
+	4000	:	End If
+	
 [Function:SB_CC_OpenBal]
 	
-	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CC_CCName:$SB_CC_OP_LedOpAmnt
-	
+	1000	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CC_CCName:$SB_CC_OP_LedOpAmnt
+
 [Function:SB_CCG_OpenBal]
 	
 	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCG_CCName:$SB_CC_OP_LedOpAmnt
@@ -62,6 +66,15 @@
 [Function:SB_CCL_OpenBal]
 	
 	100	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCL_CCName:$SB_CC_OP_LedOpAmnt
+
+[Function:SB_CCCstCat_OpenWithLedBal]
+	
+	0001	:	If:##IsLedBkup
+	1000	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCCstCat_CCNameWithLed:$SB_CC_OP_LedOpAmnt
+	2000	:	Else
+	3000	:	Return	:	$$ReportObject:$$FilterAmtTotal:SB_CC_OpWithOpBreakCll:SB_CCCstCat_CCNameWithGrp:$SB_CC_OP_LedOpAmnt
+	4000	:	End If
+	
 
 [Function:SB_CCCstCat_OpenBal]
 	

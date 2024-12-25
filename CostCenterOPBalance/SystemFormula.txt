@@ -11,6 +11,11 @@
 	SB_CCG_CCName			:	$$IsLedOfGrp:$Name:$$ReqObject:$Name and #CostCentreName = $SB_CC_OP_LedCCName
 	SB_CCL_CCName			:	#CostCentreName = $SB_CC_OP_LedCCName and $Name = $$ReqObject:$Name
 	SB_CCCstCat_CCName		:	$$ReqObject:$Name = $Category:CostCentre:$SB_CC_OP_LedCCName
+	SB_CC_OpenCCWithLedBal	:	$SB_CC_OP_LedCCName = $$ReqObject:$name and $Name = ##LedgerName 
+	SB_CC_OpenCCWithGrpBal	:	$SB_CC_OP_LedCCName = $$ReqObject:$name and $$IsLedOfGrp:$Name:##LedgerName 
+
+	SB_CCCstCat_CCNameWithLed	:	$$ReqObject:$Name = $Category:CostCentre:$SB_CC_OP_LedCCName and $Name = ##LedgerName 
+	SB_CCCstCat_CCNameWithGrp	:	$$ReqObject:$Name = $Category:CostCentre:$SB_CC_OP_LedCCName and $$IsLedOfGrp:$Name:##LedgerName 
 
 ;;;=======
 	
