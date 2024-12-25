@@ -92,9 +92,10 @@
 	Border		:	ThinLeft
 	
 [Field:CC_Closing]
-	Use			:	NameField
-	Set as		:	$$String:$CCClosing:"DrCr"
+	Use			:	AmountField
+	Set as		:	$$AmountAdd:$CCClosing:$CCOpening
 	Full Width	:	Yes
 	Border		:	ThinLeft
 	Align		:	Right
+	Format		:	"DrCr"
 	

@@ -34,6 +34,8 @@
 	
 	Filter		:	NotEmptyCCClosing
 	
+	Compute		:	CCOpening		:	$$CollectionFieldByKey:$Amount:@@CC_CCSearchKey:CC_LedOpeningCC
+	
 	Sort		:	@@Default		:	$Name, $CCName
 	
 ;Select $Name, $CCName, $ClosingBalance, $CCClosing, $CCClosingNum from CC_LedCCs
@@ -66,3 +68,15 @@
 	
 	Filter		:	CC_IsSameLedger
 
+[Collection:CC_LedOpeningCC]
+	Source Collection		:	CC_Ledgers
+
+	Walk		:	SB_CC_OP_LedOpBalAg
+	
+	By			:	Name	:	$Name
+	By			:	CCName	:	$SB_CC_OP_LedCCName
+	Aggr Compute:	Amount	:	Sum		:	$SB_CC_OP_LedOpAmnt
+	
+	Search Key	:	$$Sprintf:"%s-%s":$Name:$CCName
+	
+;Select $Name, $CCName, $Amount from CC_LedOpeningCC

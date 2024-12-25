@@ -25,3 +25,5 @@
 	CC_NotIsEmpty123		:	Not ($$IsEmpty:$_1 or $$IsEmpty:$_2 or $$IsEmpty:$_3)
 	CC_IsSameLedger			:	$LedgerName = $$ReqObject:$LedgerName
 ;;;; >>>>>>> 24efcd5a26c913ac7fca596a3f06030092bbec7e
+
+	CC_CCSearchKey			:	$$Sprintf:"%s-%s":$Name:$CCName
