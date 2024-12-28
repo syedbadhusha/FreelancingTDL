@@ -1,0 +1,4 @@
+<DefType:System:UDF>
+
+[System:UDF]
+	FP_IsCashVtyp			:	Logical			:	0010

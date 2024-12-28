@@ -1,0 +1,25 @@
+[#Part:VTYP Behaviour]
+	Add			:	Line		:	FP_VTYPConfig
+	
+[Line:FP_VTYPConfig]
+	Field		:	MediumPrompt
+	
+	Explode		:	FP_IsCashVtyp	:	$$IsSales:$Parent or $$IsPurchase:$Parent
+	
+[Part:FP_IsCashVtyp]
+	Line		:	FP_IsCashVtyp
+
+	Local		:	Line		:	Default					:	Space Bottom	:	@@VchTypeSpaceBottom
+	Local		:	Line		:	Default					:	Space Top		:	@@VchTypeSpaceTop
+	
+	Local		:	Field		:	Default					:	Color			:	RoyalBlue
+	Local		:	Field		:	Long Prompt				:	Width			:	@@LongWidth + 5
+
+[Line:FP_IsCashVtyp]
+	Field		:	LongPrompt, FP_IsCashVtyp
+	
+	Local		:	Field		:	Long Prompt				:	Set as			:	"Is Cash Voucher Type?"
+	
+[Field:FP_IsCashVtyp]
+	Use			:	LogicalField
+	Storage		:	FP_IsCashVtyp

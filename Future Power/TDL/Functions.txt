@@ -1,0 +1,7 @@
+[Function:FP_UpdateTracking]
+	Parameter	:	TrackingNo	:	String
+	
+	wlkInv		:	Walk Collection			:	InventoryEntries
+	setTgt		:	Set Target	:	InventoryEntries[$$LoopIndex]
+	setVTracking:	Set Value	:	Tracking Number		:	##TrackingNo
+	endWlk		:	End Walk
