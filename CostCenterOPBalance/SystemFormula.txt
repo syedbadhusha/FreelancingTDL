@@ -22,6 +22,7 @@
 	UsedOnly				:	Not $$CanDelete
 	NotEmptyCCClosing		:	Not $$IsEmpty:$CCClosing
 	CC_CCClosing			:	$$TgtObject:$CCClosing 
+	SelectedGroup			:	##GroupName = $Parent
 	
 	CC_ExcelFileType		:	$$Value Ending With "xls" or $$Value Ending with "xlsx" or $$Value Ending with "xlsm" or $$Value Ending With "xlsb"
 	

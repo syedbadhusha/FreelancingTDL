@@ -6,13 +6,14 @@
 	Compute		:	CCClosing		:	$$BaseValue:$$CCClosing:$$LoopCollObj:$Name
 	Compute		:	CCClosingNum	:	If $$IsDr:@@CC_CCClosing then -$$Number:@@CC_CCClosing else $$Number:@@CC_CCClosing
 	
-	Fetch		:	Name, ClosingBalance
+	Fetch		:	Name, ClosingBalance,Parent
 	
-	Filter		:	AffectsCC, UsedOnly
+	Filter		:	AffectsCC, UsedOnly,SelectedGroup
 	
 ;Select $Name, $Parent, $ClosingBalance from CC_Ledgers
 
 [Collection:CC_CostCentres]
+	
 	Type		:	Costcentres
 	
 	Fetch		:	Name
@@ -25,9 +26,10 @@
 	
 	Fetch		:	*
 	
-;Select $Name, $CCName, $ClosingBalance, $CCClosing from CC_LedgerCCs
+;Select $Name, $CCName, $CCClosing from CC_LedgerCCs
 	
 [Collection:CC_LedCCs]
+
 	Source Collection	:	CC_LedgerCCs
 	
 	Fetch		:	*
@@ -37,6 +39,7 @@
 	Compute		:	CCOpening		:	$$CollectionFieldByKey:$Amount:@@CC_CCSearchKey:CC_LedOpeningCC
 	
 	Sort		:	@@Default		:	$Name, $CCName
+;	Fetch	:	Parent
 	
 ;Select $Name, $CCName, $ClosingBalance, $CCClosing, $CCClosingNum from CC_LedCCs
 
@@ -54,8 +57,7 @@
 [Collection:CC_CCLedgers]
 	Source Collection		:	CC_ExcelSrc
 	
-	By			:	LedgerName		:	$_1
-	
+	By			:	LedgerName		:	$_1	
 	Aggr Compute:	Amount			:	Sum		:	$$AsAmount:$_3
 	
 	Client Only	:	Yes
