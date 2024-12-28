@@ -3,3 +3,5 @@
 [Include:Voucher.txt]
 
 [Include:Voucher Type.txt]
+
+[Include:Gateway Of Tally.txt]

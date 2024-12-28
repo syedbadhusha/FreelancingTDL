@@ -1,0 +1,29 @@
+<DefType:Collection>
+
+[Collection:FP_BatchesInGodown]
+	Type		:	BatchesInGodown
+	Child Of	:	$$LoopCollObj:$Name
+		
+[Collection:FP_Godowns]
+	Type		:	Godowns
+	Fetch		:	Name
+	
+[Collection:FP_StockItemsSrc]
+	Collection	:	FP_BatchesInGodown:FP_Godowns
+	
+	Fetch		:	Name, Parent, GodownName, ClosingBalance
+	
+[Collection:FP_StockItems]
+	Source Collection	:	FP_StockItemsSrc
+	
+	Fetch		:	Name, Parent, GodownName, ClosingBalance
+	
+	By			:	BatchName			:	$Name
+	By			:	StockItemName		:	$Parent
+	By			:	GodownName			:	$GodownName
+	
+	Aggr Compute:	ClosingBalance		:	Sum		:	$ClosingBalance
+	
+	Filter		:	FP_NotEmptyClosing
+	
+;Select $BatchName, $StockItemName, $GodownName, $ClosingBalance from FP_StockItems

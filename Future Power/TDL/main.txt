@@ -2,8 +2,12 @@
 
 [Include:Changes/main.txt]
 
+[Include:Reports/main.txt]
+
 [Include:UDF.txt]
 
 [Include:Formulas.txt]
 
 [Include:Functions.txt]
+
+[Include:collections.txt]

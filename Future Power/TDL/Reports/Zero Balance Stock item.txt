@@ -1,0 +1,41 @@
+[Report:FP_ZeroBalStk]
+	Title		:	"Zero Balance Stock Item"
+	Auto		:	No
+	
+	Variable	:	SVToDate
+	
+	Use			:	ModifyVariables
+	
+	Local		:	Field		:	MVTitle				:	Set as		:	"Zero Balance Stock Item"
+	
+	Local		:	Part		:	ModifyVariables		:	Line		:	SVToDate, FP_ImportVCHDate
+	
+	Local		:	Line		:	SVToDate			:	+
+		Local	:	Field		:	MediumPrompt		:	Info		:	"Closing Balance as On"
+	
+	Local		:	Line		:	SVToDate			:	+
+		Local	:	Field		:	SVToDate			:	Validate	:	Not $$IsEmpty:$$Value AND $$Value >= #SVFromDate
+;	
+	Local		:	Form		:	Default				:	Option		:	FP_ZeroBalStk
+	
+[!Form:FP_ZeroBalStk]
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	Yes		:	Call	:	FP_ZeroBalStk
+	
+[Line:FP_ImportVCHDate]
+	Field		:	MediumPrompt, FP_ImportVCHDate
+	
+	Local		:	Field		:	MediumPrompt		:	Set as		:	"Voucher Date"
+	
+[Field:FP_ImportVCHDate]
+	Use			:	ShortDateField
+	Format		:	Short Date, Start:#SVFromDate, End:#SVToDate
+	Modifies	:	FP_ImportVCHDate	:	Yes
+	Validate	:	Not $$IsEmpty:$$Value AND $$Value >= #SVFromDate AND $$Value <= #SVToDate
+
+[Variable:FP_ImportVCHDate]
+	Type		:	Date
+	Volatile	:	Yes
+	
+[System:Variable]
+	FP_ImportVCHDate			:	$$InitValue:Date

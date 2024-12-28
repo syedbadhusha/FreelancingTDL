@@ -5,3 +5,67 @@
 	setTgt		:	Set Target	:	InventoryEntries[$$LoopIndex]
 	setVTracking:	Set Value	:	Tracking Number		:	##TrackingNo
 	endWlk		:	End Walk
+	
+[Function:FP_ZeroBalStk]
+	Variable	:	VCHType		:	String	:	"Stock Journal"
+	Variable	:	IsDr		:	Logical
+	Variable	:	Index		:	Number
+	
+	IfVCHExists	:	If			:	Not $$IsObjectExists:VoucherType:##VCHType
+		msgIfVCh:	Msg Box		:	"Error!!!"		:	##VCHType + " voucher type doesn't exists"
+		retVch	:	Return
+	endVCH		:	End If
+	
+	IfVCHAct	:	If			:	Not $IsActive:VoucherType:##VCHType
+		msgVAct	:	Msg Box		:	"Error!!!"		:	##VCHType + " voucher type is not active"
+		retVAct	:	Return
+	endVCHAct	:	End If
+	
+	setIndex	:	Set			:	Index			:	$$NumItems:FP_StockItems
+	
+	IfEmpItems	:	If			:	$$IsEmpty:##Index
+		msgitems:	Msg Box		:	"Error!!!"		:	"Stock Items not found"
+		retItems:	Return
+	endEmpItems	:	End If
+	
+	setView		:	Set			:	SVViewName		:	$$SysName:ConsVchView
+	setVchType	:	Set			:	SVVoucherType	:	##VCHType
+	
+	StrPrg		:	Start Progress		:	##Index	:	$$CurrentCompany		:	"Importing Stock Journal"		:	"Please Wait"
+	
+	CreateVch	:	New Object	:	Voucher
+	
+	00010		:	Set Value	:	VoucherTypeName	:	##SVVoucherType
+	00020		:	Set Value	:	PersistedView	:	$$SysName:##SVViewName
+	00030		:	Set Value	:	VCHEntryMode	:	"Use for Stock Journal"
+	00040		:	Set Value	:	IsInvoice		:	No
+	00050		:	Set Value	:	Date			:	##FP_ImportVCHDate
+	
+	WlkItems	:	Walk Collection		:	FP_StockItems
+	
+	ShwPrg		:	ShowProgress:	##Index
+	decIndx		:	Decrement	:	Index
+	
+	setIsDr		:	Set			:	IsDr			:	$$IsInwards:$ClosingBalance
+	
+;	lg			:	Log			:	$$Sprintf:"%s, %s, %s, %s":$StockItemName:$GodownName:$BatchName:$ClosingBalance
+	
+	ifdrQty		:	Do If		:	##IsDr			:	Insert Collection Object			:	InventoryEntriesOut
+	ifCrQty		:	Do If		:	Not ##IsDr		:	Insert Collection Object			:	InventoryEntriesIn
+	
+	10010		:	Set Value	:	StockItemName
+	10020		:	Set Value	:	BilledQty		:	-$ClosingBalance
+	10030		:	Set Value	:	ActualQty		:	-$ClosingBalance
+	10040		:	Set Value	:	IsDeemedPositive:	Not ##IsDr
+	
+	20000		:	Insert Collection Object		:	BatchAllocations
+	
+	20010		:	Set Value	:	BatchName
+	20020		:	Set Value	:	BilledQty		:	-$ClosingBalance
+	20030		:	Set Value	:	ActualQty		:	-$ClosingBalance
+	20040		:	Set Value	:	GodownName
+	
+	endWlkItems	:	End Walk
+	
+	saveVch		:	Save Target
+	endPrg		:	End Progress

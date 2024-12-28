@@ -1,0 +1,4 @@
+[#Menu:GatewayOfTally]
+	Add			:	Item			:	Before		:	@@LocQuit		:	Blank
+	Add			:	Indent			:	Before		:	@@LocQuit		:	"Custom Utilities"
+	Add			:	Item			:	Before		:	@@LocQuit		:	"Zero balance Stock item"	:	Alter		:	FP_ZeroBalStk
