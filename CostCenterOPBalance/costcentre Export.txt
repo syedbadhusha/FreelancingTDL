@@ -5,6 +5,7 @@
 	Add			:	Indent		:	Before	:	@@LocQuit		:	Blank
 	Add			:	Indent		:	Before	:	@@LocQuit		:	"Custom Utilities"
 	Add			:	Item		:	Before	:	@@LocQuit		:	"Cost Centre Closing Export"	:	Alter	:	CC_CCExport
+;	Add			:	Item		:	Before	:	@@LocQuit		:	"Cost Centre Closing Export"	:	Display:CC_CCDetails
 	Add			:	Item		:	Before	:	@@LocQuit		:	"Cost Centre Opening Import"	:	Alter	:	CC_CCImport
 	
 [Report:CC_CCExport]
@@ -12,7 +13,7 @@
 	
 	Auto		:	No
 	
-	Variable	:	SVTODate
+	Variable	:	SVTODate,GroupName
 		
 	Use			:	ModifyVariables
 	
@@ -22,6 +23,7 @@
 	Local		:	Part		:	ModifyVariables		:	Line		:	CC_ExportDate
 
 [!Form:CC_CCExport]
+
 	On			:	Form Accept	:	Yes		:	Form Accept
 	On			:	Form Accept	:	Yes		:	Export	:	CC_CCDetails;Call	:	CC_CCExport
 
@@ -40,11 +42,25 @@
 ;	clsFile		:	Close Target File
 		
 [Line:CC_ExportDate]
-	Field		:	MediumPrompt, SV ToDate
+	Field		:	MediumPrompt, SV ToDate,CC_ExportGrp
 	
 	Local		:	Field		:	MediumPrompt		:	Set as		:	"Closing Balance As On"
+
+[Field:CC_ExportGrp]
+	
+	Use         : Name Field
+;	Use			: Create Group
+;   Key         : Create Group
+    Set as      : if ##GroupName = "" then $$SysName:Primary else ##GroupName
+    Modifies    : GroupName	:	Yes
+    Table       : Group Summary Extract, Create Master
+    Show Table  : Always
+    CommonTable : No
+
 	
 [Report:CC_CCDetails]
+	
+;	Variable	:	GroupName
 	Title		:	"Cost Centre Closing"
 	
 	Form		:	CC_CCDetails
@@ -62,6 +78,7 @@
 	CommonBorder:	Yes
 	Float		:	No
 	Scroll		:	Vertical
+	
 [Line:CC_CCDetailsTitle]
 	Border		:	ThinBottom
 	
