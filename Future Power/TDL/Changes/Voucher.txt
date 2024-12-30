@@ -5,11 +5,13 @@
 	Unique		:	Yes
 
 [#Part: EI DelNoteDetails]
+
 	Option		:	FP_DelNoteBreakOn	:	@@FP_SelectedVchs
 	
 [!Part:FP_DelNoteBreakOn]
+
 	Delete		:	Break On
-	Add			:	Break On	:	$$IsEnd:$BasicShipDeliveryNote OR $$IsNotApplicable:$BasicShipDeliveryNote or $$Line = 1
+	Add			:	Break On	:	$$IsEnd:$BasicShipDeliveryNote OR $$IsNotApplicable:$BasicShipDeliveryNote or $$Line = 2
 	
 [#Field:EIChallanNo]
 	Option		:	FP_ChallanSkipNSet	:	@@FP_IsCashVtyp
@@ -20,9 +22,12 @@
 	Set as		:	$$SysName:NotApplicable
 	
 [!Field:FP_UpdateTracking]
+	
 	On			:	Accept		:	Yes		:	Field Accept
 	On			:	Accept		:	Yes		:	Call		:	FP_UpdateTracking:$$Value
 	
+	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote then Yes else No
+
 [#Field:VCHBatchTrack]
 	Option		:	FP_VCHBatchTrack	:	@@FP_SelectedVchs
 	

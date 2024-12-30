@@ -3,3 +3,4 @@
 [System:Formula]
 	FP_IsCashVtyp			:	$FP_IsCashVtyp:VoucherType:##SVVoucherType
 	FP_SelectedVchs			:	@@IsSales or @@IsPurchase
+	SecondDelErrorMsg		:	"More Then One DN/GRN Not Allowed"
