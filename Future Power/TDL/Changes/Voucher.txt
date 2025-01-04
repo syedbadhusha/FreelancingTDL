@@ -37,8 +37,17 @@
 	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote or ($$Line=1 and $$IsEmpty:$BasicShipDeliveryNote) then Yes else No
 
 [#Field:VCHBatchTrack]
-	Option		:	FP_VCHBatchTrack	:	@@FP_SelectedVchs
 	
+	Option		:	FP_VCHBatchTrack	:	@@FP_SelectedVchs and not @@FP_IsCashVtyp
+	Option		:	FP_VCHCashBatchTrack	:	@@FP_IsCashVtyp
+	
+[!Field:FP_VCHCashBatchTrack]
+		
+	Skip		:	Yes
+	Set Always	:	Yes
+	Set as	:	If $$Line = 2 then $$SysName:EndofList else $$SysName:NotApplicable
+
 [!Field:FP_VCHBatchTrack]
+	
 	Skip		:	Yes
 	Set Always	:	Yes
