@@ -34,7 +34,7 @@
 	On			:	Accept		:	Yes		:	Field Accept
 	On			:	Accept		:	Yes		:	Call		:	FP_UpdateTracking:$$Value
 	
-	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote then Yes else No
+	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote or ($$Line=1 and $$IsEmpty:$BasicShipDeliveryNote) then Yes else No
 
 [#Field:VCHBatchTrack]
 	Option		:	FP_VCHBatchTrack	:	@@FP_SelectedVchs
