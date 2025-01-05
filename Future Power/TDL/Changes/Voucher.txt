@@ -25,10 +25,10 @@
 	Delete		:	Table
 	Delete		:	Key
 	
-	Add			:	Table		:	InvOutTrackNumbersList				:	$$IsTrackingOn AND @@IsOutwardType AND $$Line = 1
+	Add			:	Table		:	InvOutTrackNumbersList,NotApplicable:	$$IsTrackingOn AND @@IsOutwardType AND $$Line = 1
     Add			:	Table		:	InvOutTrackNumbersList, EndOfList	:	$$IsTrackingOn AND @@IsOutwardType AND $$Line > 1
 	
-    Add			:	Table		:	InvInTrackNumbersList				:	$$IsTrackingOn AND @@IsInwardType AND $$Line = 1
+    Add			:	Table		:	InvInTrackNumbersList, NotApplicable:	$$IsTrackingOn AND @@IsInwardType AND $$Line = 1
 	Add			:	Table		:	InvInTrackNumbersList, EndOfList	:	$$IsTrackingOn AND @@IsInwardType AND $$Line > 1
 	
 	On			:	Accept		:	Yes		:	Field Accept
