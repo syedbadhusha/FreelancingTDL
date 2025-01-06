@@ -31,9 +31,9 @@
     Add			:	Table		:	InvInTrackNumbersList, NotApplicable:	$$IsTrackingOn AND @@IsInwardType AND $$Line = 1
 	Add			:	Table		:	InvInTrackNumbersList, EndOfList	:	$$IsTrackingOn AND @@IsInwardType AND $$Line > 1
 	
-	On			:	Accept		:	Yes		:	Field Accept
-	On			:	Accept		:	Yes		:	Call		:	FP_UpdateTracking:$$Value
-	
+;	On			:	Accept		:	Yes		:	Field Accept
+;	On			:	Accept		:	Yes		:	Call		:	FP_UpdateTracking:$$Value
+;	
 	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote or ($$Line=1 and $$IsEmpty:$BasicShipDeliveryNote) then Yes else No
 
 [#Field:VCHBatchTrack]
@@ -48,6 +48,10 @@
 	Set as	:	If $$Line = 2 then $$SysName:EndofList else $$SysName:NotApplicable
 
 [!Field:FP_VCHBatchTrack]
-	
-	Skip		:	Yes
+
+	Delete	:	Trigger
+	Read Only	:	$$Line  != 1
 	Set Always	:	Yes
+	Set as	:	If $$Line = 2 then $$SysName:EndofList else $$BaseOwner:$BasicShipDeliveryNote
+	Control	:	SecondDelErrorMsg	:	if $$Value != $$BaseOwner:$BasicShipDeliveryNote and $$Line = 1 then Yes else No
+	
