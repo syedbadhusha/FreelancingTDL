@@ -1,4 +1,21 @@
 [#Menu:GatewayOfTally]
-	Add			:	Item			:	Before		:	@@LocQuit		:	Blank
-	Add			:	Indent			:	Before		:	@@LocQuit		:	"Custom Utilities"
-	Add			:	Item			:	Before		:	@@LocQuit		:	"Zero balance Stock item"	:	Alter		:	FP_ZeroBalStk
+	
+	Add	:	Item	:	Before	:	@@Locquit	:	Blank
+	
+	Add			:	Item		:Before:@@Locquit	:	Future Power	:	Menu	:	FP_Menu
+	
+[Menu:FP_Menu]
+	Title	:	"Future Power"
+	Add			:	Item			:	"Zero balance Stock item"	:	Alter		:	FP_ZeroBalStk
+	Add			:	Item			:	Update Tracking Numbers		:	Menu	:		FP_UpdateTrackingNumbers
+	
+
+[Menu:FP_UpdateTrackingNumbers]
+
+	Title	:	"Update Tracking Numbers"
+
+	Add	:	Item	:	Enter to Update Sales				:	Call	:	FP_UpdateSales
+	Add	:	Item	:	Enter to Update Purchase			:	Call	:	FP_UpdatePurchase
+	Add	:	Item	:	Enter to Update Delivery Note		:	Call	:	FP_UpdateDelNote
+	Add	:	Item	:	Enter to Update Receipt Note		:	Call	:	FP_UpdateReceipteNote
+
