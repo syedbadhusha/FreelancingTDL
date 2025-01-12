@@ -8,14 +8,12 @@
 	100000	:	Walk Collection	:	FP_CrntReportColl
 		
 	2000	:	If:$$IsSales:$LedgerEntries.VoucherTypeName or $$IsPurchase:$LedgerEntries.VoucherTypeName
-	3000	:	Call	:	FP_UpdateSales:($LedgerEntries.MasterId):$Parent
+	3000	:	Call	:	FP_UpdateSales:($LedgerEntries.MasterId):$Parent:$Name
 	4000	:	End If
 
 	2000DL	:	If:$$IsDelNote:$LedgerEntries.VoucherTypeName or $$IsRcptNote:$LedgerEntries.VoucherTypeName
-	3000DL	:	Call	:	FP_UpdateDelNote:($LedgerEntries.MasterId):$Parent
+	3000DL	:	Call	:	FP_UpdateDelNote:($LedgerEntries.MasterId):$Parent:$Name
 	4000DL	:	End If
-	
-
 	
 	2000000	:	End Walk
 
@@ -31,6 +29,7 @@
 	
 	Parameter	:	MsterIDLed			:	String
 	Parameter	:	ItemName			:	String
+	Parameter	:	TrackName			:	String
 	variable	:	vMasterId			:	String
 	Variable	:	Count				:	Number	:	1
 	
@@ -53,8 +52,10 @@
 	ChckItem		:	If:##ItemName = $StockItemName
 	WalkBatchAloc	:	Walk Collection	:	BatchAllocations
 	SetBatchAlloc	:	Set Target	:	BatchAllocations[$$LoopIndex]
+	ChkTrack		:	If:##TrackName = $TrackingNumber
 	SetTrackNum		:	Set Value	:	TrackingNumber	:	$$SysName:NotApplicable
 	IncCount		:	Increment	:	Count
+	EndTrackCheck	:	End If
 	endBatchWalk	:	End Walk
 	EndItemCheck	:	End If
 	EndInventoryWalk	:	End Walk	
@@ -69,7 +70,8 @@
 	
 	Parameter	:	MsterIDLed			:	String
 	Parameter	:	ItemName			:	String
-
+	Parameter	:	TrackName			:	String
+	
 	variable	:	vMasterId			:	String
 	Variable	:	Count				:	Number	:	1
 	
@@ -85,8 +87,10 @@
 	ChckItem		:	If:##ItemName = $StockItemName
 	WalkBatchAloc	:	Walk Collection	:	BatchAllocations
 	SetBatchAlloc	:	Set Target	:	BatchAllocations[$$LoopIndex]
+	ChkTrack		:	If:##TrackName = $TrackingNumber
 	SetTrackNum		:	Set Value	:	TrackingNumber	:	$$SysName:NotApplicable
 	IncCount		:	Increment	:	Count
+	EndTrackCheck	:	End If
 	endBatchWalk	:	End Walk
 	EndItemChck		:	End If
 	EndInventoryWalk	:	End Walk
