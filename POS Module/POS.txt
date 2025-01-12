@@ -1,0 +1,6853 @@
+
+[System: Formulae]
+	
+	TakeAway       : $CostCentreName = "Take Away"
+	HomeDelivery   : $CostCentreName = "Home Delivery"
+	ExpressBilling : $CostCentreName = "Express Billing"
+	TableBill      : NOT @@ExpressBilling AND NOT @@HomeDelivery AND NOT @@TakeAway
+	TableYes       : If $$InCreateMode Then @@DineIN Else @@TableBill
+;; Bill Type From Variable
+	
+	DineIN     : NOT ##VarTabNo = "Express Billing" AND NOT ##VarTabNo = "Take Away" AND NOT ##VarTabNo = "Home Delivery"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+[Part: LDR OthAmtDev]
+
+	Width	: 30 % Page
+;	Background: Pattens Blue
+	Border	: Thin Box
+	
+	Lines       : CI AccDetails, LDR VCHTotal, LDR DrPartyLed, LDR CreditCard, LDR CashTend, LDR XBal
+    Repeat      : CI AccDetails : Ledger Entries
+    Set as      : $$NumItems:ClassLedgerEntries + 2
+    Set always  : Yes
+	Common Border: Yes
+	Local	: Line: CI AccInfo : Border	: Thin Bottom
+	Local	: Field: CIAccRate : Border: Thin Left
+	
+	Local	: Line: CI AccInfo : Local: Field: Default : Invisible: Yes
+	Local	: Line: CI AccInfo : Local: Field: CIAccDesc : Skip : Yes
+	Local	: Line: CI AccInfo : Local: Field: CIAccDesc : Invisible: No
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Invisible: Yes
+	Local	: Line: CI AccInfo : Local: Field: CIAccDesc : Width : 17 % Page
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Width : 6 % Page
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Add : Style: VCHVal Style
+	
+	Local	: Style: VCHVal Style : Height: 15
+	Local	: Line : CI AccInfo : Remove if: $$IsEmpty:$LedgerName
+	Local	: Field: CIAccDesc : Border: Thin Right
+	
+	Total 	: CIValue
+	
+	Local	: Line: CI AccDetails : Local	: Line: CI AccInfo : Local: Field: CIValue : Skip: $IsOptional
+	On	: Focus: $$InCreateMode: Call: Func RefreshCreateDateTime
+	On	: Focus: Yes : Call: Func RefreshAlterDateTime
+	On	: Focus: $$InCreateMode AND @@DiffVCHDate AND NOT $$IsCmpOwner : Call: FuncSetVCHDate
+		
+	Local	: Line: CI AccInfo : Add: Right Fields: Before: CIValue : POSACCValue
+	Local	: Line: CI AccInfo : Local: Field: POSACCValue : Invisible: No
+	Local	: Line: CI AccInfo : Local: Field: POSACCValue : Add : Style: VCHVal Style
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Delete: Set as
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Delete: Set By Condition
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Set By Condition: @@IsTaxLed AND @@VATEnabled : @@XXVatAmt
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Set By Condition: @@IsDiscLed  	: If $$IsNegative:#POSACCValue Then #POSACCValue Else - #POSACCValue
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Set By Condition: @@DelChagLed 	: #POSACCValue 
+	
+	
+;;;; Round off conditions added
+	Local	: Line: CI AccInfo : Local: Field: CIValue : Set By Condition: (@@AsRounding) 	: If $$IsFieldEdited Then $$Value  Else (@POSRoundedPrevTotal - @POSOnPrevTotalVal)
+	
+
+
+;;;; Round off conditions added
+[#Field		: CIValue]
+
+	POSOnPrevTotalVal    	: $$NettAmount:@@XItemAmt:$$PrevTotal:CIValue
+	
+    POSRoundedPrevTotal     : if @@RoundUp then $$RoundUp:@POSOnPrevTotalVal:$RoundLimit else +
+							if @@RoundDown then $$RoundDown:@POSOnPrevTotalVal:$RoundLimit else +
+							$$Round:@POSOnPrevTotalVal:$RoundLimit
+
+
+[System: Formulae]
+	
+	XXVatAmt   : @@XXVatAmt1
+	XXVatAmt1  : (@@XItemAmt + @@DChgAmtXX + @@DiscAmtXX) * 5 % 
+	
+	DiscAmtXX  : $LedgerEntries[3].Amount
+	DChgAmtXX  : $LedgerEntries[4].Amount
+	DelChagLed : $LedgerName = "Delivery Charges"
+	DirBill    : #LDRBillTyep = "Direct Bill"
+	CODBill    : $LDRPOSCOD = "Yes" ;#LDRBillTyep = "Direct Bill"
+	OnlineOrd  : Yes
+	OnlineBill : NOT ##VarBillType = "Direct Bill"
+	NoPOSReceipt : $$IsEmpty:#LDRCreditCardAmt AND $$IsEmpty:#EICashTend
+	
+[Field: POSACCValue]
+	
+	Use      : Amount Forex Field
+    Width    : 13 % Page
+	Key		 : NumPad
+    Set as	 : If $$InCreateMode Then $$Value Else $Amount
+	Set By Condition: @@IsTaxLed AND @@VATEnabled  : @@XXVatAmt
+	Set Always: Yes
+	Skip	: @@IsTaxLed
+	
+;;;;
+
+[Line: LDR DrPartyLed]
+	
+	Field	: LDR POSGiftPaymentType, LDR DrPartyLedDeemedPos, LDR DrPartyLed, LDR DrPartyAmt
+
+[Field: LDR POSGiftPaymentType]
+
+	Type        : String	: Forced
+	Storage     : POSPaymentType:LedgerEntries:First:@@OnlineOrd
+	Set as      : "Gift"
+	Set Always  : Yes
+	Skip		: Yes
+	Invisible   : Yes
+	
+[Field: LDR DrPartyLedDeemedPos]
+
+    Use         : Logical Field
+    Type        : Logical : Forced
+    Storage     : IsDeemedPositive:LedgerEntries:First:@@OnlineOrd
+    Set as      : Yes
+    Invisible   : Yes
+    Set always  : Yes
+    Skip        : Yes
+	Width		: 5 % Page 
+	
+[Field: LDR DrPartyLed]
+	
+	Use		: Name Field
+	Width	: 20 % Page
+	Style	: Small
+	Storage : LedgerName:LedgerEntries:First:@@OnlineOrd
+	Set as	: ##VarBillType
+	Set Always: Yes
+	Type	: String: Forced
+	Width	: 5 % Page
+	Background: Yellow
+	Invisible: Yes
+		
+[Field: LDR DrPartyAmt]
+	
+	Use		: Amount Field
+	Width	: 20 % Page
+	Style	: Small
+	Storage : Amount:LedgerEntries:First:@@OnlineOrd
+;	Set as	: If @@DirBill Then "" Else @@XVCHAmt
+	Set as	: If @@DirBill AND NOT ((@@TableBill OR @@HomeDelivery) AND @@NoPOSReceipt) Then "" Else @@XVCHAmt
+	Set Always: Yes
+	Width		: 5 % Page
+	Background: Yellow
+	Invisible: Yes
+
+[!Form: DispModeForUser]
+	
+	Local	: Button: Default      : Inactive: Yes
+;	Local	: Button: Print Button : Inactive: No
+	Local	: Key	: Direct Back  : Inactive: No
+	Local	: Key	: Print Bill   : Inactive: No
+
+
+
+[System: Formulae]
+	
+	LocPOS : $$LocaleString:"Gateway of Retail POS"
+	
+	AccountsAccess : @@AccAccess  OR $$IsCmpOwner
+	BillingAccess  : @@BillingAcc OR $$IsCmpOwner
+	LocPOSModule   : $$LocaleString:"Retail POS"
+	LocaItemSales  : $$LocaleString:"Item Wise Sales"
+	LocSalesmansales  : $$LocaleString:"Salesman wise Sales"
+	
+[#Menu: Gateway of Tally]
+	
+	Title	   : @@LocPOS
+	Delete	   : Key Item
+	Add	: Item: Before : @@LocQuit : "Gateway of Tally"       : Menu : DefaultTally Gateway : NOT $$IsEmpty:$$SelectedCmps AND @@AccountsAccess
+	Add	: Item: Before : @@LocQuit : Blank
+	Add	: Item: Before : @@LocQuit : "Sales Summary" : Display  : CDR Report : NOT $$IsEmpty:$$SelectedCmps AND @@AccountsAccess
+	Add	: Item: Before : @@LocQuit : Blank
+	Add	: Item: Before : @@LocQuit : "Barcode Printing" : Alter  : BS StockItem : NOT $$IsEmpty:$$SelectedCmps AND @@AccountsAccess
+	
+	Add	: Item: Before : @@LocQuit : Blank
+	Add	: Item: Before : @@LocQuit : @@LocPOSModule   : Display: HMC Report : NOT $$IsEmpty:$$SelectedCmps AND @@BillingAccess
+	Add	: Option : SalesmanModule : @@POSEnbSalesman
+;	Add	: Item: At End: Stock Item : Alter : IODT Report
+	
+[!Menu: SalesmanModule]
+	
+	Add	: Item: After: @@LocPOSModule : @@LocSalesmansales : Display: SWS Report
+	Add	: Item: After: @@LocPOSModule : Blank
+	
+[Menu: DefaultTally Gateway]
+	
+	Title       : $$LocaleString:"Gateway of Tally"
+	
+    Indent  	: @@locIndentMasters
+
+	Key Item	: @@locCreate			: C : Execute	: Create Master		 	: @createmst
+	Key Item	: @@locAlter			: A : Execute	: Alter Master			: @altermst
+	Key Item    : @@locChartofAccounts  : H : Alter   	: CoA List Of Accounts
+	Item        : BLANK 	
+
+	Indent  	: @@locTransactions
+	Key Item	: @@locVouchers			: V : Create Collection	: Company Vouchers		: $$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany
+	Key Item    : @@locDayBook          : K : Display   		: Day Book              : @IsDayBookVisible
+	Item        : BLANK 
+
+	Indent  	: @@locIndentUtilities
+	
+	Key Item	: @@LocBanking			: N	: Menu	: Banking	: $$IsAccountingOn:$$CurrentSimpleCompany
+	Item        : BLANK 
+
+	Indent  	: @@locIndentReports
+	
+	Key Item	: @@locFinalAccounts		: F : Menu		: Final Accounts : $$IsAccountingOn:$$CurrentSimpleCompany +
+																				AND (@IsBSVisible OR @IsPandLVisible +
+																				OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+	
+	Key Item    : @@locBalanceSheet      	: B : Display	: Balance Sheet		: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+	Key Item    : @@locProfitLossAcc     	: P : Display	: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+    Key Item    : @@locIncomeExpenseAcc  	: I : Display	: Profit and Loss	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible
+	Key Item    : @@locStockSummary      	: S : Display   : Stock Summary		: $$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible
+	Key Item    : @@locRatioAnalysis     	: R : Display   : Ratio Analysis	: $$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible
+	
+	Item        : BLANK 
+	Key Item    : @@locDisplayMoreReports  	: D : Menu		: Display Menu
+	
+	Key Item   	: @@locQuit					: Q
+		
+	Control 	: @@locCreate			: $$IsTrueInAnyCmp:@createmst
+	Control 	: @@locAlter			: $$IsTrueInAnyCmp:@altermst
+	Control		: @@locChartofAccounts	: NOT $$IsEmpty:$$SelectedCmps
+	Control		: @@locVouchers			: $$IsTrueInAnyCmp:($$AllowCreateAnyVoucher:Yes:$$CurrentSimpleCompany)
+	Control 	: @@locDayBook          : $$IsTrueInAnyCmp:@IsDayBookVisible
+	Control		: @@LocBanking			: $$IsTrueInAnyCmp:@@IsBankingMenuVisible
+	Control 	: @@locFinalAccounts	: ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:@IsfinalAcc
+	Control		: @@locBalanceSheet     : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+	Control		: @@locProfitLossAcc    : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND NOT $$IsPLasIncomeExpense
+    Control		: @@locIncomeExpenseAcc : NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsPandLVisible) AND $$IsPLasIncomeExpense
+
+	Control		: @@locDisplayMoreReports	: NOT $$IsEmpty:$$SelectedCmps
+	Control		: @@locStockSummary			: $$IsTrueInAnyCmp:($$IsInventoryOn:$$CurrentSimpleCompany AND @IsStkSummVisible)
+	Control		: @@locRatioAnalysis    	: NOT ##UseFinalAcctsMenu AND $$IsTrueInAnyCmp:($$IsAccountingOn:$$CurrentSimpleCompany AND @IsBSVisible)
+	
+	createmst		: @createaccmst OR @createinvmst OR @createpyrlmst OR @createstatmst OR @altercmpfeature OR @createpurchvch OR @createjrnlvch
+	createaccmst	: $$GlobalAllow:Create:AccountsMasters:$$CurrentSimpleCompany 
+	createinvmst	: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:InventoryMasters:$$CurrentSimpleCompany
+	createpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Create:PayrollMasters:$$CurrentSimpleCompany
+	createstatmst	: $$GlobalAllow:Create:StatutoryMasters:$$CurrentSimpleCompany
+	
+	/*Directly $$AllowCreateVoucher:$$VchTypePurchase:Yes:$$CurrentSimpleCompany is not working at menu level.Using System formula also not working. 
+	So created the function to make it work. Once this issue is solved have to remove the function and have to use diectly at menu level
+	*/
+	
+	createpurchvch	: $$IsAllowCreatePurchVch
+	createjrnlvch	: $$IsAllowCreateJrnlVch 
+	
+	altermst		: @alteraccmst OR @alterinvmst OR @alterpyrlmst OR @alterstatmst OR @altercmpfeature
+	alteraccmst		: $$GlobalAllow:Alter:AccountsMasters:$$CurrentSimpleCompany 
+	alterinvmst		: $$IsInventoryOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:InventoryMasters:$$CurrentSimpleCompany
+	alterpyrlmst	: $$IsPayrollOn:$$CurrentSimpleCompany AND $$GlobalAllow:Alter:PayrollMasters:$$CurrentSimpleCompany
+	alterstatmst	: $$GlobalAllow:Alter:StatutoryMasters:$$CurrentSimpleCompany 
+	altercmpfeature	: $$GlobalAllow:Alter:CompanyFeatures:$$CurrentSimpleCompany 
+	
+	IsfinalAcc		: $$IsAccountingOn:$$CurrentSimpleCompany +
+						AND (@IsBSVisible OR @IsPandLVisible OR @IsCashFlowVisisble OR @IsFundFlowVisisble)
+
+	IsBSVisible 		: $$GlobalAllow:Display:BalanceSheet:$$CurrentSimpleCompany
+	IsPandLVisible 		: $$GlobalAllow:Display:ProfitLossAc:$$CurrentSimpleCompany
+	IsStkSummVisible	: $$GlobalAllow:Display:StockSummary:$$CurrentSimpleCompany
+	IsDayBookVisible	: $$GlobalAllow:Display:DayBook:$$CurrentSimpleCompany
+	
+	IsCashFlowVisisble 	: $$GlobalAllow:Display:CashFlow:$$CurrentSimpleCompany
+	IsFundFlowVisisble 	: $$GlobalAllow:Display:FundsFlow:$$CurrentSimpleCompany 
+
+    Key					: Unconditional Quit
+
+	Help				: @@HlpGateway_of_Tally
+
+
+
+;;;;;;;;;;;;;;;; 
+
+[Report: LDR XRestInfo]
+	
+	Form	: LDR XRestInfo
+	Title	: "Company Info"
+	Object	: Company
+	
+[Form: LDR XRestInfo]
+	
+	Part	: LDR XCMPInfoBody
+	Horizontal Align: Center
+	Vertical Align: Top
+	Background: White
+	Width	: 100 % Page
+	Height	: 100 % Page
+	No Confirm: Yes
+	
+[Part: LDR XCMPInfoBody]
+	
+	Part	: Empty, LDR XRestInfo 
+	Local	: Part	: Empty : Width : 25 % Page
+	Local	: Part  : Empty: Local : Field: Default : Skip: Yes  
+	Width	: 100 % Page
+	
+[Part: LDR XRestInfo]
+	
+	Line	: LDR CRestInfoTTL, LDR XRestName, LDR XRestAdd
+	Bottom Line: LDR XRestPhone, LDR XRestMobile, LDR XRestTRN, LDR XRestPhone, BackOrSave
+	Repeat	: LDR XRestAdd : Address
+	Break On    : $$IsEmpty:$Address
+	Height		: 53 % Page
+	Width		: 50 % Page
+	Space Bottom: 0.20
+	Border	: Thin Bottom	
+	
+[Line: LDR CRestInfoTTL]
+	
+	Field	: LDR CRestInfoTTL
+	Space Bottom: 1
+	
+[Field: LDR CRestInfoTTL]
+	
+	Use		: Name Field
+	Width	: 50 % Page
+	Style	: Normal Bold
+	Set as	: "Company Info"
+	Skip	: Yes
+	Align	: Center
+	Local	: Style: Normal Bold  : Height: 13
+	
+[Line : LDR XRestName]
+		
+	Field	: Medium Prompt, LDR XRestName
+	Local	: Field: Medium Prompt  : Set as: "Company Name" 
+	Local	: Field: Medium Prompt  : Width : 15 % Page
+	Local	: Field: Medium Prompt  : Style : Small Bold
+	Space Top: 0.20
+	Height	: 4 % Page
+	
+[Field: LDR XRestName]
+	
+	Use		: Name Field
+	Width	: 35 % Page
+	Style	: Normal
+	Set Always: Yes
+	Storage	: Basic Company Formal Name
+	Max		: 100
+	Border	: Thin Box	
+	Local	: Style: Normal  : Height: 13
+	Key		: KeyBoard
+	
+[Line : LDR XRestAdd]
+		
+	Field	: Medium Prompt, LDR XRestAdd
+	Local	: Field: Medium Prompt  : Set as: If $$Line = 1 Then "Company Address" Else ""
+	Local	: Field: Medium Prompt  : Width : 15 % Page
+	Local	: Field: Medium Prompt  : Style : Small Bold
+	Space Top: 0.20
+	Height	: 4 % Page
+	
+[Field: LDR XRestAdd]
+	
+	Use		: Name Field
+	Width	: 35 % Page
+	Style	: Normal
+	Set Always: Yes
+	Storage	: Address
+	Max		: 100
+	Border	: Thin Box	
+	Local	: Style: Normal  : Height: 13
+	Key		: KeyBoard
+	
+[Line : LDR XRestPhone]
+		
+	Field	: Medium Prompt, LDR XRestPhone
+	Local	: Field: Medium Prompt  : Set as: "Phone Number" 
+	Local	: Field: Medium Prompt  : Width : 15 % Page
+	Local	: Field: Medium Prompt  : Style : Small Bold
+	Space Top: 0.20
+	Height	: 4 % Page
+	
+[Field: LDR XRestPhone]
+	
+	Use		: Name Field
+	Width	: 25 % Page
+	Style	: Normal
+	Set Always: Yes
+	Storage	: PhoneNumber
+	Max		: 100
+	Border	: Thin Box	
+	Local	: Style: Normal  : Height: 13
+	Key		: KeyBoard
+	
+[Line : LDR XRestMobile]
+		
+	Field	: Medium Prompt, LDR XRestMobile
+	Local	: Field: Medium Prompt  : Set as: "Mobile Number" 
+	Local	: Field: Medium Prompt  : Width : 15 % Page
+	Local	: Field: Medium Prompt  : Style : Small Bold
+	Space Top: 0.20
+	Height	: 4 % Page
+	
+[Field: LDR XRestMobile]
+	
+	Use		: Name Field
+	Width	: 25 % Page
+	Style	: Normal
+	Set Always: Yes
+	Storage	: MobileNumbers
+	Max		: 100
+	Border	: Thin Box	
+	Local	: Style: Normal  : Height: 13
+	Key		: KeyBoard
+	
+[Line : LDR XRestTRN]
+		
+	Field	: Medium Prompt, LDR XRestTRN
+	Local	: Field: Medium Prompt  : Set as: "TRN"
+	Local	: Field: Medium Prompt  : Width : 15 % Page
+	Local	: Field: Medium Prompt  : Style : Small Bold
+	Space Top: 0.20
+	Height	: 4 % Page
+	
+[Field: LDR XRestTRN]
+	
+	Use		: Name Field
+	Width	: 25 % Page
+	Style	: Normal
+	Set Always: Yes
+	Storage	: VATTINNumber
+	Max		: 100
+	Border	: Thin Box	
+	Local	: Style: Normal  : Height: 13
+	Key		: KeyBoard
+
+
+
+	
+	
+
+
+[System: Events]
+	
+	SysDateVCHDate 	: Load Company  : Yes	: Call	: FuncSysDateVCHDate
+	
+[Function: FuncSysDateVCHDate]
+	
+	40 : SET : SVCurrentDate : $$MachineDate
+
+
+[#Field			: VTYP Restart]
+	
+	Add :  Sub Form	: AAC LASTNUMBER List Form : $$IsCmpOwner
+
+
+[Report		: AAC LASTNUMBER List Form] ;; Sub Form
+
+	Form 	: AAC_LastNumberDetail
+	Title 	: $$LocaleString:"Last Number Details"
+	
+
+[Form: AAC_LastNumberDetail]
+
+	Parts 		: AAC_LastNumber Titles, AAC_LastNumber Details
+	Background 	: White, Lily White
+	Full Height	: No
+	Full Width	: No
+
+
+[Part: AAC_LastNumberTitles]
+
+	Lines	: AAC_LastNumber Details
+
+	[Line: AAC_LastNumber Details]
+
+		Fields	: BHeader
+
+		[Field: BHeader]
+			Use			: Name Field
+			Info		: "Last Number Detail For " + $Name
+			Skip 		: Yes
+			FullWidth 	: Yes
+			Align 		: Centre
+			Fixed		: Yes
+			Border 		: Thin Bottom
+			Style 		: "Normal Bold"
+
+[Part: AAC_LastNumberDetails]
+
+	Line 		: AAC_LastNumberDetailsH, AAC_LastNumberDetailsD
+	Scroll 		: Vertical
+	Repeat 		: AAC_LastNumberDetailsD		: LASTNUMBERLIST
+
+
+	[Line: AAC_LastNumberDetailsH]
+
+		Fields 	: CustName, AAC_LastNumberNoTitle
+		Local 	: Field : Default : Skip 	: Yes
+		Local 	: Field : Default : Width 	: 15
+		Local 	: Field : Default : Align 	: Centre
+	
+	[Line: AAC_LastNumberDetailsD]
+
+		Fields 	: CustName1, AAC_LastNumberNo1
+		Local 	: Field : Default : Width 	: 15
+		Local 	: Field : Default : Align 	: Centre
+		
+		[Field: SNo]
+
+			Set as 	: "S.No"
+
+		[Field: SNo1]
+
+			Set as 	: $$Line
+			Skip 	: Yes
+
+		[Field: CustName]
+
+			Set as 	: "DATE"
+
+		[Field: CustName1]
+
+			Use 	: Uni Date Field
+			Storage : DATE
+
+		[Field: AAC_LastNumberNoTitle]
+
+			Set as 	: "LASTNUMBER"
+
+		[Field: AAC_LastNumberNo1]
+
+			Use 	: Number Field
+			Storage : LASTNUMBER
+
+[Line: TBM AutoEmailConfig]
+	
+	Field: Medium Prompt,TBM AutoEmailConfig
+	Local: Field: Medium Prompt: Set as:"Auto Email Config"
+	Local: Field : Medium Prompt : Width		: 19 % Page
+	
+[Field: TBM AutoEmailConfig]
+	
+	Use		: Logical Field
+;	Storage	: AutoEmailConfig
+	Width	: 4 % Page
+	Align	: Center
+	Set as	: No
+	Sub Form: TBM AEConfig: $$Value
+	
+[Report: TBM AEConfig]
+	
+	Form: TBM AEConfig
+	
+[Form: TBM AEConfig]
+	
+	Part: TBM AEConfigTitle
+	Space Top: 2
+	Space Left: 2
+	Space Right: 2
+	Space Bottom: 2
+	
+[Part: TBM AEConfigTitle]
+	
+	Line	: 	TBM Servermac,TBM MailSErver,TBM ServerAddress, +
+				TB DSP MailUseSsl,TB DSP MailUseSSL Info, +
+				TB DSPMailUseSSLOnStdPort,TBM FromEmail, TBM FromPwd, TBM ToEmail
+	
+[Line: TBM Servermac]
+	
+	Field: Medium Prompt,TBM Servermac
+	Local: Field: Medium Prompt: Set as: "Mac Address"
+	
+[Field: TBM Servermac]
+	
+	Use		: Name Field
+	Storage: Servermac
+	Set as: $$SysInfo:MacAddress
+	Set Always: Yes
+	Style	: Small Bold
+;	Validate: NOT $$IsEmpty:$$Value
+	
+[Line: TBM MailSErver]
+	
+	Field: Medium Prompt,TBM MailServer 
+	Local: Field: Medium Prompt: Set as: "Server Address"
+	
+[Table: Coll ServerAddress]
+		
+	Title	:	$$LocaleString:"Common Mail Servers" 
+	Object	: 	MailServerUserDefined
+	Object	:	MailServerYahoo
+	Object	:	MailServerGMail
+	Object	:	MailServerHotmail
+	
+[Field: TBM MailServer]
+	
+	Use		: Name Field
+	Storage: MailServer   
+	Validate: NOT $$IsEmpty:$$Value
+	Table	: Coll ServerAddress
+	Show Table: Always
+	Style	: Small Bold
+
+	[Line: TB DSP MailUseSsl] 
+		
+			Fields	: Medium Prompt, TB DSP MailUseSsl
+			Local	: Field : Medium Prompt : Set as : $$LocaleString:"Use SSL :"				
+		
+			[Field: TB DSP MailUseSsl]		        
+		
+            	Use   		: Logical Field
+			 	Set Always	: Yes
+				Style	: Small Bold
+				Storage		: TBSVMailUseSsl
+	
+		[Line: TB DSP MailUseSSL Info]
+
+			Field	: Simple Field
+			Local	: Field	: Simple Field	: Set as	: $$LocaleString:"(Choose Yes, if using Secured SMTP Server)"
+			Local	: Field	: Simple Field	: Style		: Small Italic
+			 
+			Local	: Field	: Simple Field	: Skip		: Yes 
+			Local	: Field	: Simple Field	: Indent	: 2
+
+		[Line: TB DSPMailUseSSLOnStdPort]	
+			
+			Field	: 	MediumPrompt, TB DSPMailUseSSLOnStdPort
+			Local	: 	Field	:	MediumPrompt	:	Set As	:	$$LocaleString:"Use SSL On Standard Port :"
+			Local	:	Field	:	MediumPrompt	:	Color	:	If #DSPMailUseSsl = FALSE then @@SV_FIELD3 Else Black				
+
+			[Field: TB DSPMailUseSSLOnStdPort]		
+				
+				Use			: Logical Field
+				Set Always	: Yes
+				Skip		: If #TBDSPMailUseSsl = FALSE then Yes Else No				
+				Color		: If #TBDSPMailUseSsl = FALSE then @@SV_FIELD3 Else Black	
+				Set as		: If #TBDSPMailUseSsl = FALSE Then No Else $$Value
+				Storage	: TBSVMailUseSSLOnStdPort
+				Style	: Small Bold
+
+		[Line: TB DSP MailUseSSLOnStdPortInfo]
+	
+			Field	: Simple Field
+			Local	: Field	: Simple Field	: Set as	: $$LocaleString:"(Choose Yes, if using SSL on Default/Standard SMTP Port)"
+			Local	: Field	: Simple Field	: Style		: Small Italic
+ 
+			Local	: Field	: Simple Field	: Skip		: Yes
+ 
+			Local	: Field	: Simple Field	: Indent	: 2
+
+
+[Line: TBM ServerAddress]
+	
+	Field: Medium Prompt,TBM ServerAddress 
+	Local: Field: Medium Prompt: Set as: "Server Address"
+	
+[Field: TBM ServerAddress]
+	
+	Use		: Name Field
+	Storage: ServerAddress
+	Validate: NOT $$IsEmpty:$$Value
+	Set as:  $$GetMailServerAddr:#TBMMailServer
+	Set Always: Yes 
+	Style	: Small Bold
+
+[Line:  TBM FromEmail]
+	
+	
+	Field: Medium Prompt,TBM FromEmail 
+	Local: Field: Medium Prompt: Set as: "From Email"
+	
+[Field: TBM FromEmail]
+	
+	Use		: Name Field
+	Storage: FromEmail
+	Validate: NOT $$IsEmpty:$$Value
+	Case: Small
+	Set Always: Yes 
+	Style	: Small Bold
+	
+[Line: TBM FromPwd]
+	
+	Field: Medium Prompt,TBM FromPassword 
+	Local: Field: Medium Prompt: Set as: "Password"
+	
+[Field: TBM FromPassword]
+	
+	Use		: Name Field
+	Storage: FromPassword
+	Case	: Normal
+	Validate: NOT $$IsEmpty:$$Value
+	Style	: Small Bold
+	
+[Line: TBM ToEmail]
+	
+	Field: Medium Prompt, TBM ToEmail 
+	Local: Field: Medium Prompt: Set as: "To Email"
+	Space Top: 1
+	
+[Field: TBM ToEmail ]
+	
+	Use		: Name Field
+	Width	: 30 % Page
+	Style	: Small Bold
+	Case	: Normal
+	Storage	: TBMToEmail
+	
+	
+	
+
+
+
+[Collection: Coll CreatePOS]
+
+    Type        : Voucher
+ 
+    Report      : DA POSVoucher 
+    Filter      : NotPayrollVoucherFilter, IsLDRPos
+	
+[System: Formula]
+	
+	IsLDRPos:  $VoucherTypeName = @@POSVType
+	
+[Report: DA POSVoucher]
+	
+	Use		: Voucher
+	Title   : $$Sprintf:@@VoucherReportFormat:@@POSVType:@@ModeName:@@SubModeName
+   
+    Set     : SVVoucherType 	: @@POSVType
+    Set     : PayrollVch        : No
+    Set     : InventoryVch  	: Yes
+    Set     : AccountsVch   	: No
+	Set		: ORIGVchType		: $VoucherTypeName
+	
+	Set		: SVClass   : "POS"
+   
+    VARIABLE	: NewPOS
+    Set			: NewPOS : Yes
+   
+	Variable	: VarItemLineNo
+	Set		 	: VarItemLineNo : "0"
+	
+	Variable	: VARPAS
+	Set			: VARPAS : Yes
+	
+	Variable	: VarSModeStatus
+	Set			: VarSModeStatus : No
+	
+	Variable	: VarScanMode
+	Set			: VarScanMode : No
+	
+	Variable	: VarBillType
+	Set			: VarBillType : If $$InCreateMode Then "Direct Bill" Else $POSBillType
+	
+	Variable	: VarCOD
+	Set			: VarCOD : If $$InCreateMode Then No Else $LDRPOSCOD
+	
+	Variable	: OptionalFlag
+	Set			: OptionalFlag : No
+	
+	Variable	: VarDSett
+	Set         : VarDSett : No
+	
+	Variable	: VarIsPCat	  
+	Set         : VarIsPCat : No
+	
+	Variable	: SVPreview
+	Set         : SVPreview : If @@Printwithoutpreview Then No Else Yes
+	
+	Variable	: VARPrintKOTFromKey : Logical
+	Set			: VARPrintKOTFromKey : No
+	
+	Variable	: VarDirPrintBill
+	Set			: VarDirPrintBill : No
+	
+	Variable	: VarIsSalesman : Logical
+	
+	Set			: VarSalesman : If ##VarIsSalesman Then ##VarSalesman Else $LDRVChSalesman
+	
+[Variable: VarSModeStatus]
+	
+	Type	: Logical
+	
+[Variable: NewPOS]
+	
+	TYpe	: Logical
+	
+[Variable: VARPAS]
+	
+	Type	: Logical
+	
+[Variable: VarScanMode]
+	
+	Type	: Logical
+	
+[Variable: VarBillType]
+	
+	Type	: String
+	
+[Variable: VarCOD]
+	
+	Type	: Logical
+	
+[Variable: VarDSett]
+	
+	Type	: Logical
+	
+[Variable: VarIsPCat]
+	
+	Type	: Logical
+	Persistent: No
+	
+[Variable: VarSalesman]
+	
+	Type	: String
+	
+[Variable: VarDirPrintBill]
+	
+	Type	: Logical
+
+	
+[System:Variable]
+	
+	NewPOS	    : ""
+	VARPAS      : ""
+	VarScanMode : ""
+	VarDSett    : ""
+	VarIsPCat   : ""
+	VarDirPrintBill    : ""
+	
+[Form: DA POSVoucher]
+	
+	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
+    Control     : DateBelowFromDate : $Date < $$SystemPeriodFrom
+    Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo
+	
+	Print after Save	: No ;##VARPAS
+	No Confirm : Yes
+	
+    Horizontal Align: Left
+    Vertical Align  : Top
+	Width	: 100 % Page
+	Height	: 100 % Page	
+		
+    Space Bottom    : 0
+ 
+    Buttons         		: PrintButton, ExportButton, UploadButton, MailButton
+	Bottom Toolbar Buttons	: BottomToolBarBtn1, BottomToolBarBtn2_Accept, BottomToolBarBtn3_Delete, BottomToolBarBtn4_Cancel
+    
+	Set             : InvoicingModeFlag : Yes
+	SetAlways       : SVClass           : "POS"
+	
+	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
+										  If @@InventoryView then $$SysName:InvVchView Else +
+										  If @@PayrollView	then $$SysName:PaySlipVchView Else +
+										  If (@@MultiMfgrJrnlView OR @@IsJobMaterialVchs) then $$SysName:MulConsVchView Else +										  
+										  If @@StkJrnlView then $$SysName:ConsVchView Else $$ShowMessage:"SVViewName variable is not set properly : Error is triggered from voucher.500"	
+
+	SetAlways       : DSPTitleRefresh   : No
+	Set Always      : SVAccAllocOnOrder : ##ICFGAccAllocOnOrder
+
+	Volatile   	    : If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then No Else $$RegenerateVoucher
+
+    Keys            : Change System Period,Disburse Auto Fill
+    
+    Default Value   : ""
+         
+    Option  		: Cust Export Invoice            	: Yes
+    
+	Set             : SVAccounts         		: ##AccountsVch OR ##PayrollVch 
+    Set             : SVInventory          		: NOT ##AccountsVch AND NOT ##PayrollVch
+    Set             : SVStatutory          		: No
+	Set 			: SVTallyShop				: No
+    Set				: SVVoucherOfType	        : @@TypeOfVoucherPrint	
+	
+	Option 			: DummyOption 				: (##SVClass = "x" OR ##SVClass != "x") OR (##AutoFillDone OR NOT ##AutoFillDone)
+	Option			: VoucherAlterMode		    : $$InAlterMode
+    
+	Switch	: VchTypeColor	  :  POS Color   : $$IsSales:##SVVoucherType 
+	Option	: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
+	Background      : SalesVocherClr
+	
+	Button			: Print Bill
+	
+[Button: Print Bill]
+	
+	Use		: Task Button
+	Key		: F6
+	Title	: If @@TableBill Then "Print Bill" Else "Reprint" + $$NewLine + "Bill"
+	Inactive: $$InCreateMode AND NOT @@TableBill
+	ActionEx: 001 : Set: VarDirPrintBill : Yes
+	ActionEx: 002 : Do If: $$InDisplayMode : Call : Direct Print Bill
+	ActionEx: 003 : Do If: NOT $$InDisplayMode : Trigger Key : Ctrl + A
+	
+[Function: Direct Print Bill]
+	
+	Variable	: SVPrinterName
+	
+	10 : Set: SVPreview : If @@Printwithoutpreview Then No Else Yes
+	
+	12 : Set: SVPrinterName : @@CMPCashPrinter
+	13 : Print Report: PXP Report : Yes
+
+[Button: Task Button]
+	
+	Horizontal Align: Center
+	Height	: 6.5 % Page
+	
+[!Form: POS Color]
+ 
+	Delete			: Key 	: SVAcctsInvoice
+	Background: SalesVocherClr
+	Local	: Style: Normal Bold : Bold: No
+	Local	: Style: Small Bold  : Bold: No
+	Control : NoEntries : $$InCreateMode AND @@NoItems ; Condition to Block the Blank Transactions
+	On	    : Form Accept: Yes: Form Accept
+	On		: Form Accept: Yes: Trigger Key: Alt + F5
+	
+	On: Form Accept: Yes: Call: Print POS
+	Print: PXP Report
+	
+[Function: Print POS]
+	
+	Variable	: SVPrinterName
+	
+	00 : Set: SVPreview : If @@Printwithoutpreview Then No Else Yes
+	
+	01 : If: ##VarDirPrintBill
+	02 : Set	: SVPrinterName : @@CMPCashPrinter
+	03 : Print Report: PXP Report : Yes
+	04 : End If
+	
+	10 : If : NOT ##VarDirPrintBill
+	11 : If : @@ExpressBilling
+	12 : Set	: SVPrinterName : @@CMPCashPrinter
+	13 : Print Report: PXP Report : Yes
+	17 : End If
+	18 : End If
+	
+	
+[Function: FuncSetVCHDate]
+	
+	10 : Set Value: Date : $$MachineDate
+	
+[System: Formulae]
+	
+	NoItems   : $$CollNumTotal:InventoryEntries:$$Number:$BilledQty = 0
+	NoEntries : $$LocaleString:"No Entries !" + $$NewLine + "Press Any Key"
+	DiffVCHDate : $Date != $$MachineDate
+	
+[!Form: Cust Export Invoice]
+	
+	Option	: Small Size Form
+	Add		: Part: LDR POSTTL, LDR POSBody
+	Width	: 100 % page
+	Height	: 100 % Page	
+	
+	Delete	: Bottom ToolBar Buttons
+	
+[Part: LDR POSTTL]
+	
+	Part	: Common Back, LDR Salesman, LDR POSTTLD, LDR VCHLevel, Common Home
+;	Space Bottom: 0.10
+
+[Part: LDR Salesman]
+	
+	Line	: EmptyTTL
+	Width	: 25 % Page
+	Option	: Salesman Button : @@POSEnbSalesman
+	
+[!Part: Salesman Button]
+	
+	Delete	: Line	: EmptyTTL
+	Add		: Line	: At Beginning : LDR SalesmanBTN
+	
+[Line: EmptyTTL]
+	
+	Field	: EmptyTTL
+	
+[Field: EmptyTTL]
+
+	Use		: Name Field
+	Width	: 25 % Page
+	Skip	: Yes
+	
+[Line: LDR SalesmanBTN]
+	
+	Field	: EmptyTTL, LDR SalesmanBTN
+	Local	: Field: EmptyTTL : Width : 5 % Page
+	Space Top: 0.50
+	
+[Field: LDR SalesmanBTN]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: "Small Bold"
+	Set as	: "Select" + $$NewLine + "Salesman"
+	Line	: 2
+	Align	: Center
+	Read Only	: Yes
+	Skip Forward: Yes
+	Background: Light Grey
+	Border	: Thin Box
+	Key			: Key Salesman
+	
+[Part: Common Back]
+	
+	Line	: Common Back
+	Width	: 10 % Page 
+	
+[Line: Common Back]
+	
+	Field	: Common Back
+	
+[Part: Common Home]
+	
+	Line	: Common Home
+	Width	: 10 % Page 
+	
+[Line: Common Home]
+	
+	Field	: Common Home
+
+[Part: LDR POSTTLD]
+	
+	Line	: LDR POSTTL, LDR BillTyep
+	Width	: 30 % Page
+	Option	: Salesman POSTTLD : @@POSEnbSalesman
+	
+[Line: LDR POSTTL]
+	
+	Field	: LDR KOTNumber, LDR KOTStatus, LDR OppCounter, LDR CCYes, Medium Prompt, LDR POSTTL, EIPOS BillStatus, EIPOS UserName, EIPOS INTIme, EIPOS OutTIme, VCH InvoiceView, VCH InvoiceStatus, VCH DiffActualQty, VCH ForGdnTransfer
+	
+	Local	: Field: VCH DiffActualQty: Invisible: Yes
+	
+	Local	: Field: Medium Prompt : Set as: If @@TakeAway OR @@ExpressBilling OR @@HomeDelivery Then "Mode : " + #LDRPOSTTL Else "Table No. : " + #LDRPOSTTL
+	Local	: Field: Medium Prompt : Width	: 30 % Page
+	Local	: Field: Medium Prompt : Align : Center
+	Local	: Field: Medium Prompt : Style : Bold Style
+	Local	: Field: LDR POSTTL    : Style : Bold Style
+	Local	: Style: Bold Style   : Height: 13
+	
+[Line: LDR BillTyep]
+	
+	Field	: LDR BillTyepTTL, LDR BillTyep, LDR POSCOD, LDR CODPaid
+	Local	: Style: Bold Style   : Height: 11
+	
+[Field: LDR BillTyepTTL]
+	
+	Use		: Name Field
+	Width	: 30 % Page
+	Style	: Bold Style
+	Set as	: If $LDRPOSCOD Then $POSBillType + " (" + "COD" + ")" Else $POSBillType
+	Set Always: Yes
+	Align	: Center
+	Skip	: Yes
+	Invisible	: @@TableYes
+	
+[Field: LDR BillTyep]
+	
+	Use		: Name Field
+	Width	: 30 % Page
+	Style	: Bold Style
+	Storage	: POSBillType
+	Set as	: ##VarBillType
+	Set Always: Yes
+	Align	: Center
+	Skip	: Yes
+	Invisible	: @@TableYes
+	Invisible   : Yes
+	
+[Field: LDR POSCOD]
+	
+	Use		: Logical Field
+	Width	: 10 % Page
+	Style	: Bold Style
+	Set as	: If NOT @@OnlineBill Then No Else ##VarCOD
+	Set Always: Yes
+	Storage	: LDRPOSCOD
+	Skip	: Yes
+	Invisible: Yes
+	
+[Field: LDR CODPaid]
+	
+	Use		: Name Field
+	Storage	: LDRCODPaid
+	Width	: 10 % Page
+	Set as	: If $$Value = "Paid" Then $$Value Else If @OnlineBillPay > 0 Then "Paid" Else ""
+	Set Always: Yes
+	OnlineBillPay : $EILDROLCard + $EILDROLCash
+	Background: Green
+	Skip	: Yes
+	Invisible: Yes
+	
+[Style: Bold Style]
+	
+	Font    : if $$SysInfo:IsWindows then "Arial" else "Helvetica"
+	Height	: 15
+	Bold	: Yes
+	
+[!Part: Salesman POSTTLD]
+	
+	Add	: Line	: After : LDR BillTyep : LDR VSalesman
+	
+[Line: LDR VSalesman]
+	
+	Field	: LDR VSalesman
+	
+[Field: LDR VSalesman]
+	
+	Use		: Name Field
+	Width	: 30 % Page
+	Align	: Center
+	Skip	: Yes
+	Style	: Small Bold
+	Storage	: LDRVChSalesman
+	Set as	: ##VarSalesman
+	Set Always: Yes
+	Type	: String: Forced
+	
+[Field: LDR KOTNumber]
+	
+	Use		: Name Field
+	Storage	: LDRKOTNumber
+	Set as	: "K - " + $VoucherNumber
+	Set Always: Yes
+	Background: Green
+	Invisible : Yes
+
+[Field: LDR KOTStatus]
+	
+	Use		: Logical Field
+	Storage	: LDRKOTStatus
+	Set as	: "No"
+	Background: Green
+	Invisible: Yes
+	
+[Field: LDR OppCounter]
+		
+	Use		: Number Field
+	Set as	: If $$InCreateMode Then 1 Else $$Value + 1
+	Set Always: Yes
+	Storage	: LDROppCounter
+	Type	: Number: Forced
+	Invisible: Yes
+	
+[Field: LDR CCYes]
+	
+	Use		: Logical Field
+	Storage	: IsCostCentre
+	Set as	: Yes
+	Set Always: Yes
+	Type	: Logical: Forced
+	Invisible	: Yes
+	
+[Field: LDR POSTTL]
+	
+	Use		: Name Field
+	Width	: 40 % Page
+	Style	: Normal Bold
+	Align	: Left
+	Full Width: Yes
+	Storage : CostCentreName
+	Set as	: ##VarTabNo
+	Set Always: Yes
+	Skip	: Yes
+	Local	: Style: Normal Bold : Height: 13
+	Type	: String: Forced
+	Invisible	: Yes
+
+[Field: EIPOS BillStatus]
+	
+	Use         : Logical Field
+    Storage     : IsOptional
+    Set as      : ##OptionalFlag
+    Set always  : Yes
+    Invisible   : Yes
+    Skip        : Yes
+	Background: Green
+	
+[Field: EIPOS UserName]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Set as	: If $$InCreateMode Then ##SVUserName Else $$Value
+	Set Always: Yes
+	Storage	: EIPOSUserName
+	Background: Green
+	Skip	: Yes
+	Invisible	: Yes
+	
+[Part: LDR POSBody]
+	
+	Part	: LeftEmptySpace, LDR POSBodyLeft
+	Right Part: LDR POSBodyRight, EmptySpace
+	Space Bottom: 0.50
+	
+[Part: LeftEmptySpace]
+	
+	Line	: EmptySpace
+	Local	: Field: EmptySpace : Width : 1 % Page
+	
+[Part: LDR POSBodyLeft]
+	
+	Part	: LDR InvBody 
+	Width	: 55 % Page
+	Vertical: Yes
+	
+[Part: LDR VCHLevel]
+	
+	Line	: LDR VCHLevel
+	Width	: 25 % Page
+	
+[Line: LDR VCHLevel]
+	
+	Field	: LDR JCVchType, LDR JCVchPrompt, LDR JCNo, LDR ActualRefNo, Medium Prompt, LDR JCDate
+	Field 	: LDR JCCustomerName, VCH VoucherClass, LDR POSCountry, LDR POSEmirates, LDR POSDealType
+	
+	Local: Field: Medium Prompt : Set As: "Date"
+	Local: Field: Medium Prompt : Width: 5 % Page
+	Local: Field: Medium Prompt : Style: Small
+	Local: Field: VCH VoucherClass : Invisible: Yes
+	Space Top: 0.50
+	
+[Field: LDR POSCountry]
+	
+	Use		: Short Name Field
+	Storage	: PlaceofSupplyCountry
+	Set as	: $CountryName:Company:##SVCurrentCompany
+	Set Always: Yes
+	Invisible	: Yes
+	
+[Field: LDR POSEmirates]
+	
+	Use		: Short Name Field
+	Storage	: EmiratePOS
+	Set as	: @@CompanyStateName
+	Set Always: Yes
+	Invisible	: Yes
+	
+[Field: LDR POSDealType]
+	
+	Use		: Short Name Field
+	Storage	: VATDealerType
+	Set as	: "Unregistered"
+	Set Always: Yes
+	Invisible	: Yes
+	
+[Field: LDR JCVchType] ; 
+	
+	Use                     : Name Field
+ 	Skip                    : Yes
+	Set as                  : ##SVVoucherType 
+	Set always              : Yes
+	Modifies                : SVVoucherType
+	Storage                 : Voucher Type Name
+	Width     		  		: 3 % Page
+	Invisible	: Yes
+	
+[Field: LDR JCVchPrompt]
+
+	Use				: Medium Prompt
+	Set as          : $$LocaleString:"Bill No :"
+    Inactive        : @@NoVchNumbering
+    Space Right     : 0
+	Skip            : Yes
+	Align			: Left
+	Fixed           : Yes
+	Width			: 5 % Page
+	Style			: Small Bold
+	
+[Field: LDR JCNo]
+	
+        Use                 : Voucher Number Field
+        Inactive            : @@NoVchNumbering
+        Skip On             : @@AutoVchNumbering
+        Control             : DuplicateNumber   : @@NoDupVchNumbering AND (NOT $$InAlterMode OR NOT @SameVchTypeAndNum) AND $$IsDuplicateNumber:$$Value
+        SameVchTypeAndNum   : $VoucherTypeName = ##ORIGVchType AND $$Value = ##ORIGVchNum
+        Validate            : (@@NoDupVchNumbering AND NOT $$IsEmpty:$$Value) OR NOT @@NoDupVchNumbering
+        Keys                : PrevVchNumber
+		Background			: VCHOwner Color
+		Color				: White
+		Border				: Thin Box
+		Width				: 5 % Page
+		Style			: Small Bold
+		Skip			: No
+		Read Only		: Yes
+		Align			: Center
+		Skip	: Yes
+		
+[Color: VCHOwner Color]
+	
+	RGB	: 106,90,205
+		
+[Field: LDR ActualRefNo]
+
+	Use			: Short Name Field
+	Background	: White
+	Border		: Thin Box
+	Storage		: Reference
+;	Set As		: "JC" +"-" + $VoucherNumber
+	Set as		: $VoucherNumber
+	Invisible	: Yes
+	Set Always	: Yes
+	
+[Field: LDR JCDate]
+	
+	Use			: Uni Date Field
+	Background	: VCHOwner Color
+	Color		: White
+	Border		: Thin Box
+ 	Storage		: Date
+;	Set as		: $$MachineDate
+	Align		: Center
+    Modifies    : VARVchDate : Yes
+    Width		: 8 % Page
+	Skip		: Yes
+	Style		: Small Bold
+	Read Only	: Yes 
+	
+[Field: LDR JCCustomerName]
+	
+	Use			: Short Name Field
+	Table		: Ledger
+	Show Table	: Always
+	Border		: Thin Box
+	Storage		: PartyName
+	Set as      : $$SysName:NotApplicable
+	Set Always	: Yes
+	Style		: Tiny
+	Lines		: 0
+	Keys        : Create Ledger, Alter Ledger
+	Width 		: 5 % Page
+;	Storage		: PartyLedgerName
+;	Set as		: "Cash"
+	Skip		: Yes
+	Align		: Center
+	Style		: Small Bold
+	Background			: VCHOwner Color
+	Color				: White
+	Invisible	: Yes
+	
+[Part: LDR InvBody]
+	
+	Width	: 50 % Page
+	Part	: LDR Command, LeftEmptySpace2, LDR ItemInfoCommand
+	Space Top: 0.50
+	
+[Part: LeftEmptySpace2]
+	
+	Line	: EmptySpace
+	Local	: Field: EmptySpace : Width : 1 % Page
+
+[Part: LDR Command]
+	
+	Line	: LDR PlusComm, LDR MinusComm, LDR RemoveL
+	Bottom Line: LDR ScanItem
+	Width	: 10 % Page
+	Space Right: 0.20
+	
+[Line: LDR PlusComm]
+	
+	Field	: LDR PlusComm
+	Space Bottom: 0.20
+	
+[Field: LDR PlusComm]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Bold Style
+	Border	: Thin Box
+	Set as	: $$NewLine + "+" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Bold Style : Height: 10
+	Background: chestnut rosered
+	Color	: White
+	Key		: Key PlusValue
+	Skip Forward: Yes
+	
+[Key: Key PlusValue]
+	
+	Key	: Left Click
+	Action: Call: Func AddValue
+	
+[Function: Func AddValue] 
+	
+	Variable	: VarItemAmt : Number: 0
+	Variable	: VarVatAmt  : Number: 0
+	
+	05 : If: @@Editable
+	10 : Set Target	: Inventory Entries[##VarItemLineNo]
+	15 : Set Value: Actual Qty    : $$TgtObject:$$AsQty:$ActualQty + 1
+	20 : Set Value: Billed Qty    : $$TgtObject:$$AsQty:$BilledQty + 1	
+	22 : Set Value: Amount        : $InventoryEntries[##VarItemLineNo].BilledQty * $InventoryEntries[##VarItemLineNo].Rate
+	40 : Set Target:..
+	
+;	Variable	: VarVatAmt : Number: 0
+;	305 : Set: VarVatAmt : $$CollAmtTotal:InventoryEntries:$Amount * 5 %
+;	310 : Set Target: LedgerEntries[1]
+;	315 : Set Value: Amount : $$AsAmount:##VarVatAmt
+;	320 : Set Target:..	
+	400 : End If
+	
+[Line: LDR MinusComm]
+	
+	Field	: LDR MinusComm
+	Space Bottom: 0.20
+	
+[Field: LDR MinusComm]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Bold Style
+	Border	: Thin Box
+	Set as	: $$NewLine + "-" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Bold Style : Height: 10
+	Background: chestnut rosered
+	Color	: White
+	Key		: Key MinusValue
+	Skip Forward: Yes
+	
+[Key: Key MinusValue]
+	
+	Key	: Left Click
+	Action: Call: Func MinusValue
+	
+[Function: Func MinusValue]
+	
+	Variable: VarVatAmt : Number: 0
+	
+	05 : If: @@Editable
+	10 : Set Target	: Inventory Entries[##VarItemLineNo]
+	15 : Set Value: Actual Qty    : If $$TgtObject:$$AsQty:$ActualQty = 1 Then $$TgtObject:$$AsQty:1 Else $$TgtObject:$$AsQty:$ActualQty - 1
+	20 : Set Value: Billed Qty    : If $$TgtObject:$$AsQty:$BilledQty = 1 Then $$TgtObject:$$AsQty:1 Else $$TgtObject:$$AsQty:$BilledQty - 1
+	22 : Set Value: Amount        : $InventoryEntries[##VarItemLineNo].BilledQty * $InventoryEntries[##VarItemLineNo].Rate
+	30 : Set Target:..
+	
+;	Variable	: VarVatAmt : Number: 0
+;	305 : Set: VarVatAmt : $$CollAmtTotal:InventoryEntries:$Amount * 5 %
+;	310 : Set Target: LedgerEntries[1]
+;	315 : Set Value: Amount : $$AsAmount:##VarVatAmt
+;	320 : Set Target:..	
+	400 : End If
+	
+[Line: LDR RemoveL]
+	
+	Field	: LDR RemoveL
+	Space Bottom: 0.20
+	
+[Field: LDR RemoveL]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Remove Item" + $$NewLine
+	Line	: 3
+	Align	: Center
+	Read Only: Yes
+	Local	: Style : Small Bold : Height: 10
+	Background: chestnut rosered
+	Color	: White
+	Key		  : Key RemoveLine  
+	Skip Forward: Yes
+	
+[Key: Key RemoveLine]
+	
+	Key	: Left Click
+	Action: Call: Func RemoveLine
+
+[System: Formulae]
+		
+	FocusItemCNT : $$CollectionField:$CIItemCnt:##VarItemLineNo:InventoryEntries
+	VCHOpCNT     : $$Owner:$LDROppCounter
+	Editable     : @@FocusItemCNT = @@VCHOpCNT
+	
+[Function: Func RemoveLine]
+	
+;	05 : If: If $$IsCmpOwner Then Yes Else @@Editable
+	10 : Set Target	: Inventory Entries[##VarItemLineNo]
+	20 : Set Value: StockItemName    : $$SysName:EndOfList
+	40 : Set Target:..
+;	45 : End If
+	
+[Color: chestnut rosered]
+	
+	RGB	: 205, 92, 92
+	
+[Line: LDR ScanItem]
+	
+	Field	: LDR ScanItem
+	Space Bottom: 0.20
+	
+[Field: LDR ScanItem]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Scan Item" + $$NewLine
+	Set Always: Yes
+	Line	: 3
+	Align	: Center
+	Read Only: Yes
+	Background: chestnut rosered
+	Color	  : White 
+	Key		  : Key ScanItem
+	Skip Forward: Yes
+	
+[Key: Key ScanItem]
+	
+	Key	: Left Click
+	Action: Call: Func ScanItemFocus
+	
+[Function: Func ScanItemFocus]
+	
+	02 : Set: VarScanMode : Yes
+	Variable: VarCurrItemsNos : Number
+	Variable: VarXXCnt : Number: 1
+	Local Formula: NoofItems : If $$IsEmpty:$InventoryEntries[1].StockItemName Then $$NumItems:InventoryEntries - 1 Else $$NumItems:InventoryEntries
+	
+	05 : Set: VarCurrItemsNos : 1 + @NoofItems;$$NumItems:InventoryEntries ;+ 3
+	
+	11 : While: (##VarXXCnt <= ##VarCurrItemsNos)
+	12 : Trigger Key : Enter 
+	14 : Increment: VarXXCnt
+	15 : End While
+	
+[Part: LDR ItemInfoCommand]
+	
+	Part	: LDR ClmTTL, LDR ItemInfo, LDR SettleButton
+	Vertical: Yes
+	
+[Part: LDR ClmTTL]
+	
+	Line	: LDR ClmTTL
+	Background: VocherTypeClr
+	Local	: Field: Default : Color: White
+	Width	: 40 % Page
+	
+[Part: LDR ItemInfo]
+		
+	Line	: CI InvDetails
+	Repeat  : CI InvDetails : Inventory Entries
+    BreakOn : $$IsSysName:$StockItemName       
+	Scroll	: Flow;Vertical
+	Sync	: No
+	Width	: 39.9 % Page
+	Total	: VCHBilledQty, VCH Value
+	Background: SalesVocherClr
+	Border	: Thin Box
+	
+	Bottom Line	: EI InvSubTotal
+	Local	: Line: EI InvSubTotal : Local: Field : EI ValueSubTotal : Delete: Inactive 
+
+	Local: Line: CI InvInfo : Local: Field: VCH RateIncl : Invisible: Yes
+	
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem : Width : 20.9 % Page
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Width : 6 % Page
+	Local: Line: CI InvInfo : Local: Field: VCHRate      : Width : 6 % Page
+	Local: Line: CI InvInfo : Local: Field: VCHValue     : Width : 7 % Page
+	
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem : Skip: No
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem : Read Only: No ;NOT @@ItemEditable
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Skip: No ;NOT @@ItemEditable
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Read Only :  No;@@ItemEditable
+	Local: Line: CI InvInfo : Local: Field: VCHRate  	 : Skip: No;NOT @@ItemEditable
+	Local: Line: CI InvInfo : Local: Field: VCHRate  	 : Skip Forward: Yes
+	Local: Line: CI InvInfo : Local: Field: VCHValue     : Skip: Yes
+	
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Delete: Inactive
+	Local: Line: CI InvInfo : Local: Field: VCHRateUnit : Invisible: Yes
+	Local: Line: CI InvInfo : Local: Field: VCHRate      : Set Always: No
+	Local: Field: VCHBilledQty : Delete: Notify
+	
+	Local	: Line: CI InvInfo : Local: Field : VCH Rate : Delete: Set as 
+	
+	Local	: Line: CI InvInfo : On: Focus: Yes: Call : Func LineFocus
+	
+;	Local: Line: CI InvInfo : Local: Field: Default : Color      : If $$IsEnd:$StockItemName Then "SalesVocherClr" Else If @@CursorLine AND NOT $$IsEnd:$StockItemName Then "Blue" Else "Black"
+	Local: Line: CI InvInfo : Local: Field: Default : Color      : If @@CursorLine Then "Blue" Else "Black"
+	
+	Local: Line: CI InvInfo : Add: Right Fields: At End: CI ItemCnt
+	
+	Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
+	Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Invisible:  Yes
+	Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Inactive: No
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem : Delete: Sub Form    : STKVCH BatchAllocations
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem : Delete: Sub Form    : EI DescExplosion
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem : Show Table: Never
+	Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown : Add: Set as: @@SecStoreLoc
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Add: Set as: $$AsQty:1
+	Local: Line: CI InvInfo : Local: Field: VCHActualQty : Add: Set as: $BilledQty ;$$AsQty:1
+	Local: Line: CI InvInfo : Local: Field: VCHActualQty : Invisible: Yes
+	Local: Line: CI InvInfo : Local: Field: VCHRate      : Add: Set as: @@PLItemRate
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Add: Key: NumPadRate
+	Local: Line: CI InvInfo : Local: Field: VCHRate      : Add: Key: NumPadRate
+	Local: Line: CI InvInfo : Local: Field: VCHValue     : Add: Set as: $Rate * $BilledQty
+	Local: Line: CI InvInfo : Local: Field: VCHBilledQty : Skip Forward: Yes
+	Local: Line: CI InvInfo : Local: Line: GVAT EI Discount : Invisible: Yes
+	Option	: CreateMode ItemInfo : $$InCreateMode AND @@CMPMultiPL
+	
+[!Part: CreateMode ItemInfo]
+	
+	Local: Line: CI InvInfo : Local: Field: VCHRate : Add: Set Always: Yes
+	
+[System: Formulae]
+	
+    PLItemRate	 : $$GetPriceFromLevel:#VCHStockItem:@@CMPPOSPLevel:##SVCurrentDate:"1"
+	
+	CMPPOSPLevel : If @@CommonPrices OR @@RestaurantBill Then @@RestaurantPL Else @@OtherPriceLevels
+	OtherPriceLevels : If @@TalabatBill Then @@CMPOP1 Else If @@ZomatoBill Then @@CMPOP2 Else @@CMPOP3
+	
+	CommonPrices 	: @@CMPMultiPL = "No"
+	RestaurantBill  : #LDRBillTyep = "Direct Bill"
+	TalabatBill  	: ##VarBillType = @@CMPOP1
+	ZomatoBill   	: ##VarBillType = @@CMPOP2
+	
+[Field: CI ItemCnt]
+	
+	Use		: Number Field
+	Set as	: $$Owner:$LDROppCounter
+	Set Always: No
+	Storage	: CIItemCnt
+	Invisible : Yes
+	
+[System: Formulae]
+	
+	CursorLine  : $$Line = ##VarItemLineNo 
+	ItemEditable: $CIItemCnt = $$Owner:$LDROppCounter
+	
+[Function: Func LineFocus]
+	
+	10 : Set : VarItemLineNo : $$Line
+	
+[Variable: VarItemLineNo] 
+	
+	Type	: Number
+	
+[System: Variables]
+	
+	VarItemLineNo    : ""
+	
+[Line: LDR ClmTTL]
+	
+	Field	: LDR ItemNameTTL
+	Right Field: LDR QtyTTL, LDR RateTTL, LDR AmtTTL
+	Border	: Thin Top
+	
+[Field: LDR ItemNameTTL]
+	
+	Use		: Name FIeld
+	Width	: 15 % Page
+	Style	: Tiny Bold
+	Info	: "Item Name"
+	Align	: Left	
+	Border	: Thin Left
+	
+[Field: LDR QtyTTL]
+	
+	Use		: Name FIeld
+	Width	: 6 % Page
+	Style	: Tiny Bold
+	Info	: "Qty."
+	Align	: Right	
+	
+[Field: LDR RateTTL]
+	
+	Use		: Name FIeld
+	Width	: 6 % Page
+	Style	: Tiny Bold
+	Info	: "Rate"
+	Align	: Right	
+	
+[Field: LDR AmtTTL]
+	
+	Use		: Name Field
+	Width	: 7 % Page
+	Style	: Tiny Bold
+	Info	: "Amt."
+	Align	: Right	
+	Border	: Thin Right
+	
+;;;; Second Main Part Stock Group ;;;;
+
+[Part: LDR POSBodyRight]
+	
+	Part	: LDR OthAmtMain
+	Bottom Part	: POS NumPadPart
+	Vertical	: Yes
+	Space Top: 2
+	
+[Part: LDR OthAmtMain]
+		
+	Right Part: LDR OthAmtDev
+	
+[Part: EmptySpace]
+	
+	Line	: EmptySpace
+	
+[Line: EmptySpace]
+	
+	Field	: EmptySpace
+
+[Field: EmptySpace]
+	
+	Use		: Name Field
+	Width 	: 6 % Page
+	Skip	: Yes
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	
+[Function: Func RefreshCreateDateTime]
+	
+	10 : Reset Value: EIPOSINTIme
+	
+[Function: Func RefreshAlterDateTime]
+	
+	10 : Reset Value: EIPOSOutTIme
+	
+[Line: LDR VCHTotal]
+
+	Field		: LDRX TTTLTTL
+	Right Field	:  VCHPOSInvoiceTotal
+	
+	Local	: Field: LDRX TTTLTTL : Style: Normal Bold
+	
+	Local		: Field: VCHPOSInvoiceTotal : Width: 13 % Page 
+	
+	Local	: Field: VCHPOSInvoiceTotal : Delete: Border 
+	Local	: Field: VCHPOSInvoiceTotal : Storage : LDRInvTotal
+	Local	: Field: VCHPOSInvoiceTotal : Set as: @@XVCHAmt
+	Local	: Field: VCHPOSInvoiceTotal : Set Always: Yes
+	Local		: Field: VCHPOSInvoiceTotal : Skip: Yes
+;	Local		: Field: VCHPOSInvoiceTotal : Background: Pattens Blue
+	Local		: Field: VCHPOSInvoiceTotal : Color: Blue
+	Local		: Field: VCHPOSInvoiceTotal : Style: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 16
+	Border	: Thin Bottom
+	
+[System: Formulae]  
+	
+	XItemAmt : $$CollAmtTotal:InventoryEntries:$Amount
+	XLedAmt  : $$Total:CIValue
+	XVCHAmt  : @@XItemAmt + @@XLedAmt
+ 	
+[Field: LDRX TTTLTTL]
+	
+	Use		: Name Field
+	Width	: 17 % Page
+	Border	: Thin Right
+	Align	: Left
+	Style	: Normal
+	Set as	: "Total"
+	Skip	: Yes
+	
+[Line: LDR CreditCard]
+	
+	Field		:  CI POSCardPaymentType, CI POS CardDeemedPos, LDR CreditCard
+	Right Field	:  LDR CreditCardAmt, EI OLCard
+	Local	: Field: CI POS CardDeemedPos : Set as: Yes
+	
+	Local	: Field: EI CreditCardAmt : Style: VCHVal Style
+	Border	: Thin Bottom
+	Height  : 1.7
+	
+[Field: LDR CreditCard]
+	
+	Use		: Name Field
+	Width	: 17 % Page
+	Border	: Thin Right
+	Align	: Left
+	Style	: Normal
+	Storage : LedgerName:LedgerEntries:First:@@IsPOSClassCardLedger
+	Set as  : $POSCardLedgerClass:VoucherType:##SVVoucherType
+	Set Always: Yes
+	Skip	: Yes
+	
+[Field: LDR CreditCardAmt]
+	
+	Use		: Amount Field
+	Width	: 13 % Page
+	Storage	: Amount:LedgerEntries:First:@@IsPOSClassCardLedger
+	Align	: Right
+	Validate: @@CardPayCond
+	Key		: NumPad
+	Skip	: $IsOptional
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 17
+	Inactive	: NOT @@DirBill
+	Invisible	: NOT @@DirBill
+	
+[Field: EI OLCard]
+	
+	Use		: Amount Field
+	Width	: 13 % Page
+	Storage	: EILDROLCard
+	Align	: Right
+	Validate: @@CardPayCond
+	Key		: NumPad
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 17
+	Inactive	: NOT @@CODBill
+	Invisible	: NOT @@CODBill
+	
+[Line: LDR CashTend]
+	
+;	Field		: CI POSCashPaymentType, CI POS  CashDeemedPos, LDR CashLed
+	Field		: CI POSCashPaymentTypeTest, CI POS  CashDeemedPosTest, LDR CashLed
+	Right Field	:  EI CashTend, EI OLCash, EI OLCashRcv, EI CashReceived
+	
+	
+	Local	: Field: EI CashTend : Style: VCHVal Style
+	Border	: Thin Bottom
+	Height  : 1.7
+	
+[Field: CI POSCashPaymentTypeTest]
+
+	Type        : String	: Forced
+	Storage     : POSPaymentType:LedgerEntries:First:@@IsPOSClassCashLedger
+	Set as      : "Cash"
+	Set Always  : Yes
+	Skip		: Yes
+	Invisible   : Yes
+	
+[Field: CI POS CashDeemedPosTest]
+
+    Use         : Logical Field
+    Type        : Logical : Forced
+    Storage     : IsDeemedPositive:LedgerEntries:First:@@IsPOSClassCashLedger
+    Set as      : Yes
+    Invisible   : Yes
+    Set always  : Yes
+    Skip        : Yes
+    Invisible   : Yes
+	
+;	XVCHAmt  : @@XItemAmt + @@XLedAmt
+	
+[Field: LDR CashLed]
+	
+	Field	: LDR CashTendLed, LDR CashRcvAmt, LDR OLCashRcvAmt
+	Width	: 17 % Page
+	
+[Field: LDR CashTendLed]
+	
+	Use		: Name Field	
+	Width	: 10 % Page
+	Align	: Left
+	Style	: Normal
+	Storage : LedgerName:LedgerEntries:First:@@IsPOSClassCashLedger
+	Set as	: $POSCashLedgerClass:VoucherType:##SVVoucherType
+	Set Always: Yes
+	Skip	: Yes
+	
+[Field: LDR CashRcvAmt]
+	
+	Use		: Name Field
+	Width	: 7 % Page
+	Set as	: If $$IsEmpty:#EICashReceived THen "" Else "[ "+ $$String:#EICashReceived + " ]"
+	Set Always: Yes
+	Align	: Right
+	Style	: Normal Bold
+	Skip	: Yes
+	Inactive	: NOT @@DirBill
+	Invisible	: NOT @@DirBill
+	
+[Field: LDR OLCashRcvAmt]
+	
+	Use		: Name Field
+	Width	: 7 % Page
+	Set as	: If $$IsEmpty:@ReceivdOLCash Then "" Else "[ "+ $$String:@ReceivdOLCash + " ]"
+	ReceivdOLCash : @@XVCHAmt - $EILDROLCard
+	Set Always: Yes
+	Align	: Right
+	Style	: Normal Bold
+	Skip	: Yes
+	Inactive	: NOT @@CODBill
+	Invisible	: NOT @@CODBill
+		
+[Field: EI CashTend]
+	
+	Use		: Amount Field
+	Width	: 13 % Page
+	Storage	: POSCashReceived
+	Align	: Right
+	Validate: @@CashTenderedCond 
+	Skip	: $IsOptional
+	Key		: NumPad
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 17
+	Inactive	: NOT @@DirBill
+	Invisible	: NOT @@DirBill
+	
+[Field: EI OLCash]
+	
+	Use		: Amount Field
+	Width	: 13 % Page
+	Storage	: EILDROLCash
+	Align	: Right
+	Key		: NumPad
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 17
+	Inactive	: NOT @@CODBill
+	Invisible	: NOT @@CODBill
+	Validate: @@OnlineCashTendCond
+	
+[Field: EI OLCashRcv]
+	
+	Use		: Amount Field
+	Width	: 7 % Page
+	Storage	: LDROLCashRcvAmt
+	Set as	: If $$IsEmpty:@ReceivdOLCash Then "" Else @ReceivdOLCash
+	ReceivdOLCash : @@XVCHAmt - $EILDROLCard
+	Set Always: Yes
+	Type	: Amount: Forced
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 17
+	Inactive	: NOT @@CODBill
+	Invisible	: Yes
+	Background: Yellow
+	
+[Field: EI CashReceived]
+	
+	Use		: Amount Field
+	Width	: 10 % Page
+	Storage	: Amount:LedgerEntries:First:@@IsPOSClassCashLedger
+	Set as	: If (@@TableBill OR @@HomeDelivery) AND @@NoPOSReceipt Then "" Else $$Abs:@CashAmt
+	CashAmt : @@XVCHAmt - #LDRCreditCardAmt
+	Set Always: Yes
+	Align	: Right
+	Background: Green
+	Key		: NumPad
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 18
+	Inactive	: NOT @@DirBill
+	Invisible	: Yes
+	
+[System: Formulae] 
+	
+	CashTenderedCond : IF @@ExpressBilling OR @@TakeAway OR ((@@TableBill OR @@HomeDelivery) AND ##VarDSett) Then ((@@XVCHAmt - #LDRCreditCardAmt) <= $$Value) Else Yes
+	CardPayCond      : $$Value <= @@XVCHAmt
+;	OnlineCashTendCond : If $$InCreateMode Then Yes Else ((@@XVCHAmt - #EIOLCard) <= $$Value)
+	OnlineCashTendCond : If @@HomeDelivery AND NOT ##VarDSett Then Yes Else ((@@XVCHAmt - #EIOLCard) <= $$Value)
+	
+[Line: LDR XBal]
+	
+	Field		: LDRX TTTLTTL
+	Right Field	:  EI XBal, EI OLBal
+	
+	Local	: Field: LDRX TTTLTTL : Set as : "Balance"
+	Height  : 1.7
+		
+[Field: EI XBal]
+	
+	Use		: Amount Field
+	Width	: 13 % Page
+	Storage	: EIXBal
+	Align	: Right
+	Set as	: If $$IsEmpty:$POSCashReceived Then "" Else #EICashTend - #EICashReceived
+	Set Always: Yes
+	Type	: Amount: Forced
+	Read Only: Yes
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 15
+	Inactive	: NOT @@DirBill
+	Invisible	: NOT @@DirBill
+	
+[Field: EI OLBal]
+	
+	Use		: Amount Field
+	Width	: 13 % Page
+	Storage	: EILDROLBal
+	Align	: Right
+	Set as	: If $$IsEmpty:$EILDROLCash Then "" Else (($EILDROLCard + $EILDROLCash) - @@XVCHAmt)
+	Set Always	: Yes
+	Key		: NumPad
+	Style	: VCHVal Style
+	Local	: Style: VCHVal Style : Height: 17
+	Inactive	: NOT @@CODBill
+	Invisible	: NOT @@CODBill
+	
+[Style: VCHVal Style]
+
+    Font    : if $$SysInfo:IsWindows then "Arial" else "Helvetica"
+    Bold    : Yes
+	
+[Line: LDR OthAmt]
+	
+	Field	: LDR OthAmt
+	
+		
+
+[Key: Key Salesman]
+	
+	Key		: Left Click
+	ActionEx: 001 : Set: VarIsSalesman : Yes
+	ActionEx: 002 : Display: SMS Report
+	
+[Report: SMS Report]
+	
+	Form	: SMS Report
+	
+[Form: SMS Report]
+	
+	Part	: SMS RepTTL, SMS Report
+	Height	: 80 % Page
+	Width	: 80 % Page
+	Vertical Align: Right
+	Horizontal Align: Right
+	Background	: SalesVocherClr
+	
+[Part: SMS RepTTL]
+		
+	Line	: SMS RepTTL
+	
+[Line: SMS RepTTL]
+	
+	Field	 : Common Back, SMS RepTTL
+	Space Bottom: 2
+	
+[Field: SMS RepTTL]
+	
+	Use		: Name Field
+	Width	: 70 % Page
+	Style	: Normal Bold
+	Local	: Style: Normal Bold : Height: 13
+	Info	: $$NewLine + "Select Salesman"
+;	Set as	: ##VarSalesman
+	Skip	: Yes
+	Line	: 2
+	Align	: Center
+	
+[Part: SMS Report]
+	
+	Line	: SMS Info
+	Repeat	: SMS Info
+	Set		: @@SalesmanRows
+	
+[System: Formulae]
+	
+	SalesmanRows : $$RoundUp:(($$NumItems:CollBranchSalesman) / 4):1
+	
+[Line: SMS Info]
+	
+	Field	: SMS Name
+	Repeat	: SMS Name
+	Set		: 4
+	Space Bottom : 0.10
+	
+[Field: SMS Name]
+	
+	Use		: Name Field
+	Width	: 20 % Page
+	Style	: Small Bold
+	Align	: Center
+	Border	: Thin Box
+;	Background	: If $$IsEmpty:@SalesmanName Then "SalesVocherClr" Else "White"
+	Set as	: $$NewLine + @SalesmanName
+	SalesmanName : $$FucExtractSalesman:$$Line:$$Column
+	Line	: 5
+	Key		: Key SelectSalesman
+	Option	: NoSalesman : $$IsEmpty:@SalesmanName
+	Read Only: Yes
+	
+[!Field: NoSalesman]
+	
+	Delete	: Border
+	Delete	: Key
+
+[Function: FucExtractSalesman]
+	
+	Parameter: VarLineNo : Number
+	Parameter: VarFieldNo: Number
+		
+	Variable: Salesman : String
+	Variable: VarC 		: Number: 1
+	
+	05 : Set: VarC : (##VarLineNo - 1) * 4 + ##VarFieldNo
+	10 : Set: Salesman : $$CollectionField:$Name:##VarC:CollBranchSalesman
+	12 : Return	: ##Salesman
+	
+[Collection: Coll BranchSalesman]
+	
+	Type	: Cost Centre
+	Child Of: "Salesman"
+	Fetch	: MSTCCSMLocation
+	Filter	: SameBranch
+	
+[System: Formula]
+	
+	SameBranch : $MSTCCSMLocation = @@POSVType
+	
+[Key: Key SelectSalesman]
+	
+	Key		: Left Click
+	Action	: Call: KeySelectSalesman:@SalesmanName
+	
+[Function: KeySelectSalesman]
+	
+	Parameter: PSalesman : String
+	
+	001 : Set: VarSalesman : ##PSalesman
+	002 : Refresh TDL
+	005 : Trigger Key: Esc
+	
+	
+[System: Variable]
+	
+	VarSalesman : ""
+	
+;	10 : Display: DBB Report
+
+	
+
+
+	
+
+[Part: LDR SettleButton]
+	
+	Button	: Bill SettleButton
+	Space Top: 0.20
+
+[Button: Bill SettleButton]
+	
+	Title	: "Settle Bill"
+	Key		: F4
+	Background: VocherTypeClr
+	Key Color: VocherTypeClr
+	Color	: White
+	Style	: Small Bold
+	Width	: 39.9 % Page
+	Height	: 8 % Page
+	Border	: Thin Box
+	Horizontal Align: Center
+	Skip Forward: Yes
+	ActionEx: 001 : Do If : $$InCreateMode AND @@DiffVCHDate AND NOT $$IsCmpOwner : Set Value : Date : $$MachineDate
+	ActionEx: 002 : Call : FuncPayModeQueryBox:$LDRInvTotal
+	
+[Function: FuncPayModeQueryBox]
+	
+	Parameter: VARPayBillAmount : Amount
+	
+	01 : Do If : @@HomeDelivery OR @@TableBill :  Set: VarDSett : Yes
+	02 : Do If : @@HomeDelivery OR @@TableBill :  Set: VARPAS   : Yes
+	
+
+	03 : Set: VARPayMode : ""
+	04 : If: @@DirBill
+	05 : Alter: SettleQuery Report
+	07 : If: NOT $$IsEmpty:##VARPayMode
+	16 : If: ##VARPayMode = "Card"
+	18 : Walk Collection: LedgerEntries
+	20 : Set Target  : LedgerEntries[$$LoopIndex].
+	21 : If: $$IsLedOfGrp:$LedgerName:$$GroupBank AND NOT $$IsEmpty:##VARPayBillAmount
+	22 : Set Value   : Amount : $$AsAmount:##VARPayBillAmount
+	23 : End If
+	24 : Set Target:..
+	25 : End Walk
+	28 : End If
+	29 : Trigger Key: Ctrl + A
+	30 : End If
+	35 : End If
+	
+	40 : Do If: NOT @@DirBill : Trigger Key: Ctrl + A
+	
+	42 : If: @@OSKeybord
+	45 : Do If: If @@TableBill Then @@NumPadQueryCond AND ##VarDSett Else @@NumPadQueryCond OR @@NumpadBillType : Action: Browse Url: "NumPad.exe"
+	50 : End If
+
+[System: Formula]
+	
+	NumPadQueryCond : ##VARPayMode != "Card" AND NOT $$IsEmpty:##VARPayMode
+	NumpadBillType  : ##VARCOD AND ##VarBillType != "Direct Bill"
+	
+;;;; Home Delivery Button
+
+[Variable: VARPayMode]
+	
+	Type	: String
+	Persistent: Yes
+
+[System: Variable]
+	
+	VARPayMode : ""
+
+[Report	: SettleQuery Report]
+	
+	Form	: SettleQuery Report
+	
+[Form: SettleQuery Report]
+	
+	Part		: SettleQuery Report 
+	Bottom	Part: SettleQuery Button
+
+	Sound Alert	: Alarm
+	Grey Back	: Yes
+	Width		: 50 % Page
+	Full Height : No
+	Space Bottom: 1
+	
+	Local			: Field	: CompQuery Report	: Style		: Small
+	
+[Part: SettleQuery Report]
+
+	Line   		: SettleQuery Report
+	Width		: 50 % Page
+	Space Bottom: 4
+	
+	[Line: SettleQuery Report]
+
+		Field	: Common Back, SettleQuery Report
+		Local	: Field: Common Back : Skip Forward: Yes
+		Local	: Field: Common Back : Local: Key: Direct Back : Delete: Action
+		Local	: Field: Common Back : Local: Key: Direct Back : Add: Action: Form Return	: No
+
+[Field: SettleQuery Report]
+
+	Info	: "Payment Mode ?" + $$NewLine + $$NewLine + "Amount : " + $$String:##VARPayBillAmount
+	Width	: 30 % Page
+	Line	: 3
+	Align   : Center
+	Border	: Thin Bottom
+	Style	: Small Bold
+	
+[Part: SettleQuery Button]
+	
+	Button	: SettleQuery CardYes, SettleQuery CashYes, SettleQuery BothYes
+	Local	: Button: SettleQuery CardYes : Space Left: 4
+	Local	: Button: SettleQuery CashYes : Space Left: 4
+	Local	: Button: SettleQuery BothYes : Space Left: 4
+	
+[Button: SettleQuery CardYes]
+	
+	Use		: SettleQuery Button
+	Title	: "Card"
+	Key		: A
+	ActionEx: 001 : Set	: VARPayMode : "Card"
+	ActionEx: 002 : Form Return	: Yes
+	
+[Button: SettleQuery CashYes]
+	
+	Use		: SettleQuery Button
+	Title	: "Cash"
+	Key		: B
+	ActionEx: 001 : Set	: VARPayMode : "Cash"
+	ActionEx: 002 : Form Return	: Yes
+	
+[Button: SettleQuery BothYes]
+	
+	Use		: SettleQuery Button
+	Title	: "Both"
+	Key		: C
+	Space Right: 4
+	ActionEx: 001 : Set	: VARPayMode : "Both"
+	ActionEx: 002 : Form Return	: Yes
+	
+[Button: SettleQuery Button]
+	
+	Width	: 12 % Page
+	Height	: 10 % Page
+	Background  		: Button BG Color
+	FocusBG     		: White
+	Border				: Button Border
+	KeyColor    		: "Black, Key Color"
+	Inactive Color		: Inactive Color
+	Vertical Align		: Center
+	Horizontal Align	: Center
+	Key Vertical Align	: Center
+	Color				: Black
+
+
+[Part: POS NumPadPart]
+	
+	Right Part : POS NumPad
+
+[Part: POS NumPad]
+	
+	Part	: POS NumPad79, POS NumPad46, POS NumPad13, POS Other, POS Enter
+	Vertical: Yes
+	Background: Pattens Blue
+	Height	: 42 % Page
+	Width	: 24 % Page
+	Border	: Thin Box
+	Horizontal Align: Center
+	
+[Part: POS NumPad13]
+	
+	Button: NUM1, NUM2, NUM3
+	
+[Button: NUM1]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 1
+	Border	: Thin Box
+	
+[Button: NUM2]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 2
+	Border	: Thin Box
+	
+[Button: NUM3]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 3
+	Border	: Thin Box
+	
+[Part: POS NumPad46]
+	
+	Button: NUM4, NUM5, NUM6
+	
+[Button: NUM4]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 4
+	Border	: Thin Box
+	
+[Button: NUM5]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 5
+	Border	: Thin Box
+	
+[Button: NUM6]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 6
+	Border	: Thin Box
+	
+[Part: POS NumPad79]
+	
+	Button: NUM7, NUM8, NUM9
+	
+[Button: NUM7]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 7
+	Border	: Thin Box
+	
+[Button: NUM8]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 8
+	Border	: Thin Box
+	
+[Button: NUM9]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: 9
+	Border	: Thin Box
+	
+[Part: POS Other]
+	
+	Button: NUM0, NUMPoint
+	
+[Button: NUM0]
+	
+	Use		: NumPad Button
+	Width	: 15.7  % Page
+	Title	: ""
+	Key		: 0
+	Border	: Thin Box
+	
+[Button: NUMPoint]
+	
+	Use		: NumPad Button
+	Title	: ""
+	Key		: .
+	Border	: Thin Box
+
+[Part: POS Enter]
+	
+	Button: NUMBS, NUMEnter
+	
+[Button: NUMBS]
+	
+	Use		: NumPad Button
+	Width	: 12  % Page
+	Title	: ""
+	Key     : BackSpace
+	KeyStyle: Small Bold
+	Border	: Thin Box
+	
+[Button: NUMEnter]
+	
+	Use		: NumPad Button
+	Width	: 12  % Page
+	Title	: ""
+	Key		: Enter
+	KeyStyle: Small Bold
+	Border	: Thin Box
+
+[Button: NumPad Button]
+	
+	Horizontal Align: Center
+	Height	: 8 % Page
+	Width	: 8 % Page
+	Skip Forward: Yes
+	Key Style: NumPadKey Style
+	Style	 : NumPadKey Style
+	Key Color: Black 
+	
+[Style: NumPadKey Style]
+	
+	Use		: Normal Bold
+	Height	: 13
+
+
+
+[#Field: VCH CostClassPrompt]
+	
+	Add	: Option	: OPTPOSVCH CostClassPrompt : @@IsPosVType
+	
+[!Field: OPTPOSVCH CostClassPrompt]
+		
+	Delete	: Set as
+	Add		: Set as: "Type / Table No."
+	Color	: Blue
+	Style	: Small Bold
+	
+[System: Formula]
+	
+	IsPosVType :  ##SVVoucherType = @@POSVType
+
+[#Line: VCH CostClass]
+	
+	Add	: Option	: OPTVCH CostClass : @@IsPosVType
+	
+[!Line: OPTVCH CostClass]
+	
+	Local       : Field : VCH CostClassPrompt	: Set as: "Type / Table No."
+	
+[#Part: VCHTitleLeft]
+	     
+	Add : Option: POS VCHTitleLeft: @@IsPosVType
+	
+[!Part: POS VCHTitleLeft]
+
+     AdD:        Lines   :AFter:  VCH Type: EI ResPOSDetail
+	 
+[Line: EI ResPOSDetail]
+	
+	Field	: EIPOS INTIme, EIPOS OutTIme
+
+[#Line: EI Consignee]
+	
+	Add	: Option	: OPTPOSVCH Consignee : @@IsPosVType
+	
+[!Line: OPTPOSVCH Consignee]
+	
+	Add	: Right Fields: At End: EIPOS INTIme, EIPOS OutTIme
+	
+[Field: EIPOS INTIme]
+	
+	Use	: Name Field
+	Type	: DateTime
+	Storage	: EIPOSINTIme
+	Format 		: "HMS"
+	Set as	: If $$InCreateMode Then @LocF Else $$Value
+	LocF    :  NOW
+	Set Always: Yes
+	Type : DateTime: Forced 
+	Background: Green
+	Invisible: Yes
+	
+[Field: EIPOS OutTIme]
+	
+	Use	: Name Field
+	Type	: DateTime: Forced
+	Storage	: EIPOSOutTIme
+	Format 		: "HMS"
+	Set as	: @LocF
+	LocF    :  NOW
+	Set Always: Yes
+	Background: Green
+	Invisible: Yes
+
+;;;; Change in Multipayment Method ;;;;;;
+
+[#Line: VCH POS Coupon Receipt]
+	
+	Local	: Field : Short Prompt	: Set as: $$LocaleString:"Bill Type:"
+	Local	: Field : Short Prompt : Delete: Inactive
+	Local	: Field: VCH POSCouponLedger : Skip: Yes
+	Delete: Field: VCH POSGiftNoZero
+
+[#Field: VCH POSCouponLedger]
+	
+	Delete	: Inactive
+	
+[#Line: VCH POS Card Receipt]
+	
+	Local	: Field : Short Prompt : Delete: Inactive
+	Local	: Field : VCH POSCardLedger : Delete: Inactive
+	Local	: Field : VCH POSCardLedger : Skip: Yes 
+	Delete	: Field: VCH POSCardNoZero
+	
+[#Field: VCH POSCardLedger]
+	
+	Delete: Inactive
+	
+[#Line: VCH POS Cash Receipt]
+	
+	Local	: Field : VCH POSCashLedger : Skip: Yes 
+	Delete	: Field: VCH POSCashNoZero
+	
+[#Line: VCH POS Bank Receipt]
+	
+	Invisible: Yes
+
+
+;;;; Online Bill COD ;;;;
+
+[#Line: VCH POS Coupon Receipt]
+	
+	Add		: Fields: At End: VCH CODStatus, VCH CODStatusTTL, Medium Prompt, VCH CODOLCard, Long Prompt, VCH CODOLCash, My Prompt, VCH CODOLTendered, Simple Prompt, VCH CODOLBal
+	Local	: Field: VCH POSCouponAmount : Width: 6 % Page
+	Local	: Field: VCH POSCouponAmount : Align: Left
+	Local	: Field: VCH POSCouponLedger : Width : 10 % Page
+	
+	Local	: Field: Medium Prompt : Set as: "Online Card"
+	Local	: Field: Medium Prompt : Width : 8 % Page
+	Local	: Field: Medium Prompt : Invisible : NOT @@CODBill
+	Local	: Field: Long Prompt   : Set as: "Online Cash"
+	Local	: Field: Long Prompt   : Width : 8 % Page
+	Local	: Field: Long Prompt   : Invisible : NOT @@CODBill
+	Local	: Field: My Prompt 	   : Set as: "Tendered"
+	Local	: Field: My Prompt	   : Width : 7 % Page
+	Local	: Field: My Prompt     : Invisible : NOT @@CODBill
+	Local	: Field: Simple Prompt : Set as: "Balance"
+	Local	: Field: Simple Prompt : Width : 6 % Page
+	Local	: Field: Simple Prompt : Invisible : NOT @@CODBill
+	
+[Field: My Prompt]
+
+    Align       : Prompt
+    Skip        : Yes
+    Fixed       : Yes
+
+[Field: VCH CODStatus]
+	
+	Use		: Logical Field
+	Width	: 4 % Page
+	Style	: Bold Style
+	Storage	: LDRPOSCOD
+	Invisible	: Yes
+	
+[Field: VCH CODStatusTTL]
+	
+	Use		: Name Field
+	Width	: 4 % Page
+	Style	: Bold Style
+	Set as	: If $LDRPOSCOD Then "COD" Else ""
+	Invisible: NOT $LDRPOSCOD
+
+[Field: VCH CODOLCard]
+	
+	Use		: Amount Field
+	Width	: 6 % Page
+	Align	: Left
+	Style	: Small Bold
+	Storage	: EILDROLCard
+	Invisible : NOT @@CODBill
+	
+[Field: VCH CODOLCash]
+	
+	Use		: Amount Field
+	Width	: 6 % Page
+	Align	: Left
+	Style	: Small Bold
+	Storage	: LDROLCashRcvAmt
+	Invisible : NOT @@CODBill
+	
+[Field: VCH CODOLTendered]
+	
+	Use		: Amount Field
+	Width	: 6 % Page
+	Align	: Left
+	Style	: Small Bold
+	Storage	: EILDROLCash
+	Invisible : NOT @@CODBill
+
+[Field: VCH CODOLBal]
+	
+	Use		: Amount Field
+	Width	: 6 % Page
+	Align	: Left
+	Style	: Small Bold
+	Storage	: EILDROLBal
+	Set as	: If $$IsEmpty:$EILDROLCash Then "" Else (($EILDROLCard + $EILDROLCash) - @@OLInvTot)
+	Set Always: Yes
+	Skip	: Yes
+	Invisible : NOT @@CODBill
+	
+[System: Formulae]
+	
+	OLInvTot : $$AmountAdd:@AccValTotal:$$Total:VCHValue
+	
+		
+
+	
+	
+
+;;;;;;;;;;;; Change In Receipt Voucher ;;;;;;;;
+
+[#Part: VCH POS Normal]
+	
+	Add	: Lines: At Beginning: LDRPOSVCHUPerc
+
+[#Part: VCH POS WithClass]
+	
+	Add	: Lines: At Beginning: LDRPOSVCHUPerc
+	
+[Line: LDRPOSVCHUPerc]
+	
+	Field	: Medium Prompt, LDRPOSVCHUPerc
+	Local	: Field	: Medium Prompt : Set as: "User (%)"
+	Local	: Field	: Medium Prompt : Width : 10 % Page
+	Space Bottom: 1
+	
+[Field: LDRPOSVCHUPerc]
+	
+	Use		: Number Field
+	Width	: 5 % Page
+	Style	: Small Bold
+	Storage	: LDRPOSVCHUPerc
+	Skip Forward: Yes
+	Format	: "No Zero"
+	Color	: Blue
+	
+
+
+
+;;;;;;;;;;
+
+[#Part: Purchase InvMode Right Config]  
+	
+	Add	: Line : At End : ICFGInclTax
+	Local	: Line : ICFGInclTax : Delete: Invisible
+	
+[#Field: VCH Rate]
+	
+	Add	: Set By Condition: At Beginning: @@IsGCCCountriesVATOn AND @@PurchInvoiceMode AND NOT @HasInvAlloc : $InclusiveTaxValue * 100/105
+	
+[#Field: VCH BatchRate]
+	
+	Add	: Set By Condition: At Beginning : (@TaxationEnabled AND (@@InvoiceInCreate OR NOT $$IsEmpty:$InclusiveTaxValue) AND (@@STKInclTax OR ##ICFGInclTax) AND @@PurchInvoiceMode)  AND (NOT $$IsEmpty:$$Number:$InclusiveTaxValue) AND NOT (($Amount != 0) AND ($Amount != @@CalcedAmt)) : $$InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@GSTItemRate:@@GSTItemQtyRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum
+	
+[#System: Formula]
+	
+	ICFGInclTax		: ##ICFGInclTax AND @@SalesInvoiceMode OR @@PurchInvoiceMode
+	PurchInvoiceMode: @@IsPurchaseVch AND $IsInvoice AND NOT ##SVAcctsInvoice
+
+
+
+
+[#Line: CUTitle]
+	
+	Add		: Fields	: AT End 	:  OT OtherSec
+
+[Field: OT OtherSec]	
+	
+	Use		: Name Title Field
+	Set As	: "Other Security"
+	Lines	: 0
+	Width	: 10
+	
+[#Part: Company Users]
+	
+    Local : Line : Company Users : Add	 : Fields  : At End 	:    OtherSecurityDet
+	
+[Field: OtherSecurityDet]
+	
+	Use		: Logical Field
+	Sub Form: Other SecReport: $$Value
+	Inactive: $$IsEndOfList:$Security
+	Width	: 10
+	Align	: Center
+	Set As	: "No"
+	
+[Report: Other SecReport]
+	
+	Form: OtherSecForm
+	
+[Form: OtherSecForm]
+	
+	Part			: OtherSecTitlePart , OtherSecDetailPart
+	Horizontal Align: Top
+	Vertical ALign	: Top
+	 Width			: 30 % Page
+	Height			: 100 % Page
+	
+	
+[Part: Other SecTitlePart]
+	
+	Line: EXPINV SubTitle , OtherSecTitleLine
+	Local:Line: EXPINV SubTitle: Local: Field: EXPINV SubTitle: Set As:"Security Level"
+	Local:Line: EXPINV SubTitle: Local: Field: EXPINV SubTitle: Skip: Yes
+	Local:Line: EXPINV SubTitle: Local: Field: EXPINV SubTitle: Align: Centre
+	Local:Line: EXPINV SubTitle: Local: Field: EXPINV SubTitle: FullWidth: Yes
+
+
+[Line: OtherSecTitleLine]
+	
+	Field		: OtherSecParticularTitle
+	Right Field	: OtherAcessTit
+	
+	Border		: Column Titles
+	
+[Field: OtherSecParticularTitle]
+	
+	Use		: Name Title Field
+	Set As	: "Particular"
+	Width	: 20 % Page
+	Style	: Small Bold
+	
+[Field: OtherAcessTit]
+	
+	Use		: Name Title Field
+	Set As	: "Access"
+	Width	: 10 % Page
+	Align	: Right
+	Style	: Small Bold
+
+[Part: OtherSecDetailPart]
+	
+	Line	: Sec AllowBill, Sec StoreLoc, Sec AccAccess
+	
+[Line: Sec AllowBill]
+
+	Field		: Medium Prompt
+	Right Field	: Sec AllowBill
+	
+	Local: Field: Medium Prompt: Set As:"Allow Billing Access"
+	Local: Field: Medium Prompt: Width : 20 % Page
+	Space Top: 0.3
+
+[Field: Sec AllowBill]
+	
+	Use		: Logical Field
+	Storage : SecAllowBill
+	Width	: 5 % Page
+	Align	: Right 
+	Table	: Coll ListofLoc
+	Show Table: Always
+
+	
+[Line: Sec StoreLoc]
+
+	Field		: Medium Prompt
+	Right Field	: Sec StoreLoc
+	
+	Local: Field: Medium Prompt: Set As:"Store/Shop Location"
+	Local: Field: Medium Prompt: Width : 20 % Page
+	Space Top: 0.3
+
+[Field: Sec StoreLoc]
+	
+	Use		: Name Field
+	Storage : SecStoreLoc
+	Width	: 10 % Page
+	Align	: Right 
+	Table	: Coll ListofLoc
+	Show Table: Always
+	
+[Collection: Coll ListofLoc]
+	
+	Title	: "List of Locations"
+	Type	: Godown
+	
+[Line: Sec AccAccess]
+
+	Field		: Medium Prompt
+	Right Field	: Sec AccAccess
+	
+	Local: Field: Medium Prompt: Set As:"Allow Accounts Access"
+	Local: Field: Medium Prompt: Width : 20 % Page
+	Space Top: 0.3
+
+[Field: Sec AccAccess]
+	
+	Use		: Logical Field
+	Storage : SecAccAccess
+	Width	: 5 % Page
+	Align	: Right 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[System: Formulae]
+	
+	SecStoreLoc  : If $$IsEmpty:$$SecStoreLoc Then "Main Location" Else $$SecStoreLoc
+	AccAccess    : $$AccAccess
+	BillingAcc   : $$BillingAcc
+ 
+[Function: BillingAcc]
+	
+	Return	: String
+
+	100		: Return	: $(Company,$$CurrentCompany).UserList[1,($Name= $$CmpUserName)].SecAllowBill 
+
+[Function: SecStoreLoc]
+	
+	Return	: String
+
+	100		: Return	: $(Company,$$CurrentCompany).UserList[1,($Name= $$CmpUserName)].SecStoreLoc 
+	
+[Function: AccAccess]
+	
+	Return	: Logical
+
+	100		: Return	: $(Company,$$CurrentCompany).UserList[1,($Name= $$CmpUserName)].SecAccAccess 
+
+
+
+[#Form: Stock Item]
+	
+	Add	: Parts: After : STKI Basic : STKI ArabicName
+	
+[Part: STKI ArabicName]
+	
+	Line	: STKI ArabicName
+	
+[Line: STKI ArabicName]
+	
+	Field	: Medium Prompt, STKI ArabicName
+	Local: Field: Medium Prompt: Set As:"Name In Arabic"
+	Local: Field: Medium Prompt: Width : 10 % Page
+	Space Top: 0.50
+	
+[Field: STKI ArabicName]
+	
+	Use		: Name Field
+	Storage	: STKIArabicName
+	Style	: Small Bold
+	Align	: Left
+	Width	: 25 % Page
+	Color	: Blue
+	
+;;;;;;;;;;
+
+	
+	
+
+;;;; Day Book ;;;;;
+
+[#Field: DSP VchAccAccount]
+	
+	Delete	: Set as
+
+	Add : Set as : If @UseForPOSInv Then @POSVCHLedName Else $FirstLedger
+							
+	POSVCHLedName: If $POSNoOfPayLed > 1 Then $$LocaleString:"(as per details)" Else $POSFirstPLed
+					
+	POSLedgerEntries: $$FilterCount:AllLedgerEntries:IsPartyLedgerAccount > 1
+	UseForPOSInv	: ($UseForPOSInvoice:VoucherType:$VoucherTypeName AND ($$AddOnInfo:POSEnabled))
+	
+[#Field: DSP DBDrAmt]
+	
+	Delete	: Set as
+	Add     : Set as  : If $IsCancelled OR $IsDeleted then 0  Else +
+						(If @UseForPOSInv Then $POSBillAmt Else $$IfDr:$DaybookAmount) 
+						
+    FldValue    	: $$FilterAmtTotal:AllLedgerEntries:IsDr:$Amount
+	UseForPOSInv	:($UseForPOSInvoice:VoucherType:$VoucherTypeName AND ($$AddOnInfo:POSEnabled))
+    POSLedgerEntries: $$FilterCount:AllLedgerEntries:IsPartyLedgerAccount > 1
+	
+[System: Formulae]
+	
+	DrPayLed	: $IsPartyLedger AND $$IsDr:$Amount And $Amount != 0
+	
+[#Object : Voucher]
+	
+	POSNoOfPayLed : $$FilterCount:AllLedgerEntries:DrPayLed
+	POSFirstPLed  : $$FilterValue:$LedgerName:AllLedgerEntries:First:DrPayLed
+	POSBillAmt    : $$FilterAmtTotal:AllLedgerEntries:IsDr:$Amount
+	
+[#Collection: Daybook Vouchers of Company]
+	
+	Add: Fetch: POSNoOfPayLed, POSFirstPLed, POSBillAmt
+	
+	
+;;;;; Ledger Vouchers ;;;;
+
+
+[#Collection: Vouchers of Ledger]
+	
+	Add	: Filter: RemoveBlankPOSVCH
+	
+[System: Formulae]
+	
+	RemoveBlankPOSVCH : If ($VoucherTypeName = @@POSVType) Then $TotalLedDrVchAmt != 0 OR $TotalLedCrVchAmt != 0  Else Yes
+
+
+;;;;;; Stock Report Configuration ;;;;;
+
+[#Report: Stock Summary]
+	
+	Set: DSPShowOpening : Yes
+	Set: DSPShowInwards : Yes
+	Set: DSPShowOutwards: Yes
+	
+[#Report: Godown Summary]
+	
+	Set: DSPShowOpening : Yes
+	Set: DSPShowInwards : Yes
+	Set: DSPShowOutwards: Yes
+
+	
+	
+	
+	
+
+	
+
+
+
+
+	
+	
+	
+
+
+
+
+
+
+
+
+[Report: BS StockItem]
+	
+	Auto: Yes
+	Title	: Barcode Printing
+	
+[Form: BS StockItem]
+	
+	Part: BS StockItemDetail
+	Width	: 40 % Page
+	Height	: 30 % Page
+	Horizontal Align: Left
+	Vertical Align: Top
+	
+	On: Form Accept: Yes: Call : FuncItemFillValues
+	
+[Part: BS StockItemDetail]
+	
+	Line: BS RepTTL, BS ItemName, BS PartNo, BS ItemRate, BS ItemQty
+	
+[Line: BS RepTTL]
+	
+	Field	: BS RepTTL
+	Space Bottom: 2
+	
+[Field: BS RepTTL]
+	
+	Use		: Name Field
+	Style	: Small Bold
+	Info	: "Barcode Printing"
+	Align	: Center
+	Full Width: Yes
+	Border	: Thin Bottom
+	
+[Line: BS ItemName]
+	
+	Field: Medium Prompt, BS ItemName
+	Local: Field: Medium Prompt: Set As:"Select Item Name"
+	
+[Field: BS ItemName]
+	
+	Use		: Name Field
+	Width	: 20 % Page
+	Table	: Coll ItemTab
+	Style	: Small Bold
+	Show Table: Always	
+	Modifies: VARItemnameT
+	Control : BCMsg : $$IsEmpty:@@BCPartNO
+	
+[System: Formulae]
+	
+	BCMsg : "Barcode No. not found"
+	BCPartNO  : $PartNo:StockItem:$$Value
+	
+[Collection: Coll ItemTab]
+	
+	Title	: "List of Items"
+	Sub Title : "Item Name", "Barcode", "Balance"
+	Type	: Stock Item
+	Align	: Right
+	Full Height: Yes
+	Fetch	: Name
+	Format	: $Name, 25
+	Format	: $PartNo, 10
+	Format	: $ClosingBalance, 8
+	
+[Variable: VARItemnameT]
+	
+	Type: String
+	
+[System: Variable]
+	
+	VARItemnameT:""
+	
+[Line: BS PartNo]
+	
+	Field: Medium Prompt, BS PartNo
+	Local: Field: Medium Prompt: Set As:"Barcode No."
+	
+[Field: BS PartNo]
+	
+	Use		: Name Field
+	Set as	: $$Table:BSItemName:$PartNo
+	Show Table: Always	
+	Skip	: Yes
+	
+[Line: BS ItemQty]
+	
+	Field: Medium Prompt, BS ItemQty
+	Local: Field: Medium Prompt: Set As:"Qty"
+	Space Bottom: 1
+	
+[Field: BS ItemQty]
+	
+	Use		: Number Field
+	Validate: NOT $$IsEmpty:$$Value
+	
+[Line: BS ItemRate]
+	
+	Field: Medium Prompt, BS ItemMRP
+	Local: Field: Medium Prompt: Set As:"Rate"
+	
+[Field: BS ItemMRP]
+
+	Use		: Number Field
+	Style	: Small Bold
+	Align	: Left
+	Set as	: $$Number:@@BCPrice + @Vat
+	Vat     : $$Number:@@BCPrice * 5%
+	Format	: "Decimal:2"
+	Set Always: Yes
+
+[System: Formulae]
+	
+	BCPrice : $$GetPriceFromLevel:#BSItemName:@@CMPPOSPLevel:##SVCurrentDate:"1"
+	
+[Function: Func ItemFillValues]
+	
+	List Variable: LVFIBVal
+	VARIABLE: VAREVENODD: NUMBER
+	
+	VARIABLE: VARFOREVEN: NUMBER
+	VARIABLE: VARFORODD: NUMBER
+	VARIABLE: VARQTY: NUMBER
+	VARIABLE: VARCOUNTER: NUMBER
+	02	: SET: VARCOUNTER: 1
+	03	: SET: VARFOREVEN: 1
+	04	: SET: VARFORODD: 1
+	
+ 
+	10	: SET: VAREVENODD: 1
+	
+	Local Formula	: GetBCV  : $$NUMBER:#BSItemQty
+	 
+	18	: SET: VARQTY: $$RoundUp:@GetBCV:1  
+	18a	: SET: VARCOUNTER: 1
+	19	: WHILE	: ##VARQTY >=  ##VARCOUNTER
+	20	: LIST ADD EX	: LVFIBVal 
+ 	
+	30  : SET: LVFIBVal[##VARFOREVEN].XFItemName  : #BSItemName
+	32	: SET: LVFIBVal[##VARFOREVEN].XFBatchName : #BSPartNo
+	34	: Set: LVFIBVal[##VARFOREVEN].XFRate      : #BSItemMRP
+	
+	40	: SET: VARFOREVEN: ##VARFOREVEN + 1 
+ 
+	51	: SET: VARCOUNTER: ##VARCOUNTER + 1
+	52	: END WHILE
+	 
+	60  : Print: FI BarcodePrint
+	
+;;;;;;;;;;;;; Barcode Printing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[Report: FI BarcodePrint]
+	
+	Form: FI BarcodePrint
+	Variable	: SVPrinterName
+	Set			: SVPrinterName : @@CMPBarcodePrinter
+	
+[Form: FI BarcodePrint]
+	
+	Part  : FI BarcodePrint
+	Width : 54 mms
+	Height: 25 mms
+	Space Left   : 2 mms
+	Space Right  : 0
+	Space Bottom : 0
+	
+[Part: FI BarcodePrint]
+	
+	   Part: FI BarcodePrintRight
+	   
+[Part: FI BarcodePrintRight]
+	
+	Line	: FI BarcodePrint
+	Repeat	: FI BarcodePrint: LVFIBValMain
+	Scroll	: Vertical
+	
+[Line: FI BarcodePrint]
+	
+	Line	: 	FI CMPName, FI ItemCode, FI Barcodetxt, FI ItemDesc, FI ItemRate
+	
+[Line: FI CMPName]
+	
+	Field	: FI CMPName
+	Space Top    : 2 mms
+	
+[Field: FI CMPName]
+	
+	Use		: Name Field
+	Width	: 50 mms
+	Style	: Tiny
+	Local	: Style: Tiny : Height: 6
+	Set as	: @@CMPMailName
+	Align	: Center
+	
+[Line: FI ItemCode]
+	
+	Field:  FI ItemCode
+	 
+[Field:  FI ItemCode]
+
+	Use					: Name Field
+  	Set as 				: "*" + @TSPLFEEBarcodeLF + "*" 
+	TSPLFEEBarcodeLF 	: $$TSPLFFEBarcodeString:@TSPLFEEStkName 
+	TSPLFEEStkName		: $MXFBatchName  
+	Style				: TSPL FFE BarCode		 
+	Width				: 50 mms
+	Align				: Center
+	
+[Line: FI Barcodetxt]
+	
+	Field	: FI Barcodetxt
+	
+[Field: FI Barcodetxt]
+	
+	Use		: Name Field
+	Width	: 50 mms
+	Style	: Tiny
+	Local	: Style: Tiny : Height: 5
+	Set as	: $MXFBatchName  
+	Align	: Center
+	Wide Space: Yes
+
+[Line: FI ItemDesc]
+	
+	Field	: FI ItemDesc
+	
+[Field: FI ItemDesc]
+	
+	Use		: Name Field
+	Width	: 50 mms
+	Style	: Tiny
+	Local	: Style: Tiny : Height: 8
+	Set as	: $MXFItemName
+	Align	: Center
+	
+[Line: FI ItemRate]
+	
+	Field	: FI ItemRate
+	
+[Field: FI ItemRate]
+	
+	Use		: Name Field
+	Width	: 50 mms
+	Style	: Tiny
+	Local	: Style: Tiny : Height: 7
+	Set as	: @@GetCurrSymbol + " " + $$String:@ItemPrice
+	ItemPrice : $$AsAmount:$MXFRate
+	Align	: Center
+
+[Function: TSPL FFE BarcodeString]
+	
+	Parameter : TSPLFFEEBarcodeInput : String
+	 
+	Variable  : TSPLFFE Temp 			: String
+	Variable  : TSPLFFE Count 			: Number
+	Variable  : TSPLFFEEBarcodeOutput 	: String
+	
+	10 : Set 	:	TSPLFFE Temp 	: "" 
+	20 : FOR TOKEN : TSPL TokenVar : ##TSPLFFEEBarcodeInput : " "
+	30 : Set : TSPLFFE Temp : ##TSPLFFETemp + $$String:##TSPLTokenVar + "="
+	40 : END FOR
+	50 : SET : TSPLFFE Count : $$StringLength:##TSPLFFETemp
+	60 : SET : TSPLFFEEBarcodeOutput : $$StringPart:##TSPLFFETemp:0:(##TSPLFFECount-1)
+	70 : RETURN : ##TSPLFFEEBarcodeOutput 
+	
+[Style: TSPL FFE BarCode]
+
+;	Font		: IDAutomationHC39S
+	Font		: "Free 3 of 9 Extended"
+	Height  	: 38
+	Bold		: No
+
+[System:Formulae]
+	
+	GetCurrSymbol : $CurrencyName:Company:##SVCurrentCompany
+	 
+;;;;;;;;;;;;;;
+
+[Variable: LVFIBVal]
+	
+	Variable: XFItemName  : String
+	Variable: XFBatchName : String
+	Variable: XFRate      : Number
+	
+[Collection: Coll SourceLVFIBVal]
+	
+	Data Source	: Variable: LVFIBVal
+	
+[Collection: LVFIBValMain]
+	
+	Source Collection : Coll SourceLVFIBVal
+	
+	Compute	: MXFItemName  : $XFItemName
+	Compute	: MXFBatchName : $XFBatchName
+	Compute	: MXFRate      : $XFRate   
+
+
+[System: Formulae]
+	
+	KOTPrint : @@TableBill AND $USBill AND NOT ##VarDirPrintBill
+
+[Report: PXP Report]
+
+	Use		: VATGCC InvAnalysis Report_Variables
+	Use		: VATNG Tringualtion Report_Variables
+	Use		: VATGCC InvAnalysis Report_Variables
+	Use     : STD Invoice
+	
+	Form	: PXP Report
+	
+	PrintSet : SVPrintCopies : If ##VarDirPrintBill Then 1 Else ##SAPrintCopies
+	
+	Variable	: SV POSMode
+	Print Set	: SV POSMode : Yes
+	Variable	: SVPrinterName
+	Print Set	: SVPrinterName : @@CMPCashPrinter
+	Print Set   : ReportTitle   : If @@KOTPrint Then "KOT" Else "Tax Invoice"
+	
+[Form: PXP Report]
+	
+	Use		: GCCVAT InvoiceTaxAnalysis
+	
+	Set Always	: SV POSMode : Yes
+	
+	Part		: STD Invoice Top, PXP Logo, PXP POSPrint
+	Width       : 100 % Page
+	Space Top   : 0
+	Space Right : 0
+	Space Left  : 0
+	Space Bottom: 0
+	
+	Option	: KOT Form : @@KOTPrint
+	Option  : GCCVAT Comprehensive Invoice : @@IsVChGVATApplicable
+	
+[Part: PXP Logo]
+	
+	Line	: PXP Logo
+	Width	: 100 % Page
+	Height	: 8 % Page
+	Graph Type: ##SALogoPath
+	Horizontal Align: Center
+	Space Top: 0.50
+	Invisible: @@NoLogo 
+	
+[System: Formulae]
+	
+	NoLogo : $IsLogoEnabled:Company:##SVCurrentCompany = "No"
+	
+[Line: PXP Logo]
+	
+	Field	: PXP Logo
+	
+[Field: PXP Logo]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	
+[Part: PXP POSPrint]
+	
+	Parts		: PXP CMPDetail, PXP InvTTL, PXP InvDtl, PXP Column, PXP InvoiceDtl, PXP PayDetail, PXP LastPart
+	Vertical    : Yes
+	Scrolled	: Vertical
+	Option		: PXP UnsetteledBill : $USBill
+	
+[!Part: PXP UnsetteledBill]
+	
+	Delete	: Parts: PXP PayDetail
+	
+[Part: PXP CMPDetail]
+	
+	Line	: PXP CMPName, PXP CMPAdd
+	Repeat	: PXP CMPAdd : Company Address
+	
+[Line: PXP CMPName]
+	
+	Field	: PXP CMPName
+	Space Top: 0.20
+	
+[Field: PXP CMPName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Normal Bold
+	Align	: Center
+	Set as	: @@CMPMailName
+	Local	: Style: Normal Bold : Height: 20
+	
+[Line: PXP CMPAdd]
+	
+	Field	: PXP CMPAdd
+	
+[Field: PXP CMPAdd]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Small
+	Align	: Center
+	Set as	: $Address
+	
+[Part: PXP InvTTL]
+	
+	Line	: PXP InvTTLArabic, PXP InvTTL, PXP UserName
+	
+[Line: PXP InvTTLArabic]
+	
+	Field	: PXP InvTTL
+	Local	: Field: PXP InvTTL : Set as: @@ArabicInvTTL
+	Space Top: 0.20
+	Invisible	: @@KOTPrint
+	
+[System: Formulae]
+	
+	ArabicInvTTL : $VchPrintTitleNative:VoucherType:$VoucherTypeName
+	
+[Line: PXP InvTTL]
+	
+	Field	: PXP InvTTL
+	
+[Field: PXP InvTTL]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Normal Bold
+	Align	: Center
+	Set as	: $VCHPrintTitle:VoucherType:$VoucherTypeName
+	Local	: Style: Normal Bold : Height: 14
+	
+[Line: PXP UserName]
+	
+	Field	: PXP UserName
+	Border	: Thin Bottom
+	
+[Field: PXP UserName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Normal Italic
+	Align	: Right
+	Set as	: If @@POSEnbSalesman Then @SalesmanName Else "User : " + @Username
+	Username : If $$IsEmpty:$EIPOSUserName Then $Enteredby Else $EIPOSUserName
+	SalesmanName : If $$IsEmpty:$LDRVChSalesman Then "" Else "Salesman : " +  $LDRVChSalesman
+	
+[Part: PXP InvDtl]
+		
+	Line	: PXP InvNoDt, PXP TableTime
+	
+[Line: PXP InvNoDt]
+	
+	Field	: PXP InvNo
+	Right Field : PXP InvDt   
+	Space Top	: 0.20
+	
+[Field: PXP InvNo]
+	
+	Use		: Name Field
+	Width	: 50 % Page
+	Style	: Small
+	Set as	: "Invoice No. : " + $VoucherNumber
+	
+[Field: PXP InvDt]
+	
+	Use		: Short Name Field
+	Width	: 50 % Page
+	Style	: Small
+	Align	: Right
+	Set as	: "Date : " + $$String:$Date
+	
+[Line: PXP TableTime]
+	
+	Field	: PXP Table
+	Right Field : PXP Time   
+	Space Top	: 0.20
+	
+[Field: PXP Table]
+	
+	Use		: Name Field
+	Width	: 50 % Page
+	Style	: Small
+	Set as	: If @IsTableBill Then "Table No.   : " + $CostCentreName Else $CostCentreName
+	IsTableBill : $Parent:CostCentre:$CostCentreName = "Table"
+	
+[Field: PXP Time]
+	
+	Use		: Short Name Field
+	Width	: 50 % Page
+	Style	: Small
+	Align	: Right
+	Set as	: "Time : " + $$String:$$MachineTime
+	
+
+[Part: PXP Column]
+	
+	Line	: PXP Column
+	Space Top : 1
+	Space Bottom: 0.40
+	
+[Line: PXP Column]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Rate, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Description"
+	Local	: Field: PXP Qty	  : Set as: "Qty"
+	Local	: Field: PXP Rate	  : Set as: "Rate"
+	Local	: Field: PXP Amt	  : Set as: If @@VATEnabled Then "Amount " + "(Inc. Vat)" Else "Amount"
+	
+	Local	: Field: Default 		: Style : Small
+	Local	: Field: Default 		: Type  : String
+	Local	: Field: PXP ItemDesc 	: Align : Left
+	Local	: Field: Default 		: Align : Right
+	
+	Border	: Thin Top Bottom
+	Space Top: 0.20
+	Space Bottom: 0.20
+	Option : OPTPXP Column : @@CMPPrintRate
+	
+[!Line: OPTPXP Column]
+	
+	Local	: Field: PXP Amt 	  : Width : 20 % Page
+	
+	
+[Part: PXP InvoiceDtl]
+	
+	Part	: PXP Invoice, PXP LedEntries
+	Scroll	: Vertical
+	
+[Part: PXP Invoice]
+	
+	Line	: PXP Invoice
+	Repeat	: PXP Invoice : Inventory Entries
+	Border	: Thin Bottom
+	
+	Total	: PXP Amt
+	
+[Line: PXP SubTotal]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Sub. Total"
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: @@ItemAmt
+	
+	Local	: Field: PXP ItemDesc : Align : Left
+	Local	: Field: Default 		: Align : Right
+	
+	Space Top: 0.30
+	Invisible	: $$IsEmpty:@@DiscAmt AND $$IsEmpty:@@DelChg
+	
+[Line: PXP Disc]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Discount"
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: @@DiscAmt
+	
+	Local	: Field: PXP ItemDesc : Align : Left
+	Local	: Field: Default 		: Align : Right
+	Invisible	: $$IsEmpty:@@DiscAmt
+	
+[Line: PXP DelCharges]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Delivery Charges"
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: @@DelChg
+	
+	Local	: Field: PXP ItemDesc : Align : Left
+	Local	: Field: Default 		: Align : Right
+	Invisible	: $$IsEmpty:@@DelChg
+
+	
+[System: Formulae]
+	
+	ItemAmt   : $$CollAmtTotal:InventoryEntries:$Amount
+	DiscAmt   : $$FilterAmtTotal:AllLedgerEntries:IsDiscLed:$Amount
+	DelChg    : $$FilterAmtTotal:AllLedgerEntries:DelChagLed:$Amount
+	VatAmt    : $$FilterAmtTotal:AllLedgerEntries:IsTaxLed:$Amount
+	IsDiscLed : If @@VATEnabled Then $VATDEALERNATURE:Ledger:$LedgerName = "Discount" Else $LedgerName = "Discount"
+	IsTaxLed  : $$IsLedOfGrp:$LedgerName:$$GroupDuties
+
+[Line: PXP Total]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Total before VAT"
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: @@ItemAmt + @@DelChg + @@DiscAmt 
+	
+	Local	: Field: PXP ItemDesc : Align : Left
+	Local	: Field: Default 		: Align : Right
+	Invisible	: $$IsEmpty:@@VatAmt
+	Option	: NoOtherLedTotal : $$IsEmpty:@@DiscAmt
+	
+[!Line: NoOtherLedTotal]
+	
+	Space Top: 0.30
+	
+[Line: PXP Invoice]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Rate, PXP Amt
+	Border	: Thin Bottom : $$IsLastObj
+	Space Bottom: 0.20
+	Option	: PXP HDInvoice : @@TableBill AND $$BaseOwner:$USBill AND NOT ##VarDirPrintBill 
+	Option : OPTPXP Column : @@CMPPrintRate
+	
+[!Line: PXP HDInvoice]
+	
+	Remove if : NOT $CIItemCnt = @@LastItemNo      ;$CIItemCnt = $$Owner:$LDROppCounter
+	
+[System: Formulae]
+	
+	LastItemNo : $InventoryEntries[Last].CIItemCnt
+	
+[Part: PXP LedEntries]
+	
+	Line	: PXP SubTotal, PXP Disc, PXP DelCharges, PXP Total, PXP VatAmt, PXP InvTotal
+	
+[Line: PXP VatAmt]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Vat @ 5%"
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: @@VatAmt
+	
+	Local	: Field: PXP ItemDesc : Align : Left
+	Local	: Field: Default 	  : Align : Right
+	Invisible	: $$IsEmpty:@@VatAmt
+	
+[System: Formulae]
+	
+	TaxLed      : $$IsLedOfGrp:$LedgerName:$$GroupDuties
+
+[Line: PXP InvTotal]
+	
+	Field	: PXP ItemDesc
+	Right Field: PXP Qty, PXP Amt
+	
+	Local	: Field: PXP ItemDesc : Set as: "Net Amount"
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: $LDRInvTotal
+	Local	: Field: PXP ItemDesc : Align : Left
+	Local	: Field: Default 		: Style : Normal Bold
+	Local	: Field: Default 		: Align : Right
+	Border	: Thin Bottom
+	Space Bottom: 0.30
+
+[Field: PXP ItemDesc]
+	
+	Use		: Name Field
+	Style	: Small
+	Line	: 0
+	Set as	: If $$IsEmpty:@NameInArabic OR (@@TableBill AND $$BaseOwner:$USBill) OR @@PrintwitArabic Then $StockItemName Else $StockItemName + $$NewLine + "   " +  @NameInArabic 
+	NameInArabic : $STKIArabicName:StockItem:$StockItemName
+	Width	: 50 % Page
+	Full Width: Yes
+	
+[Field: PXP Qty]
+	
+	Use		: Number Field
+	Width	: 10 % Page
+	Style	: Small
+	Format	: "No Zero"
+	Align	: Right
+	Set as	: $BilledQty
+	
+[Field: PXP Rate]
+	
+	Use		: Rate Price Field
+	Width	: 18 % Page
+	Style	: Small
+	Format	: "No Zero"
+	Align	: Right
+	Set as	: $Rate
+	Invisible: NOT @@CMPPrintRate
+	
+[Field: PXP Amt]
+	
+	Use		: Amount Field
+	Width	: 35 % Page
+	Style	: Small
+	Align	: Right
+	Set as	: @AmtIncl
+	AmtIncl     : If @@VATEnabled Then (If $$IsEmpty:@transnature Then "" Else $$AsCrAmt:($$AmountAdd:@taxableamt:@taxamt)) Else $Amount
+    taxableamt  : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_AssesableValue:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+	taxamt      : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+    transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+	Invisible	: @@KOTPrint
+	Option		: DecimalPXP Amt : NOT $$IsEmpty:@@POSInvDecimal 
+	
+[!Field: DecimalPXP Amt]
+	
+	Add	: Format	: "Decimal:2"
+		
+;[#Form: Sales Color]
+
+[Part: PXP PayDetail]
+	
+	Line	: PXP PDCard, PXP PDCash, PXP PDCashTend, PXP PDBalance, PXP PDTotPaid
+	
+[Line: PXP PDCard]
+	
+	Field	: PXP PDTTL
+	Right Field: PXP Amt, Empty
+	
+	Local	: Field: Empty : Width: 20 % Page
+	Local	: Field: PXP PDTTL : Set as: "Credit/Debit Card"
+	Local	: Field: PXP Amt	  : Set as: @@CardPayAmt
+	Local	: Field: Default 		: Style : Small Italic
+	Border	: Thin Top
+	Invisible	: $$IsEmpty:@@CardPayAmt
+	Space Top: 0.50
+	
+[System: Formulae]
+	
+	CardPayAmt : $$FilterValue:$Amount:LedgerEntries:Last:POSBankLed	
+	CashPayAmt : $$FilterValue:$Amount:LedgerEntries:1:POSCashLed
+	POSCashLed : $$IsLedOfGrp:$LedgerName:$$GroupCash
+	POSBankLed : $$IsLedOfGrp:$LedgerName:$$GroupBank
+	POSOnlineLed : $LedgerName = @@CMPOP1 OR $LedgerName = @@CMPOP2 OR $LedgerName = @@CMPOP3
+	
+[Field: PXP PDTTL]
+	
+	Use		: Name Field
+	Style	: Small
+	Width	: 40 % Page
+	
+[Line: PXP PDCash]
+	
+	Field	: PXP PDTTL
+	Right Field: PXP Amt, Empty
+	
+	Local	: Field: Empty : Width: 20 % Page
+	Local	: Field: PXP PDTTL : Set as: "Cash"
+	Local	: Field: PXP Amt	  : Set as: @@CashPayAmt
+	Local	: Field: Default 		: Style : Small Italic
+	Invisible : $$IsEmpty:$POSCashReceived
+	
+[Line: PXP PDCashTend]
+	
+	Field	: PXP PDTTL, PXP Amt
+	
+	Local	: Field: PXP PDTTL : Set as: "Cash Tendered"
+	Local	: Field: PXP PDTTL : Indent: 2
+	Local	: Field: PXP PDTTL : Width : 40 % Page
+	Local	: Field: PXP Amt	  : Set as: $POSCashReceived
+	Local	: Field: Default 		: Style : Small Italic
+	Local	: Style: Small Italic : Height: 8
+	Invisible : $$IsEmpty:$POSCashReceived
+	
+[Line: PXP PDBalance]
+	
+	Field	: PXP PDTTL, PXP Amt
+	
+	Local	: Field: PXP PDTTL : Set as: "Balance"
+	Local	: Field: PXP PDTTL : Indent: 2
+	Local	: Field: PXP PDTTL : Width : 40 % Page
+	Local	: Field: PXP Qty	  : Set as: ""
+	Local	: Field: PXP Amt	  : Set as: $EIXBal
+	Local	: Field: Default 		: Style : Small Italic
+	Local	: Style: Small Italic : Height: 8
+    Invisible : $$IsEmpty:$POSCashReceived
+	
+[Line: PXP PDTotPaid]
+	
+	Field	: PXP PDTTL
+	Right Field: PXP Amt, Empty
+	
+	Local	: Field: Empty : Width: 20 % Page
+	Local	: Field: PXP PDTTL : Set as: If @@OnlineBill Then "Bill To :" + ##VarBillType + " ( " + $$String:$LDRInvTotal + " ) " Else "Total Paid"
+	Local	: Field: PXP Amt	  : Set as: @@CardPayAmt + @@CashPayAmt
+	Local	: Field: Default 		: Style : Small Bold Italic 
+    Border	: Thin Bottom
+	Space Bottom: 0.20
+
+[Part: PXP LastPart]
+	
+	Line	: PXP PrintTime, PXP Thankyou, PXP Thankyou2
+	
+[Line: PXP PrintTime]
+	
+	Field	: PXP BillStts
+	Right Field	: PXP PrintTime
+	Space Top: 0.20
+	
+[Field: PXP BillStts]
+	
+	Use		: Name Field
+	Width	: 50 % Page
+	Style	: Small
+	Align	: Left
+	Set as	: If $USBill Then "Unsettled" Else "Settled"
+
+[Field: PXP PrintTime]
+	
+	Use		: Name Field
+	Width	: 50 % Page
+	Style	: Small
+	Align	: Right
+	Set as	: "Printed On : " + $$String:$$MachineTime
+	
+[Line: PXP Thankyou]
+	
+	Field	: PXP Thankyou
+	
+[Field: PXP Thankyou]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Small
+	Set as	: "** " + @Msg1 + " **"
+	Msg1    : $POSMessageLine1:VoucherType:$VoucherTypeName
+	Align	: Center
+	
+[Line: PXP Thankyou2]
+	
+	Field	: PXP Thankyou2
+	Border	: Thin Bottom
+	Space Bottom: 0.20
+	
+[Field: PXP Thankyou2]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Small
+	Set as	: "**  " + @Msg2 + "  **"
+	Msg2    : $POSMessageLine2:VoucherType:$VoucherTypeName
+	Align	: Center
+
+;;;;;;;;;; KOT for Home Delivery ;;;;;;;;;;;;
+
+[!Form: KOT Form]
+	
+	Delete		: Part
+	Add : Part	: STD Invoice Top, PXP Logo, PXP POSKOTPrint
+	
+[Part: PXP POSKOTPrint]
+	
+	Parts		: PXP KOTCMPDetail, PXP InvTTL, PXP InvDtl, PXP Column, PXP InvoiceDtl
+	Local	: Part: PXP InvTTL : Delete: Line: PXP InvTTLArabic
+	Local	: Field: PXP InvTTL : Set as: "KOT" 
+	Local	: Field: PXP InvTTL : Style: Normal
+	Local	: Field: PXP InvTTL : Local: Style: Normal : Height: 14
+	Local	: Part: PXP InvDtl : Local: Line: PXP InvNoDt : Local: Field: PXP InvNo : Set as: "KOT No. : " + $VoucherNumber + "/" + $$String:@@LastItemNo
+	Local	: Line: PXP Column : Delete: Right Field: PXP Rate, PXP Amt
+	Local	: Line: PXP Invoice : Delete: Right Field: PXP Rate, PXP Amt
+	Local	: Line: PXP Invoice : Local: Field: PXP ItemDesc : Set as: $StockItemName
+	Local	: Part: PXP InvoiceDtl : Delete: Part: PXP LedEntries
+	Local	: Part: PXP Invoice : Add: Line: After: PXP Invoice : PXP KOTTot
+	Local   : Line: PXP Invoice : Remove if : NOT $CIItemCnt = @@LastItemNo
+	Vertical    : Yes
+	Scrolled	: Vertical
+		
+;	Line	: , PXP InvTTL, PXP UserName
+	
+[System: Formulae]
+	
+	TotalQty : $$FilterNumTotal:InventoryEntries:CurrOrder:$$Number:$BilledQty
+	CurrOrder : $CIItemCnt = @@LastItemNo
+	
+[Part: PXP KOTCMPDetail]
+	
+	Line	: PXP KOTCMPName 
+	
+[Line: PXP KOTCMPName]
+	
+	Field	: PXP KOTCMPName
+	Space Top: 0.20
+	
+[Field: PXP KOTCMPName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Style	: Normal
+	Align	: Center
+	Set as	: @@CMPMailName
+	Local	: Style: Normal : Height: 15
+	
+[Line: PXP KOTTot]
+	
+	Field	: PXP ItemDesc
+	
+	Local	: Field: PXP ItemDesc : Set as: "Total  :   " + $$String:@@TotalQty
+	Local	: Field: Default 		: Align : Right
+	Border	: Thin Top
+
+
+
+
+
+
+[Report: RC Report]
+	
+	Form	: RC Report
+	Variable: SvFromDate, SVToDate
+	
+	Set		: SvFromDate:##SVCurrentDate
+	Set		: SVToDate:##SVCurrentDate 
+	
+	Option	: OPTNO12AMC Report : @@Not12AMCls
+	
+[!Report: OPTNO12AMC Report]
+	
+	Set		: SvFromDate: ##SVCurrentDate - 1
+	Set		: SVToDate:##SVCurrentDate 
+	
+[Form: RC Report]
+	
+	Height	: 100 % Page
+	Width	: 100 % Page
+	
+	Space Top    : 0
+	Space Bottom : 0
+	Space Left   : If $$InPreviewMode Then "2 mms" Else "0"
+	Space Right  : 0
+	
+	Button      : Change Period
+	Button	     : Print Button, Mail Button, Export Button
+	
+	Part	: RC CmpNameAddress, Common BackHome, RC CounterSale, RC ColumnTTL, RC ColumnInfo, RC BtnPart
+	
+	Local	: Field: Common RepTTL : Info: "Day Summary" + $$NewLine + @@DspDateStr ;"( "+ $$String:##SVCurrentDate + ", " +$$DayOfWeek:##SVCurrentDate + " )"
+	Local	: Field: Common RepTTL : Line: 2
+	Local	: Field: Common RepTTL : Style : If $$InPrintMode Then "Small" Else "Small Bold"
+			  
+	Page Break : RC CLSPageBrk, RC OPPPageBrk 
+	
+	Background	: Light Grey
+	Delete	: Bottom ToolBar Buttons
+	Button	: EmialDaySummary
+	Option	: NoAutoEmail RC Report : $$IsEmpty:@@AutoEmailTo
+	
+[!Form: NoAutoEmail RC Report]
+	
+	Delete	: Button : EmialDaySummary
+	
+[Part: RC CLSPageBrk]
+	
+	Line	: RC CLSPageBrk
+	
+[Line: RC CLSPageBrk]
+	
+	Field	: RC CLSPageBrk
+	Border	: Thin Top
+	
+[Field: RC CLSPageBrk]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Set as	: "Cont......"
+	Align	: Right
+	Style	: Verdana Bold
+	Full Width: Yes
+	
+[Part: RC OPPPageBrk]
+	
+	Part	: RC CmpNameAddress, Common BackHome, RC ColumnTTL
+	
+	Vertical: Yes 
+		
+[Part: RC CmpNameAddress]
+	
+	Line	: RC CmpName, Common RepTTL
+	Invisible: NOT $$InPrintMode
+	
+[Line: RC CmpName]
+	
+	Field	: RC CmpName
+	
+[Field: RC CmpName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Bold
+	Set as	: @@CmpMailName
+	Border	: Thin Bottom
+	Full Width: Yes
+
+[Line: Common RepTTL]
+	
+	Field	: Common RepTTL
+	
+[Part: RC CounterSale]
+	
+	Line	: RC CounterSale
+	Invisible: Yes
+	
+[Line: RC CounterSale]
+	
+	Field	: RC CounterSale
+	
+[Field: RC CounterSale]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Bold
+	Set as	: "Counter Sale"
+
+[Part: RC ColumnTTL]
+	
+	Line	: RC ColumnTTL
+	
+[Line: RC ColumnTTL]
+	
+	Field	: RC Sno, RC BillNo, RC Date, RC Time, RC Type, RC FOne
+	Right Field: RC FTwo, RC FThree, RC FFour
+		
+ 	Local	: Field: RC Sno 	: Set as: If $$InPrintMode Then "Sl." Else "S.No."
+	Local	: Field: RC BillNo 	: Set as: "Bill No."
+	Local	: Field: RC Date 	: Set as: "Date"
+	Local	: Field: RC Time 	: Set as: "Time"
+	Local	: Field: RC Type 	: Set as: "Bill Type"
+	Local	: Field: RC FOne 	: Set as: "Bill Status"
+	Local	: Field: RC FTwo 	: Set as: If $$InPrintMode Then "Card" Else "Card Payment"
+	Local	: Field: RC FThree  : Set as: If $$InPrintMode Then "Cash" Else "Cash Payment"
+	Local	: Field: RC FFour 	: Set as: "Bill Amount"
+	
+	Local	: Field: Default : Type  : String
+	Local	: Field: RC FTwo : Align: Center
+	Local	: Field: RC FThree : Align: Center
+	Local	: Field: RC FFour : Align: Center
+	Local	: Field: Default : Align : Left
+	Local	: Field: Default : Style : If $$InPrintMode Then "Small" Else "Small Bold"
+	
+	Border	: Column Titles
+	
+[Part: RC ColumnInfo]
+	
+	Line	: RC ColumnInfo
+	Repeat	: RC ColumnInfo : Coll RecentBills
+	Scroll	: Vertical
+	Common Border: Yes
+	Float	: Yes
+	Bottom Line: RC TotalLine
+	
+	Total	: RC FTwo, RC FThree, RC FFour, DSWS ItemAmt
+	Option	: ColumnInfoInPrintExport : $$InPrintMode OR $$InExportMode
+	
+[!Part: ColumnInfoInPrintExport]
+	
+	Delete	: Scroll	
+	
+[Collection: Coll RecentBills]
+	
+	Type	: Vouchers : Voucher Type
+	Child Of: @@POSVType
+	Belongs To: No
+	Fetch	: IsOptional, IsCancelled, CostCentreName, POSCardRcv, POSCashRcv, OnlinePay, LDRInvTotal, POSBillType, Amount, MasterID
+	Fetch	: USBill, RegularBill, LDRVChSalesman, ItemTotal
+	Fetch	: LDRPOSCOD, EILDROLCard, EILDROLCash, LDROLCashRcvAmt
+	Fetch	: ONPFSales1
+	Sort	: @@Default : $$Number:$VoucherNumber
+ 	Option	: OPTOnlyCurrTrans : @@Not12AMCls
+
+[!Collection: OPTOnlyCurrTrans]
+	
+	Add		: Filter: OnlyCurrTrans
+	
+[System: Formulae]
+	
+	OnlyCurrTrans : If $Date = ##SVCurrentDate - 1 Then $$Time:$EIPOSINTIme > $$Time:@@DayBegTime Else Yes
+	
+	12AMCls    : $$Time:@@DayBegTime = $$Time:"0"
+	TimeCond   : $$Time:$$MachineTime Between $$Time:"0.01 AM" AND $$Time:@@DayBegTime
+	Not12AMCls : NOT @@12AMCls AND @@TimeCond
+
+[#Object: Voucher]
+	
+	POSCardRcv : $$FilterValue:$Amount:LedgerEntries:Last:POSBankLed
+	POSCashRcv : $$FilterValue:$Amount:LedgerEntries:1:POSCashLed
+	OnlinePay  : $$FilterValue:$Amount:LedgerEntries:1:POSOnlineLed
+	
+	
+[Line: RC ColumnInfo]
+	
+	Field	: RC Sno, RC BillNo, RC Date, RC Time, RC Type, RC FOne
+	Right Field: RC FTwo, RC FThree, RC FFour
+	Option	: Alter On Enter   : $$IsCmpOwner OR $USBill
+	Option	: Display On Enter : NOT $$IsCmpOwner AND NOT $USBill
+	
+[System: Formulae]
+	
+	RCUSBill 		  : $USBill OR ($LDRPOSCOD = "Yes" AND $$IsEmpty:@@OnlineBillPay)
+	OnlineBillPay     : $EILDROLCard + $EILDROLCash
+	
+[#Object: Voucher]
+	
+	USBill      : $$FilterAmtTotal:LedgerEntries:IsDBLed:$Amount > 0
+	RegularBill : $$FilterAmtTotal:LedgerEntries:IsOnlineLedNonCOD:$Amount > 0
+	
+[System: Formulae]
+	
+	IsDBLed    : $LedgerName = "Direct Bill"
+	IsOnlineLedNonCOD: ($LedgerName = @@CMPOP1 AND $LDRPOSCOD = "No" OR $LedgerName = @@CMPOP2 OR $LedgerName = @@CMPOP3) AND ($$Owner:$LDRPOSCOD = "No")
+	
+[Field: RC Sno]
+	
+	Use		: Name Field
+	Width	: If $$InPrintMode Then "10 % Page" Else "7 % Page"
+	Style: If $IsCancelled Then "Small Italic" Else "Small"
+	Border	: Thin Left
+	Set as	: $$Line
+	
+[Field: RC BillNo]
+	
+	Use		: Name Field
+	Width	: If $$InPrintMode Then "17 % Page" Else "10 % Page"
+	Style: If $IsCancelled Then "Small Italic" Else "Small"
+	Border	: Thin Left
+	Set as	: $VoucherNumber
+	
+[Field: RC Date]
+	
+	Use		: Short Date Field
+	Width	: 10 % Page
+	Style: If $IsCancelled Then "Small Italic" Else "Small"
+	Align	: Left
+	Border	: Thin Left
+	Set as	: $Date
+	Invisible	: $$InPrintMode
+
+[Field: RC Time]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style: If $IsCancelled Then "Small Italic" Else "Small"
+	Border	: Thin Left
+	Set as	: If $$IsEmpty:@SettleTime Then @CreateTime Else @CreateTime
+	CreateTime : $$Time:$EIPOSINTIme
+	SettleTime : $$Time:$EIPOSOutTIme
+	Invisible	: $$InPrintMode
+	
+[Field: RC Type]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Style: If $IsCancelled Then "Small Italic" Else "Small"
+	Border	: Thin Left
+	Set as	: If @@TableBill Then "Dine IN Table :" + $CostCentreName Else $CostCentreName
+	Invisible	: $$InPrintMode
+	
+[Field: RC FOne]
+	
+	Use		: Name Field
+	Full Width: Yes
+	Style: If $IsCancelled Then "Small Italic" Else "Small Bold"
+	Border	: Thin Left
+	Set as	: If $IsCancelled Then "Cancelled : " + $$String:$LDRInvTotal Else If @@RCUSBill Then "Un-Settled" Else If $RegularBill Then "Regular" Else "Settled"
+	OnlineBillPay : $EILDROLCard + $EILDROLCash
+	
+	Color: If @@RCUSBill Then "Red" Else IF $RegularBill Then "Blue" Else Black
+	Invisible	: $$InPrintMode
+	Alter	: RC Vouchers : $$IsCmpOwner OR $USBill
+	Display	: RC Vouchers : NOT $$IsCmpOwner AND NOT $USBill
+
+[Report: RC Vouchers]
+	
+	Use		: DA POSVoucher
+	Form	: DA POSVoucher
+	Object	: Voucher : @@RCMID
+	
+[System: Formulae]
+	
+	RCMID : "ID:" + $MasterID
+	
+[Field: RC FTwo]
+	
+	Use		: Number Field
+	Width	: If $$InPrintMode Then "24 % Page" Else "15 % Page"
+	Style	: Small
+	Format	: "No Zero, Decimal:2"
+	Align	: Right
+	Border	: Thin Left
+	Set as	: If $IsCancelled Then "" Else If $$IsEmpty:$POSCardRcv Then $EILDROLCard Else $$Number:$POSCardRcv
+	
+[Field: RC FThree]
+	
+	Use		: Number Field
+	Width	: If $$InPrintMode Then "24 % Page" Else "15 % Page"
+	Style	: Small
+	Format	: "No Zero, Decimal:2"
+	Align	: Right
+	Border	: Thin Left Right
+	Set as	: If $IsCancelled Then "" Else If NOT $$IsEmpty:$POSCashRcv Then $POSCashRcv Else If $LDRPOSCOD = "Yes" AND $$IsEmpty:@OnlineBillPay Then "" Else $$Number:$LDROLCashRcvAmt
+	OnlineBillPay : $EILDROLCard + $EILDROLCash
+	
+[Field: RC FFour]
+	
+	Use		: Amount Field
+	Width	: 12 % Page
+	Style	: Small Bold
+	Border	: Thin Right
+	Set as	: If $IsCancelled Then "" Else $LDRInvTotal
+	Align	: Right
+	Color: If @@RCUSBill Then "Red" Else IF $RegularBill Then "Blue" Else Black
+	Invisible	: $$InPrintMode
+	
+[Line: RC TotalLine]
+	
+	Field	: RC Sno, RC BillNo, RC Date, RC Time, RC Type, RC FOne
+	Right Field: RC FTwo, RC FThree,  RC FFour
+	
+	Local	: Field: RC Sno 	: Set as: ""
+	Local	: Field: RC BillNo 	: Set as: If $$InPrintMode Then "Total : " Else ""
+	Local	: Field: RC Date 	: Set as: ""
+	Local	: Field: RC Time 	: Set as: ""
+	Local	: Field: RC Type 	: Set as: ""
+	Local	: Field: RC FOne 	: Set as: "Total"
+	Local	: Field: RC FTwo 	: Set as: $$Total:RCFTwo
+	Local	: Field: RC FThree  : Set as: $$Total:RCFThree
+	Local	: Field: RC FFour 	: Set as: $$Total:RCFFour
+	
+	Local	: Field: Default : Align : Right
+	Local	: Field: Default : Style :  If $$InPrintMode Then "Small" Else "Small Bold"
+	
+	Border	: Column Titles
+	
+[Part: RC BtnPart]
+	
+	Right Part	: RC BtnPartComm
+	Space Top: 1
+	
+[System: Formula]
+	
+	ONPFSales1 : $$FilterAmtTotal:CollPOSVCHDetailed:ONPFLed1:$LedAmt
+	ONPFLed1   : $LedName = @@CMPOP1
+	
+	ONPFSales2 : $$FilterAmtTotal:CollPOSVCHDetailed:ONPFLed2:$LedAmt
+	ONPFLed2   : $LedName = @@CMPOP2
+	
+	ONPFSales3 : $$FilterAmtTotal:CollPOSVCHDetailed:ONPFLed3:$LedAmt
+	ONPFLed3   : $LedName = @@CMPOP3
+	
+	TotalSales : $$FilterAmtTotal:CollPOSVCHDetailed:AllDrLeds:$LedAmt
+	AllDrLeds  : $IsDr
+	
+	RestaurantSales : @@TotalSales - (@@ONPFSales1 + @@ONPFSales2 + @@ONPFSales3)
+	
+[Collection: Coll POSVCHDetailed]
+	
+	Source Collection	: Coll RecentBills
+	Walk	: Ledger Entries
+	Keep Source: ().
+	Compute	: LedName : $LedgerName
+	Compute	: LedAmt  : $Amount
+	Compute	: IsDr    : $IsDeemedPositive
+	
+[Part: RC BtnPartComm]
+	
+	Line	: RC BtnPart
+	Invisible	: $$InPrintMode
+	
+[Line: RC BtnPart]
+	
+	Right Field	: RC DownKey, PFEmpty1, RC UPKey, PFEmpty2, RC Open, PFEmpty4, RC Print, PFEmpty3
+	
+	Local	: Field: PFEmpty1  : Width: 1 % Page
+	Local	: Field: PFEmpty2  : Width: 1 % Page	
+	Local	: Field: PFEmpty3  : Width: 1 % Page	
+	Local	: Field: PFEmpty4  : Width: 1 % Page
+	
+[Field: PFEmpty1]
+	
+	Use		: Name Field
+
+[Field: PFEmpty2]
+	
+	Use		: Name Field
+	
+[Field: PFEmpty3]
+	
+	Use		: Name Field
+
+[Field: PFEmpty4]
+	
+	Use		: Name Field
+	
+[Field: RC DownKey]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Down" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Small Bold : Height: 10
+	Key		: Key DownKey
+	Background: Down Color
+	Color	: White
+	
+[Key: Key DownKey]
+	
+	Key		: Left Click
+	Action	: Trigger Key: Down
+	
+[Color: Down Color]
+
+    RGB     : 166, 42, 42
+	
+[Field: RC UPKey]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Up" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Small Bold : Height: 10
+	Background: SelAll Colors
+	Key		: Key UPKey
+	Color	: White
+	
+[Key: Key UPKey]
+	
+	Key		: Left Click
+	Action	: Trigger Key: Up
+	
+[Color: SelAll Colors]
+	
+	RGB		: 138, 43, 226
+	
+[Field: RC Open]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Open" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Small Bold : Height: 10
+	Background: Print Colors
+	Key		: Enter Key
+	Color	: White
+	
+[Color: Print Colors]
+	
+	RGB	: 255, 165, 79
+
+[Field: RC Print]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Print" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Small Bold : Height: 10
+	Background: BackOfc Color
+	Key		: PrintOnlyX
+	Color	: White
+	
+[Key: PrintOnlyX]
+	
+	Key		: Left Click
+	Action	: Trigger Key : Alt + P
+
+;;;; Auto Email Report
+
+[Button: EmialDaySummary]
+	
+	Title	: "Email Report"
+	Key	: F5
+	Height: 4
+	Action: Call: Email DaySummary
+
+
+[Function: Email DaySummary]
+	
+	Variable: VARMSTID : String
+	
+	Variable: VAREmailid	: String
+	Variable: VARSUBJECT	: String
+	Variable: ProgressCount : Number
+	Variable: VAREmailidcc	: String
+	
+	VARIABLE: VARFROMADDRESS: STRING:  $FromEmail:Company:##SVCurrentCompany
+	VARIABLE: VARSERVERADD	: STRING:  $ServerAddress:Company:##SVCurrentCompany
+	VARIABLE: VARUSERNAME	: STRING:  $FromEmail:Company:##SVCurrentCompany
+	VARIABLE: VARPASSWORD	: STRING:  $FromPassword:Company:##SVCurrentCompany
+	VARIABLE: VARSSL		: LOGICAL: $TBSVMailUseSsl:Company:##SVCurrentCompany
+	VARIABLE: VARPORT		: LOGICAL: $TBSVMailUseSSLOnStdPort:Company:##SVCurrentCompany
+	
+	Local Formula: PartyCCEmail : $EMailCC:Ledger:$PartyledgerName 
+	
+	15: Set: VARMSTID: @@CurrVchId
+	18: Set: VAREmailid   : "rohit@loditechme.com"
+	19: Set: VAREmailidcc : ""
+	
+	22	: SET 	: SVExportFormat	: $$SysName:PDF 
+	
+	25	: SET	: SVMailEmbedImage 		: @@AsAttach	
+	
+	30	: Set: VARSUBJECT: "Day Summary " + $$String:$$MachineDate
+	31  : Set: SVMailText : "<b>Sales Details - " + $$String:##SVCurrentDate + "</b><br>" + @@ONPF1SalesDtl + "<br>" + @@ONPF2SalesDtl + "<br>" + @@ONPF3SalesDtl + "<br>" + @@RestSalesDtl + "<br>" + @@TotaSalesEmlt + @@FormoreDtl
+    32  : If : $$IsEmpty:##VAREmailidcc
+	35	: SET	: SVPrintFileName	: $$MakeMailName:##VAREmailid:##VARSERVERADD:##VARFROMADDRESS:"":##VARSUBJECT:##VARUSERNAME:##VARPASSWORD:##VARSSL:##VARPORT
+	36  : Else 
+	37	: SET	: SVPrintFileName	: $$MakeMailName:##VAREmailid:##VARSERVERADD:##VARFROMADDRESS:##VAREmailidcc:##VARSUBJECT:##VARUSERNAME:##VARPASSWORD:##VARSSL:##VARPORT
+	38  : End If 
+	39 : Set: SVMailAttachFileName : "Day Summary " + $$String:##SVCurrentDate
+	40 : Set: SVPaperSize : "A4"	
+	42 : Set: SVBrowserWidth  : "210"
+	43 : Set: SVBrowserHeight : "297"
+	 
+	50 :  Mail : RC Report  : Yes
+	
+[System: Formula]
+	
+	ONPF1SalesDtl : @@CMPOP1 + "   :  " + $$String:@@ONPFSales1
+	ONPF2SalesDtl : @@CMPOP2 + "   :  " + $$String:@@ONPFSales2
+	ONPF3SalesDtl : @@CMPOP3 + "    :  " + $$String:@@ONPFSales3
+	RestSalesDtl  : "Restaurant  :  " +  $$String:@@RestaurantSales
+	TotaSalesEmlt : "<b>Total Sales :  " + $$String:@@TotalSales + "</b>"
+	FormoreDtl    : "<br><br><i>For more details, Please find the below Report.</i>"
+	
+	
+	
+;	TotalSales : $$FilterAmtTotal:CollPOSVCHDetailed:AllDrLeds:$LedAmt
+;	AllDrLeds  : $IsDr
+
+
+[Report: IWS Report]
+	
+	Title	: @@LocaItemSales
+	Form	: IWS Report
+	Variable: SvFromDate, SVToDate
+	
+	Set		: SvFromDate:##SVCurrentDate 
+	Set		: SVToDate:##SVCurrentDate 
+	
+[Form: IWS Report]
+	
+	Height	: 100 % Page
+	Width	: 100 % Page
+	
+	Space Top    : If $$InPrintMode then  0.5 else 0 inches
+	Space Bottom : If $$InPrintMode then  0.5 else 0 inches
+	Space Left   : If $$InPrintMode then  0.5 else 0 inches
+	Space Right  : If $$InPrintMode then  0.5 else 0 inches
+	
+	Button	     : Print Button, Mail Button, Export Button
+	
+	Part	: IWS CmpNameAddress, Common BackHome, IWS ColumnTTL, IWS ColumnInfo
+	
+	Local	: Field: Common RepTTL : Info: "Top Selling Items" + $$NewLine + @@DspDateStr
+	Local	: Field: Common RepTTL : Line: 2
+	Local	: Field: Common RepTTL : Style : If $$InPrintMode Then "Small" Else "Small Bold"
+			  
+	Page Break : IWS CLSPageBrk, IWS OPPPageBrk 
+	
+	Background	: Released Pale Yellow
+	Button      : Change Period
+	Bottom Toolbar  Buttons	: BottomToolBarBtn1, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11
+	
+[Part: IWS CLSPageBrk]
+	
+	Line	: IWS CLSPageBrk
+	
+[Line: IWS CLSPageBrk]
+	
+	Field	: IWS CLSPageBrk
+	Border	: Thin Top
+	
+[Field: IWS CLSPageBrk]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Set as	: "Cont......"
+	Align	: Right
+	Style	: Verdana Bold
+	Full Width: Yes
+	
+[Part: IWS OPPPageBrk]
+	
+	Part	: IWS CmpNameAddress, Common BackHome, IWS ColumnTTL
+	
+	Vertical: Yes
+
+[Part: IWS CmpNameAddress]
+	
+	Line	: IWS CmpName, IWS CmpAddress
+	Repeat	: IWS CmpAddress : CompanyAddress
+	Invisible: NOT $$InPrintMode
+	
+	Space Bottom: 0.25 
+
+[Line: IWS CmpName]
+	
+	Field	: IWS CmpName
+	
+[Field: IWS CmpName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Bold
+	Set as	: @@CmpMailName
+	Border	: Thin Bottom
+	Full Width: Yes
+	
+[Line: IWS CmpAddress]
+	
+	Field	: IWS CmpAddress
+	
+[Field: IWS CmpAddress]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Normal
+	Set as	: $Address
+	
+[Part: IWS ColumnTTL]
+	
+	Line	: IWS ColumnTTL
+	
+[Line: IWS ColumnTTL]
+	
+	Field	: IWS Sno, IWS Item
+	Right Field: IWS ItemCode, IWS Category, IWS Qty, IWS Rate, IWS Amount
+	
+ 	Local	: Field: IWS Sno 	: Set as: "S.No."
+	Local	: Field: IWS Item 	: Set as: "Item Name"
+	Local	: Field: IWS ItemCode: Set as: "Code"
+	Local	: Field: IWS Category: Set as: "Category"
+	Local	: Field: IWS Qty 	: Set as: "Quantity"
+	Local	: Field: IWS Rate   : Set as: "Rate"
+	Local	: Field: IWS Amount	: Set as: "Amount"
+	
+	Local	: Field: Default : Type  : String
+	Local	: Field: Default : Align : Center
+	Local	: Field: Default : Style : Small Bold
+	
+	Border	: Column Titles
+	
+[Part: IWS ColumnInfo]
+	
+	Line	: IWS ColumnInfo
+	Repeat	: IWS ColumnInfo : CollPOSVCHItem
+	Scroll	: Vertical
+	Common Border: Yes
+	
+	Bottom Line: IWS TotalLine
+	Total	: IWS Qty, IWS Amount
+	
+[Collection: Coll POSVCH]
+	
+	Type	: Vouchers : Voucher Type
+	Child Of: $$VchTypeSales
+	Child Of: @@POSVType
+	Fetch	: $VoucherTypeName
+	
+[Collection: CollPOSVCHItem]
+	
+	Source Collection	: Coll POSVCH
+	Walk	: INVENTORYENTRIESOUT
+	By		: ItemName  : $StockItemName
+	Aggr Compute: ItemQty : Sum: $BilledQty
+	Aggr Compute: ItemAmt : Sum: $Amount
+	
+	Sort	: @@Default : $ItemQty
+
+[Line: IWS ColumnInfo]
+	
+	Field	: IWS Sno, IWS Item
+	Right Field: IWS ItemCode, IWS Category, IWS Qty, IWS Rate, IWS Amount
+	
+[Field: IWS Sno]
+	
+	Use		: Name Field
+	Width	: 5 % Page
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: $$Line
+	
+[Field: IWS Item]
+	
+	Use		: Name Field
+	Full Width: Yes
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: $ItemName
+	
+[Field: IWS ItemCode]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: If $$IsEmpty:@PartNo Then @IAlias Else @PartNo
+	PartNo  : $PartNo:StockItem:$ItemName
+	IAlias  : $OnlyAlias:StockItem:$ItemName
+	
+[Field: IWS Category]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: $Parent:StockItem:$ItemName
+	
+[Field: IWS Qty] 
+	
+	Use		: Qty Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Left
+	Set as	: $ItemQty
+	
+[Field: IWS Rate]
+	
+	Use		: Rate Price Field
+	Width	: 10 % Page
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: $ItemAmt / $ItemQty
+	
+[Field: IWS Amount]
+	
+	Use		: Amount Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Left Right
+	Set as	: $ItemAmt
+	
+[Line: IWS TotalLine]
+	
+	Field	: IWS Sno, IWS Item
+	Right Field: IWS ItemCode, IWS Category, IWS Qty, IWS Rate, IWS Amount
+	
+	Local	: Field: IWS Sno 	: Set as: ""
+	Local	: Field: IWS Item 	: Set as: "Total"
+	Local	: Field: IWS Category 	: Set as: ""
+	Local	: Field: IWS Qty 	: Set as: $$Total:IWSQty
+	Local	: Field: IWS Rate   : Set as: ""
+	Local	: Field: IWS Amount	: Set as: $$Total:IWSAmount
+	
+	Local	: Field: Default : Align : Right
+	Local	: Field: Default : Style : Small Bold
+	
+	Border	: Column Titles
+
+
+
+[Report: CDR Report]
+	
+	Title	: "Sales Summary"
+	Form	: CDR Report
+	
+	Variable: SVFromDate, SVToDate
+	Set		: SVFromDate : $$MonthStart:##SVCurrentDate
+	Set		: SVToDate   : $$MonthEnd:##SVCurrentDate
+	
+[Form: CDR Report]
+	
+	Height	: 100 % Page
+	Width	: 100 % Page
+	
+	Space Top    : If $$InPrintMode then  0.2 else 0 inches
+	Space Bottom : If $$InPrintMode then  0.2 else 0 inches
+	Space Left   : If $$InPrintMode then  0.2 else 0 inches
+	Space Right  : If $$InPrintMode then  0.2 else 0 inches
+	
+	Button	     : Print Button, Mail Button, Export Button
+	
+	Part	: CDR CmpNameSalesAmt, Common BackHome, CDR ColumnTTL, CDR ColumnInfo
+	Bottom Part	: CDR Total
+	
+	Local	: Field: Common RepTTL : Info: "Sales Summary" + $$NewLine + @@DspDateStr
+	Local	: Field: Common RepTTL : Line: 2
+	Local	: Field: Common RepTTL : Style : If $$InPrintMode Then "Small" Else "Small Bold"
+			  
+	Page Break : CDR CLSPageBrk, CDR OPPPageBrk 
+	
+	Background	: Very Light Sea Green
+	
+	Bottom Toolbar  Buttons	: BottomToolBarBtn1, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11
+	Button	: Change Period, BTN UserPerc
+	
+[Part: CDR CLSPageBrk]
+	
+	Line	: CDR CLSPageBrk
+	
+[Line: CDR CLSPageBrk]
+	
+	Field	: CDR CLSPageBrk
+	Border	: Thin Top
+	
+[Field: CDR CLSPageBrk]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Set as	: "continued ..."
+	Align	: Right
+	Style	: Verdana Bold
+	Full Width: Yes
+	
+[Part: CDR OPPPageBrk]
+	
+	Part	: CDR CmpNameSalesAmt, Common BackHome, CDR ColumnTTL
+	Vertical: Yes
+
+[Part: CDR CmpNameSalesAmt]
+	
+	Line	: CDR CmpName
+	Invisible: NOT $$InPrintMode
+	Space Bottom: 0.25 
+
+[Line: CDR CmpName]
+	
+	Field	: CDR CmpName
+	
+[Field: CDR CmpName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Bold
+	Set as	: @@CmpMailName
+	Border	: Thin Bottom
+	Full Width: Yes
+
+[Part: CDR ColumnTTL]
+	
+	Line	: CDR ColumnTTL
+	Common Border: Yes 
+	
+[Line: CDR ColumnTTL]
+	
+	Field	: CDR Sno, CDR BillDate, CDR BillNo
+	Right Field: CDR SalesAmt, CDR UserPerc, CDR UserSalesAmt
+	
+	Local	: Field: CDR Sno 	: Set as: "S.No."
+	Local	: Field: CDR BillDate: Set as: "Bill Date"
+	Local	: Field: CDR BillNo  : Set as: "Bill No."
+	Local	: Field: CDR SalesAmt: Set as: "Sales Amount"
+	Local	: Field: CDR UserPerc: Set as: "User %"
+	Local	: Field: CDR UserSalesAmt: Set as: "User Sales Amount"
+	
+	Local	: Field: Default : Type  : String
+	Local	: Field: Default : Style : Small Bold
+	Space Top	: 0.30
+	Space Bottom: 0.30
+	
+	Border	: Column Titles
+	
+[Part: CDR ColumnInfo]
+	
+	Line	: CDR ColumnInfo
+	Repeat	: CDR ColumnInfo : Coll CDRPOSSales
+	Scroll	: Vertical
+	Common Border: Yes
+	
+	Total	: CDR SalesAmt, CDR UserSalesAmt
+	
+[Collection: Coll CDRPOSSales]
+	
+	Type	: Vouchers : Voucher Type
+	Child Of: @@POSVType
+	Belongs To: No
+	Fetch	: IsOptional, IsCancelled, LDRInvTotal, Amount, LDRPOSVCHUPerc, MasterID
+	Sort	: @@Default : $$Number:$VoucherNumber
+	
+[Line: CDR ColumnInfo]
+	
+	Field	: CDR Sno, CDR BillDate, CDR BillNo
+	Right Field: CDR SalesAmt, CDR UserPerc, CDR UserSalesAmt
+	Option	: Alter On Enter
+	Border	: Thin Bottom
+	Space Top: 0.20
+	Space Bottom: 0.20
+	
+[Field: CDR Sno]
+	
+	Use		: Name Field
+	Width	: 8 % Page
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: $$Line
+	
+[Field: CDR BillDate]
+	
+	Use		: Short Date Field
+	Width	: 13 % Page
+	Style	: Normal
+	Align	: Left
+	Border	: Thin Left
+	Set as	: $Date
+	Alter	: Voucher
+	
+[Field: CDR BillNo]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Normal
+	Border	: Thin Left
+	Set as	: $VoucherNumber
+	
+[Field: CDR SalesAmt]
+	
+	Use		: Amount Field
+	Width	: 15 % Page
+	Style	: Normal
+	Border	: Thin Left Right
+	Set as	: $LDRInvTotal
+	
+[Field: CDR UserPerc]
+	
+	Use		: Number Field
+	Width	: 10 % Page
+	Align	: Right
+	Style	: Normal
+	Set as	: $LDRPOSVCHUPerc
+	Format	: "No Zero, Percentage"
+	
+[Field: CDR UserSalesAmt]
+	
+	Use		: Amount Field
+	Width	: 18 % Page
+	Style	: Normal
+	Border	: Thin Left Right
+	
+[Part: CDR Total]
+	
+	Line	: CDR Total
+	Common Border: Yes
+	
+[Line: CDR Total]
+	
+	Field	: CDR Sno, CDR BillDate, CDR BillNo
+	Right Field: CDR SalesAmt, CDR UserPerc, CDR UserSalesAmt
+	
+	Local	: Field: CDR Sno 	: Set as: ""
+	Local	: Field: CDR BillDate: Set as: ""
+	Local	: Field: CDR BillNo  : Set as: "Total : "
+	Local	: Field: CDR SalesAmt: Set as: $$Total:CDRSalesAmt
+	Local	: Field: CDR UserPerc: Set as: ""
+	Local	: Field: CDR UserSalesAmt: Set as: $$Total:CDRUserSalesAmt
+	
+	Local	: Field: Default : Type  : String
+	Local	: Field: Default : Style : Small Bold
+	Space Top	: 0.30
+	Space Bottom: 0.30
+	
+	Border	: Column Titles
+
+
+;;;;;;;;;;;;;;;; Button UserPerc ;;;;;;;;;;;;;;;;	
+
+
+[Button: BTN UserPerc]
+	
+	Title	: "Update" + $$NewLine + "User %"
+	Key		: F3
+	Height	: 4
+	Action	: alter : BTN UserPerc
+	Inactive: Yes
+	
+[Report: BTN UserPerc]
+	
+	Title	: "Update User %"
+	Auto	: Yes
+	Form	: BTN UserPerc
+	
+[Form: BTN UserPerc]
+	
+	Part	: BTN UserPercTTL, BTN UserPerc
+	Background: White
+	On	: Form Accept: Yes : Call : UpdateSalesPerc
+	
+[Part: BTN UserPercTTL]
+	
+	Line	: BTN UserPercTTL
+	
+[Line: BTN UserPercTTL]
+	
+	Field	: BTN UserPercTTL
+	Space Bottom: 1.50
+	
+[Field: BTN UserPercTTL]
+	
+	Use		: Name Field
+	Width	: 40 % Page
+	Style	: Verdana Bold
+	Align	: Center
+	Info	: "User Percentage Updation"
+	Color 	: Blue
+	
+[Part: BTN UserPerc]
+	
+	Line	: BTN UserPerc
+	
+[Line: BTN UserPerc]
+	
+	Field	: Medium Prompt, BTN UserPerc
+	Local	: Field: Medium Prompt : Set as: "Enter Percentage"
+	Local	: Field: Medium Prompt : Width : 15 % Page
+
+	Space Bottom: 1
+	
+[Field: BTN UserPerc]
+	
+	Use		: Number Field
+	Width	: 6 % Page
+	Style	: Normal
+	Show Table: Always
+	
+[Function: UpdateSalesPerc]
+	
+	10 : Query Box: Are You Sure : Yes:No
+	12 : If: $$LastResult
+	15 : Call : FuncUpdateSalesPerc
+	20 : End If
+
+[Function: FuncUpdateSalesPerc]
+	
+	
+	
+
+
+
+[System	: Formulae]
+	
+	LocFmlaDailySalesSummary  : "Daily Sales Summary"
+	
+[Report			: MGK Daily SalesSummary Rep]
+	Family		: "Daily Sales Summary"
+	Use			: DSP Template
+	Form		: MGK Daily SalesSummary Rep
+	Title		: "Daily Sales Summary"
+	Print Set	: ReportTitle   : "Daily Sales Summary"
+	Set			: SVFRomDate	: $$MonthStart:##SVCurrentDate
+	Set			: SVToDate		: $$MonthEnd:##SVCurrentDate
+	Set			: SVPeriodicity : "Day"
+;	Variable	: SVprintOrientation
+;	Set 		: SVPrintOrientation : $$SysName:Landscape
+	
+[Form			: MGK Daily SalesSummary Rep]
+	
+	Space Top    : If $$InPrintMode then 4 else 0 mms
+	Space Bottom : If $$InPrintMode then 4 else 0 mms
+	Space Left   : If $$InPrintMode then 4 else 0 mms
+	Space Right  : If $$InPrintMode then 4 else 0 mms
+	
+	Use			: DSP Template
+	Keys		: Form Remove Line, Form Show Last Removed Line
+	Parts		: AAC_Taxi_SWO_Title,MGK Daily SalesSummary Rep Title,MGK Daily SalesSummary Rep
+	Bottom Part	: MGK Daily SalesSummary Rep Total
+	Delete					: Page Break
+	Bottom Toolbar Buttons 	: BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11, BottomToolBarBtn12
+	Add		: Page Break  : DSP ClPageBreak, Part Pgbk TB OpPgPart
+	Delete	: Button      	: ExplodeFlag, ChangeCompany
+	Delete	: Buttons 		: DSP AutoColumns
+	Delete	: Bottom Buttons
+	
+    [!Part			: Part Pgbk TB OpPgPart]
+    
+;        Parts       : DSP CompanyName, DSP ReportTitle
+	Line	: ISS CmpName, ISS RepTTL, RC PrepTimeBy
+	Local	: Field: ISS RepTTL : Set as: "Daily Sales Summary " + " (" + @@DspDateStr + ")"
+	Local	: Field: ISS RepTTL : Full Width: Yes
+	Local	: Field: RC PrepTime: Full Width: Yes
+	
+[Part       : AAC_Taxi_SWO_Title]
+
+    Option  : Part Pgbk TB OpPgPart  : @@InPrintORExcelExportMode
+    Option  : MGK Daily Info  		 : NOT @@InPrintORExcelExportMode
+
+[!Part					: MGK Daily Info]
+	
+;	 Line				: MGK Daily SalesSummary_Scr_Title
+	 Line	: Common BackHome
+	 Local	: Field: Common RepTTL : Info: "Daily Sales Summary" + $$NewLine + @@DspDateStr
+	 Local	: Field: Common RepTTL : Set Always: Yes
+	 Local	: Field: Common RepTTL : Type: String: Forced
+	Local	: Field: Common RepTTL : Line: 2
+	Local	: Field: Common RepTTL : Width : 80 % Page
+	Local	: Field: Common RepTTL : Style : "Small Bold"
+
+	        [Line 		: MGK Daily SalesSummary_Scr_Title]
+
+            Field       : Name Field
+            Right Field : DSP MainDateTitle 
+			Local		: Field	: Name Field 			: Set as 		: "Daily Sales Summary"
+			Local		: Field	: Name Field 			: Cells			: 5
+			Local		: Field	: Name Field 			: Full Width	: Yes
+			Local		: Field	: DSP MainDateTitle		: Cells			: 2
+			Local		: Field	: Default				: Style			: Normal
+
+
+
+[Part				: MGK Daily SalesSummary Rep Title]
+	Line			: MGK Daily SalesSummary Rep Title
+	Border			: Thin Left Right
+	Common Border	: Yes
+	
+[Part			: MGK Daily SalesSummary Rep]
+
+	Lines		: MGK Daily SalesSummary Rep Details
+	Repeat		: MGK Daily SalesSummary Rep Details		: MGK Daily Sales_SO Voucher Register
+	Scroll		: Vertical
+	CommonBorder: Yes
+	Border		: Thin Left Right
+	Float		: No
+
+
+
+
+
+
+
+
+
+
+
+	[Line				: MGK Daily SalesSummary Rep Title]
+
+		Fields		 	: MGK Daily SalesSummary Rep SlNo, MGK Daily SalesSummary Rep Date,MGK Daily SalesSummary Rep Party
+		Right Field     : MGK Daily SalesSummary Rep LPO,MGK Daily SalesSummary Remarks,MGK Daily SalesSummary Rep Department,MGK Daily SalesSummary Rep Category,MGK Daily SalesSummary Rep Supplier,MGK Daily SalesSummary Rep Brand,MGK Daily SalesSummary Rep Party Qty,MGK Daily SalesSummary Rep Party Rate,MGK Daily SalesSummary Rep Party Amt, MGK Daily SalesSummary Rep VAT Rate,MGK Daily SalesSummary Rep VAT Amount,MGK Daily SalesSummary Rep Net Total,MGK VCHId
+		Border			: Column Titles
+
+		Local	: Field	: Default											: Type		: String
+		Local	: Field	: Default											: Align		: Center
+		Local	: Field	: MGK Daily SalesSummary Rep SlNo					: Set as	: "Sl No."
+		Local	: Field	: MGK Daily SalesSummary Rep LPO					: Set as	: "LPO"
+		Local	: Field	: MGK Daily SalesSummary Rep Party Qty				: Set as	: "Quantity"
+		Local	: Field	: MGK Daily SalesSummary Rep Party Amt				: Set as	: "Taxable Amount"
+		Local	: Field	: MGK Daily SalesSummary Rep Party Rate				: Set as	: "Rate"
+		Local	: Field	: MGK Daily SalesSummary Rep Date					: Set as	: "Date"
+		Local	: Field	: MGK Daily SalesSummary Rep Party					: Set as	: "Day of Week"
+		Local	: Field	: MGK Daily SalesSummary Remarks					: Set as	: "Remarks"
+        Local	: Field	: MGK Daily SalesSummary Rep VAT Rate   			: Set as	: "VAT Rate"
+		Local	: Field	: MGK Daily SalesSummary Rep Brand	    			: Set as	: "Product"
+
+		
+		Local	: Field	: MGK Daily SalesSummary Rep Department				: Set as	: "TRN"
+		Local	: Field	: MGK Daily SalesSummary Rep Category				: Set as	: "Category"
+		Local	: Field	: MGK Daily SalesSummary Rep Supplier				: Set as	: "Supplier"
+		Local	: Field	: MGK Daily SalesSummary Rep VAT Amount				: Set as	: "VAT Amount"
+		Local	: Field	: MGK Daily SalesSummary Rep Net Total				: Set as	: "Total Amount"
+
+
+
+
+
+
+
+
+		Border	: Column Titles
+
+
+	[Line				: MGK Daily SalesSummary Rep Details]
+		Border			: Thin Bottom
+		Fields		 	: MGK Daily SalesSummary Rep SlNo, MGK Daily SalesSummary Rep Date,MGK Daily SalesSummary Rep Party
+		Right Field     : MGK Daily SalesSummary Rep LPO,MGK Daily SalesSummary Remarks,MGK Daily SalesSummary Rep Department,MGK Daily SalesSummary Rep Category,MGK Daily SalesSummary Rep Supplier,MGK Daily SalesSummary Rep Brand,MGK Daily SalesSummary Rep Party Qty,MGK Daily SalesSummary Rep Party Rate,MGK Daily SalesSummary Rep Party Amt, MGK Daily SalesSummary Rep VAT Rate,MGK Daily SalesSummary Rep VAT Amount,MGK Daily SalesSummary Rep Net Total,MGK VCHId
+		;Local			: Field	: Default	: Print BG	: IF $$IsEven:$$Line Then "Light Grey" Else "White" 	
+		
+		Local			: Field	: Default	: Style :Small 
+
+		Total			: MGK Daily SalesSummary Rep Party
+;		Option			: Display On Enter			: Yes
+		
+		
+	
+		[Field				: MGK Daily SalesSummary Rep SlNo]
+			Use				: Short Name Field
+			Set as			: $$String:$$Line + $$String:"."
+			Indent			: 2
+			Width   		: 10
+			Border			: Thin Right
+;			Display			: MGKAlterVch
+		
+
+		[Field				: MGK Daily SalesSummary Rep LPO]
+
+			Use				: Name Field
+			Width       	: 15
+			Set as			: $$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
+			Border			: Thin Left 
+			Invisible		: Yes
+			
+			
+				
+
+		[Field				: MGK Daily SalesSummary Rep Date]
+			Use				: Short Name Field
+			Set as			: $$Sprintf:"%s-%s-%s":@DayofDate:@ShortMonth:@YearOfDate
+			DayofDate		: $DayOfFromDate
+			ShortMonth		: $ShortPeriodDateFrom
+			YearOfDate		: $YearOfFromDate
+			Border			: Thin Right
+			Align			: Right
+		
+		
+		[Field				: MGK Daily SalesSummary Remarks]
+
+			Use				: Short Name Field
+			Set as			: $BasicFinalDestination
+			Width			: 10
+			Border			: Thin Left 
+			Align			: Center
+			Invisible		: Yes
+	
+					
+
+		[Field				: MGK Daily SalesSummary Rep Party]
+				Use			: Name Field
+				Set as		: $$DayOfWeek:$$DateFrom
+				Border		: Thin Left 
+				Full Width	: Yes
+				
+				
+
+		[Field				: MGK Daily SalesSummary Rep Brand]
+				Use			: Name Field
+				Set as		: IF NOT $$IsEmpty:$AACVCHItemDescription Then $AACVCHItemDescription Else $Description:StockItem:$StockItemName
+				Width		: 30
+				Border		: Thin Left Right
+				Invisible	: Yes
+				
+		
+
+
+			[Field			: MGK Daily SalesSummary Rep Department]
+				Use			: Name Field
+				Set as		: $PartyTRNNo
+				Border		: Thin Left Right
+				Invisible	: Yes
+	
+
+
+
+
+		[Field				: MGK Daily SalesSummary Rep Category]
+				Use			: Name Field
+				Set as		: $Parent:StockItem:$StockItemName
+				Border		: Thin Left Right
+				Invisible	: Yes
+
+
+				
+		[Field				: MGK Daily SalesSummary Rep Supplier]
+				Use			: Name Field
+				Set as		: $MGKSTKIItemSupplier:StockItem:$StockItemName
+				Border		: Thin Left Right
+				Invisible	: Yes
+	
+	
+			[Field			: MGK Daily SalesSummary Rep Party Qty]
+
+				Use			: Qty Primary Field
+				Set as		: $BilledQty	
+				Format		: "No Zero,No Comma,No Symbol"
+				Border		: Thin Left
+				Invisible	: Yes
+				
+							
+			[Field			: MGK Daily SalesSummary Rep Party Rate]
+
+				Use			: Rate Price Field
+				Width		: 15
+				Set as		: $Rate
+				Format		: "No Zero,No Symbol"
+				Border		: Thin Left
+				Invisible	: Yes
+		
+
+			[Field			: MGK Daily SalesSummary Rep Party Amt]
+				
+				Use			: Amount Field
+				Width		: 25
+				Set as		: $$ReportObject:$$CollectionFieldByKey:$MGKDailyTaxableValue:@DayofDate:MGKDailySalesVoucherSummary
+	 			DayofDate	: $$String:$$DateFrom
+				Border		: Thin Left
+
+
+
+               
+			[Field			: MGK Daily SalesSummary Rep VAT Rate]
+				
+				Use			: Number Field
+				Set as		: $FDLNKVATRate
+				Border		: Thin Left Right 
+				Align		: Center
+				Invisible	: Yes
+			               
+			[Field			: MGK Daily SalesSummary Rep VAT Amount]
+				
+				Use			: Amount Field
+				Width		: 25
+				Set as		: $$ReportObject:$$CollectionFieldByKey:$MGKDailyVATAmount:@DayofDate:MGKDailySalesVoucherSummary
+	 			DayofDate	: $$String:$$DateFrom
+				Border		: Thin Left Right 
+			
+
+			[Field			: MGK Daily SalesSummary Rep Net Total]
+				
+				Use			: Amount Field
+				Width		: 25
+				Set as		: $$ReportObject:$$CollectionFieldByKey:$MGKDailyTotalAmount:@DayofDate:MGKDailySalesVoucherSummary
+	 			DayofDate	: $$String:$$DateFrom
+				Border		: Thin Left Right 
+				Border		: Thin Left 
+			
+
+
+			
+
+				[Field 		  : MGK VCHId]
+					
+					Use       : Name Field
+					Set As    : $$SPrintf:@@VchMasterId:$MasterID
+					Style     : Small
+					Variable  : MyVchId
+					Invisible : yes
+
+
+[line					: MGK Daily SalesSummary Rep Total]
+		Fields		 	: MGK Daily SalesSummary Rep SlNo, MGK Daily SalesSummary Rep Date,MGK Daily SalesSummary Rep Party
+		Right Field     : MGK Daily SalesSummary Rep LPO,MGK Daily SalesSummary Remarks,MGK Daily SalesSummary Rep Department,MGK Daily SalesSummary Rep Category,MGK Daily SalesSummary Rep Supplier,MGK Daily SalesSummary Rep Brand,MGK Daily SalesSummary Rep Party Qty,MGK Daily SalesSummary Rep Party Rate,MGK Daily SalesSummary Rep Party Amt, MGK Daily SalesSummary Rep VAT Rate,MGK Daily SalesSummary Rep VAT Amount,MGK Daily SalesSummary Rep Net Total,MGK VCHId
+		
+		
+		Border	: Totals
+	
+		Local	: Field	: MGK Daily SalesSummary Rep SlNo			: Set as	: ""
+		Local	: Field	: MGK Daily SalesSummary Rep LPO			: Set as	: "Grand Total"
+		Local	: Field	: MGK Daily SalesSummary Rep LPO			: Align		: Right
+		Local	: Field	: MGK Daily SalesSummary Rep LPO			: Style		: Small Italic
+		Local	: Field	: MGK Daily SalesSummary Rep Party Qty		: Set as	:""
+		Local	: Field	: MGK Daily SalesSummary Rep Party Amt		: Set as	: $$CollAmtTotal:MGKDailySalesVoucherSummary:$MGKDailyTaxableValue
+        Local	: Field	: MGK Daily SalesSummary Rep VAT Rate   	: Set as	: ""
+		Local	: Field	: MGK Daily SalesSummary Rep Net Total		: Set as	: $$CollAmtTotal:MGKDailySalesVoucherSummary:$MGKDailyTotalAmount
+		Local	: Field	: MGK Daily SalesSummary Rep Party			: Set as	: "Grand Total AED"
+		Local	: Field	: MGK Daily SalesSummary Rep Party			: Align		: Right
+		Local	: Field	: MGK Daily SalesSummary Rep VAT Amount		: Set as	: $$CollAmtTotal:MGKDailySalesVoucherSummary:$MGKDailyVATAmount
+	
+
+[Part					:  MGK Daily SalesSummary Rep Total]
+	Line				:  MGK Daily SalesSummary Rep Total
+	Border				:  Thin Left Right
+
+
+[Collection				: MGK Daily Sales_SO Voucher Register]
+			Type       	: Period
+			Repeat      : ##SVPeriodicity
+
+		   Compute		: FullMonthName			: $$FullMonthName:$$PeriodDateFrom
+
+			Compute		: Year					: $$YearOfDate:$$PeriodDateFrom
+			Compute		: ShortPeriodDateFrom	: $$ShortMonthName:$$PeriodDateFrom
+			Compute		: ShortPeriodDateTo		: $$ShortMonthName:$$PeriodDateTo
+			Compute		: DayOfFromDate			: $$DayOfDate:$$PeriodDateFrom
+			Compute		: DayOfToDate  			: $$DayOfDate:$$PeriodDateTo
+			Compute		: YearOfFromDate		: $$YearOfDate:$$PeriodDateFrom
+			Compute		: YearOfToDate 			: $$YearOfDate:$$PeriodDateTo
+			Compute		: DateFrom				: $$DateFrom
+			Compute     : NumItems              : $$NumItems
+			Compute     : PrimaryCostCategory   : $$PrimaryCostCategory	
+			Compute		: IsIntegrated			: $$IsIntegrated
+			Compute		: SortPosition			: 1
+				
+	
+
+
+
+
+
+
+
+
+
+[Collection				: MGK Daily Sales Voucher Summary]
+
+	Source Collection	: MGK Daily Sales Voucher Register, MGK CRNoteColl
+
+	By					: MGKDate		: $$String:$Date
+	
+	Aggr Compute		: MGKDailyTaxableValue		: Sum	: $TotalTaxableAmount
+	Aggr Compute		: MGKDailyVATAmount			: Sum	: $MGKVATAmount
+	Aggr Compute		: MGKDailyTotalAmount		: Sum	: $VCHAmt
+	
+	Search Key			: $MGKDate
+
+[Collection		: MGK Daily Sales Voucher Register]
+	Type		: Vouchers : Vouchertype
+	Child Of	: $$VchTypeSales
+	Filter		: UseForPOSReports
+	Belongs To 	: Yes
+	Filter		: UseForPOSReports
+	Fetch		: BasicBuyerAddress.*
+	Fetch		: Date,PartyLedgerName,BilledQty,Amount,MasterID,BasicBuyersSalesTaxNo,BasicFinalDestination, VoucherTypeName
+	Fetch		: InventoryEntries.*,InvoiceOrderList.*
+	Compute		: MGKVATAmount	 		: @@MEBAAVATAmount
+    Compute     : TotalTaxableAmount 	: (If $$IsEmpty:$LDRInvTotal Then $$Abs:$Amount Else $LDRInvTotal) - $MGKVATAmount;$Amount - $MGKVATAmount
+	Compute		: VCHAmt  : If $$IsEmpty:$LDRInvTotal Then $$Abs:$Amount Else $LDRInvTotal
+	
+[Collection: MGK CRNoteColl]
+	
+	Type		: Vouchers : Voucher Type
+	Child Of	: $$VchTypeCreditNote
+	Filter		: UseForPOSReports
+	Belongs To 	: Yes
+	Fetch		: BasicBuyerAddress.*
+	Fetch		: Date,PartyLedgerName,BilledQty,Amount,MasterID,BasicBuyersSalesTaxNo,BasicFinalDestination, VoucherTypeName
+	Fetch		: InventoryEntries.*,InvoiceOrderList.*, EOCNRefFor
+	Compute		: MGKVATAmount	 		: @@MEBAAVATAmount
+    Compute     : TotalTaxableAmount 	: -($Amount - $MGKVATAmount)
+	Compute		: VCHAmt  : -$Amount
+	
+    [Report		 	: MGKAlterVch]
+			Use     : Sales Register
+;			Form    : Sales Register
+			Set		: SVPeriodicity 	: "Day"
+			Set		: ColumnarDayBook 	: Yes
+	
+[System				: Formula]
+	
+  MEBAAVATAmount    : $$FilterAmtTotal:AllLedgerEntries:MEBAIsVATLedger:$Amount
+  MEBAAVATLedName   : $$FilterValue:$LedgerName:AllLedgerEntries:1:MEBAIsVATLedger
+  MEBAIsVATLedger   : $$IsSysNameEqual:VAT:$TaxType:Ledger:$LedgerName
+  
+	UseForPOSReports : Yes
+
+
+
+
+
+
+
+
+
+[Report: SWS Report]
+	
+	Title	: @@LocSalesmansales
+	Form	: SWS Report
+	Variable: SvFromDate, SVToDate
+	
+	Set		: SvFromDate:$$MachineDate
+	Set		: SVToDate:$$MachineDate
+	
+[Form: SWS Report]
+	
+	Height	: 100 % Page
+	Width	: 100 % Page
+	
+	Space Top    : If $$InPrintMode then  0.5 else 0 inches
+	Space Bottom : If $$InPrintMode then  0.5 else 0 inches
+	Space Left   : If $$InPrintMode then  0.5 else 0 inches
+	Space Right  : If $$InPrintMode then  0.5 else 0 inches
+	
+	Button	     : Print Button, Mail Button, Export Button
+	
+	Part	: SWS CmpNameAddress, SWS ReportTTL, SWS ReportPeriod, SWS ColumnTTL, SWS ColumnInfo
+			  
+	Page Break : SWS CLSPageBrk, SWS OPPPageBrk
+	
+	Background	: White
+	
+	Button      : Change Period
+	Bottom Toolbar  Buttons	: BottomToolBarBtn1, BottomToolBarBtn8, BottomToolBarBtn9, BottomToolBarBtn10, BottomToolBarBtn11
+	
+	
+[Part: SWS CLSPageBrk]
+	
+	Line	: SWS CLSPageBrk
+	
+[Line: SWS CLSPageBrk]
+	
+	Field	: SWS CLSPageBrk
+	Border	: Thin Top
+	
+[Field: SWS CLSPageBrk]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Set as	: "continued ..."
+	Align	: Right
+	Style	: Verdana Bold
+	Full Width: Yes
+	
+[Part: SWS OPPPageBrk]
+	
+	Part	: SWS CmpNameAddress, SWS ReportTTL, SWS ReportPeriod , SWS ColumnTTL
+	
+	Vertical: Yes
+	
+[Part: SWS ReportTTL]
+	
+	Line	: SWS ReportTTL
+	
+[Line: SWS ReportTTL]
+	
+	Field	: SWS ReportTTL
+	
+[Field: SWS ReportTTL]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Set as	: @@LocSalesmansales
+	Style	: Normal
+	Border	: Thin Bottom
+	Full Width: Yes
+	Align	: Center
+	Local	: Style: Normal : Height: 14
+	
+[Part: SWS ReportPeriod]
+	
+	Line	: SWS ReportPeriod
+	Space Bottom: 1
+	
+[Line: SWS ReportPeriod]
+	
+	Field	: SWS ReportPeriod
+	
+[Field: SWS ReportPeriod]
+	
+	Use		: Short Name Field
+	Width	: 100 % Page
+	Style	: Small Bold
+	Set as	: @@DspDateStr
+	Align	: Right
+	Color	: Blue
+	
+[Part: SWS CmpNameAddress]
+	
+	Line	: SWS CmpName, SWS CmpAddress
+	Repeat	: SWS CmpAddress : CompanyAddress
+	Invisible: NOT $$InPrintMode
+	
+	Space Bottom: 0.25 
+
+[Line: SWS CmpName]
+	
+	Field	: SWS CmpName
+	
+[Field: SWS CmpName]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Bold
+	Set as	: @@CmpMailName
+	Border	: Thin Bottom
+	Full Width: Yes
+	
+[Line: SWS CmpAddress]
+	
+	Field	: SWS CmpAddress
+	
+[Field: SWS CmpAddress]
+	
+	Use		: Name Field
+	Width	: 100 % Page
+	Align	: Center
+	Style	: Verdana Normal
+	Set as	: $Address
+	
+[Part: SWS ColumnTTL]
+	
+	Line	: SWS ColumnTTL
+	
+[Line: SWS ColumnTTL]
+	
+	Field	: SWS Sno, SWS Salesman
+	Right Field: SWS Amount
+	Right Field: SWS Amount
+		
+ 	Local	: Field: SWS Sno 	: Set as: "S.No."
+	Local	: Field: SWS Salesman 	: Set as: "Salesman Name"
+	Local	: Field: SWS Amount 	: Set as: "Amount"
+	Local	: Field: Default : Type  : String
+	Local	: Field: Default : Style : Small Bold
+	
+	Border	: Column Titles
+	Space Top: 0.20
+	Space Bottom: 0.20
+	
+[Part: SWS ColumnInfo]
+	
+	Line	: SWS ColumnInfo
+	Repeat	: SWS ColumnInfo : Coll BranchSalesman
+	Scroll	: Vertical
+	Common Border: Yes
+	
+	Bottom Line: SWS TotalLine
+	Total	: SWS Amount
+	
+[Line: SWS ColumnInfo]
+	
+	Field	: SWS Sno, SWS Salesman
+	Right Field: SWS Amount
+	Option	: Display On Enter
+	Space Bottom: 0.20
+	
+[Field: SWS Sno]
+	
+	Use		: Name Field
+	Width	: 8 % Page
+	Style	: Normal
+	Set as	: $$Line
+	
+[Field: SWS Salesman]
+	
+	Use		: Name Field
+	Full Width: Yes
+	Style	: Normal
+	Set as	: $Name
+	Variable: VarSalesman
+	Display : DetailedReport
+	
+[Report: DetailedReport]
+	
+	Variable: VarSalesman
+	Form	: RC Report
+	Variable: SvFromDate, SVToDate
+	
+	Set		: SvFromDate:##SVCurrentDate
+	Set		: SVToDate:##SVCurrentDate
+	
+	Local	: Line: RC ColumnTTL   : Add	: Right Field: At End : DSWS ItemAmt
+	Local	: Line: RC ColumnTTL   : Local	: Field: DSWS ItemAmt : Set as: "Item Amount"
+	Local	: Line: RC ColumnInfo  : Add	: Right Field: At End : DSWS ItemAmt
+	Local	: Line: RC ColumnInfo  : Local	: Field: DSWS ItemAmt : Set as: $ItemTotal
+	Local	: Line: RC TotalLine  : Add	: Right Field: At End : DSWS ItemAmt
+	Local	: Line: RC TotalLine  : Local	: Field: DSWS ItemAmt : Set as: $$Total:DSWSItemAmt
+	Local	: Line: RC ColumnInfo : Empty: $LDRVChSalesman != ##VarSalesman
+	
+[Field: DSWS ItemAmt]
+	
+	Use		: Amount Field
+	Width	: 10 % Page
+	Style	: Normal Bold
+	Background: White
+	
+[Field: SWS Amount]
+	
+	Use		: Amount Field
+	Width	: 10 % Page
+	Style	: Normal Bold
+	Set as	: $$ReportObject:$$CollectionFieldByKey:$SalesAmt:@LocSearchKey:CollSWSPOSSalesmanWisesales
+	LocSearchKey : $Name
+	
+[Collection: Coll SWSPOSSalesVch]
+	
+	Type	: Vouchers : Voucher Type
+	Child Of: @@POSVType
+	Belongs To: No
+	Fetch	: IsOptional, IsCancelled, LDRVChSalesman, ItemTotal
+	
+[Collection: Coll SWSPOSSalesmanWisesales]
+	
+	Source Collection	: Coll SWSPOSSalesVch
+	By		: SalesmanName : $LDRVChSalesman
+	Aggr Compute: SalesAmt : Sum: $ItemTotal
+
+	Search Key: $SalesmanName
+	
+[#Object: Voucher]
+	
+	ItemTotal : $$CollAmtTotal:InventoryEntries:$Amount
+ 	
+[Line: SWS TotalLine]
+	
+	Field	: SWS Sno, SWS Salesman
+	Right Field: SWS Amount
+	
+	Local	: Field: SWS Sno 	: Set as: ""
+	Local	: Field: SWS Salesman 	: Set as: "Total : "
+	Local	: Field: SWS Amount 	: Set as: $$Total:SWSAmount
+	
+	Local	: Field: Default : Align : Right
+	Local	: Field: Default : Style : Normal Bold
+	
+	Border	: Column Titles
+	Space Top: 0.20
+	Space Bottom: 0.20
+
+
+
+
+
+[Key: Direct Back]
+	
+	Key		: Left Click
+	Action	: Trigger Key: Esc
+	
+[Key: Enter Key]
+	
+	Key		: Left Click
+	Action	: Trigger Key: Enter
+	
+[Key: KeyBoard]
+	
+	Key		: Left Click
+	Action	: Browse Url: "Keyboard.exe"
+	Inactive: @@NoOSKeybord
+	
+[Key: NumPad]
+	
+	Key		: Left Click
+	Inactive: $$InDisplayMode OR @@NoOSKeybord
+	Action: Browse Url: "NumPad.exe"
+
+[Key: NumPadRate]
+	
+	Key		: Left Click
+	Inactive: $$InDisplayMode OR @@NoOSKeybord
+	Action	: Browse Url: "NumPadRate.exe"
+
+;;;;;;; Common Back & Home Setup
+
+[Part: Common BackHome]
+	
+	Line	: Common BackHome
+	Invisible: $$InPrintMode
+	
+[Line: Common BackHome]
+	
+	Field	: Common Back, Common RepTTL
+	Right Field: Common Home
+	Local	: Field: HMUB RepTTL : Info: "All Table Information"
+	Space Bottom: 1
+	
+[Field: Common Back]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Back" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Small Bold : Height: 10
+	Key		: Direct Back
+	Background: VocherTypeClr
+	Color	: White
+	Skip Forward: Yes
+	Inactive: $$InPrintMode
+	
+[Field: Common RepTTL]
+	
+	Use		: Name Field
+	Width	: 80 % Page
+	Style	: Normal Bold
+	Info	: "Common Title"
+	Align	: Center
+	Local	: Style	: Normal Bold : Height: 13
+	Full Width	: Yes	
+	
+[Field: Common Home]
+	
+	Use		: Name Field
+	Width	: 10 % Page
+	Style	: Small Bold
+	Border	: Thin Box
+	Set as	: $$NewLine + "Home" + $$NewLine
+	Line	: 3
+	Read Only: Yes
+	Align	: Center
+	Local	: Style : Small Bold : Height: 10
+	Background: VocherTypeClr
+	Color	: White
+	Skip	: Yes 
+	Inactive: $$InPrintMode
+	
+;;;;;;;;;;;; Back or Accept
+
+[Line: BackOrSave]
+	
+	Field	: Go Back
+	Right Field	: Save Button
+	Space Top: 2
+	Space Bottom: 1
+	
+[Field: Go Back]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Align	: Center
+	Style	: Small Bold
+	Set as	: $$NewLine + "Back" + $$NewLine
+	Line	: 3
+	Border	: Thin Box
+	Read Only: Yes
+	Background: VocherTypeClr
+	Color	: White
+	Key		: Direct Back
+	Skip Forward: Yes
+	
+[Field: Save Button]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Align	: Center
+	Style	: Small Bold
+	Set as	: $$NewLine + "Accept" + $$NewLine
+	Line	: 3
+	Border	: Thin Box
+	Read Only: Yes 
+	Background: VocherTypeClr
+	Color	: White
+	Key		: SaveVCHPO
+	Skip Forward: Yes
+	
+[Key: SaveVCHPO]
+	
+	Key		: Left Click
+	Action	: Trigger Key : Ctrl + A
+
+
+
+[#Form: CMP TallyShop Features]
+	
+	Height	: 100 % Page
+	
+[#Line: CMP TallyShopFeaturesTitle]
+	
+   Local: Field : Left SubTitle : Info  : $$LocaleString:"Add-On Features / POS Features"
+
+[#Part: CMP TallyShopFeatures Left]
+	
+	Delete	: Line
+	Add 	: Line	: CMPPF EnablePOS, CMPPF POSVType, CMPPF DayBegTime, CMP POSPLevel, CMP OnlinePlateforms, CMP IsMultiPL, CMP CashPrinter, CMP BarcodePrinter, CMP PWPreview, CMP PrintArab, CMP PrintPRate, CMP PrintDecimal, +
+	                  CMP UseVKey;, CMP EnbSalesman, TBM AutoEmailConfig
+
+[Line: CMPPF EnablePOS]
+	
+	Field	: Medium Prompt, CMPPF EnablePOS
+	Local	: Field: Medium Prompt : Set as: "Enable Retail POS Managment System"
+	Local	: Field: Medium Prompt : Width : 30 % Page 
+	
+[Field: CMPPF EnablePOS]
+	
+	Use		: Logical Field
+	Style	: Small Bold
+	Storage	: CMPPFEnablePOS
+	
+[Line: CMPPF POSVType]
+	
+	Field	: Medium Prompt, CMPPF POSVType
+	Local	: Field: Medium Prompt : Set as: "POS Voucher Type"
+	Local	: Field: Medium Prompt : Width : 17 % Page
+	
+[Field: CMPPF POSVType]
+	
+	Use		: Name Field
+	Style	: Small Bold
+	Storage	: CMPPFPOSVType
+	Table	: Coll TabPOSVType
+	
+[Line: CMPPF DayBegTime]
+	
+	Field	: Medium Prompt, CMPPF DayBegTime
+	Local	: Field: Medium Prompt : Set as: "Day Start From"
+	Local	: Field: Medium Prompt : Width : 17 % Page
+	
+[Field: CMPPF DayBegTime]
+	
+	Type	: Time
+	Style	: Small Bold
+	Storage	: CMPPFDayBegTime
+	
+[Collection: Coll TabPOSVType]
+	
+	Title	: "POS VCH Type / Location"
+	Type	: Voucher Type
+	Child Of: $$VchTypeSales
+	Filter	: OnlyPOSVType
+	
+[System: Formulae]
+	
+	OnlyPOSVType : $UseForPOSInvoice
+	
+[Line: CMP POSPLevel]
+	
+	Field   	: Medium Prompt, CMP POSPLevel
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Retail Price Level"
+	Local		: Field : Medium Prompt : Width		: 17 % page
+	
+[Field: CMP POSPLevel]
+
+    Use       : Name Field
+    Storage	  : CMPPOSPLevel
+	Style	  : Small Bold
+	Table     : Price Levels, Not Applicable
+    ShowTable : Always
+	
+[Line: CMP OnlinePlateforms]
+	
+	Field   	: Medium Prompt, CMP OnlinePlateforms
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Define Online Plateforms"
+	Local		: Field : Medium Prompt : Width		: 26 % page
+	Space Top   : 0.50
+	Invisible	: Yes
+	
+[Field: CMP OnlinePlateforms]
+
+    Use       : Logical Field
+	Style	  : Small Bold
+	Set as	  : No  
+	Sub Form  : CMPOF Report : $$Value
+	
+[Report: CMPOF Report]
+	
+	Form	: CMPOF Report
+	
+[Form: CMPOF Report]
+	
+	Part	: CMPOF Report
+	Space Top: 1
+	Space Bottom: 1
+	Space Left: 1
+	Space Right: 1
+	
+[Part: CMPOF Report]
+	
+	Line	: CMP OF1, CMP OF2, CMP OF3
+	
+[Line: CMP OF1]
+	
+	Field	: Medium Prompt, CMP OF1
+	Local	: Field: Medium Prompt : Set as: "Online Plateform 1"
+	Space Bottom: 0.20
+	
+[Field: CMP OF1]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Style	: Small Bold
+	Storage	: CMPOF1
+	Table	: CollTabOnlinePlateforms
+	Show Table: Always
+	
+[Line: CMP OF2]
+	
+	Field	: Medium Prompt, CMP OF2
+	Local	: Field: Medium Prompt : Set as: "Online Plateform 2"
+	Space Bottom: 0.20
+	
+[Field: CMP OF2]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Style	: Small Bold
+	Storage	: CMPOF2
+	Table	: CollTabOnlinePlateforms
+	Show Table: Always
+
+[Line: CMP OF3]
+	
+	Field	: Medium Prompt, CMP OF3
+	Local	: Field: Medium Prompt : Set as: "Online Plateform 3"
+	
+[Field: CMP OF3]
+	
+	Use		: Name Field
+	Width	: 15 % Page
+	Style	: Small Bold
+	Storage	: CMPOF3
+	Table	: CollTabOnlinePlateforms
+	Show Table: Always
+
+[Collection: CollTabOnlinePlateforms]
+	
+	Title	: "Online Plateform"
+	List Name: "Talabat", "Zomato", "Deliveroo", "Smiles", "Noon"
+	
+[Line: CMP IsMultiPL]
+	
+	Field   	: Medium Prompt, CMP IsMultiPL
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Use seprate Price List for Onlice Plateforms"
+	Local		: Field : Medium Prompt : Width		: 26 % Page
+	Invisible	: Yes
+	
+[Field: CMP IsMultiPL]
+
+    Use       : Logical Field
+    Storage	  : CMPPOSIsMultiPL
+	Style	  : Small Bold
+
+[Line: CMP CashPrinter]
+	
+	Field   	: Medium Prompt, CMP CashPrinter
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Cashier Printer"
+	Local		: Field : Medium Prompt : Width		: 10 % page
+	Space Top   : 1
+	
+[Field: CMP CashPrinter]
+
+    Use       : Name Field
+    Storage	  : CMPCashPrinter
+	Width	  : 25 % Page
+	Style	  : Small Bold
+	Table     : List of Printers
+    ShowTable : Always
+	
+[Line: CMP BarcodePrinter]
+	
+	Field   	: Medium Prompt, CMP BarcodePrinter
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Barcode Printer"
+	Local		: Field : Medium Prompt : Width		: 10 % page
+	
+[Field: CMP BarcodePrinter]
+
+    Use       : Name Field
+    Storage	  : CMPBarcodePrinter
+	Width	  : 25 % Page
+	Style	  : Small Bold
+	Table     : List of Printers
+    ShowTable : Always
+	
+[Line: CMP PWPreview]
+	
+	Field   	: Medium Prompt, CMP PWPreview
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Print Bill without Preview"
+	Local		: Field : Medium Prompt : Width		: 19 % Page
+	Space Top   : 0.50
+	
+[Field: CMP PWPreview]
+
+    Use       : Logical Field
+    Storage	  : CMPPWPreview
+	Width	  : 4 % Page
+	Align	  : Center 
+	Style	  : Small Bold
+	
+[Line: CMP PrintArab]
+	
+	Field   	: Medium Prompt, CMP PrintArab
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Print Bill with Arabic Item Name"
+	Local		: Field : Medium Prompt : Width		: 19 % Page
+	
+[Field: CMP PrintArab]
+
+    Use       : Logical Field
+    Storage	  : CMPPrintArab
+	Width	  : 4 % Page
+	Align	  : Center 
+	Style	  : Small Bold
+	
+[Line: CMP PrintPRate]
+	
+	Field   	: Medium Prompt, CMP PrintPRate
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Print Item Rate"
+	Local		: Field : Medium Prompt : Width		: 19 % Page
+	
+[Field: CMP PrintPRate]
+
+    Use       : Logical Field
+    Storage	  : CMPPrintPRate
+	Width	  : 4 % Page
+	Align	  : Center 
+	Style	  : Small Bold
+	
+[Line: CMP PrintDecimal]
+	
+	Field   	: Medium Prompt, CMP PrintDecimal
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"No. of Decimal In Bill Printout"
+	Local		: Field : Medium Prompt : Width		: 19 % Page
+	
+[Field: CMP PrintDecimal]
+
+    Use       : Number Field
+    Storage	  : CMPPrintDecimal
+	Width	  : 3 % Page
+	Max		  : 1 
+	Format	  : "No Zero"
+	Align	  : Center
+	Style	  : Small Bold
+	
+[Line: CMP UseVKey]
+	
+	Field   	: Medium Prompt, CMP UseVKey
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Use Onscreen Keybord"
+	Local		: Field : Medium Prompt : Width		: 19 % Page
+	Space Top   : 0.50
+	
+[Field: CMP UseVKey]
+
+    Use       : Logical Field
+    Storage	  : CMPUseVKey
+	Width	  : 4 % Page
+	Align	  : Center 
+	Style	  : Small Bold
+
+[Line: CMP EnbSalesman]
+	
+	Field   	: Medium Prompt, CMP EnbSalesman
+    Local   	: Field	: Medium Prompt : Set as    : $$LocaleString:"Enalble Salesman Module"
+	Local		: Field : Medium Prompt : Width		: 19 % Page
+	
+[Field: CMP EnbSalesman]
+
+    Use       : Logical Field
+    Storage	  : CMPEnbSalesman
+	Width	  : 4 % Page
+	Align	  : Center 
+	Style	  : Small Bold
+
+[System: Formulae]
+		
+	IsCMPPOSEnb  : $CMPPFEnablePOS:Company:##SVCurrentCompany
+	POSVType     : $CMPPFPOSVType:Company:##SVCurrentCompany
+	DayBegTime   : $CMPPFDayBegTime:Company:##SVCurrentCompany
+	CMPPrintRate : $CMPPrintPRate:Company:##SVCurrentCompany
+	NoOSKeybord  : $CMPUseVKey:Company:##SVCurrentCompany = "No"
+	OSKeybord    : $CMPUseVKey:Company:##SVCurrentCompany
+	
+	CMPCashPrinter    : $CMPCashPrinter:Company:##SVCurrentCompany
+	CMPBarcodePrinter : $CMPBarcodePrinter:Company:##SVCurrentCompany
+	
+	Printwithoutpreview : $CMPPWPreview:Company:##SVCurrentCompany
+	PrintwitArabic      : $CMPPrintArab:Company:##SVCurrentCompany = "No"
+	POSInvDecimal       : $CMPPrintDecimal:Company:##SVCurrentCompany
+	
+	VATEnabled 		: $IsSalesTaxOn:Company:##SVCurrentCompany
+	
+	POSEnbSalesman : $CMPEnbSalesman:Company:##SVCurrentCompany
+	
+	RestaurantPL : $CMPPOSPLevel:Company:##SVCurrentCompany
+	
+	CMPMultiPL   : $CMPPOSIsMultiPL:Company:##SVCurrentCompany
+	CMPOF1       : $CMPOF1:Company:##SVCurrentCompany
+	CMPOF2       : $CMPOF2:Company:##SVCurrentCompany
+	CMPOF3       : $CMPOF3:Company:##SVCurrentCompany
+	
+	CMPOP1 : If $$IsEmpty:@@CMPOF1 Then "Talabat" Else @@CMPOF1
+	CMPOP2 : If $$IsEmpty:@@CMPOF2 Then "Zomato"  Else @@CMPOF2
+	CMPOP3 : If $$IsEmpty:@@CMPOF3 Then "Deliveroo" Else @@CMPOF3
+	
+	AutoEmailTo  : $TBMToEmail:Company:##SVCurrentCompany
+	
+
+
+
+
+[Report: HMC Report]
+	
+	Title	: "Home Screen"
+	Form	: HMC Report
+	
+[Form: HMC Report]
+	
+	Height	: 100 % Page
+	Width	: 100 % Page
+	Part	: HMC Report
+	
+[Part: HMC Report]
+	
+	Part	: HMC ScreenTop, HMC ScreenBottom
+	Vertical: Yes
+	
+[Part: HMC ScreenTop]
+	
+	Buttons	: HMC TBA, HMC TBB, HMC TBC, HMC TBD, HMC TBE
+	
+[Button: HMC TBA]
+	
+	Use		: POS Button
+	Title	: "Express" + $$NewLine + "Billing"
+	Key		: A
+	Skip Forward: Yes
+	Background: VocherTypeClr
+	Key Color: VocherTypeClr
+	Color	: White
+	Action	: Call    : FuncCreateExpressBill:"Express Billing"
+	
+[Function: Func CreateExpressBill]
+	
+	Parameter	: VarTabNo  : String
+		
+	10 : Create Collection  :  Coll CreatePOS
+	
+[Button: HMC TBB]
+	
+	Use		: POS Button
+	Title	: "Top Selling" + $$NewLine + "Items"
+	Key		: B
+	Background: VocherTypeClr
+	Key Color: VocherTypeClr
+	Color	: White
+	Skip Forward: Yes
+	Action	: Display: IWS Report
+	
+[Button: HMC TBC]
+	
+	Use		: POS Button
+	Title	: "Stock" + $$NewLine + "Query"
+	Key		: C
+	Skip Forward: Yes
+	Background: VocherTypeClr
+	Key Color: VocherTypeClr
+	Color	: White
+	Action	: Display Collection 	: Stock Query
+	
+[#Form: Item Stock Query]
+	
+	Add	: Parts : At Beginning: Common BackHome
+	Local	: Field: Common RepTTL : Info: "Stock Query - " + $$ReptField:Name:$$Line:StockItem:##StockItemName
+	
+	Delete	: Button
+	
+[Report: POSStock Summary]
+	
+	Use		: Stock Summary
+	Local	: Form: Default : Add: Parts: Before: DSP AccTitles : Common BackHome
+	Local	: Field: Common RepTTL : Info: "Stock Report"
+	
+[Button: HMC TBD]
+	
+	Use		: POS Button
+	Title	: "Stock" + $$NewLine + "Report"
+	Key		: D
+	Skip Forward: Yes
+	Background: VocherTypeClr
+	Key Color: VocherTypeClr
+	Color	: White
+	Action	: Display: POSStock Summary
+	
+[Button: HMC TBE]
+	
+	Use		: POS Button
+	Title	: "Button 4"
+	Key		: E
+	Image	: LoditechLogo
+	Background: White
+	Action	: Browse Url : "https://loditechme.com/"
+	
+[Resource: LoditechLogo]
+		
+	Source: TallyLoditech.jpg
+	Resource Type: JPEG
+	
+;;; Bottom Part
+
+[Part: HMC ScreenBottom]
+		
+	Buttons	: HMC BBA, HMC BBB, HMC BBC, HMC BBD, HMC BBE
+	
+[Button: HMC BBA]
+	
+	Use		: POS Button
+	Title	: "Day" + $$NewLine + "Summary"
+	Key		: F
+	Background: Popup Cursor BG
+	Key Color: Popup Cursor BG
+	Color: Black
+	Action	: Display : RC Report ;USB Report
+
+[Button: HMC BBB]
+
+	Use		: POS Button
+	Title	: "Day wise" + $$NewLine + "Sales"
+	Key		: G
+	Background: Popup Cursor BG
+	Key Color: Popup Cursor BG
+	Action	: Display : MGK Daily SalesSummary Rep
+	
+[Button: HMC BBC]
+	
+	Use		: POS Button
+	Title	: "Company" + $$NewLine + "Info"
+	Key		: H
+	Background: Inline Border Color
+	Inactive: NOT @@AccountsAccess
+	Action	: Alter: LDR XRestInfo
+	
+[Button: HMC BBD]
+	
+	Use		: POS Button
+	Title	: "Log out"
+	Key		: I
+	Background: Inline Border Color
+	Action	: Call: LogOut Company
+	
+[Function: LogOut Company]
+	
+	001 : Trigger Key: Esc
+	002 : Trigger Key: Ctrl + F3
+	003 : Trigger Key: Enter
+	004 : Trigger Key: Enter
+	
+[Button: HMC BBE]
+	
+	Use		: POS Button
+	Title	: "Quit"
+	Key		: Q
+	Background: Quit Color
+	Key Color: Quit Color
+	Border	: Thin Box
+	Action	: Call : Quit Company
+	
+[Color: Quit Color]
+	
+	RGB: 255, 96, 92
+
+[Function: Quit Company]
+	
+	10 : Query Report	: CompQuery Report	: "Continue?" : " "
+	12 : If			: $$LastResult
+	15 : Trigger Key   : Ctrl + Q
+	20 : Trigger Key   : Ctrl + Q
+	50 : End If
+	
+[Color: BackOfc Color]
+
+    RGB    : 0, 139, 139
+	
+;;;;;;;;;;;;;;
+
+[Button: POS Button]
+
+	Horizontal Align: Center
+	Width	: 20 % Page
+	Height	: 50 % Page
+	Style	: Button Style
+	Key Style: Button Style
+	Background: Light Blue
+	
+[Style: Button Style]
+	
+	Use		: Normal Bold
+	Height	: 16
+
+;;;; Quit Query Box ;;;;
+
+[Report	: CompQuery Report]
+	
+	Form	: CompQuery Report
+	
+[Form: CompQuery Report]
+	
+	Use				: Query Common Visuals
+	Part			: CompQuery Report 
+	Bottom	Part 	: CompQuery Button
+	Key			 	: YesKey, NoKey
+
+	Full Height		: No
+	Full Width		: No	
+	MinWidth		: @@UserQueryMinWidth PTS
+	MinHeight		: @@UserQueryMinHeight PTS
+	Sound Alert		: Alarm
+	Grey Back		: Yes
+	Width			: 30 % Page
+	Height			: 25 % Page
+	Space Bottom: 1
+	
+	Local			: Field	: CompQuery Report	: Style		: Small
+	
+[Part: CompQuery Report]
+
+	Space Top			: 0.20
+	Line   				: CompQuery Report
+	Horizontal Align	: Center
+	Vertical Align		: Center
+	
+	[Line: CompQuery Report]
+
+		Field		: CompQuery Report
+		Space Top	: 2
+
+[Field: CompQuery Report]
+
+	Info		: "Quit ?"
+	Width		: 30 % Page
+	Align   	: Center
+	Style		: Normal
+	
+[Part: CompQuery Button]
+	
+	Button	: CompQuery Yes, CompQuery No
+	Local	: Button: CompQuery Yes : Space Left: 4
+	Local	: Button: CompQuery No  : Space Left: 10
+	
+[Button: CompQuery Yes]
+	
+	Use		: POSQuery Button
+	Title	: "Yes"
+	Key		: Y
+	Action	: Form Return	: Yes
+	
+[Button: CompQuery No]
+	
+	Use		: POSQuery Button
+	Title	: "No"
+	Key		: N
+	Space Right: 4
+	Action	: Form Return	: No
+
+[Button: POSQuery Button]
+	
+	Width	: 10 % Page
+	Height	: 8 % Page
+	Background  		: Button BG Color
+	FocusBG     		: White
+	Border				: Button Border
+	KeyColor    		: "Black, Key Color"
+	Inactive Color		: Inactive Color
+	Vertical Align		: Center
+	Horizontal Align	: Center
+	Key Vertical Align	: Center
+	Color				: Black
+
+
+[Report: IODT Report]
+	
+	Form	: IODT Report
+	Object	: Company
+
+[Form: IODT Report]
+		
+	Width	: 55 % Page
+	Part	: IODT ReportTTL, IODT ReportInfo
+	
+	Background: Light Autumn Green
+	
+	On	: Form Accept: Yes: Form Accept
+	On	: Form Accept: Yes: Call: Func IsStartImportIODT
+
+[Part: IODT ReportTTL]
+	
+	Line	: IODT ReportTTL
+	Background: Dark Green
+	
+[Line: IODT ReportTTL]
+	
+	Field	: IODT ReportTTL
+	Border	: Thin Top Bottom
+	
+[Field: IODT ReportTTL]
+	
+	Use		:  Short Name Field
+	Width	: 55 % Page
+	Style	: Verdana Bold
+	Set as	: "Import Tool - Stock Item"
+	Align	: Center
+	Skip	: Yes
+	Color	: White
+	
+[Part: IODT ReportInfo]
+	
+	Line	: IODT ExcelConfig, IODT InfoFileLoc, IODT InfoSheetName, IODT RateAppDate, IODT ActType, IODT PLName
+	
+[Line: IODT ExcelConfig]
+		
+	Field	: IODT ExcelConfig
+	Border	: Thin Top
+	Space Top: 0.50
+	
+[Field: IODT ExcelConfig]
+	
+	Use		: Name Field
+	Width	: 50 % Page
+	Info	: "Excel Configuration"
+	Align	: Center
+	Full Width:  Yes
+	Style	: Small Bold
+	Border	: Thin Bottom
+	
+[Line: IODT InfoFileLoc]
+	
+	Field	: Medium Prompt, IODT InfoFileLoc
+	
+	Local	: Field: Medium Prompt : Info  : "Location Of File"	
+	Local	: Field: Medium Prompt : Style : Verdana Bold
+	Local	: Field: Medium Prompt : Width : 19 % Page
+	
+	Space Top: 1
+	
+[Field: IODT InfoFileLoc]
+	
+	Use		: Name Field
+	Style	: Verdana Normal
+	Width	: 35 % Page
+	Storage	: IODTFileLoc
+	Control : IODTWrongPathMsg: NOt $$IsFileExists:$$Value
+	
+[System: Formula]
+	
+	IODTWrongPathMsg : "File doesn't Exist"
+	
+[Line: IODT InfoSheetName]
+	
+	Field	: Medium Prompt, IODT InfoSheetName
+	
+	Local	: Field: Medium Prompt : Info  : "Sheet Name"	
+	Local	: Field: Medium Prompt : Style : Verdana Bold
+	Local	: Field: Medium Prompt : Width : 19 % Page
+	
+	Space Top: 0.50
+	
+[Field: IODT InfoSheetName]
+	
+	Use		: Name Field
+	Style	: Verdana Normal
+	Width	: 25 % Page
+	Storage	: IODTSheetName
+	
+[Line: IODT RateAppDate]
+	
+	Field	: Medium Prompt, IODT RateAppDate
+	
+	Local	: Field: Medium Prompt : Info  : "Price Level Applicable Date"	
+	Local	: Field: Medium Prompt : Style : Verdana Bold
+	Local	: Field: Medium Prompt : Width : 19 % Page
+	
+	Space Top: 0.50
+	
+[Field: IODT RateAppDate]
+	
+	Use		: Short Date Field
+	Align	: Left
+	Style	: Verdana Normal
+	Width	: 10 % Page
+	Set as	: $$FinYearBeg:##SVCurrentDate:$StartingFrom:Company:##SVCurrentCompany
+	
+[Line: IODT ActType]
+	
+	Field	: Medium Prompt, IODT ActType
+	
+	Local	: Field: Medium Prompt : Info  : "Action"	
+	Local	: Field: Medium Prompt : Style : Verdana Bold
+	Local	: Field: Medium Prompt : Width : 19 % Page
+	
+	Space Top: 0.50
+	
+[Field: IODT ActType]
+	
+	Use		: Short Name Field
+	Align	: Left
+	Style	: Verdana Bold
+	Width	: 15 % Page
+	Table	: Coll TabActType
+	Show Table: Always
+	
+[Collection: Coll TabActType]
+	
+	Title	: "Action List"
+	List Name: "Create Item", "Update Arabic Name", "Update Opening", "Update PriceList"
+	
+[Line: IODT PLName]
+	
+	Field	: Medium Prompt, IODT PLName
+	
+	Local	: Field: Medium Prompt : Info  : "Price List Name"	
+	Local	: Field: Medium Prompt : Style : Verdana Bold
+	Local	: Field: Medium Prompt : Width : 19 % Page
+	Local	: Field: Default : Inactive : #IODTActType != "Update PriceList"
+	
+	Space Top: 0.50
+	
+[Field: IODT PLName]
+	
+	Use		: Short Name Field
+	Align	: Left
+	Style	: Verdana Normal
+	Width	: 15 % Page
+	Table	: Price Levels
+	Show Table: Always
+	
+	
+;;;;;;; Function to Import
+
+[Function: Func IsStartImportIODT]
+	
+	10 : Query Box: Are You Sure : Yes:No
+	12 : If: $$LastResult
+	11 : If: #IODTActType = "Create Item"
+	13 : Call: Func ImpStkGrp
+	15 : Call: Func ImpItemIODT
+	20 : End If
+	21 : If: #IODTActType = "Update Arabic Name"
+	22 : Call: Func UItem
+	25 : End If
+	27 : If: #IODTActType = "Update Opening"
+	28 : Call: Func UpdateItemOpening
+	29 : End If
+	30 : If: #IODTActType = "Update PriceList"
+	31 : Call: Func UpdatePriceList
+	32 : End If
+	45 : End If
+	
+[Collection: Coll IODTExcelSource]
+	
+	ODBC			: "Driver={Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)};Dbq=" +  #IODTInfoFileLoc + ""
+	SQL				: "Select * From [" + #IODTInfoSheetName + "$]"
+	Fetch			: *.*
+	
+[Collection: Coll IODTExcelSourceMain]
+	
+	Source Collection	: Coll IODTExcelSource
+	
+	Compute	: IItemName       : $_1
+	Compute	: IPartNo         : $_2
+	Compute	: ISGroup         : $_3 
+	Compute	: IUnit           : $_4	
+	Compute	: IPLA            : $_5 
+	
+[Function: Func ImpItemIODT]
+	
+	Variable	: VarCNT      : Number
+	Variable	: VarItem     : String
+	Variable	: VarPLA      : Number
+	
+	List Variable: LVMOCheckITem
+	Variable: VarMOCCNT : Number: 1
+	Variable: VAREXCSKU : String
+	
+	05 : Start Progress: ($$NumItems:CollIODTExcelSourceMain) : "Importing Item":"Please Wait"
+	
+	10 : Walk Collection: Coll IODTExcelSourceMain
+	11 : Set: VarItem     : $IItemName 
+	13 : Set: VarPLA      : $IPLA
+	
+	Local Formula	: TallyItemName : $Name:StockItem:##VarItem
+	
+	16a : If: NOT $$IsEmpty:@TallyItemName 
+	16b : Set: VAREXCSKU : $IItemName
+	16d : List Add Ex: LVMOCheckITem
+	16e : Set: LVMOCheckITem[##VarMOCCNT].XIItemName : ##VAREXCSKU
+	16f : Set: VarMOCCNT : ##VarMOCCNT + 1
+	16i : End If
+	
+	17a : If: $$IsEmpty:@TallyItemName
+	17b : New Object: Stock Item
+	18 : Set Value: Name 		: ##VarItem
+	19 : Set Value: Parent 		: If $$IsEmpty:$ISGroup Then " Primary" Else $ISGroup
+	20 : Set Value: BASEUNITS 	: $IUnit
+	21 : Set Value: PartNo      : $$String:$IPartNo
+	
+	41 : If: NOT $$IsEmpty:##VarPLA
+	42 : Insert Collection Object: FULLPRICELIST
+		43 : Set Value: DATE : $$Date:#IODTRateAppDate
+		44 : Set Value: PRICELEVEL : "Price List"
+		45 : Insert Collection Object: PRICELEVELLIST
+		46 : Set Value: RATE : $$TgtObject:($$AsRate:##VarPLA)
+		47 : Set Target:..
+	48 : Set Target:..	
+	49 : End If
+			
+	100 : Save Target
+	110 : End If
+	112 : Show Progress: ##VarCNT
+	114 : Increment: VarCNT
+	120 : End Walk
+	140 : End Progress	
+	
+	150 : If: ($$NumItems:CollLVMOCheckITem > 0)
+	155 : Alter: MOCN Report
+	160 : End If
+
+	
+;;;;;;;;;;;; Stock Group Tool ;;;;;;;;;;;;;;
+	
+[Collection: Coll IODTExcelSourceMainStkGrp]
+	
+	Source Collection	: Coll IODTExcelSource
+	
+	By	: ISGroup          : $_3
+	
+[Function: Func ImpStkGrp]
+	
+	Variable	: VarCNTG : Number: 0
+	
+	05 : Start Progress: ($$NumItems:CollIODTExcelSourceMainStkGrp) : "Importing Stock Group":"Please Wait"
+	
+	10 : Walk Collection: Coll IODTExcelSourceMainStkGrp
+	
+	Local Formula	: TallyItemGrp : $Name:StockGroup:$ISGroup
+	
+	15 : If: $$IsEmpty:@TallyItemGrp AND NOT $$IsEmpty:$ISGroup
+	20 : New Object: Stock Group
+	22 : Set Value: Name 		: $ISGroup
+	24 : Set Value: Parent 		: " Primary"
+	25 : Set Value: IsAddable   : Yes
+
+	100 : Save Target
+	110 : End If
+	112 : Show Progress: ##VarCNTG
+	114 : Increment: VarCNTG
+	120 : End Walk
+	140 : End Progress
+
+;;;;;; Missing Report ;;;;;;
+
+
+[Variable: LVMOCheckITem]
+	
+	Variable: XIItemName : String
+	
+[Collection: Coll CheckValSource]
+	
+	Data Source: Variable: LVMOCheckITem
+	
+[Collection: Coll LVMOCheckITem]
+	
+	Source Collection : Coll CheckValSource 
+	
+	Compute :  MXIItemName : $XIItemName
+
+
+[Report: MOCN Report]
+	
+	Form	: MOCN Report
+	
+[Form: MOCN Report]
+	
+	Part	: MOCN Report
+	Width	: 40 % Page
+	Height	: 100 % Page
+	
+	Button	: Export Button
+	
+[Part: MOCN Report]
+	
+	Line	: MOCN ReportTTL, MOCN Report
+	Repeat	: MOCN Report : CollLVMOCheckITem
+	Scroll	: Vertical
+	
+[Line: MOCN ReportTTL]
+	
+	Field	: MOCN ReportTTL
+	Space Bottom: 1
+	
+[Field: MOCN ReportTTL]
+	
+	Use		: Name Field
+	Set as	: "Following Items are Duplicate"
+	Width	: 40 % Page
+	Align	: Center
+	Full Width	: Yes
+	Border	: Thin Bottom
+	Color	: Red
+	Style	: Normal Bold Italic
+	
+[Line: MOCN Report]
+	
+	Field	: MOCN Sno, MOCN RItemName
+	
+[Field: MOCN Sno]
+	
+	Use		: Name Field
+	Width	: 5 % Page
+	Style	: Normal
+	Set as	: $$String:$$Line + $$String:"."
+	Skip	: Yes
+	
+[Field: MOCN RItemName]
+	
+	Use		: Name Field
+	Width	: 35 % Page
+	Style	: Small Bold
+	Set as	: $MXIItemName
+	Read Only	: Yes
+
+
+;;;;;;;;;;;;;;; Update Arabic Item Name ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[Collection: Coll IODTExcelSourceMainUPD]
+	
+	Source Collection	: Coll IODTExcelSource
+	
+	Compute	: IItemName   : $_2
+	Compute	: IArabicName : $_3 
+
+[Function: Func UItem]
+		
+	Variable	: VarCNT      : Number
+	Variable	: VarArbName  : String
+	
+	05 : Start Progress: ($$NumItems:CollIODTExcelSourceMainUPD) : "Updating Item":"Please Wait"
+	
+	10 : Walk Collection: Coll IODTExcelSourceMainUPD
+	12 : Set: VarArbName : $IArabicName
+	20 : New Object: Stock Item : $IItemName
+	22 : Set Value: STKIArabicName 		: ##VarArbName
+	100 : Accept Alter
+	112 : Show Progress: ##VarCNT
+	114 : Increment: VarCNT
+	120 : End Walk
+	140 : End Progress	
+	
+;;;;;;;;;;;;;;;;; Update Item Opening ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[Collection: Coll IODTExcelSourceMainOpp]
+	
+	Source Collection	: Coll IODTExcelSource
+	
+	Compute	: IItemName  : $_1
+	Compute	: IKFAOp     : $_2 
+	Compute	: IKFBOp     : $_3 
+	Compute	: IProUnitOp : $_4 
+
+[Function: Func UpdateItemOpening]
+		
+	Variable	: VarCNT      : Number
+	Variable	: VarItemName : String
+	Variable	: VarKFAOp    : Number
+	Variable	: VarKFBOp    : Number
+	Variable	: VarProUnitOp: Number
+	Variable	: VarTotOp    : Number
+	
+	05 : Start Progress: ($$NumItems:CollIODTExcelSourceMainOpp) : "Updating Item Opening":"Please Wait"
+	
+	10 : Walk Collection: Coll IODTExcelSourceMainOpp
+	12 : Set: VarItemName : $IItemName
+	13 : Set: VarKFAOp : $IKFAOp
+	14 : Set: VarKFBOp : $IKFBOp
+	15 : Set: VarProUnitOp : $IProUnitOp
+	16 : Set: VarTotOp : $$Number:$IKFAOp + $$Number:$IKFBOp + $$Number:$IProUnitOp
+	
+	18 : New Object: Stock Item : ##VarItemName
+	19 : Set Value: OPENINGBALANCE : $$TgtObject:($$AsQty:##VarTotOp)
+	
+	21 : If: NOT $$IsEmpty:##VarKFAOp
+	22 : Insert Collection Object: BATCHALLOCATIONS
+	23 : Set Value: GODOWNNAME : "KFA"
+	24 : Set Value: BATCHNAME : "Primary Batch"
+	25 : Set Value: OPENINGBALANCE : $$TgtObject:($$AsQty:##VarKFAOp)
+	26 : Set Target:..
+	28 : End If
+	
+	31 : If: NOT $$IsEmpty:##VarKFBOp
+	32 : Insert Collection Object: BATCHALLOCATIONS
+	33 : Set Value: GODOWNNAME : "KFB"
+	34 : Set Value: BATCHNAME : "Primary Batch"
+	35 : Set Value: OPENINGBALANCE : $$TgtObject:($$AsQty:##VarKFBOp)
+	36 : Set Target:..
+	38 : End If
+	
+	41 : If: NOT $$IsEmpty:##VarProUnitOp
+	42 : Insert Collection Object: BATCHALLOCATIONS
+	43 : Set Value: GODOWNNAME : "Production Unit"
+	44 : Set Value: BATCHNAME : "Primary Batch"
+	45 : Set Value: OPENINGBALANCE : $$TgtObject:($$AsQty:##VarProUnitOp)
+	46 : Set Target:..
+	48 : End If
+	
+	100 : Accept Alter
+	112 : Show Progress: ##VarCNT
+	114 : Increment: VarCNT
+	120 : End Walk
+	140 : End Progress
+
+
+;;;;;;; Update Price List
+
+[Collection: Coll IODTExcelSourceMainPL]
+	
+	Source Collection	: Coll IODTExcelSource
+	
+	Compute	: IItemName  : $_1
+	Compute	: PLPrice    : $_2
+	
+[Function: Func UpdatePriceList]
+	
+	Variable	: VarCNT      : Number
+	Variable	: VarItemName : String
+	Variable	: VarPLRate   : Number
+	
+	05 : Start Progress: ($$NumItems:CollIODTExcelSourceMainPL) : "Updating Price List " + #IODTPLName : "Please Wait"
+	
+	10 : Walk Collection: Coll IODTExcelSourceMainPL
+	12 : Set: VarItemName : $IItemName
+	13 : Set: VarPLRate   : $PLPrice
+	
+	18 : New Object: Stock Item : ##VarItemName : Yes
+	
+	41 : If: ##VarPLRate > 0
+	
+	42 : Insert Collection Object: FULLPRICELIST
+		43 : Set Value: DATE : $$Date:#IODTRateAppDate
+		44 : Set Value: PRICELEVEL : #IODTPLName
+		
+			45 : Insert Collection Object: PRICELEVELLIST
+			46 : Set Value: RATE : $$TgtObject:($$AsRate:##VarPLRate)
+			47 : Set Target:..
+			
+	48 : Set Target:..
+	49 : End If
+	
+	100 : Accept Alter
+	112 : Show Progress: ##VarCNT
+	114 : Increment: VarCNT
+	120 : End Walk
+	140 : End Progress
+
+	
+[Report: MissingItem Report]
+	
+	Form	: MissingItem Report
+	
+[Form: MissingItem Report]
+	
+	Part	: MOCN Report
+	Width	: 40 % Page
+	Height	: 100 % Page
+	Local	: Field: MOCN ReportTTL : Set as: "Missing Items"
+	
+	Button	: Export Xreport
+	
+[Button: Export Xreport]
+	
+	Title	: "Export"
+	Key		: F5
+	Action	: Export Report
+	
+	
+
+
+
+
+
+[System: UDF]
+	
+	EIPOSINTIme  : DateTime: 200
+	EIPOSOutTIme : DateTime: 201
+	EIXCashTend : Amount: 202
+	CMPPFDayBegTime : Time  : 203
+	EIXBal      : Amount: 204
+	CMPPOSPLevel : String: 206
+	CMPPFPOSVType  : String: 207
+	
+[System: UDF]
+	
+	CMPPFEnablePOS    : Logical : 250
+	LDROppCounter     : Number  : 252
+	CIItemCnt         : Number  : 254 
+	CMPCashPrinter    : String  : 256
+	CMPPWPreview 	  : Logical : 259
+	CMPBarcodePrinter : String: 260
+	CMPPrintArab : Logical: 261
+	CMPUseVKey   : Logical: 262
+	CMPPrintPRate: Logical: 263
+	
+[System: UDF]
+	
+	LDRKOTNumber : String: 270
+	LDRKOTStatus : Logical: 272
+	POSBillType  : String: 273
+
+[System: UDF]
+	
+	IODTFileLoc   : String: 275
+	IODTSheetName : String: 276
+	
+[System: UDF]
+	
+	SecStoreLoc : String: 278
+	SecAllowBill : Logical: 279
+	SecAccAccess: Logical: 280
+	LDRInvTotal : Amount: 282
+	STKIArabicName : String: 284
+	
+[System: UDF]
+	
+	LDRPOSCOD    	: Logical: 292
+	EILDROLCard  	: Amount: 293
+	EILDROLCash  	: Amount: 294
+	EILDROLBal   	: Amount: 295
+	LDROLCashRcvAmt : Amount: 296
+	LDRPOSVCHUPerc  : Number: 298
+	LDRCODPaid      : String: 299
+	
+[System: UDF]
+	
+	EIPOSUserName 	  : String: 316
+	CMPEnbSalesman    : Logical: 318
+	MSTCCSMLocation   : String: 320
+	LDRVChSalesman    : String: 322
+	CMPPOSIsMultiPL   : Logical: 324
+	CMPOF1 : String: 328
+	CMPOF2 : String: 329
+	CMPOF3 : String: 330
+	
+;;; Auto Email
+
+[System: UDF]
+
+	AutoEmailConfig : Logical : 390
+	Servermac : String: 392
+	MailServer : String: 394
+	TBSVMailUseSsl : Logical : 396
+	TBSVMailUseSSLOnStdPort : Logical: 398
+	ServerAddress : String: 400
+	FromEmail : String: 402
+	FromPassword : String: 404
+	TBMToEmail   : String: 406
+	CMPPrintDecimal : Number: 408
+
+	

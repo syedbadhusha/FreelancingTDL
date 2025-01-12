@@ -3,20 +3,39 @@
 
 
 
+[Function:FP_UpdateTrackingFn]
+	
+	100000	:	Walk Collection	:	FP_CrntReportColl
+		
+	2000	:	If:$$IsSales:$LedgerEntries.VoucherTypeName or $$IsPurchase:$LedgerEntries.VoucherTypeName
+	3000	:	Call	:	FP_UpdateSales:$LedgerEntries.MasterId
+	4000	:	End If
+
+	2000DL	:	If:$$IsDelNote:$LedgerEntries.VoucherTypeName or $$IsRcptNote:$LedgerEntries.VoucherTypeName
+	3000DL	:	Call	:	FP_UpdateDelNote:$LedgerEntries.MasterId
+	4000DL	:	End If
+
+	
+	2000000	:	End Walk
+
+[Collection:FP_CrntReportColl]
+	
+	Data Source	:	Report	:	Selected
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  Sales	;;;;;;;;;;;;;;;;;;
 
 
 [Function:FP_UpdateSales]
 	
-	Variable	:	vMasterId			:	String
+	Parameter	:	MsterIDLed			:	String
+	variable	:	vMasterId			:	String
 	Variable	:	Count				:	Number	:	1
 	
-	200000	:	Walk Collection	:FP_UpdateTrackingNumberCol
 	StartProgress		:	Start Progress		:	##Count	:	$$CurrentCompany		:	"Updating Tracking Numbers In Sales"		:	"Please Wait"
 	ShowProg		:	ShowProgress:	##Count
 
-	SetMasterId	:	Set	:	vMasterId	:	$$Sprintf:@@VCHMasterID:$MasterID
+	SetMasterId	:	Set	:	vMasterId	:	$$Sprintf:@@VCHMasterID:##MsterIDLed
 	settrget	:	Set Target	:	(Voucher,##vMasterId).
 	setobje		:	Set Object
 
@@ -37,74 +56,21 @@
 	EndInventoryWalk	:	End Walk	
 	Accept			:	Accept Alter
 	endProgress		:	End Progress
-	10000000		:	End Walk	
-
-
-[Collection:FP_UpdateTrackingNumberCol]
-	
-	Type	:	Vouchers:VoucherType
-	Child Of	:	$$VchTypeSales
-	Belongs To	:	Yes
-	Fetch	:	MasterId
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  Purchase	;;;;;;;;;;;;;;;;;;
-
-[Function:FP_UpdatePurchase]
-	
-	Variable	:	vMasterId			:	String
-	Variable	:	Count				:	Number	:	1
-	
-
-	200000	:	Walk Collection	:FP_UpdatePurchaseColl
-	StartProgress		:	Start Progress		:	##Count	:	$$CurrentCompany		:	"Updating Tracking Numbers In Purchase"		:	"Please Wait"
-	ShowProg		:	ShowProgress:	##Count
-
-	SetMasterId	:	Set	:	vMasterId	:	$$Sprintf:@@VCHMasterID:$MasterID
-	settrget	:	Set Target	:	(Voucher,##vMasterId).
-	setobje		:	Set Object
-
-	WalkDelNote	:	Walk Collection	:	InvoiceDelNotes
-	SetDeltgt	:	Set Target	:	InvoiceDelNotes[$$LoopIndex]
-	UpdateMainDeliNo			:	Set Value	:	BasicShipDeliveryNote		:	$$SysName:NotApplicable
-	UpdateMainDeliCurrNo		:	Set Value	:	CurrBasicShipDeliveryNote	:	""
-	UpdateMainDeliDate			:	Set Value	:	BasicShippingDate			:	""
-	EndDelWalk					:	End Walk
-	
-	WalkLedgerEntries	:	Walk Collection	:	InventoryEntries
-	SetInventory	:	Set Target	:	InventoryEntries[$$LoopIndex]
-	WalkBatchAloc	:	Walk Collection	:	BatchAllocations
-	SetBatchAlloc	:	Set Target	:	BatchAllocations[$$LoopIndex]
-	SetTrackNum		:	Set Value	:	TrackingNumber	:	$$SysName:NotApplicable
-	IncCount		:	Increment	:	Count
-	endBatchWalk	:	End Walk
-	EndInventoryWalk	:	End Walk
-	Accept			:	Accept Alter
-	endProgress	:	End Progress
-	10000000	:	End Walk	
-
-
-[Collection:FP_UpdatePurchaseColl]
-	
-	Type	:	Vouchers:VoucherType
-	Child Of	:	$$VchTypePurchase
-	Belongs To	:	Yes
-	Fetch	:	MasterId
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  Delivery Note	;;;;;;;;;;;;;;;;;;
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  Delivery Note	;;;;;;;;;;;;;;;;;;
+;
 [Function:FP_UpdateDelNote]
 	
-	Variable	:	vMasterId			:	String
+	Parameter	:	MsterIDLed			:	String
+	variable	:	vMasterId			:	String
 	Variable	:	Count				:	Number	:	1
 	
 
-	200000	:	Walk Collection	:FP_UpdateDelNoteCll
 	StartProgress		:	Start Progress		:	##Count	:	$$CurrentCompany		:	"Updating Tracking Numbers In Delivery Note"		:	"Please Wait"
 	ShowProg		:	ShowProgress:	##Count	
-	SetMasterId	:	Set	:	vMasterId	:	$$Sprintf:@@VCHMasterID:$MasterID
+	SetMasterId	:	Set	:	vMasterId	:	$$Sprintf:@@VCHMasterID:##MsterIDLed
 	settrget	:	Set Target	:	(Voucher,##vMasterId).
 	setobje		:	Set Object
 	
@@ -118,52 +84,4 @@
 	EndInventoryWalk	:	End Walk
 	Accept			:	Accept Alter
 	EndProgres	:	End Progress
-	10000000	:	End Walk	
-
-
-[Collection:FP_UpdateDelNoteCll]
-	
-	Type	:	Vouchers:VoucherType
-	Child Of	:	$$VchTypeDelNote
-	Belongs To	:	Yes
-	Fetch	:	MasterId
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  Receipt Note	;;;;;;;;;;;;;;;;;;
-
-[Function:FP_UpdateReceipteNote]
-	
-	Variable	:	vMasterId			:	String
-
-	Variable	:	Count				:	Number	:	1
-	
-	
-	200000	:	Walk Collection	:FP_UpdateReceipteNoteCll
-	StartProgress		:	Start Progress		:	##Count	:	$$CurrentCompany		:	"Updating Tracking Numbers In Receipt Note"		:	"Please Wait"
-	ShowProg		:	ShowProgress:	##Count
-	SetMasterId	:	Set	:	vMasterId	:	$$Sprintf:@@VCHMasterID:$MasterID
-	settrget	:	Set Target	:	(Voucher,##vMasterId).
-	setobje		:	Set Object
-	
-	WalkLedgerEntries	:	Walk Collection	:	InventoryEntries
-	SetInventory	:	Set Target	:	InventoryEntries[$$LoopIndex]
-	WalkBatchAloc	:	Walk Collection	:	BatchAllocations
-	SetBatchAlloc	:	Set Target	:	BatchAllocations[$$LoopIndex]
-	SetTrackNum		:	Set Value	:	TrackingNumber	:	$$SysName:NotApplicable
-	IncCount		:	Increment	:	Count
-	endBatchWalk	:	End Walk
-	EndInventoryWalk	:	End Walk
-	Accept			:	Accept Alter
-	EndProgres	:	End Progress
-	10000000	:	End Walk	
-
-
-[Collection:FP_UpdateReceipteNoteCll]
-	
-	Type	:	Vouchers:VoucherType
-	Child Of	:	$$VchTypeRcptNote
-	Belongs To	:	Yes
-	Fetch	:	MasterId
-
 
