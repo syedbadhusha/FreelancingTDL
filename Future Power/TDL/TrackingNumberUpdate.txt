@@ -8,11 +8,11 @@
 	100000	:	Walk Collection	:	FP_CrntReportColl
 		
 	2000	:	If:$$IsSales:$LedgerEntries.VoucherTypeName or $$IsPurchase:$LedgerEntries.VoucherTypeName
-	3000	:	Call	:	FP_UpdateSales:$LedgerEntries.MasterId
+	3000	:	Call	:	FP_UpdateSales:($LedgerEntries.MasterId):$Parent
 	4000	:	End If
 
 	2000DL	:	If:$$IsDelNote:$LedgerEntries.VoucherTypeName or $$IsRcptNote:$LedgerEntries.VoucherTypeName
-	3000DL	:	Call	:	FP_UpdateDelNote:$LedgerEntries.MasterId
+	3000DL	:	Call	:	FP_UpdateDelNote:($LedgerEntries.MasterId):$Parent
 	4000DL	:	End If
 
 	
@@ -29,6 +29,7 @@
 [Function:FP_UpdateSales]
 	
 	Parameter	:	MsterIDLed			:	String
+	Parameter	:	ItemName			:	String
 	variable	:	vMasterId			:	String
 	Variable	:	Count				:	Number	:	1
 	
@@ -39,20 +40,22 @@
 	settrget	:	Set Target	:	(Voucher,##vMasterId).
 	setobje		:	Set Object
 
-	WalkDelNote	:	Walk Collection	:	InvoiceDelNotes
-	SetDeltgt	:	Set Target	:	InvoiceDelNotes[$$LoopIndex]
-	UpdateMainDeliNo			:	Set Value	:	BasicShipDeliveryNote		:	$$SysName:NotApplicable
-	UpdateMainDeliCurrNo		:	Set Value	:	CurrBasicShipDeliveryNote	:	""
-	UpdateMainDeliDate			:	Set Value	:	BasicShippingDate			:	""
-	EndDelWalk					:	End Walk
+;	WalkDelNote	:	Walk Collection	:	InvoiceDelNotes
+;	SetDeltgt	:	Set Target	:	InvoiceDelNotes[$$LoopIndex]
+;	UpdateMainDeliNo			:	Set Value	:	BasicShipDeliveryNote		:	$$SysName:NotApplicable
+;	UpdateMainDeliCurrNo		:	Set Value	:	CurrBasicShipDeliveryNote	:	""
+;	UpdateMainDeliDate			:	Set Value	:	BasicShippingDate			:	""
+;	EndDelWalk					:	End Walk
 	
 	WalkLedgerEntries	:	Walk Collection	:	InventoryEntries
 	SetInventory	:	Set Target	:	InventoryEntries[$$LoopIndex]
+	ChckItem		:	If:##ItemName = $StockItemName
 	WalkBatchAloc	:	Walk Collection	:	BatchAllocations
 	SetBatchAlloc	:	Set Target	:	BatchAllocations[$$LoopIndex]
 	SetTrackNum		:	Set Value	:	TrackingNumber	:	$$SysName:NotApplicable
 	IncCount		:	Increment	:	Count
 	endBatchWalk	:	End Walk
+	EndItemCheck	:	End If
 	EndInventoryWalk	:	End Walk	
 	Accept			:	Accept Alter
 	endProgress		:	End Progress
@@ -64,6 +67,8 @@
 [Function:FP_UpdateDelNote]
 	
 	Parameter	:	MsterIDLed			:	String
+	Parameter	:	ItemName			:	String
+
 	variable	:	vMasterId			:	String
 	Variable	:	Count				:	Number	:	1
 	
@@ -76,11 +81,13 @@
 	
 	WalkLedgerEntries	:	Walk Collection	:	InventoryEntries
 	SetInventory	:	Set Target	:	InventoryEntries[$$LoopIndex]
+	ChckItem		:	If:##ItemName = $StockItemName
 	WalkBatchAloc	:	Walk Collection	:	BatchAllocations
 	SetBatchAlloc	:	Set Target	:	BatchAllocations[$$LoopIndex]
 	SetTrackNum		:	Set Value	:	TrackingNumber	:	$$SysName:NotApplicable
 	IncCount		:	Increment	:	Count
 	endBatchWalk	:	End Walk
+	EndItemChck		:	End If
 	EndInventoryWalk	:	End Walk
 	Accept			:	Accept Alter
 	EndProgres	:	End Progress
