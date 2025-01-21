@@ -1,0 +1,145 @@
+;[#Field: VCH POSCashLedger]
+;Add         : Sub Form  : POS_PaymentForm
+
+[Report : POS_PaymentForm]
+Form        : POS_PaymentForm
+
+[Form : POS_PaymentForm]
+Part        : POS_PaymentFormTit,POS_PaymentAmountMain
+
+Width       : 29% Page
+;Height      : % Page
+Delete      : Space Top
+Background  : Lily White
+
+[Part : POS_PaymentFormTit]
+Line        : POS_PaymentFormTit
+Background  : FormBackG
+
+[Color : FormBackG]
+RGB         : 66,173,245
+
+[Line : POS_PaymentFormTit]
+Field       : POS_PaymentFormTit
+Space Bottom: 0.4
+Space Top   : 0.4
+
+[Field : POS_PaymentFormTit]
+Use         : Name Field
+Align       : Center
+Full Width  : Yes
+Set as      : "Payment"
+Style       : StyleP
+Skip        : Yes
+
+
+[Style  : StyleP]
+Font         : "Cambria"
+Bold         : Yes
+Height       : 15
+
+[Style  : StyleB]
+Font         : "Cambria"
+Bold         : Yes
+Height       : 12
+
+[Part : POS_PaymentAmountMain]
+Part         : EmptyA,POS_Amount
+Space Top    : 1
+
+[Part : EmptyA]
+Line         : EmptyA
+  
+[Line  : EmptyA]
+Field        : EmptyA
+
+[Field  : EmptyA]
+Use          : Name Field
+Skip         : Yes
+Width        : 1
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[Part : POS_Amount]
+Line         : POS_AmountTit,POS_AmountVal,POS_AccountTit,POS_AccountVal,POS_PaymentNoteTit,POS_PaymentNoteVal
+Background   : White
+Border       : Thin Box
+
+[Line : POS_AmountTit]
+Field        : Medium Prompt,EmptyAmount,Short Prompt ;,POS_Amount
+Local : Field: Medium Prompt : Set as : "Amount"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 12% Page 
+
+Local : Field: Short Prompt : Set as : "Payment Type"
+Local : Field: Short Prompt : Style  : Verdana Bold
+Local : Field: Short Prompt : Align  : Left
+Local : Field: Short Prompt : Width  : 12% Page 
+
+[Field       : EmptyAmount]
+Width        : 5% Page
+Skip         : Yes 
+
+[Line : POS_AmountVal]
+Field        : POS_AmountVal,EmptyAmount,POS_PaymentType
+Space Top    : 0.4
+
+[Field : POS_AmountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : POS_AmountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+[Field : POS_PaymentType]
+Use          : Name Field
+Align        : Left
+Width        : 12% Page
+Storage      : POS_PaymentType
+Style        : Normal  
+Border       : Thin Box
+
+[Line : POS_AccountTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Account"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 12% Page 
+Space Top    : 1
+
+[Line : POS_AccountVal]
+Field        : POS_AccountVal
+Space Top    : 0.4
+
+[Field : POS_AccountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : POS_AccountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+
+[Line : POS_PaymentNoteTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Payment Note"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 27% Page 
+Space Top    : 1
+
+[Line : POS_PaymentNoteVal]
+Field        : POS_PaymentNoteVal
+Space Top    : 0.4
+
+[Field : POS_PaymentNoteVal]
+Use          : Name Field
+Align        : Left
+Width        : 27% Page
+Storage      : POS_PaymentNoteVal
+Style        : Normal  
+Border       : Thin Box
+Line         : 2

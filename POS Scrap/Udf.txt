@@ -1,0 +1,46 @@
+[System  : UDF]
+	
+TDL_AddOnEnableForCustomized       : Logical     : 2004
+GATE_EnbVchTypeAddOn               : Logical     : 2006
+SWI_SystemWereHouse                : String      : 2008
+SWI_SrNo                           : String      : 2010
+SWI_COstumerDetails                : String      : 2012
+SWI_ItemDetails                    : Date        : 2014
+SWI_MenuValueAggr                  : Aggregate   : 2016
+SWI_ItemNameVal                    : String      : 2018
+SWI_StockVal                       : String      : 2020
+SWI_QtyVal                         : Number      : 2022
+SWI_PriceVal                       : Number      : 2024
+SWI_DiscountVal                    : Number      : 2026
+SWI_TaxVal                         : Number      : 2028
+SWI_SubotalVal                     : Number      : 2030
+
+SWI_QtyTotalValue                  : Number      : 2035
+SWI_TotalAmtVal                    : Number      : 2040
+SWI_TotalDiscountValue             : Number      : 2045
+SWI_GrandTotalVal                  : Number      : 2050
+;==============================================================================================Multipal
+
+MLTF_AmountVal                     : Number      : 2055
+MLTF_PaymentType                   : String      : 2060
+MLTF_AccountVal                    : Number      : 2065
+MLTF_PaymentNoteVal                : String      : 2070
+MLTS_AmountVal                     : Number      : 2075
+MLTS_PaymentType                   : String      : 2080
+MLTS_AccountVal                    : Number      : 2085
+MLTS_PaymentNoteVal                : String      : 2090
+MLTT_AmountVal                     : Number      : 2095 
+MLTT_PaymentType                   : String      : 3000
+MLTT_AccountVal                    : Number      : 3005
+MLTT_PaymentNoteVal                : String      : 3010
+MLTL_AmountVal                     : Number      : 3015
+MLTL_PaymentType                   : String      : 3020
+MLTL_AccountVal                    : Number      : 3025
+MLTL_PaymentNoteVal                : String      : 3030
+
+;==============================================================================================Cash
+POS_AmountVal                      : Number      : 3035
+POS_PaymentType                    : String      : 3040
+POS_AccountVal                     : Number      : 3045
+POS_PaymentNoteVal                 : String      : 3050
+  

@@ -1,0 +1,442 @@
+
+[Report : MLTF_PaymentForm]
+Form        : MLTF_PaymentForm
+
+[Form : MLTF_PaymentForm]
+Part        : MLTF_PaymentFormTit,MLTF_PaymentAmountMain,MLTF_PaymentAmountBottom
+
+Width       : 57% Page
+Height      : 48% Page
+Delete      : Space Top
+Background  : Lily White
+
+[Part : MLTF_PaymentFormTit]
+Line        : MLTF_PaymentFormTit
+Background  : MLTF_FormBackG
+
+[Color : MLTF_FormBackG]
+RGB         : 66,173,245
+
+[Line : MLTF_PaymentFormTit]
+Field       : MLTF_PaymentFormTit
+Space Bottom: 0.4
+Space Top   : 0.4
+
+[Field : MLTF_PaymentFormTit]
+Use         : Name Field
+Align       : Center
+Full Width  : Yes
+Set as      : "Multiple Payment"
+Style       : MLTF_StyleP
+Skip        : Yes
+
+
+[Style  : MLTF_StyleP]
+Font         : "Cambria"
+Bold         : Yes
+Height       : 15
+
+[Style  : MLTF_StyleB]
+Font         : "Cambria"
+Bold         : Yes
+Height       : 12
+
+[Part : MLTF_PaymentAmountMain]
+Part         : MLTF_EmptyA,MLTF_Amount,Empty1,MLTS_AmountRight;,MLTT_Amount
+Space Top    : 1
+Vertical     : No
+
+[Part : MLTF_EmptyA]
+Line         : MLTF_EmptyA
+  
+[Line  : MLTF_EmptyA]
+Field        : MLTF_EmptyA
+
+[Field  : MLTF_EmptyA]
+Use          : Name Field
+Skip         : Yes
+Width        : 1
+
+[Part : Empty1]
+Line         : Empty_1
+  
+[Line  : Empty_1]
+Field        : Empty_1
+
+[Field  : Empty_1]
+Use          : Name Field
+Skip         : Yes
+Width        : 1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;First Part
+
+[Part : MLTF_Amount]
+Line         : MLTF_AmountTit,MLTF_AmountVal,MLTF_AccountTit,MLTF_AccountVal,MLTF_PaymentNoteTit,MLTF_PaymentNoteVal
+Background   : White
+Border       : Thin Box
+
+[Line : MLTF_AmountTit]
+Field        : Medium Prompt,MLTF_EmptyAmount,Short Prompt ;,MLTF_Amount
+Local : Field: Medium Prompt : Set as : "Amount"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+
+Local : Field: Short Prompt : Set as : "Payment Type"
+Local : Field: Short Prompt : Style  : Verdana Bold
+Local : Field: Short Prompt : Align  : Left
+Local : Field: Short Prompt : Width  : 10% Page 
+
+[Field       : MLTF_EmptyAmount]
+Width        : 5% Page
+Skip         : Yes 
+
+[Line : MLTF_AmountVal]
+Field        : MLTF_AmountVal,MLTF_EmptyAmount,MLTF_PaymentType
+Space Top    : 0.4
+
+[Field : MLTF_AmountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTF_AmountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+[Field : MLTF_PaymentType]
+Use          : Name Field
+Align        : Left
+Width        : 12% Page
+Storage      : MLTF_PaymentType
+Style        : Normal  
+Border       : Thin Box
+
+[Line : MLTF_AccountTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Account"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+Space Top    : 1
+
+[Line : MLTF_AccountVal]
+Field        : MLTF_AccountVal
+Space Top    : 0.4
+
+[Field : MLTF_AccountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTF_AccountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+
+[Line : MLTF_PaymentNoteTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Payment Note"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 27% Page 
+Space Top    : 1
+
+[Line : MLTF_PaymentNoteVal]
+Field        : MLTF_PaymentNoteVal
+Space Top    : 0.4
+
+[Field : MLTF_PaymentNoteVal]
+Use          : Name Field
+Align        : Left
+Width        : 27% Page
+Storage      : MLTF_PaymentNoteVal
+Style        : Normal  
+Border       : Thin Box
+Line         : 2
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Second Part
+
+[Part : MLTS_AmountRight]
+Line         : MLTS_AmountTit,MLTS_AmountVal,MLTS_AccountTit,MLTS_AccountVal,MLTS_PaymentNoteTit,MLTS_PaymentNoteVal
+Background   : White
+Border       : Thin Box
+
+[Line : MLTS_AmountTit]
+Field        : Medium Prompt,MLTS_EmptyAmount,Short Prompt ;,MLTS_Amount
+Local : Field: Medium Prompt : Set as : "Amount"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+
+Local : Field: Short Prompt : Set as : "Payment Type"
+Local : Field: Short Prompt : Style  : Verdana Bold
+Local : Field: Short Prompt : Align  : Left
+Local : Field: Short Prompt : Width  : 10% Page 
+
+[Field       : MLTS_EmptyAmount]
+Width        : 5% Page
+Skip         : Yes 
+
+[Line : MLTS_AmountVal]
+Field        : MLTS_AmountVal,MLTS_EmptyAmount,MLTS_PaymentType
+Space Top    : 0.4
+
+[Field : MLTS_AmountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTS_AmountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+[Field : MLTS_PaymentType]
+Use          : Name Field
+Align        : Left
+Width        : 12% Page
+Storage      : MLTS_PaymentType
+Style        : Normal  
+Border       : Thin Box
+
+[Line : MLTS_AccountTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Account"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+Space Top    : 1
+
+[Line : MLTS_AccountVal]
+Field        : MLTS_AccountVal
+Space Top    : 0.4
+
+[Field : MLTS_AccountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTS_AccountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+
+[Line : MLTS_PaymentNoteTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Payment Note"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 27% Page 
+Space Top    : 1
+
+[Line : MLTS_PaymentNoteVal]
+Field        : MLTS_PaymentNoteVal
+Space Top    : 0.4
+
+[Field : MLTS_PaymentNoteVal]
+Use          : Name Field
+Align        : Left
+Width        : 27% Page
+Storage      : MLTS_PaymentNoteVal
+Style        : Normal  
+Border       : Thin Box
+Line         : 2
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Third Part
+[Part : MLTF_PaymentAmountBottom]
+Part         : MLTF_EmptyD,MLTF_PaymentBottomLeft,Empty2,MLTE_PaymentBottomRight
+Vertical     : No
+Space Top    : 1
+
+[Part : MLTF_EmptyD]
+Line         : MLTF_EmptyD
+  
+[Line  : MLTF_EmptyD]
+Field        : MLTF_EmptyD
+
+[Field  : MLTF_EmptyD]
+Use          : Name Field
+Skip         : Yes
+Width        : 1
+
+[Part : Empty2]
+Line         : Empty_2
+  
+[Line  : Empty_2]
+Field        : Empty_2
+
+[Field  : Empty_2]
+Use          : Name Field
+Skip         : Yes
+Width        : 1
+
+
+[Part : MLTF_PaymentBottomLeft]
+Line         : MLTT_AmountTit,MLTT_AmountVal,MLTT_AccountTit,MLTT_AccountVal,MLTT_PaymentNoteTit,MLTT_PaymentNoteVal
+Background   : White
+Border       : Thin Box
+
+[Line : MLTT_AmountTit]
+Field        : Medium Prompt,MLTT_EmptyAmount,Short Prompt ;,MLTT_Amount
+Local : Field: Medium Prompt : Set as : "Amount"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+
+Local : Field: Short Prompt : Set as : "Payment Type"
+Local : Field: Short Prompt : Style  : Verdana Bold
+Local : Field: Short Prompt : Align  : Left
+Local : Field: Short Prompt : Width  : 10% Page 
+
+[Field       : MLTT_EmptyAmount]
+Width        : 5% Page
+Skip         : Yes 
+
+[Line : MLTT_AmountVal]
+Field        : MLTT_AmountVal,MLTT_EmptyAmount,MLTT_PaymentType
+Space Top    : 0.4
+
+[Field : MLTT_AmountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTT_AmountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+[Field : MLTT_PaymentType]
+Use          : Name Field
+Align        : Left
+Width        : 12% Page
+Storage      : MLTT_PaymentType
+Style        : Normal  
+Border       : Thin Box
+
+[Line : MLTT_AccountTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Account"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+Space Top    : 1
+
+[Line : MLTT_AccountVal]
+Field        : MLTT_AccountVal
+Space Top    : 0.4
+
+[Field : MLTT_AccountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTT_AccountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+
+[Line : MLTT_PaymentNoteTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Payment Note"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 27% Page 
+Space Top    : 1
+
+[Line : MLTT_PaymentNoteVal]
+Field        : MLTT_PaymentNoteVal
+Space Top    : 0.4
+
+[Field : MLTT_PaymentNoteVal]
+Use          : Name Field
+Align        : Left
+Width        : 27% Page
+Storage      : MLTT_PaymentNoteVal
+Style        : Normal  
+Border       : Thin Box
+Line         : 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Forth Part
+[Part : MLTE_PaymentBottomRight]
+Line         : MLTL_AmountTit,MLTL_AmountVal,MLTL_AccountTit,MLTL_AccountVal,MLTL_PaymentNoteTit,MLTL_PaymentNoteVal
+Background   : White
+Border       : Thin Box
+
+[Line : MLTL_AmountTit]
+Field        : Medium Prompt,MLTL_EmptyAmount,Short Prompt ;,MLTL_Amount
+Local : Field: Medium Prompt : Set as : "Amount"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+
+Local : Field: Short Prompt : Set as : "Payment Type"
+Local : Field: Short Prompt : Style  : Verdana Bold
+Local : Field: Short Prompt : Align  : Left
+Local : Field: Short Prompt : Width  : 10% Page 
+
+[Field       : MLTL_EmptyAmount]
+Width        : 5% Page
+Skip         : Yes 
+
+[Line : MLTL_AmountVal]
+Field        : MLTL_AmountVal,MLTL_EmptyAmount,MLTL_PaymentType
+Space Top    : 0.4
+
+[Field : MLTL_AmountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTL_AmountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+[Field : MLTL_PaymentType]
+Use          : Name Field
+Align        : Left
+Width        : 12% Page
+Storage      : MLTL_PaymentType
+Style        : Normal  
+Border       : Thin Box
+
+[Line : MLTL_AccountTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Account"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 10% Page 
+Space Top    : 1
+
+[Line : MLTL_AccountVal]
+Field        : MLTL_AccountVal
+Space Top    : 0.4
+
+[Field : MLTL_AccountVal]
+Use          : Number Field
+Align        : Left
+Width        : 10% Page
+Storage      : MLTL_AccountVal
+Style        : Normal  
+Border       : Thin Box
+Format       : "NoComma,NoZero"
+
+[Line : MLTL_PaymentNoteTit]
+Field        : Medium Prompt
+Local : Field: Medium Prompt : Set as : "Payment Note"
+Local : Field: Medium Prompt : Style  : Verdana Bold
+Local : Field: Medium Prompt : Align  : Left 
+Local : Field: Short Prompt  : Width  : 27% Page 
+Space Top    : 1
+
+[Line : MLTL_PaymentNoteVal]
+Field        : MLTL_PaymentNoteVal
+Space Top    : 0.4
+
+[Field : MLTL_PaymentNoteVal]
+Use          : Name Field
+Align        : Left
+Width        : 27% Page
+Storage      : MLTL_PaymentNoteVal
+Style        : Normal  
+Border       : Thin Box
+Line         : 2
+ 

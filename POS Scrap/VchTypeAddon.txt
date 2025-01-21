@@ -1,0 +1,22 @@
+[#Part: VTYP BehaviourMain]
+Add      : Option   : VTYP_BehaviourMain_Optn :  @@IsEnbCmpLevel
+
+[!Part : VTYP_BehaviourMain_Optn]	
+ Add: Lines		:At End :GATE_EnbVchTypeAddOn
+ 
+[Line : GATE_EnbVchTypeAddOn]
+Field           : Medium Prompt , GATE_EnbVchTypeAddOn 
+Local : Field  : Medium Prompt  : Set as : $$LocaleString:"Enable Options For Customized ?"
+Local : Field  : Medium Prompt  : Width : 25
+Local : Field  : Default  : Color : Blue
+Local: Field: Default: Invisible: Not ( $$IsSales:$Parent) 
+ 
+[Field : GATE_EnbVchTypeAddOn]
+Use              : Logical Field
+Storage          : GATE_EnbVchTypeAddOn
+Table            : yesNoTable
+Background       : White
+Show Table       : Always 
+
+[System:Formula]
+IsEnbVoucherType:$GATE_EnbVchTypeAddOn:voucherType:$VoucherTypeName="Yes"

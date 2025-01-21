@@ -1,0 +1,436 @@
+[#Menu:GateWayOfTally]
+Add   : Option  : 	GateWayOfTallyOpt : @@IsEnbCmpLevel
+
+[!Menu: GateWayOfTallyOpt]  
+Add   : Item    : Before : @@LocQuit : System WereHouse Item House : Alter  : SWI_SystemWereHouseForm
+
+[Report: SWI_SystemWereHouseForm]
+Form         : SWI_SystemWereHouseForm
+Object       : Company
+
+[Form: SWI_SystemWereHouseForm] 
+Part         : SWI_SystemWereHouseTit,SWI_SystemWereHouse,SWI_MenuTitle,SWI_MenuValue,SWI_AmountTitleMain,SWI_BottomPart
+Background   : Lily Yellow
+Width        : 80 % Page
+Height       : 80% Page
+Delete       : Space Top
+
+[Part : SWI_SystemWereHouseTit]
+Line         : SWI_SystemWereHouseTit
+Background   : Magenta
+
+[Line : SWI_SystemWereHouseTit]
+Field        : SWI_SystemWereHouseTit
+
+[Field : SWI_SystemWereHouseTit]
+Use          : Name Field
+Align        : Center
+Full Width   : Yes
+Set as       : "POS Voucher"
+Style        : FormStyle
+Skip         : Yes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[Part: SWI_SystemWereHouse]
+Line         : SWI_SystemWereHouse,SWI_COstumerDetails
+Space Top    : 1
+
+[Line: SWI_SystemWereHouse]
+Field        : Medium Prompt,SWI_SystemWereHouse,EmptyO,Short Prompt,SWI_SrNo
+Local: Field : Medium Prompt : Set as : "System Werehouse"
+Local: Field : Medium Prompt : Style  : FormStyle
+Local: Field : Medium Prompt : Width  : 15% Page
+
+Local: Field : Short Prompt  : Set as : "Voucher Number"
+Local: Field : Short Prompt  : Style  : FormStyle
+Local: Field : Short Prompt  : Width  : 15% Page
+
+[Field: EmptyO]
+Width : 8% Page
+Skip  : Yes
+
+[Field: SWI_SystemWereHouse]
+Use          : Name Field
+Align        : Left
+Width        : 20% page
+Storage      : SWI_SystemWereHouse
+Style        : Normal Bold
+Border       : Thin Box
+Background   : White
+ 
+[Field: SWI_SrNo]
+Use          : Name Field
+Align        : Left
+Width        : 20% page
+Storage      : SWI_SrNo
+Style        : Normal Bold
+Border       : Thin Box
+Background   : White
+
+[Style  : FormStyle]
+Font         : "Cambria"
+Bold         : Yes
+Height       : 13
+
+;;========================================
+
+[Line: SWI_COstumerDetails]
+Field        : Medium Prompt,SWI_COstumerDetails,EmptyC,Short Prompt,SWI_ItemDetails
+Local: Field : Medium Prompt : Set as : "Costumer Name"
+Local: Field : Medium Prompt : Style  : FormStyle
+Local: Field : Medium Prompt : Width  : 15% Page
+
+Local: Field : Short Prompt  : Set as : "Date"
+Local: Field : Short Prompt  : Style  : FormStyle
+Local: Field : Short Prompt  : Width  : 15% Page
+Space Top    : 0.7
+Space Bottom    : 0.5
+
+[Field: EmptyC]
+Width : 8% Page
+Skip  : Yes
+
+[Field: SWI_COstumerDetails]
+Use          : Name Field
+Align        : Left
+Width        : 20% page
+Storage      : SWI_COstumerDetails
+Style        : Normal Bold
+Border       : Thin Box
+Background   : White
+ 
+[Field: SWI_ItemDetails]
+Use          : Short Date Field
+Align        : Left
+Width        : 20% page
+Storage      : SWI_ItemDetails
+Style        : Normal Bold
+Border       : Thin Box
+Background   : White
+
+;=========================================================================
+
+[Part : SWI_MenuTitle]
+Line         : SWI_MenuTitle
+Background   : Magenta
+Common Border  : Yes
+ 
+[Line : SWI_MenuTitle]
+Field        : SWI_ItemNameTit,SWI_StockTit,SWI_QtyTit,SWI_PriceTit,SWI_DiscountTit,SWI_TaxTit,SWI_SubotalTit
+Space Top    : 0.2
+Space Bottom : 0.2
+Border       : Thin Top Bottom
+Local: Field : Default  : Style :FormStyle
+
+[Field : SWI_ItemNameTit]
+Use          : Name Field
+Align        : Left
+Width        : 20% Page
+Set as       : "Item Name"
+Style        : Normal Bold
+;Border       : Thin Left
+Skip         : Yes
+
+[Field : SWI_StockTit]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Set as       : "Stock"
+Style        : Normal Bold
+Border       : Thin Left
+Skip         : Yes
+
+[Field : SWI_QtyTit]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Set as       : "Quantity"
+Style        : Normal Bold
+Border       : Thin Left
+Skip         : Yes
+
+[Field : SWI_PriceTit]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Set as       : "Price"
+Style        : Normal Bold
+Border       : Thin Left
+Skip         : Yes
+
+[Field : SWI_DiscountTit]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Set as       : "Discount"
+Style        : Normal Bold
+Border       : Thin Left
+Skip         : Yes
+
+[Field : SWI_TaxTit]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Set as       : "Tax"
+Style        : Normal Bold
+Border       : Thin Left
+Skip         : Yes
+
+[Field : SWI_SubotalTit]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Set as       : "Sub Total" 
+Style        : Normal Bold
+Border       : Thin Left
+Skip         : Yes
+;==============================================================Value
+
+[Part : SWI_MenuValue]
+Line         : SWI_MenuValue
+Repeat       : SWI_MenuValue:SWI_MenuValueAggr
+Scroll       : Vertical
+Vertical     : Yes
+Common Border  : Yes
+Break On     : $$IsEmpty:$SWI_ItemNameVal
+Height       : 40% Page
+Border       : Thin Bottom
+Background   : White
+
+[Line : SWI_MenuValue]
+Field        : SWI_ItemNameVal,SWI_StockVal,SWI_QtyVal,SWI_PriceVal,SWI_DiscountVal,SWI_TaxVal,SWI_SubotalVal
+Space Top    : 0.2
+Space Bottom : 0.2
+
+Border       : Thin Top 
+;Local: Field : Default  : Style :FormStyle
+
+[Field : SWI_ItemNameVal]
+Use          : Name Field
+Align        : Left
+Width        : 20% Page
+Storage      : SWI_ItemNameVal
+Style        : Normal 
+;Border       : Thin Left
+
+[Field : SWI_StockVal]
+Use          : Name Field
+Align        : Left
+Width        : 10% Page
+Storage      : SWI_StockVal
+Style        : Normal 
+Border       : Thin Left
+Inactive     : $$IsEmpty:$SWI_ItemNameVal
+
+[Field : SWI_QtyVal]
+Use          : Number Field
+Align        : Center
+Width        : 10% Page
+Storage      : SWI_QtyVal
+Style        : Normal 
+Border       : Thin Left
+Inactive     : $$IsEmpty:$SWI_ItemNameVal
+
+[Field : SWI_PriceVal]
+Use          : Number Field
+Align        : Right
+Width        : 10% Page
+Storage      : SWI_PriceVal
+Style        : Normal 
+Border       : Thin Left
+Inactive     : $$IsEmpty:$SWI_ItemNameVal
+Format       : "Decimal:2"
+
+[Field : SWI_DiscountVal]
+Use          : Number Field
+Align        : Right
+Width        : 10% Page
+Storage      : SWI_DiscountVal
+Style        : Normal 
+Border       : Thin Left
+Inactive     : $$IsEmpty:$SWI_ItemNameVal
+
+[Field : SWI_TaxVal]
+Use          : Number Field
+Align        : Right
+Width        : 10% Page
+Storage      : SWI_TaxVal
+Style        : Normal 
+Border       : Thin Left
+Inactive     : $$IsEmpty:$SWI_ItemNameVal
+
+[Field : SWI_SubotalVal]
+Use          : Number Field
+Width        : 10% Page
+Align        : Right
+Storage      : SWI_SubotalVal
+Style        : Normal 
+Border       : Thin Left
+Inactive     : $$IsEmpty:$SWI_ItemNameVal
+Format       : "Decimal:2"
+
+;==================================================================================================
+[Part : SWI_AmountTitleMain]
+Part         : SWI_AmountTitleLeft,SWI_AmountTitleRight
+Space Top    : 2
+
+[Part : SWI_AmountTitleLeft]
+Line         : SWI_AmountTitleLeft,SWI_AmountTitleLeftVal
+
+[Line : SWI_AmountTitleLeft]
+Field        : Medium Prompt,Short Prompt
+Local: Field : Medium Prompt : Set as : "Quantity :"
+Local: Field : Medium Prompt : Width  : 20% Page
+Local: Field : Medium Prompt : Align  : Right
+Local: Field : Medium Prompt : Style  : FormStyle
+
+Local: Field : Short Prompt : Set as : "Total Amount : "
+Local: Field : Short Prompt : Width  : 20% Page
+Local: Field : Short Prompt : Align  : Right
+Local: Field : Short Prompt : Style  : FormStyle
+ 
+[Line : SWI_AmountTitleLeftVal]
+Field        : SWI_QtyTotalValue,SWI_TotalAmtVal
+Space Top    : 1
+
+[Field : SWI_QtyTotalValue]
+Use          : Number Field
+Align        : Right
+Width        : 20% Page
+Storage      : SWI_QtyTotalValue
+Style        : Normal Bold
+
+[Field : SWI_TotalAmtVal]
+Use          : Number Field
+Align        : Right
+Width        : 20% Page
+Storage      : SWI_TotalAmtVal
+Style        : Normal Bold
+Format       : "Decimal:2"
+
+
+;====================================================================================================================
+[Part : SWI_AmountTitleRight]
+Line         : SWI_GrandAmountTitleLeft,SWI_GrandAmountLeftVal
+
+[Line : SWI_GrandAmountTitleLeft]
+Field        : Medium Prompt,Short Prompt
+Local: Field : Medium Prompt : Set as : "Total Discount :"
+Local: Field : Medium Prompt : Width  : 20% Page
+Local: Field : Medium Prompt : Align  : Right
+Local: Field : Medium Prompt : Style  : FormStyle
+
+Local: Field : Short Prompt : Set as : "Grand Total : "
+Local: Field : Short Prompt : Width  : 20% Page
+Local: Field : Short Prompt : Align  : Right
+Local: Field : Short Prompt : Style  : FormStyle
+
+
+[Line : SWI_GrandAmountLeftVal]
+Field        : SWI_TotalDiscountValue,SWI_GrandTotalVal
+Space Top    : 1
+
+[Field : SWI_TotalDiscountValue]
+Use          : Number Field
+Align        : Right
+Width        : 20% Page
+Storage      : SWI_TotalDiscountValue
+Style        : Normal Bold
+Format       : "Decimal:2"
+
+[Field : SWI_GrandTotalVal]
+Use          : Number Field
+Align        : Right
+Width        : 20% Page
+Storage      : SWI_GrandTotalVal
+Style        : Normal Bold
+Format       : "Decimal:2"
+
+;=========================================================================
+
+[Part  : SWI_BottomPart]
+Part         : SWI_BottomPartLeft;,SWI_BottomPartRight
+
+[Part : SWI_BottomPartLeft]
+Line         : SWI_BottomPartLeft 
+
+[Line : SWI_BottomPartLeft]
+Field        : EmptyH,SWI_Hold,EmptyTA,SWI_TotalValue,EmptyTD,SWI_TotalDiscount,EmptyGT,SWI_GrandTotalB
+;;Space Bottom : 0.5
+Space Top    : 0.5
+Height       : 2
+
+[Field : EmptyH]
+Width        : 10% page
+Skip         : Yes
+
+[Field : SWI_Hold]
+Use          : Name Field
+Align        : Center
+Width        : 10% Page
+Set as       : "Hold"
+Style        : FormStyle
+Border       : Thin Box
+Background   : Hold_Color
+Read Only    : yes
+Color        : White
+
+
+[Color:Hold_Color]
+RGB          : 168,50,78
+
+[Field : EmptyTA]
+Width        : 10% page
+Skip         : Yes
+
+[Field : SWI_TotalValue]
+Use          : Name Field
+Align        : Center
+Width        : 10% Page
+Set as       : "Multiple"
+Style        : FormStyle
+Border       : Thin Box
+Background   : TotalAmountt_Color
+Color        : White
+Read Only    : yes
+Add  : Sub Form:MLTF_PaymentForm
+
+[Color:TotalAmountt_Color]
+RGB          : 50,157,168
+
+[Field : EmptyTD]
+Width        : 10% page
+Skip         : Yes
+
+[Field : SWI_TotalDiscount]
+Use          : Name Field
+Align        : Center
+Width        : 10% Page
+Set as       : "Cash"
+Style        : FormStyle
+Border       : Thin Box
+Background   : DiscountC_Color
+Color        : White
+Read Only    : yes
+Add  : Sub Form:POS_PaymentForm
+
+[Color:DiscountC_Color]
+RGB          : 50,168,64
+
+[Field : EmptyGT]
+Width        : 10% page
+Skip         : Yes
+
+[Field : SWI_GrandTotalB]
+Use          : Name Field
+Align        : Center
+Width        : 10% Page
+Set as       : "Pay All"
+Style        : FormStyle
+Border       : Thin Box
+Background   : GrandTo_Color
+Color        : White
+Read Only    : yes
+
+[Color:GrandTo_Color]
+RGB          : 78 ,50,168

@@ -1,0 +1,6 @@
+[Include: CmpAddon.txt]
+[Include: VchTypeAddon.txt]
+[Include: SystemWhareHouseForm.txt]
+[Include: Udf.txt]
+[Include: PosScreenModify.txt]
+[Include: MultiplePayment.txt]
