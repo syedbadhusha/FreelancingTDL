@@ -4,5 +4,5 @@
 
 	FP_IsCashVtyp			:	$FP_IsCashVtyp:VoucherType:##SVVoucherType
 	FP_SelectedVchs			:	@@IsSales or @@IsPurchase
-	SecondDelErrorMsg		:	"More Then or with out One DN/GRN Not Allowed"
+	SecondDelErrorMsg		:	"Please Check the tracking Number";"More Then or with out One DN/GRN Not Allowed"
 	FP_NotEmptyClosing		:	Not $$IsEmpty:$ClosingBalance

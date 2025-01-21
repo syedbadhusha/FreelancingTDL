@@ -4,14 +4,14 @@
 [!Field:FP_NoDuplicates]
 	Unique		:	Yes
 
-[#Part: EI DelNoteDetails]
-
-	Option		:	FP_DelNoteBreakOn	:	@@FP_SelectedVchs
-	
-[!Part:FP_DelNoteBreakOn]
-
-	Delete		:	Break On
-	Add			:	Break On	:	$$IsEnd:$BasicShipDeliveryNote OR $$IsNotApplicable:$BasicShipDeliveryNote or $$Line = 2
+;[#Part: EI DelNoteDetails]
+;
+;	Option		:	FP_DelNoteBreakOn	:	@@FP_SelectedVchs
+;	
+;[!Part:FP_DelNoteBreakOn]
+;
+;	Delete		:	Break On
+;	Add			:	Break On	:	$$IsEnd:$BasicShipDeliveryNote OR $$IsNotApplicable:$BasicShipDeliveryNote or $$Line = 2
 	
 [#Field:EIChallanNo]
 	Option		:	FP_ChallanSkipNSet	:	@@FP_IsCashVtyp
@@ -34,11 +34,11 @@
 ;	On			:	Accept		:	Yes		:	Field Accept
 ;	On			:	Accept		:	Yes		:	Call		:	FP_UpdateTracking:$$Value
 ;	
-	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote or ($$Line=1 and $$IsEmpty:$BasicShipDeliveryNote) then Yes else No
+;	Control		:	SecondDelErrorMsg		:	if $$Line=2 and Not $$IsEnd:$BasicShipDeliveryNote or ($$Line=1 and $$IsEmpty:$BasicShipDeliveryNote) then Yes else No
 
 [#Field:VCHBatchTrack]
 	
-	Option		:	FP_VCHBatchTrack	:	@@FP_SelectedVchs and not @@FP_IsCashVtyp
+	Option		:	FP_VCHBatchTrack		:	@@FP_SelectedVchs and not @@FP_IsCashVtyp
 	Option		:	FP_VCHCashBatchTrack	:	@@FP_IsCashVtyp
 	
 [!Field:FP_VCHCashBatchTrack]
@@ -53,5 +53,8 @@
 	Read Only	:	$$Line  != 1
 	Set Always	:	Yes
 	Set as	:	If $$Line = 2 then $$SysName:EndofList else $$BaseOwner:$BasicShipDeliveryNote
-	Control	:	SecondDelErrorMsg	:	if $$Value != $$BaseOwner:$BasicShipDeliveryNote and $$Line = 1 then Yes else No
-	
+;	Control	:	SecondDelErrorMsg	:	if $$Value != $$BaseOwner:$BasicShipDeliveryNote and $$Line = 1 then Yes else No
+	Control	:	SecondDelErrorMsg	:	if $$IsNotApplicable:$$BaseOwner:$BasicShipDeliveryNote and +
+										$$IsNotApplicable:$$Value then  No else if +
+										(Not $$IsNotApplicable:$$BaseOwner:$BasicShipDeliveryNote) +
+										and (Not $$IsNotApplicable:$$Value) then No else Yes
