@@ -1,0 +1,17 @@
+[#Form: CMP TallyShop Features]
+	On			:	Form Accept	:	Yes							:	Form Accept
+	On			:	Form Accept	:	$POS_IsEnabled				:	Call			:	POS_InitialSetUp
+	
+[#Part: CMP TallyShopFeatures Left]
+	Add			:	Line		:	POS_IsEnabled
+	
+[Line:POS_IsEnabled]
+	Field		:	MediumPrompt, POS_IsEnabled
+	
+	Local		:	Field		:	Default						:	Color			:	RoyalBlue
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Enable POS Module?"
+	
+[Field:POS_IsEnabled]
+	Use			:	LogicalField
+	Storage		:	POS_IsEnabled

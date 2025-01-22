@@ -1,0 +1,4 @@
+<DefType:System:UDF>
+
+[System:UDF]
+	POS_IsEnabled				:	Logical			:	0110
