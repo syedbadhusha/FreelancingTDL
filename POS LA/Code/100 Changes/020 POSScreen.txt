@@ -1,0 +1,104 @@
+
+
+
+	
+[Report:LA_POS_Voucher]
+		
+	Use	:	Voucher
+	
+[Form:LA_POS_Voucher]
+	
+;	Use	:	Voucher
+	
+	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
+    Control     : DateBelowFromDate : $Date < $$SystemPeriodFrom
+    Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo
+	
+	Print after Save	: No
+	No Confirm : Yes
+	
+    Horizontal Align: Left
+    Vertical Align  : Top
+	Width	: 100 % Page
+	Height	: 100 % Page	
+	
+    Space Bottom    : 0
+     
+	Set             : InvoicingModeFlag : Yes
+	SetAlways       : SVClass           : "POS"
+	
+	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
+										  If @@InventoryView then $$SysName:InvVchView Else +
+										  If @@PayrollView	then $$SysName:PaySlipVchView Else +
+										  If (@@MultiMfgrJrnlView OR @@IsJobMaterialVchs) then $$SysName:MulConsVchView Else +										  
+										  If @@StkJrnlView then $$SysName:ConsVchView Else $$ShowMessage:"SVViewName variable is not set properly : Error is triggered from voucher.500"	
+
+	SetAlways       : DSPTitleRefresh   : No
+	Set Always      : SVAccAllocOnOrder : ##ICFGAccAllocOnOrder
+
+	Volatile   	    : If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then No Else $$RegenerateVoucher
+
+    Keys            : Change System Period,Disburse Auto Fill
+    
+    Default Value   : ""
+             
+	Set             : SVAccounts         		: ##AccountsVch OR ##PayrollVch 
+    Set             : SVInventory          		: NOT ##AccountsVch AND NOT ##PayrollVch
+    Set             : SVStatutory          		: No
+	Set 			: SVTallyShop				: No
+    Set				: SVVoucherOfType	        : @@TypeOfVoucherPrint	
+	
+	Option 			: DummyOption 				: (##SVClass = "x" OR ##SVClass != "x") OR (##AutoFillDone OR NOT ##AutoFillDone)
+	Option			: VoucherAlterMode		    : $$InAlterMode
+    
+;	Switch	: VchTypeColor	  :  LA_POSColor   : $$IsSales:##SVVoucherType 
+	Option	: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
+	Background      : SalesVocherClr
+	Option	:	LA_POS_CreateVch	:	Yes
+
+[!Form: DispModeForUser]
+	
+	Local	: Button: Default      : Inactive: Yes
+	Local	: Key	: Direct Back  : Inactive: No
+	Local	: Key	: Print Bill   : Inactive: No
+
+;[!Form: LA_POSColor]
+; 
+;	Delete			: Key 	: SVAcctsInvoice
+;	Background: SalesVocherClr
+;	Local	: Style: Normal Bold : Bold: No
+;	Local	: Style: Small Bold  : Bold: No
+;	Control : NoEntries : $$InCreateMode AND @@NoItems ; Condition to Block the Blank Transactions
+;	On	    : Form Accept: Yes: Form Accept
+;	On		: Form Accept: Yes: Trigger Key: Alt + F5
+;	
+;	On: Form Accept: Yes: Call: Print POS
+;;	Print: PXP Report
+	
+[!Form:LA_POS_CreateVch]
+	
+	Option	: Small Size Form
+	Add		: Part: LDR POSTTL
+	Width	: 100 % page
+	Height	: 100 % Page		
+	Delete	: Bottom ToolBar Buttons
+
+[Part: LDR POSTTL]
+	
+	Part	: LDR POSTTLD
+
+[Part: LDR POSTTLD]
+	
+	Line	: LDR POSTTL
+	Width	: 30 % Page
+
+[Line: LDR POSTTL]
+	
+	Field	: LDR KOTNumber
+	
+[Field: LDR KOTNumber]
+	
+	Use		: Name Field
+	Set as	: "Hi"
+	Set Always: Yes
+	Background: Green

@@ -2,3 +2,4 @@
 
 [System:Formula]
 	POS_IsEnabled			:	$POS_IsEnabled:Company:$$CurrentCompany
+	NoItems   : $$CollNumTotal:InventoryEntries:$$Number:$BilledQty = 0

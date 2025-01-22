@@ -1,1 +1,9 @@
 <DefType:Collection>
+
+
+[Collection: LA_POS_CompanyVouchers]
+
+    Type        : Voucher
+    Child of    : ##SVCurrentDate
+    Report      : LA_POS_Voucher
+	IsODBCTable : Yes

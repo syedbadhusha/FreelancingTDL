@@ -1,0 +1,30 @@
+
+
+
+[Function:LA_POS_Creation]
+	
+	Variable	:	Name		:	String
+	
+	000			:	Set			:	Name		:	"POS SALES"
+	010			:	Call		:	LA_POS_CreationSet	:	##Name
+
+[Function:LA_POS_CreationSet]
+
+	Parameter	:	Name		:	String
+	
+	IfEmpty		:	If			:	$$IsEmpty:##Name
+	msgBox		:	Msg Box		:	"Error!!!"	:	"Voucher Type not found"
+	qbox		:	Query Box	:	"Create Voucher"		:	Yes	:	No
+	creVch		:	Do If		:	$$LastResult:	Create Collection		:	VoucherType
+	ret			:	Return
+	endIf		:	End If
+	
+	000			:	Set			:	SVVoucherType	:	##Name
+	
+	001			:	Set			:	SVViewName	:	if $$IsPurchase:##Name then $$SysName:AcctgVchView	else $$SysName:InvVchView	
+	002			:	Set			:	InvoicingModeFlag	:	Yes
+
+	010			:	Create Collection			:	LA_POS_CompanyVouchers
+	
+
+
