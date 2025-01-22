@@ -41,7 +41,7 @@
 	setVIsCCOn	:	Set Value		:	IsCostCentresOn		:	Yes
 	
 	dltCCcll	:	Call			:	CC_DeleteCollections
-	
+
 	WlkLedCC	:	Walk Collection	:	CC_CCNames
 	
 	InsLedCC	:	Insert Collection Object				:	SB_CC_OP_LedOpBalAg

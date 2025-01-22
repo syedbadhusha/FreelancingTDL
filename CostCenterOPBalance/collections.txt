@@ -59,7 +59,6 @@
 	
 	By			:	LedgerName		:	$_1	
 	Aggr Compute:	Amount			:	Sum		:	$$AsAmount:$_3
-	
 	Client Only	:	Yes
 	Keep Source	:	().
 	
