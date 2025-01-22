@@ -1,0 +1,4 @@
+<DefType:Function>
+
+[Function:POS_InitialSetUp]
+	Log			:	Log		:	"Initial Setup"
