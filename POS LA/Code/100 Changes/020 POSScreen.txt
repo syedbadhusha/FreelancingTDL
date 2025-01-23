@@ -8,8 +8,6 @@
 	
 [Form:LA_POS_Voucher]
 	
-;	Use	:	Voucher
-	
 	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
     Control     : DateBelowFromDate : $Date < $$SystemPeriodFrom
     Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo
@@ -50,10 +48,10 @@
 	
 	Option 			: DummyOption 				: (##SVClass = "x" OR ##SVClass != "x") OR (##AutoFillDone OR NOT ##AutoFillDone)
 	Option			: VoucherAlterMode		    : $$InAlterMode
-    
-;	Switch	: VchTypeColor	  :  LA_POSColor   : $$IsSales:##SVVoucherType 
-	Option	: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
-	Background      : SalesVocherClr
+   	Option	: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
+	
+;;;;;;;Screen form
+
 	Option	:	LA_POS_CreateVch	:	Yes
 
 [!Form: DispModeForUser]
@@ -61,44 +59,120 @@
 	Local	: Button: Default      : Inactive: Yes
 	Local	: Key	: Direct Back  : Inactive: No
 	Local	: Key	: Print Bill   : Inactive: No
-
-;[!Form: LA_POSColor]
-; 
-;	Delete			: Key 	: SVAcctsInvoice
-;	Background: SalesVocherClr
-;	Local	: Style: Normal Bold : Bold: No
-;	Local	: Style: Small Bold  : Bold: No
-;	Control : NoEntries : $$InCreateMode AND @@NoItems ; Condition to Block the Blank Transactions
-;	On	    : Form Accept: Yes: Form Accept
-;	On		: Form Accept: Yes: Trigger Key: Alt + F5
-;	
-;	On: Form Accept: Yes: Call: Print POS
-;;	Print: PXP Report
 	
 [!Form:LA_POS_CreateVch]
 	
 	Option	: Small Size Form
-	Add		: Part: LDR POSTTL
+	Part	:	VCH Registration, VCH Status, VCH Status,VCHTitle,VCHTitle2,VCHOptionalInfo,LA_POS_VCHTitle,LA_POS_VCHTop
 	Width	: 100 % page
 	Height	: 100 % Page		
-	Delete	: Bottom ToolBar Buttons
+	Delete	: Bottom ToolBar Buttons		
+	Local	:	Style	:	Default	:	Font	:	"Verdana"
+	Background	:	White
+	
+	Local	:	Part	:	VCHTitle	:	Invisible	:	Yes
+	Local	:	Part	:	VCHTitle2	:	Invisible	:	Yes
 
-[Part: LDR POSTTL]
-	
-	Part	: LDR POSTTLD
 
-[Part: LDR POSTTLD]
-	
-	Line	: LDR POSTTL
-	Width	: 30 % Page
+	[Part:LA_POS_VCHTitle]
+			Line		: LA_POS_VCHTitle
+			[Line:LA_POS_VCHTitle]
+				Field:LA_POS_VCHTitle
+				[Field:LA_POS_VCHTitle]
+					    Use         : Short Name Field
+						Color       : @@SV_VCHCOLOR
+						Background  : @@SV_VCHTYPE
+						Skip        : Yes
+						Set as      : ##SVVoucherType
+						Set always  : Yes
+						Modifies    : SVVoucherType
+						Storage     : Voucher Type Name
+						Align       : Center
+						Style		: Large Bold
+						Full Width	:	Yes
 
-[Line: LDR POSTTL]
-	
-	Field	: LDR KOTNumber
-	
-[Field: LDR KOTNumber]
-	
-	Use		: Name Field
-	Set as	: "Hi"
-	Set Always: Yes
-	Background: Green
+	[Part: LA_POS_VCHTop]
+
+		Left Part		: LA_POS_VCHTopLeft
+		Right Part		: LA_POS_VCHTitleRight
+		Border	:	thin Bottom
+		Vertical		: No
+		Space Top		: 0.15
+		Space Bottom	:	0.15
+		Local	:	Field	:	Default	:	Color	:	Royal Blue
+
+;;;;;;;;;;;;;;;;;  Warehouse and Customer ;;;;;;;;;;;;;;
+
+		[Part:LA_POS_VCHTopLeft]
+			
+			Part	:	LA_POSGodownInfo,POS PartyInfo
+			Vertical	:	Yes
+				
+			Local	:	Field	:	VCH POS PartyContact	:	Delete	:	Table
+			Local	:	Field	:	VCH POS PartyContact	:	Delete	:	Sub Form
+			Local	:	Line	:	VCH POS PartyContact	:	Local	:	Field	:	Simple Prompt	:	Set as	:	"Customer"
+			Local	:	Line	:	VCH POS PartyContact	:	Local	:	Field	:	Simple Prompt	:	Width		: @@VCHLeftPromptWidth % Page
+			Local	:	Field	:	VCH POS PartyContact	:	Width	:	100 MMS
+			Local	:	Field	:	VCH POS PartyContact	:	Border	:	thin Box
+			
+			Local	:	Part	:	EI Price Level	:	Invisible	:	Yes
+			Local	:	Part	:	POS PartyNameInfo	:	Delete	:	Width
+            [Part:LA_POSGodownInfo]
+
+		        Part		: LA_POSGodown
+				Invisible	: (NOT ($$IsMultiGodownOn OR @@IsSingaporeGSTEnabled)) 
+				
+				[Part: LA_POSGodown]
+            
+					Line	: LA_VCHPOSGodown								
+					Local   : Line	: LA_VCHPOSGodown	: Local: Field: Default			: Inactive	: NOT $$IsMultiGodownOn 
+					Local   : Line	: LA_VCHPOSGodown	: Local: Field: Short Prompt	: Width		: @@VCHLeftPromptWidth % Page
+
+					 [Line: LA_VCHPOSGodown]
+
+						Field                   : Short Prompt, LA_VCHPOSGodown
+
+						Local                   : Field : Short Prompt  : Set as	:	"Warehouse"
+						Invisible               : NOT $$IsMultiGodownOn
+							
+						[Field: LA_VCHPOSGodown]
+							 
+							Use             : Name Field
+							Use				: Create Godown
+							Set as          : If $$InAlterMode OR $$InDuplicateMode Then $$CollectionField:$GodownName:First:InventoryEntries Else ##POSGodown
+							Table           : Godown, Create Master
+							Keys            : Create Godown, Alter Godown
+							Modifies        : POSGodown	: Yes
+							Variable        : SV Godown
+							Background		: white
+							Border			: Thin Box
+							Width	:	100 MMS
+							
+;;;;;;;;;;;;;;;;;;;;;;   Date and VChNo	;;;;;;;;;;;;;;;;;
+							
+		[Part:LA_POS_VCHTitleRight]
+			Part	:LA_POS_VCHDate,LA_POS_VCHNo
+			Vertical	:	Yes
+			Space Top	:	0.15
+
+			[Part:LA_POS_VCHDate]
+				Line	:	VCH Date
+
+				Local	:	Line	:	VCH Date			:	local	:	Field:VCH Date:Add	:	Field	:	Before	:Plain VCH Date:MediumPrompt
+				Local	:	Field	:	MediumPrompt		:	Set as	:	"Date"
+				Local	:	Field	:	MediumPrompt		:	Width	:	30 MMS
+				Local	:	Line	:	VCH Date			:	local	:	Field:VCH Date:Local:	Field	:	Plain VCH Date:Width	:	70 MMS
+				
+			[Part:LA_POS_VCHNo]
+
+				Line	:	LA_POS_VCHNo
+				Space Top	:	0.15
+				
+				[Line:LA_POS_VCHNo]
+
+					Right Field	:	MediumPrompt, VCH Number, VchNumber DispSeries
+					
+					Local	:	Field	:	MediumPrompt	:	Set as	:	"POS Number"
+					Local	:	Field	:	MediumPrompt	:	Width	:	30 MMS
+					Local	:	Field	:	VCH Number		:	Border	:	Thin Box
+					Local	:	Field	:	VCH Number		:	Width	:	70 MMS
