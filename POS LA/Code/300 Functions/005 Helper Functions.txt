@@ -1,0 +1,55 @@
+<DefType:Function>
+
+[Function:POS_CreateLedger]
+	Parameter		:	Name		:	String
+	Parameter		:	Parent		:	String
+	
+	ifEmptName		:	Do If		:	($$IsEmpty:##Name or not $$IsEmpty:$Name:Ledger:##Name)		:	Return
+	
+	newLedger		:	New Object	:	Ledger
+		setVName	:	Set Value	:	Name			:	##Name
+		setVParent	:	Set Value	:	Parent			:	##Parent
+		
+		ifDuty		:	Do If		:	##Parent = $$GroupDuties		:	Set Value	:	TaxType			:	$$SysName:VAT	
+	saveLedger		:	Save Target
+	
+[Function:POS_CreateSalesVoucherType]
+	Parameter		:	Name		:	String
+	
+	ifEmptName		:	Do If		:	($$IsEmpty:##Name or not $$IsEmpty:$Name:VoucherType:##Name):	Return
+	
+	newVCHType		:	New Object	:	VoucherType
+		SVName		:	Set Value	:	Name			:	##Name
+		SVParent	:	Set Value	:	Parent			:	"Sales"
+		SVIsActive	:	Set Value	:	Is Active		:	Yes
+		SVUseForPOS	:	Set Value	:	UseForPOSInvoice:	Yes
+		
+		InsCllNumSrs:	Insert Collection Object		:	VoucherNumberSeries
+			SVNumNm	:	Set Value	:	Name			:	$$SysName:Default
+			SVNumMtd:	Set Value	:	NumberingMethod	:	"Automatic"
+			SVSNumMd:	Set Value	:	NumberingSubMethod		:	"Auto Retain"
+			
+		InsCllClass	:	Insert Collection Object		:	VoucherClassList
+			SVClName:	Set Value	:	ClassName		:	@@POS_ClassName
+			SVCrdLed:	Set Value	:	POSCardLedger	:	@@POS_CreditCardLedName
+			SVCshLed:	Set Value	:	POSCashLedger	:	@@POS_CashLedName
+			SVGftLed:	Set Value	:	POSGiftLedger	:	@@POS_GiftLedName
+			SVChqLed:	Set Value	:	POSChequeLedger	:	@@POS_DebitCardLedName
+			
+			SVIsCrd	:	Set Value	:	POSEnableCardLedger		:	Yes
+			SVIsCsh	:	Set Value	:	POSEnableCashLedger		:	Yes
+			SVIsGift:	Set Value	:	POSEnableGiftLedger		:	Yes
+			SVIsChq	:	Set Value	:	POSEnableChequeLedger	:	Yes
+			SVIsAccL:	Set Value	:	POSEnableOnAccountLedger:	Yes
+			
+			InsCLInv:	Insert Collection Object		:	LedgerForInventoryList
+				SVSN:	Set Value	:	Name					:	@@POS_SalesLedName
+				SVCR:	Set Value	:	ClassRate				:	100
+				SVSR:	Set Value	:	RemoveZeroEntries		:	Yes
+			
+			InsCLedE:	Insert Collection Object		:	LedgerEntriesList
+				SVVN:	Set Value	:	Name					:	@@POS_VATLedName
+				SVMT:	Set Value	:	MethodType				:	$$SysName:VAT
+				SVVR:	Set Value	:	RemoveZeroEntries		:	Yes
+			
+	saveVCHType		:	Save Target

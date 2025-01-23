@@ -1,4 +1,7 @@
 <DefType:Include>
 
+[Include:005 Helper Functions.txt]
+
 [Include:010 Initial SetUp.txt]
+
 [Include:020 POS Screen Func.txt]

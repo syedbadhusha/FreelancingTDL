@@ -1,4 +1,10 @@
 <DefType:Function>
 
 [Function:POS_InitialSetUp]
-	Log			:	Log		:	"Initial Setup"
+	crtPOSSales	:	Call		:	POS_CreateLedger:@@POS_SalesLedName:$$GroupSales
+	crtPOSCredit:	Call		:	POS_CreateLedger:@@POS_CreditCardLedName:$$GroupBank
+	crtPOSDebit	:	Call		:	POS_CreateLedger:@@POS_DebitCardLedName:$$GroupBank
+	crtPOSGift	:	Call		:	POS_CreateLedger:@@POS_GiftLedName:$$GroupSundryDebtors
+	crtPOSVAT	:	Call		:	POS_CreateLedger:@@POS_VATLedName:$$GroupDuties
+	
+	crtPOSSalesV:	Call		:	POS_CreateSalesVoucherType:@@POS_SalesVCHName
