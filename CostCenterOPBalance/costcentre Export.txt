@@ -109,8 +109,8 @@
 	Border		:	ThinLeft
 	
 [Field:CC_Closing]
-	Use			:	AmountField
-	Set as		:	$$NettAmount:$CCClosing:$CCOpening;;$$AmountAdd:$CCClosing:$CCOpening ;
+	Use			:	NameField
+	Set as		:	$$String:($$NettAmount:$CCClosing:$CCOpening):"DrCr";;$$AmountAdd:$CCClosing:$CCOpening ;
 	Full Width	:	Yes
 	Border		:	ThinLeft
 	Align		:	Right
