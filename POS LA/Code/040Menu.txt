@@ -2,6 +2,15 @@
 
 
 [#Menu:GateWayOfTally]
+	Option		:	POS_Gateway					:	@@POS_IsEnabled
 	
-	Add	:	Item	:	POS Sales	:	Call	:	LA_POS_Creation
+[!Menu:POS_Gateway]
+	Delete		:	Key Item
 	
+	Add			:	Item	:	POS Home		:	Display		:	POS_Home;Call		:	LA_POS_Creation
+	Add			:	Item	:	Default Gateway	:	Menu		:	POS_DefaultGateway
+	
+[Menu:POS_DefaultGateway]
+	Use			:	GateWayOfTally
+	
+	Delete		:	Option

@@ -1,10 +1,19 @@
 <DefType:Function>
 
 [Function:POS_InitialSetUp]
+	srtBtPost	:	Start Batch Post
+	strtPrg		:	Start Progress		:	10		:	$$CurrentCompany	:	"Running Initial Setup"	:	"Please wait"
+	
+	;Function>POS_CreateLedger:Name:Parent
 	crtPOSSales	:	Call		:	POS_CreateLedger:@@POS_SalesLedName:$$GroupSales
 	crtPOSCredit:	Call		:	POS_CreateLedger:@@POS_CreditCardLedName:$$GroupBank
 	crtPOSDebit	:	Call		:	POS_CreateLedger:@@POS_DebitCardLedName:$$GroupBank
 	crtPOSGift	:	Call		:	POS_CreateLedger:@@POS_GiftLedName:$$GroupSundryDebtors
 	crtPOSVAT	:	Call		:	POS_CreateLedger:@@POS_VATLedName:$$GroupDuties
 	
-	crtPOSSalesV:	Call		:	POS_CreateSalesVoucherType:@@POS_SalesVCHName
+	;Function>POS_CreateVoucherType:Name:Parent:IsPOS
+	crtPOSSalesV:	Call		:	POS_CreateVoucherType:@@POS_SalesVCHName:$$VchTypeSales:Yes
+	crtPOSCNoteV:	Call		:	POS_CreateVoucherType:@@POS_CreditNoteVCHName:$$VchTypeCreditNote
+	
+	endPrg		:	End Progress
+	endBtPost	:	End Batch Post

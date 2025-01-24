@@ -10,31 +10,54 @@
 		setVName	:	Set Value	:	Name			:	##Name
 		setVParent	:	Set Value	:	Parent			:	##Parent
 		
-		ifDuty		:	Do If		:	##Parent = $$GroupDuties		:	Set Value	:	TaxType			:	$$SysName:VAT	
+		ifDuty		:	Do If		:	##Parent = $$GroupDuties:	Set Value	:	TaxType			:	$$SysName:VAT	
 	saveLedger		:	Save Target
 	
-[Function:POS_CreateSalesVoucherType]
+[Function:POS_BasicVCHTypeSetValue]
 	Parameter		:	Name		:	String
+	Parameter		:	Parent		:	String
+	Parameter		:	IsPOS		:	String
+	
+	SVName			:	Set Value	:	Name					:	##Name
+	SVParent		:	Set Value	:	Parent					:	##Parent
+	SVIsActive		:	Set Value	:	Is Active				:	Yes
+	SVUseForPOS		:	Set Value	:	UseForPOSInvoice		:	##IsPOS
+				
+	InsCllNumSrs	:	Insert Collection Object				:	VoucherNumberSeries
+		SVNumNm		:	Set Value	:	Name					:	$$SysName:Default
+		SVNumMtd	:	Set Value	:	NumberingMethod			:	"Automatic (Manual Override)";"Automatic"
+		SVSNumMd	:	Set Value	:	NumberingSubMethod		:	"Auto Retain"
+		SVPrvDup	:	Set Value	:	PreventDuplicates		:	Yes
+		
+[Function:POS_InsertVCHTypeClassLedgers]
+	InsCLLedgerInv	:	Insert Collection Object				:	LedgerForInventoryList
+		SVSalesLed	:	Set Value	:	Name					:	@@POS_SalesLedName
+		SVClassRate	:	Set Value	:	ClassRate				:	100
+		SVSalesZero	:	Set Value	:	RemoveZeroEntries		:	Yes
+			
+	InsCLedEntries	:	Insert Collection Object				:	LedgerEntriesList
+		SVVATLed	:	Set Value	:	Name					:	@@POS_VATLedName
+		SVMethodType:	Set Value	:	MethodType				:	$$SysName:VAT
+		SVVATZero	:	Set Value	:	RemoveZeroEntries		:	Yes
+			
+[Function:POS_VCHTypeClassPOSLedgersSetValue]
+	SVCrdLed		:	Set Value	:	POSCardLedger			:	@@POS_CreditCardLedName
+	SVCshLed		:	Set Value	:	POSCashLedger			:	@@POS_CashLedName
+	SVGftLed		:	Set Value	:	POSGiftLedger			:	@@POS_GiftLedName
+	SVChqLed		:	Set Value	:	POSChequeLedger			:	@@POS_DebitCardLedName
+	
+[Function:POS_CreateVoucherType]
+	Parameter		:	Name		:	String
+	Parameter		:	Parent		:	String
+	Parameter		:	IsPos		:	Logical					:	No
 	
 	ifEmptName		:	Do If		:	($$IsEmpty:##Name or not $$IsEmpty:$Name:VoucherType:##Name):	Return
 	
 	newVCHType		:	New Object	:	VoucherType
-		SVName		:	Set Value	:	Name			:	##Name
-		SVParent	:	Set Value	:	Parent			:	"Sales"
-		SVIsActive	:	Set Value	:	Is Active		:	Yes
-		SVUseForPOS	:	Set Value	:	UseForPOSInvoice:	Yes
+		setBasics	:	Call		:	POS_BasicVCHTypeSetValue:	##Name:##Parent:##IsPOS
 		
-		InsCllNumSrs:	Insert Collection Object		:	VoucherNumberSeries
-			SVNumNm	:	Set Value	:	Name			:	$$SysName:Default
-			SVNumMtd:	Set Value	:	NumberingMethod	:	"Automatic"
-			SVSNumMd:	Set Value	:	NumberingSubMethod		:	"Auto Retain"
-			
-		InsCllClass	:	Insert Collection Object		:	VoucherClassList
-			SVClName:	Set Value	:	ClassName		:	@@POS_ClassName
-			SVCrdLed:	Set Value	:	POSCardLedger	:	@@POS_CreditCardLedName
-			SVCshLed:	Set Value	:	POSCashLedger	:	@@POS_CashLedName
-			SVGftLed:	Set Value	:	POSGiftLedger	:	@@POS_GiftLedName
-			SVChqLed:	Set Value	:	POSChequeLedger	:	@@POS_DebitCardLedName
+		InsCllClass	:	Insert Collection Object				:	VoucherClassList
+			SVClName:	Set Value	:	ClassName				:	@@POS_ClassName
 			
 			SVIsCrd	:	Set Value	:	POSEnableCardLedger		:	Yes
 			SVIsCsh	:	Set Value	:	POSEnableCashLedger		:	Yes
@@ -42,14 +65,8 @@
 			SVIsChq	:	Set Value	:	POSEnableChequeLedger	:	Yes
 			SVIsAccL:	Set Value	:	POSEnableOnAccountLedger:	Yes
 			
-			InsCLInv:	Insert Collection Object		:	LedgerForInventoryList
-				SVSN:	Set Value	:	Name					:	@@POS_SalesLedName
-				SVCR:	Set Value	:	ClassRate				:	100
-				SVSR:	Set Value	:	RemoveZeroEntries		:	Yes
+			ifPOS	:	Do If		:	(##IsPOS and $$IsSales:##Parent)	:	Call		:	POS_VCHTypeClassPOSLedgersSetValue
 			
-			InsCLedE:	Insert Collection Object		:	LedgerEntriesList
-				SVVN:	Set Value	:	Name					:	@@POS_VATLedName
-				SVMT:	Set Value	:	MethodType				:	$$SysName:VAT
-				SVVR:	Set Value	:	RemoveZeroEntries		:	Yes
+			InsCll	:	Call		:	POS_InsertVCHTypeClassLedgers
 			
 	saveVCHType		:	Save Target

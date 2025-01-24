@@ -14,3 +14,4 @@
 	POS_ClassName			:	"POS"
 	
 	POS_SalesVCHName		:	"POS Sales"
+	POS_CreditNoteVCHName	:	"POS Credit Note"

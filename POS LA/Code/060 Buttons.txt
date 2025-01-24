@@ -1,0 +1,25 @@
+<DefType:Button>
+
+[Button:POS_Default]
+	Width		:	20 % Page
+	Height		:	30 % Page
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	Skip Forward:	Yes
+	Background	:	RoyalBlue
+	Key Color	:	White
+	Color		:	White
+	Style		:	Large
+	Key Style	:	Large
+	
+[Button:POS_CreateSales]
+	Use			:	POS_Default
+	Title		:	"Create Bills"
+	Key			:	S
+	Action		:	Call		:	LA_POS_Creation
+	
+[Button:POS_STKQuery]
+	Use			:	POS_Default
+	Title		:	"Stock Query"
+	Key			:	Q
+	Action		:	Display Collection 	: Stock Query

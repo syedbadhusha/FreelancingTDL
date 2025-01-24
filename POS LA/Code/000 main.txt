@@ -10,6 +10,8 @@
 
 [Include:050 Styles.txt]
 
+[Include:060 Buttons.txt]
+
 [Include:100 Changes/000 main.txt]
 
 [Include:200 Reports/000 main.txt]

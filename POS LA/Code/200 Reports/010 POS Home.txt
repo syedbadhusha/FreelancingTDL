@@ -1,0 +1,27 @@
+[Report:POS_Home]
+	Title		:	"POS Home"
+	
+	Form		:	POS_Home
+	
+[Form:POS_Home]
+	Part		:	POS_Home
+	
+[Part:POS_Home]
+	Height		:	100 % Page
+	
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	
+	Part		:	POS_HomeTop, POS_HomeBottom
+	Vertical	:	Yes
+	
+[Part:POS_HomeTop]
+	Horizontal Align	:	Center
+	
+	Button		:	POS_CreateSales
+	
+[Part:POS_HomeBottom]
+	Horizontal Align	:	Center
+	
+	Button		:	POS_STKQuery
+	
