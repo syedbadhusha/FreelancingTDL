@@ -26,5 +26,11 @@
 
 	010			:	Create Collection			:	LA_POS_CompanyVouchers
 	
+;;;;;;;;;;;;;;;;;;;;;;  Hold POS Function	;;;;;;;;;;;;;
+
+[Function:LA_POSHoldFunc]
+	
+	2000	:	Form Accept	
+
 
 

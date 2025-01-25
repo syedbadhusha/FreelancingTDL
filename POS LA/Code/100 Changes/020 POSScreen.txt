@@ -63,7 +63,11 @@
 [!Form:LA_POS_CreateVch]
 	
 	Option	: Small Size Form
-	Part	:	VCH Registration, VCH Status, VCH Status,VCHTitle,VCHTitle2,VCHOptionalInfo,LA_POS_VCHTitle,LA_POS_VCHTop
+	
+	Part	:	VCH Registration, VCH Status, VCH Status,+
+				VCHTitle,VCHTitle2,VCHOptionalInfo,+
+				LA_POS_VCHTitle,LA_POS_VCHTop,LA_POSBody
+
 	Width	: 100 % page
 	Height	: 100 % Page		
 	Delete	: Bottom ToolBar Buttons		
@@ -176,3 +180,324 @@
 					Local	:	Field	:	MediumPrompt	:	Width	:	30 MMS
 					Local	:	Field	:	VCH Number		:	Border	:	Thin Box
 					Local	:	Field	:	VCH Number		:	Width	:	70 MMS
+
+;;;;;;;;;;;;;;;;;;;;  POS Main Body	;;;;;;;;;;;
+
+[Part:LA_POSBody]
+	
+	Part	:	LA_POSBodyMain
+	Vertical	:	Yes
+
+	[Part:LA_POSBodyMain]
+
+		Part	:	LA_POSInvLeft,LA_POSInvRight
+		Vertical	:	No
+
+		;;;;;;;;;;;;;;;;  Inventory Entries;;;;;;
+		[Part:LA_POSInvLeft]
+			
+			Part	:	LA_POSBodyColTit,LA_POSInvDetailsInv
+			Bottom Part	:	LA_POSInvTotal
+			Vertical	:	Yes
+			
+			[Part:LA_POSBodyColTit]
+					
+				Line:LA_POSBodyColTit
+				Border	:	thin Bottom
+				local	:	Field	:	Default	:	Color       : @@SV_VCHCOLOR
+				Background  : @@SV_VCHTYPE
+
+				[Line:LA_POSBodyColTit]
+
+					Fields      : VCH ItemTitle
+					Right Fields: LA_POSStockBalTit,VCHBilledQtyTitle,+
+								  VCHRateTitle, VCHRateUnitsTitle, +
+								  VCHDiscTitle,VCHAmtTitle,LA_VCHDiscTitle,LA_VCHSubTaxTitle,LA_VCHSubTotalTitle
+					
+					Local	:	Field	:	VCHBilledQtyTitle	:	Delete	:	Inactive
+					Local	:	Field	:	VCHBilledQtyTitle	:	Set as	:	"Quantity"
+					Local	:	Field	:	Default	:	Style	:	Small Bold
+					
+					[Field:LA_POSStockBalTit]
+						Width       : @@VCHQtyWidth
+						Setas       : $$LocaleString:"Stock"
+						Style       : Small
+						Align       : Centre
+						Skip        : Yes
+						Fixed       : Yes
+
+					[Field:LA_VCHDiscTitle]
+						Width       : @@VCHQtyWidth
+						Setas       : $$LocaleString:"Discount"
+						Style       : Small
+						Align       : Centre
+						Skip        : Yes
+						Fixed       : Yes
+
+					[Field:LA_VCHSubTaxTitle]
+						Width       : @@VCHQtyWidth
+						Setas       : $$LocaleString:"Tax"
+						Style       : Small
+						Align       : Centre
+						Skip        : Yes
+						Fixed       : Yes
+
+					[Field:LA_VCHSubTotalTitle]
+						Width       : @@VCHQtyWidth
+						Setas       : $$LocaleString:"Sub Total"
+						Style       : Small
+						Align       : Centre
+						Skip        : Yes
+						Fixed       : Yes
+			
+			[Part:LA_POSInvDetailsInv]
+
+				Lines   : CI InvDetails, EI InvSubTotal
+				Repeat  : CI InvDetails : Inventory Entries
+				BreakOn : $$IsSysName:$StockItemName       
+				
+				Total   : VCHValue, CIValue
+
+				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At Beginning	:	LA_POSStockBal
+				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal
+				Scroll	:	Vertical
+				Local	:	Field	:	Default	:	Border	:	Thin Box
+				Common Border	:	Yes
+				Border	:	Thin Box
+				
+				Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
+				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Invisible:  Yes
+				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Inactive: No
+				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
+				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
+				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Show Table: Never
+				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Add: Set as: if $$IsEmpty:#LA_VCHPOSGodown then "MainLocation" else #LA_VCHPOSGodown
+
+			[Field:LA_POSStockBal]
+
+				Use			: Number Field
+				Width       : @@VCHQtyWidth
+				Style       : Small
+				Align       : Centre
+				Border      : Thin Right
+				Storage		: LA_POSStockBal
+				Set Always	: Yes
+
+			[Field:LA_VCHDisc]
+
+				Use			: Number Field
+				Style       : Small
+				Align       : Centre
+				Border      : Thin Right
+				Storage		: LA_VCHDisc
+				Set Always	: Yes
+				Width       : @@VCHQtyWidth	
+			[Field:LA_VCHSubTax]
+
+				Use         : EXPINV VATGCC AmtTemp
+				Style       : Small
+				Align       : Centre
+				Border      : Thin Right
+				Storage		: LA_VCHSubTax
+				Skip		: Yes
+				Set Always	: Yes
+				Width       : @@VCHQtyWidth
+				Set as      : If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxamt Else $$AsCrAmt:@taxamt
+				taxamt      : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+				transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+
+			[Field:LA_VCHSubTotal]
+				
+				Use			: Amount Field
+				Style       : Small
+				Align       : Centre
+				Border      : Thin Right
+				Skip        : Yes
+				Fixed       : Yes
+				Storage		: LA_VCHSubTotal
+				Width       : @@VCHQtyWidth
+				
+	[Part:LA_POSInvTotal]
+		
+		Part	:	VCHPOSModeOfReceipts,Cust_VCHPOSModeOfReceipts
+		Vertical	:	Yes
+		Local	:	Part	:	VCHPOSModeOfReceipts	:	Invisible	:	Yes
+		
+[Part:Cust_VCHPOSModeOfReceipts]
+	
+		Line	:	LA_POSInvTotalTitle,LA_POSInvTotal
+		
+[Line:LA_POSInvTotalTitle]
+	
+		Field		:	LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
+						LA_POSRoundOff,LA_POSInvTaxableAmount,LA_POSVatTotal
+		Right Field	:	LA_POSInvTotal
+					
+		Local	:	Field	:	Default	:	Type:	String
+		Local	:	Field	:	Default	:	Delete	:	Storage
+		Local	:	Field	:	Default	:	Align	:	Center
+		Local	:	Field	:	Default	:	Style	:	Small Bold
+		Local	:	Field	:	Default	:	Skip	:	yes
+			
+		Local	:	Field	:	LA_POSItemDiscTotal		:	Set as	:	"Item Disc"+$$NewLine+"Total"
+		Local	:	Field	:	LA_POSInvDisc			:	Set as	:	"Inv." +$$NewLine+"Discount"
+		Local	:	Field	:	LA_POSDiscTotal			:	Set as	:	"Total"++$$NewLine+"Discount"
+		Local	:	Field	:	LA_POSRoundOff			:	Set as	:	"Round Off"
+		Local	:	Field	:	LA_POSInvTaxableAmount	:	Set as	:	"Taxable" +$$NewLine+"Amount"
+		Local	:	Field	:	LA_POSVatTotal			:	Set as	:	"VAT" +$$NewLine+"Amount"
+		Local	:	Field	:	LA_POSInvTotal			:	Set as	:	"Grand"+$$NewLine+"Total"
+		Local	:	Field	:	LA_POSInvTotal			:	Style	:	Large Bold
+		Local	:	Field	:	Default					:	Line	:	2
+	
+;		Height	:	15 MMS
+
+[Line:LA_POSInvTotal]
+
+		Field	:	LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
+					LA_POSRoundOff,LA_POSInvTaxableAmount,LA_POSVatTotal
+		Right Field	:	LA_POSInvTotal
+		Local	:	Field	:	Default	:	Border	:	Thin Box
+		Height	:	10 MMS
+		Space Top	:	3 MMS
+		;;;;;;;;;;;;;;;;;;;  Invoice Total Fields	;;;;;;;;;
+
+		[Field:LA_POSItemDiscTotal]
+
+			Use			:	Number Field
+			Set Always	:	Yes
+			Set as		:	$$CollNumTotal:InventoryEntries:$LA_VCHDisc
+			Width		:	 MMS
+			Format		:	"No Zero"
+			Skip		:	Yes
+			Style		:	Normal Bold
+			Width		:	30 MMS
+			Align		:	Right
+
+		[Field:LA_POSInvDisc]
+			Use	:	Number Field
+			Set Always	:	Yes
+			Width		:	30 MMS
+			Format		:	"No Zero"
+			Storage		:	LA_POSInvDisc
+			Style		:	Normal Bold
+			Align		:	Right
+			
+		[Field:LA_POSDiscTotal]
+			Use	:	Amount Field
+			Set Always	:	Yes
+			Width		:	30 MMS
+			Set as		:	$$AsAmount:(#LA_POSItemDiscTotal + #LA_POSInvDisc)
+			Style		:	Normal Bold
+			
+		[Field:LA_POSRoundOff]
+			Use	:	Amount Field
+			Set Always	:	Yes
+			Width		:	25 MMS
+			Style		:	Normal Bold
+			
+		[Field:LA_POSInvTaxableAmount]
+			Use         : EXPINV VATGCC AmtTemp
+			Set as      : "";If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxableamt Else $$AsCrAmt:@taxableamt
+;			taxableamt  : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_AssesableValue:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+;			transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+			Width		:	30 MMS
+			Style		:	Normal Bold
+			Delete	:	Border
+		[Field:LA_POSVatTotal]
+			Use	:	Amount Field
+			Width		:	30 MMS
+			Style	:	Normal Bold
+		[Field:LA_POSInvTotal]
+			Use         : Amount Field
+			Set as	:	$Amount
+			Delete	:	Border
+			Style	:	Large Bold
+			Width	:	50 MMS
+			Color	:	white
+			Background	:	Dark Red
+			
+	;;;;;;;;;;;; Number Pad	;;;;;;;;			
+	[Part:LA_POSInvRight]
+		Part	: LA_POSSettlements,LA_POSNum
+		Vertical	:	Yes
+		[Part:LA_POSSettlements]
+			
+			Part	:	LA_POSCashAndBenefit,LA_POSMultiMode,+
+						LA_POSHoldAndRetake,LA_POSReturn
+			Vertical: Yes
+			Background: Pattens Blue
+			Height	:	42% page
+			Width	: 24 % Page
+			Border	: Thin Box
+			Horizontal Align: Center
+
+			[Button: SettleMnetsBtns]
+			
+				Horizontal Align: Center
+				Skip Forward: Yes
+				Key Style: NumberKeyStyle
+				Style	 : NumberKeyStyle
+				Key Color: Black 
+
+			[Part:LA_POSCashAndBenefit]
+
+				Button	:	LA_POSCash,LA_POSBenefit
+
+			[Part:LA_POSMultiMode]
+
+				Button	:	LA_POSMultiPay
+
+			[Part:LA_POSHoldAndRetake]
+
+				Button:LA_POSHold,LA_POSReTake
+
+			[Part:LA_POSReturn]
+
+				Button	:LA_POSReturn
+
+		[Part:LA_POSNum]
+			Part	: LA_POS_Num7to9, LA_POS_Num4to6,+
+					  LA_POS_Num3to1, LA_POS_Num0AndPoint,+
+					  LA_POS_NumEnt
+					  
+			Vertical: Yes
+			Background: Pattens Blue
+			Height	: 42 % Page
+			Width	: 24 % Page
+			Border	: Thin Box
+			Horizontal Align: Center
+
+		[Button: NumberBadDesign]
+			
+			Horizontal Align: Center
+			Height	: 8 % Page
+			Width	: 8 % Page
+			Skip Forward: Yes
+			Key Style: NumberKeyStyle
+			Style	 : NumberKeyStyle
+			Key Color: Black 
+			
+
+	;;;;;;;;  Button Parts
+
+			[Part: LA_POS_Num7to9]
+		
+				Button: POS_NUM7, POS_NUM8, POS_NUM9
+
+			[Part: LA_POS_Num4to6]
+		
+				Button: POS_NUM6, POS_NUM5, POS_NUM4
+
+			[Part: LA_POS_Num3to1]
+		
+				Button: POS_NUM3, POS_NUM2, POS_NUM1
+
+			[Part: LA_POS_Num0andPoint]
+				
+				Button: POS_NUM0,POS_NUMPoint,POS_NUMBS
+				
+
+			[Part: LA_POS_NumEnt]
+				
+				Button: LA_POS_NumEnt
+		
