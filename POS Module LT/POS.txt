@@ -2148,7 +2148,7 @@
 	01 : Do If : @@HomeDelivery OR @@TableBill :  Set: VarDSett : Yes
 	02 : Do If : @@HomeDelivery OR @@TableBill :  Set: VARPAS   : Yes
 	
-
+	llllll	:	Log	:	##VARPayBillAmount
 	03 : Set: VARPayMode : ""
 	04 : If: @@DirBill
 	05 : Alter: SettleQuery Report

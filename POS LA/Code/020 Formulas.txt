@@ -15,3 +15,5 @@
 	
 	POS_SalesVCHName		:	"POS Sales"
 	POS_CreditNoteVCHName	:	"POS Credit Note"
+	
+	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt ;!= ##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt

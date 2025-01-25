@@ -7,4 +7,4 @@
 	LA_VCHSubTax				:	Amount			:	0400
 	LA_VCHSubTotal				:	Amount			:	0500
 	LA_POSInvDisc				:	Number			:	0600
-	
+	LA_POS_InvTotal				:	Amount			:	0700

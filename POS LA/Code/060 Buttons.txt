@@ -23,3 +23,178 @@
 	Title		:	"Stock Query"
 	Key			:	Q
 	Action		:	Display Collection 	: Stock Query
+	
+
+;;;;;;;;;;  Numers Buttons
+
+			[Button: POS_NUM7]
+	
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 7
+				Border	: Thin Box
+
+			[Button:POS_NUM8]
+
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 8
+				Border	: Thin Box
+
+			[Button:POS_NUM9]
+
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 9
+				Border	: Thin Box
+
+			[Button: POS_NUM6]
+	
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 6
+				Border	: Thin Box
+
+			[Button:POS_NUM5]
+
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 5
+				Border	: Thin Box
+
+			[Button:POS_NUM4]
+
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 4
+				Border	: Thin Box
+
+			[Button: POS_NUM3]
+	
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 3
+				Border	: Thin Box
+
+			[Button:POS_NUM2]
+
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 2
+				Border	: Thin Box
+
+			[Button:POS_NUM1]
+
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 1
+				Border	: Thin Box
+
+			[Button: POS_NUM0]
+				
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: 0
+				Border	: Thin Box
+				
+			[Button: POS_NUMPoint]
+				
+				Use		: NumberBadDesign
+				Title	: ""
+				Key		: .
+				Border	: Thin Box
+
+			[Button: POS_NUMBS]
+				
+				Use		: NumberBadDesign
+				Title	: ""
+				Key     : BackSpace
+				KeyStyle: Small Bold
+				Border	: Thin Box
+				
+			[Button: LA_POS_NumEnt]
+				
+				Use		: NumberBadDesign
+				Width	: 23.5 % Page
+				Title	: ""
+				Key		: Enter
+				KeyStyle: Small Bold
+				Border	: Thin Box
+
+;;;;;;;;;;;;;;  Settlements Button
+
+			[Button:LA_POSCash]
+				
+				Use		: NumberBadDesign
+				Width	: 12 % page
+				Title	: "CASH"
+				KeyStyle: Small Bold
+				Key		: Alt + A	
+				Border	: Thin Box
+				Key Color	:	white
+				Color	:	White
+				Background	:	Dark Green
+				ActionEx	:	001	:	Call	:	 LA_POSCashFunc:$LA_POS_InvTotal
+
+			[Button:LA_POSBenefit]
+				
+				Use		: NumberBadDesign
+				Width	: 12 % page
+				Title	: "Benefit Pay"
+				KeyStyle: Small Bold
+				Key		: Alt + B	
+				Border	: Thin Box
+				Key Color	:	white
+				Color	:	White
+				Background	:	Green
+				ActionEx: 001 : Call : LA_POSBenefitFunc:$LA_POS_InvTotal
+
+			[Button:LA_POSMultiPay]
+				
+				Use		: NumberBadDesign
+				Width	:	23.6 % Page
+				Title	: "Mutiple Pay Mode"
+				KeyStyle: Small Bold
+				Key		: Alt + L	
+				Border	: Thin Box
+				Key Color	:	white
+				Color	:	White
+				Background	:	Red
+				ActionEx: 001 : Call : LA_POSMultiPayFunc:$LA_POS_InvTotal
+
+			[Button:LA_POSHold]
+				
+				Use		: NumberBadDesign
+				Width	: 12 % page
+				Title	: "Hold"
+				KeyStyle: Small Bold
+				Key		: Alt + H
+				Border	: Thin Box
+				Key Color	:	white
+				Color	:	White
+				Background	:	Dark Green
+				Action :	Call	:	LA_POSHoldFunc:$LA_POS_InvTotal
+
+			[Button:LA_POSReTake]
+				
+				Use		: NumberBadDesign
+				Width	: 12 % page
+				Title	: "Retake"
+				KeyStyle: Small Bold
+				Key		: Alt + R
+				Border	: Thin Box
+				Key Color	:	white
+				Color	:	White
+				Background	:	Dark Green
+
+			[Button:LA_POSReturn]
+				
+				Use		: NumberBadDesign
+				Width	:	23.6 % Page
+				Title	: "Return"
+				KeyStyle: Small Bold
+				Key		: Alt + U
+				Border	: Thin Box
+				Key Color	:	white
+				Color		:	White
+				Background	:	Dark Green

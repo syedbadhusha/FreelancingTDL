@@ -5,7 +5,9 @@
 [Report:LA_POS_Voucher]
 		
 	Use	:	Voucher
-	
+	Variable	:	LA_MultiPayAccept
+	Variable	:	LA_POSMultiCardAmount,LA_POSMultiBenefitAmnt,LA_POSMultiCashAmnt
+
 [Form:LA_POS_Voucher]
 	
 	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
@@ -14,7 +16,7 @@
 	
 	Print after Save	: No
 	No Confirm : Yes
-	
+	set	:	LA_MultiPayAccept	:	No
     Horizontal Align: Left
     Vertical Align  : Top
 	Width	: 100 % Page
@@ -77,7 +79,6 @@
 	Local	:	Part	:	VCHTitle	:	Invisible	:	Yes
 	Local	:	Part	:	VCHTitle2	:	Invisible	:	Yes
 
-
 	[Part:LA_POS_VCHTitle]
 			Line		: LA_POS_VCHTitle
 			[Line:LA_POS_VCHTitle]
@@ -99,7 +100,7 @@
 
 		Left Part		: LA_POS_VCHTopLeft
 		Right Part		: LA_POS_VCHTitleRight
-		Border	:	thin Bottom
+		Border			: Thin Bottom
 		Vertical		: No
 		Space Top		: 0.15
 		Space Bottom	:	0.15
@@ -195,8 +196,8 @@
 
 		;;;;;;;;;;;;;;;;  Inventory Entries;;;;;;
 		[Part:LA_POSInvLeft]
-			
-			Part	:	LA_POSBodyColTit,LA_POSInvDetailsInv
+;			CI InvInvoice
+			Part	:	LA_POSBodyColTit,LA_POSInvDetails
 			Bottom Part	:	LA_POSInvTotal
 			Vertical	:	Yes
 			
@@ -249,28 +250,33 @@
 						Align       : Centre
 						Skip        : Yes
 						Fixed       : Yes
-			
+			[Part:LA_POSInvDetails]
+
+				Part:LA_POSInvDetailsInv,CI AccInfo
+				Total   : VCHValue, CIValue
+				Total	: VCHBilledQty
+				Border	:	thin Box
+				Local	:	Part	:	CI AccInfo	:	Invisible	:	Yes
+				
 			[Part:LA_POSInvDetailsInv]
 
 				Lines   : CI InvDetails, EI InvSubTotal
 				Repeat  : CI InvDetails : Inventory Entries
 				BreakOn : $$IsSysName:$StockItemName       
-				
-				Total   : VCHValue, CIValue
-
+				Vertical: Yes
+				Scroll  : Vertical
+	
 				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At Beginning	:	LA_POSStockBal
+
 				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal
-				Scroll	:	Vertical
 				Local	:	Field	:	Default	:	Border	:	Thin Box
-				Common Border	:	Yes
-				Border	:	Thin Box
 				
 				Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
 				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Invisible:  Yes
 				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Inactive: No
 				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
 				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
-				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Show Table: Never
+;				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Show Table: Never
 				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Add: Set as: if $$IsEmpty:#LA_VCHPOSGodown then "MainLocation" else #LA_VCHPOSGodown
 
 			[Field:LA_POSStockBal]
@@ -321,7 +327,8 @@
 		
 		Part	:	VCHPOSModeOfReceipts,Cust_VCHPOSModeOfReceipts
 		Vertical	:	Yes
-		Local	:	Part	:	VCHPOSModeOfReceipts	:	Invisible	:	Yes
+;		Local	:	Part	:	VCHPOSModeOfReceipts	:	Invisible	:	Yes
+		Local	: Field: VCHPOSInvoiceTotal : Storage : LA_POS_InvTotal
 		
 [Part:Cust_VCHPOSModeOfReceipts]
 	
@@ -403,6 +410,7 @@
 			Width		:	30 MMS
 			Style		:	Normal Bold
 			Delete	:	Border
+			
 		[Field:LA_POSVatTotal]
 			Use	:	Amount Field
 			Width		:	30 MMS
@@ -501,3 +509,6 @@
 				
 				Button: LA_POS_NumEnt
 		
+
+
+	
