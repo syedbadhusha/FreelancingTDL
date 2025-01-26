@@ -32,6 +32,7 @@
 
 	Parameter	:	VarInvAmount	:	Amount
 	
+	001	:	Set	:	LA_BillPaid	:	Yes
 	100 : Walk Collection: LedgerEntries
 	200 : 	Set Target  : LedgerEntries[$$LoopIndex].
 	
@@ -50,7 +51,6 @@
 
 	900 : End Walk
 
-
 	1200	:	Trigger Key	:	Ctrl + A
 
 ;;;;;;;;;;;;;;;;;;;;;;  Hold POS Function	;;;;;;;;;;;;;
@@ -59,7 +59,8 @@
 [Function:LA_POSHoldFunc]
 
 	Parameter	:	VarInvAmount	:	Amount
-		
+
+	000	:	Set	:	LA_BillPaid	:	Yes	
 	001	: Set Value	:	ISOPTIONAL	:	Yes
 
 	100 : Walk Collection: LedgerEntries
@@ -87,7 +88,8 @@
 [Function:LA_POSBenefitFunc]
 
 	Parameter	:	VarInvAmount	:	Amount
-	
+
+	001	:	Set	:	LA_BillPaid	:	Yes
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].
 	
@@ -112,7 +114,8 @@
 [Function:LA_POSMultiPayFunc]
 	
 	Parameter	:	LA_POSMultiPayAmnt	:	Amount
-	
+
+	000	:	Set	:	LA_BillPaid	:	Yes	
 	001	:	Alter	:	LA_POSMultiPayRep
 
 	00002	:	If	:	##LA_MultiPayAccept
@@ -256,6 +259,52 @@
 	;;;;;;;;;;;;;;;; Cash Benefit End
 	
 
+;;;;;;;;;;;;;;;;;  Update Disc Amount
+
+[Function:UpdateLedEntriss]
+	Parameter	:	LA_DiscountAmountPar	:	Amount
+	Parameter	:	LA_POSRoundOffPar		:	Amount
+
+	100 : Walk Collection: LedgerEntries
+	200 : Set Target  : LedgerEntries[$$LoopIndex].
+	
+	300 : 	If: $LedgerName Contains "Discount" 
+	400	:		Set Value	:	Amount			:	-##LA_DiscountAmountPar
+	500	:	End If
+
+	600 : 	If: $LedgerName Contains "RoundOff" 
+	700	:		Set Value	:	Amount			:	##LA_POSRoundOffPar
+	800	:	End If
+	
+	900	: End Walk
+
+;;;;;;;;;;;;;;;;;  Set Cash amount and save	;;;;;;;;;;
+
+
+[Function:LA_POSCashAcceptFunc]
+
+	Parameter	:	VarInvAmount	:	Amount
+	
+	001	:	Set	:	LA_BillPaid	:	Yes
+	100 : Walk Collection: LedgerEntries
+	200 : 	Set Target  : LedgerEntries[$$LoopIndex].
+	
+	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType
+	400	:		Set Value	:	Amount	:	""
+	500	:	End If
+
+	510	:	If:	$LedgerName = $POSBankLedgerClass:VoucherType:##SVVoucherType
+	520	:		Set Value	:	Amount	:	""
+	530	:	End If
+
+	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
+	700 : 		Set Value   : Amount : $$AsAmount:##VarInvAmount
+	1000	:	Set Value	:	POSCashReceived	:	$$AsAmount:##VarInvAmount
+	800 : 	End If
+
+	900 : End Walk
+
+
 
 ;;;;;;;;;;;;;;  Multi Cash Variables
 
@@ -287,6 +336,10 @@
 	
 	Type	:	Logical
 	
+[Variable:LA_BillPaid]
+
+	Type	:	Logical
+	
 [System:Variable]
 		
 	CashTenderdAmountVar	:	""
@@ -299,3 +352,5 @@
 	LA_POSMultiCardNumber	:	""
 	
 	LA_MultiPayAccept		:	No
+	
+	LA_BillPaid				:	No

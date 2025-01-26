@@ -18,4 +18,12 @@
 	POS_SalesVCHName		:	"POS Sales"
 	POS_CreditNoteVCHName	:	"POS Credit Note"
 	
-	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt ;!= ##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt
+	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt
+	LA_PaymethodSelect				:	"Please Select Payment Method"
+	
+	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties
+	IsDiscLed 	: $LedgerName contains "Discount"
+	IsRoundOff	: $LedgerName contains "Roundoff"		
+
+	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+	
