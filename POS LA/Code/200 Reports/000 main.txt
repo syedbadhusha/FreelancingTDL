@@ -1,3 +1,5 @@
 <DefType:Include>
 
+[Include:005 Default Reports.txt]
+
 [Include:010 POS Home.txt]

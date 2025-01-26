@@ -5,11 +5,13 @@
 	NoItems   : $$CollNumTotal:InventoryEntries:$$Number:$BilledQty = 0
 	
 	POS_SalesLedName		:	"POS Sales"
-	POS_CreditCardLedName	:	"Credit Card"
+;	POS_CreditCardLedName	:	"Credit Card"
 	POS_CashLedName			:	"Cash"
 	POS_DebitCardLedName	:	"Debit Card"
 	POS_GiftLedName			:	"Benefit Pay"
 	POS_VATLedName			:	"VAT"
+	POS_DiscountLedName		:	"Discount"
+	POS_RoundOffLedName		:	"Round Off"
 	
 	POS_ClassName			:	"POS"
 	

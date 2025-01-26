@@ -2,6 +2,8 @@
 
 [System:UDF]
 	POS_IsEnabled				:	Logical			:	0110
+	POS_CreditCardId			:	String			:	0120
+	
 	LA_POSStockBal				:	Number			:	0200
 	LA_VCHDisc					:	Number			:	0300
 	LA_VCHSubTax				:	Amount			:	0400

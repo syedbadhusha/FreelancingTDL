@@ -12,16 +12,24 @@
 	Horizontal Align	:	Center
 	Vertical Align		:	Center
 	
-	Part		:	POS_HomeTop, POS_HomeBottom
+	Part		:	POS_HomeTop, POS_HomeCenter, POS_HomeBottom
 	Vertical	:	Yes
 	
 [Part:POS_HomeTop]
 	Horizontal Align	:	Center
 	
-	Button		:	POS_CreateSales
+	Button		:	POS_STKQuery, POS_TopStks, POS_STKSummary
+	
+[Part:POS_HomeCenter]
+	Horizontal Align	:	Center
+	
+	Button		:	POS_DaySummary, POS_CreateSales, POS_DayWiseSales
+	
+	Local		:	Button		:	POS_CreateSales	:	Option			:	POS_Primary
 	
 [Part:POS_HomeBottom]
 	Horizontal Align	:	Center
 	
-	Button		:	POS_STKQuery
+	Button		:	POS_Back, POS_LogOut, POS_TallyClose
 	
+	Local		:	Button		:	Default			:	Option			:	POS_Danger

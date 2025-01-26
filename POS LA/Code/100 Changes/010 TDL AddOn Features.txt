@@ -5,13 +5,47 @@
 [#Part: CMP TallyShopFeatures Left]
 	Add			:	Line		:	POS_IsEnabled
 	
+	Local		:	Field		:	MediumPrompt				:	Width			:	55 mms
+	
 [Line:POS_IsEnabled]
 	Field		:	MediumPrompt, POS_IsEnabled
 	
 	Local		:	Field		:	Default						:	Color			:	RoyalBlue
+	Local		:	Field		:	Default						:	Style			:	NormalBold
 	
 	Local		:	Field		:	MediumPrompt				:	Set as			:	"Enable POS Module?"
+	
+	Explode		:	POS_Configuration							:	$POS_IsEnabled
 	
 [Field:POS_IsEnabled]
 	Use			:	LogicalField
 	Storage		:	POS_IsEnabled
+	
+[Part:POS_Configuration]
+	Line		:	POS_CreditCardDetail
+	
+	Local		:	Line		:	Default						:	Indent			:	5 mms
+	
+	Local		:	Field		:	Default						:	Style			:	NormalItalic
+	
+	Local		:	Field		:	MediumPrompt				:	Width			:	50 mms
+	
+[Line:POS_CreditCardDetail]
+	Field		:	MediumPrompt, POS_CreditCardLedger, POS_CreditCardId
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Credit Card Ledger"
+	
+[Field:POS_CreditCardLedger]
+	Use			:	NameField
+	Show Table	:	Always
+	Set Always	:	Yes
+	Table		:	POS_CreditCardLedgers
+	Key			:	CreateLedger
+	Set as		:	$$POS_LedgerName:$POS_CreditCardId
+	
+[Field:POS_CreditCardId]
+	Use			:	NameField
+	Storage		:	POS_CreditCardId
+	Set as		:	$$Table:POS_CreditCardLedger:$MasterId
+	Set Always	:	Yes
+	Invisible	:	Yes

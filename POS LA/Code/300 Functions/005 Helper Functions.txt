@@ -3,6 +3,7 @@
 [Function:POS_CreateLedger]
 	Parameter		:	Name		:	String
 	Parameter		:	Parent		:	String
+	Parameter		:	IsVAT		:	Logical			:	No
 	
 	ifEmptName		:	Do If		:	($$IsEmpty:##Name or not $$IsEmpty:$Name:Ledger:##Name)		:	Return
 	
@@ -10,7 +11,9 @@
 		setVName	:	Set Value	:	Name			:	##Name
 		setVParent	:	Set Value	:	Parent			:	##Parent
 		
-		ifDuty		:	Do If		:	##Parent = $$GroupDuties:	Set Value	:	TaxType			:	$$SysName:VAT	
+		ifDuty		:	Do If		:	##Parent = $$GroupDuties:	Set Value	:	TaxType			:	$$SysName:VAT
+		ifDisc		:	Do If		:	##IsVAT					:	Set Value	:	VATApplicable	:	$$SysName:Applicable
+						
 	saveLedger		:	Save Target
 	
 [Function:POS_BasicVCHTypeSetValue]
@@ -28,23 +31,31 @@
 		SVNumMtd	:	Set Value	:	NumberingMethod			:	"Automatic (Manual Override)";"Automatic"
 		SVSNumMd	:	Set Value	:	NumberingSubMethod		:	"Auto Retain"
 		SVPrvDup	:	Set Value	:	PreventDuplicates		:	Yes
-		
+	
+[Function:POS_InsVCHTYPLedEntries]
+	Parameter		:	Name		:	String
+	Parameter		:	Method		:	String
+	
+	InsLedEntris	:	Insert Collection Object				:	LedgerEntriesList
+		SVLedName	:	Set Value	:	Name					:	##Name
+		SVLedMethod	:	Set Value	:	MethodType				:	##Method
+		SVIsZero	:	Set Value	:	RemoveZeroEntries		:	Yes
+	
 [Function:POS_InsertVCHTypeClassLedgers]
 	InsCLLedgerInv	:	Insert Collection Object				:	LedgerForInventoryList
 		SVSalesLed	:	Set Value	:	Name					:	@@POS_SalesLedName
 		SVClassRate	:	Set Value	:	ClassRate				:	100
 		SVSalesZero	:	Set Value	:	RemoveZeroEntries		:	Yes
 			
-	InsCLedEntries	:	Insert Collection Object				:	LedgerEntriesList
-		SVVATLed	:	Set Value	:	Name					:	@@POS_VATLedName
-		SVMethodType:	Set Value	:	MethodType				:	$$SysName:VAT
-		SVVATZero	:	Set Value	:	RemoveZeroEntries		:	Yes
-			
+	InsDiscLedEntris:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_DiscountLedName:($$SysName:AsUserDefined)
+	InsRndLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_RoundOffLedName:($$SysName:AsUserDefined)	
+	InsVATLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_VATLedName:($$SysName:VAT)
+	
 [Function:POS_VCHTypeClassPOSLedgersSetValue]
-	SVCrdLed		:	Set Value	:	POSCardLedger			:	@@POS_CreditCardLedName
+	SVCrdLed		:	Set Value	:	POSCardLedger			:	@@POS_DebitCardLedName
 	SVCshLed		:	Set Value	:	POSCashLedger			:	@@POS_CashLedName
-	SVGftLed		:	Set Value	:	POSGiftLedger			:	@@POS_GiftLedName
-	SVChqLed		:	Set Value	:	POSChequeLedger			:	@@POS_DebitCardLedName
+;	SVGftLed		:	Set Value	:	POSGiftLedger			:	@@POS_GiftLedName
+	SVChqLed		:	Set Value	:	POSChequeLedger			:	@@POS_GiftLedName
 	
 [Function:POS_CreateVoucherType]
 	Parameter		:	Name		:	String
@@ -61,7 +72,7 @@
 			
 			SVIsCrd	:	Set Value	:	POSEnableCardLedger		:	Yes
 			SVIsCsh	:	Set Value	:	POSEnableCashLedger		:	Yes
-			SVIsGift:	Set Value	:	POSEnableGiftLedger		:	Yes
+			SVIsGift:	Set Value	:	POSEnableGiftLedger		:	No
 			SVIsChq	:	Set Value	:	POSEnableChequeLedger	:	Yes
 			SVIsAccL:	Set Value	:	POSEnableOnAccountLedger:	Yes
 			
@@ -70,3 +81,10 @@
 			InsCll	:	Call		:	POS_InsertVCHTypeClassLedgers
 			
 	saveVCHType		:	Save Target
+	
+[Function:POS_LedgerName]
+	Parameter		:	MasterId	:	String
+	
+	Return			:	String
+	
+	000				:	Return		:	$$CollectionFieldByKey:$Name:##MasterId:POS_LedgerName

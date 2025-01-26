@@ -6,25 +6,85 @@
 	Horizontal Align	:	Center
 	Vertical Align		:	Center
 	Skip Forward:	Yes
-	Background	:	RoyalBlue
-	Key Color	:	White
-	Color		:	White
+	Background	:	LightBlue
+	Key Color	:	Black
+	Color		:	Black
 	Style		:	Large
 	Key Style	:	Large
 	
+[!Button:POS_Danger]
+	Background	:	DarkRed
+	Color		:	White
+	Key Color	:	White
+
+[!Button:POS_Primary]
+	Background	:	Blue
+	Color		:	White
+	Key Color	:	White
+		
 [Button:POS_CreateSales]
 	Use			:	POS_Default
 	Title		:	"Create Bills"
-	Key			:	S
+	Key			:	C
 	Action		:	Call		:	LA_POS_Creation
 	
 [Button:POS_STKQuery]
 	Use			:	POS_Default
 	Title		:	"Stock Query"
 	Key			:	Q
-	Action		:	Display Collection 	: Stock Query
-	
+	Action		:	Display Collection		:	POS_StockQuery
 
+[Button:POS_STKSummary]
+	Use			:	POS_Default
+	Title		:	"Stock Summary"
+	Key			:	S
+	Action		:	Display 	:	POS_StockSummary
+
+[Button:POS_TopStks]
+	Use			:	POS_Default
+	Title		:	"Top Selling Stocks"
+	Key			:	T
+	Action		:	Display Collection 	: Stock Query
+
+[Button:POS_DaySummary]
+	Use			:	POS_Default
+	Title		:	"Day Summary"
+	Key			:	D
+	Action		:	Display Collection 	: Stock Query
+
+[Button:POS_DayWiseSales]
+	Use			:	POS_Default
+	Title		:	"Day Wise Sales"
+	Key			:	W
+	Action		:	Display Collection 	: Stock Query
+		
+[Button:POS_Back]
+	Use			:	POS_Default
+	Title		:	"Back"
+	Key			:	B
+	Action		:	Trigger Key	:	Ctrl + Q
+
+[Button:POS_BackInReport]
+	Title		:	Back
+	Key			:	Alt + Q
+	Action		:	Trigger Key	:	Esc
+	Use			:	POS_Danger
+	Style		:	Large
+	Key Style	:	Large
+	Height		:	4
+	
+[Button:POS_LogOut]
+	Use			:	POS_Default
+	Title		:	"Log Out"
+	Key			:	O
+	Action		:	Close Company
+		
+[Button:POS_TallyClose]
+	Use			:	POS_Default
+	Title		:	"Quit"
+	Key			:	X
+	Action		:	Quit
+		
 ;;;;;;;;;;  Numers Buttons
 
 			[Button: POS_NUM7]

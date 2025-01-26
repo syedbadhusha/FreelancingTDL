@@ -7,3 +7,22 @@
     Child of    : ##SVCurrentDate
     Report      : LA_POS_Voucher
 	IsODBCTable : Yes
+
+[Collection:POS_CreditCardLedgers]
+	Title		:	"Bank Account Ledgers"
+	Use			:	AliasCollection
+	Type		:	Ledger
+	Include		:	Group:$$GroupBank
+	
+[Collection:POS_LedgerName]
+	Type		:	Ledgers
+	
+	Search Key	:	$MasterId
+	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+[Collection:POS_StockQuery]
+	Use			:	StockQuery
+	Delete		:	Report
+	Add			:	Report		:	POS_StockQuery

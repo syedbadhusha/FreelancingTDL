@@ -4,12 +4,14 @@
 	srtBtPost	:	Start Batch Post
 	strtPrg		:	Start Progress		:	10		:	$$CurrentCompany	:	"Running Initial Setup"	:	"Please wait"
 	
-	;Function>POS_CreateLedger:Name:Parent
+	;Function>POS_CreateLedger:Name:Parent:IsVAT(default No)
 	crtPOSSales	:	Call		:	POS_CreateLedger:@@POS_SalesLedName:$$GroupSales
-	crtPOSCredit:	Call		:	POS_CreateLedger:@@POS_CreditCardLedName:$$GroupBank
+;	crtPOSCredit:	Call		:	POS_CreateLedger:@@POS_CreditCardLedName:$$GroupBank
 	crtPOSDebit	:	Call		:	POS_CreateLedger:@@POS_DebitCardLedName:$$GroupBank
-	crtPOSGift	:	Call		:	POS_CreateLedger:@@POS_GiftLedName:$$GroupSundryDebtors
+	crtPOSGift	:	Call		:	POS_CreateLedger:@@POS_GiftLedName:$$GroupBank
 	crtPOSVAT	:	Call		:	POS_CreateLedger:@@POS_VATLedName:$$GroupDuties
+	crtPOSDisc	:	Call		:	POS_CreateLedger:@@POS_DiscountLedName:$$GroupIndirectExpenses:Yes
+	crtPOSRound	:	Call		:	POS_CreateLedger:@@POS_RoundOffLedName:$$GroupIndirectExpenses
 	
 	;Function>POS_CreateVoucherType:Name:Parent:IsPOS
 	crtPOSSalesV:	Call		:	POS_CreateVoucherType:@@POS_SalesVCHName:$$VchTypeSales:Yes

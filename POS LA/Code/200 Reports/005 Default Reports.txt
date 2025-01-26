@@ -1,0 +1,15 @@
+[!Report:POS_BackInReport]
+	Local		:	Form		:	Default						:	+
+		Add		:	Button		:	At Beginning				:	POS_BackInReport
+	
+[Report:POS_StockSummary]
+	Use			:	StockSummary
+	Use			:	POS_BackInReport
+	
+	Set			:	DSPShowOpening			:	Yes
+	Set			:	DSPShowInwards			:	Yes
+	Set			:	DSPShowOutwards			:	Yes
+	
+[Report:POS_StockQuery]
+	Use			:	StockQuery
+	Use			:	POS_BackInReport
