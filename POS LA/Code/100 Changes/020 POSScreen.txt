@@ -12,7 +12,7 @@
 	
 	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
     Control     : DateBelowFromDate : $Date < $$SystemPeriodFrom
-    Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo
+    Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo 
 	
 	Print after Save	: No
 	No Confirm : Yes
