@@ -101,13 +101,13 @@
 	Use			:	POS_DefaultReport
 	Title		:	Up
 	Key			:	Up
-	Action		:	Trigger Key	:	Up
+;	Action		:	Trigger Key	:	Up
 	
 [Button:POS_Down]
 	Use			:	POS_DefaultReport
 	Title		:	Down
 	Key			:	Down
-	Action		:	Trigger Key	:	Down
+;	Action		:	Trigger Key	:	Down
 	
 [Button:POS_Open]
 	Use			:	POS_DefaultReport
@@ -218,79 +218,78 @@
 				Border	: Thin Box
 
 ;;;;;;;;;;;;;;  Settlements Button
+		[Button: SettlementCommon]
+			
+			Horizontal Align: Center
+			Height	: 8 % Page
+			Width	: 8 % Page
+			Skip Forward: Yes
+			Key Style: SetleKeyStyle
+			Style	 : SetleKeyStyle
+			Color	:	White
+			Key Color: Black 
 
 			[Button:LA_POSCash]
 				
-				Use		: NumberBadDesign
+				Use		: SettlementCommon
 				Width	: 12 % page
 				Title	: "CASH"
-				KeyStyle: Small Bold
 				Key		: Alt + A	
 				Border	: Thin Box
 				Key Color	:	white
-				Color	:	White
 				Background	:	Dark Green
 				ActionEx	:	001	:	Call	:	 LA_POSCashFunc:$LA_POS_InvTotal
 
 			[Button:LA_POSBenefit]
 				
-				Use		: NumberBadDesign
+				Use		: SettlementCommon
 				Width	: 12 % page
-				Title	: "Benefit Pay"
-				KeyStyle: Small Bold
+				Title	: "BENEFIT PAY"
 				Key		: Alt + B	
 				Border	: Thin Box
 				Key Color	:	white
-				Color	:	White
-				Background	:	Green
+				Background	:	Dark Green
 				ActionEx: 001 : Call : LA_POSBenefitFunc:$LA_POS_InvTotal
 
 			[Button:LA_POSMultiPay]
 				
-				Use		: NumberBadDesign
+				Use		: SettlementCommon
 				Width	:	23.6 % Page
-				Title	: "Mutiple Pay Mode"
-				KeyStyle: Small Bold
+				Title	: "MULTIPLE PAY"
 				Key		: Alt + L	
 				Border	: Thin Box
 				Key Color	:	white
-				Color	:	White
-				Background	:	Red
+				Background	:	Dark Red
 				ActionEx: 001 : Call : LA_POSMultiPayFunc:$LA_POS_InvTotal
 
 			[Button:LA_POSHold]
 				
-				Use		: NumberBadDesign
+				Use		: SettlementCommon
 				Width	: 12 % page
-				Title	: "Hold"
-				KeyStyle: Small Bold
+				Title	: "HOLD"
 				Key		: Alt + H
 				Border	: Thin Box
 				Key Color	:	white
-				Color	:	White
 				Background	:	Dark Green
 				Action :	Call	:	LA_POSHoldFunc:$LA_POS_InvTotal
-
+				
 			[Button:LA_POSReTake]
 				
-				Use		: NumberBadDesign
+				Use		: SettlementCommon
 				Width	: 12 % page
-				Title	: "Retake"
-				KeyStyle: Small Bold
+				Title	: "RETAKE"
 				Key		: Alt + R
 				Border	: Thin Box
 				Key Color	:	white
-				Color	:	White
 				Background	:	Dark Green
 
 			[Button:LA_POSReturn]
 				
-				Use		: NumberBadDesign
+				Use		: SettlementCommon
 				Width	:	23.6 % Page
-				Title	: "Return"
-				KeyStyle: Small Bold
+				Title	: "RETURN"
 				Key		: Alt + U
 				Border	: Thin Box
 				Key Color	:	white
-				Color		:	White
-				Background	:	Dark Green
+				Background	:	Dark Red
+				

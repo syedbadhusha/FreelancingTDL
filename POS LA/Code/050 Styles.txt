@@ -4,10 +4,11 @@
 
 [Style: NumberKeyStyle]
 	
-	Use		: Normal Bold
+	Use		: Large Bold
 	Height	: 13
 
-[Color:POS_GreenChoc]
-	
-	RGB	:	169,183,149
 
+[Style: SetleKeyStyle]
+	
+	Use		: Large Bold
+	Height	: 13

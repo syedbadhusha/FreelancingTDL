@@ -145,28 +145,60 @@
 [Report:LA_POSMultiPayRep]
 	Form	:	LA_POSMultiPayRep
 	Variable	:	LA_POSMultiCardAmount,LA_POSMultiBenefitAmnt,LA_POSMultiCashAmnt
-
+	
 	[Form:LA_POSMultiPayRep]
 
-		Part	:	FormSubTitle,LA_POSMultiPayRep
-		Width	:	150 MMS
-		Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Set as	:	"Muliple Payemnt Method For the Amount : " + $$LocaleString:##LA_POSMultiPayAmnt
+		Part	:	LA_POSMultiPayRep
+		Width	:	60 % Page
 		Control	:	LA_MsgWrongMulitPayAmount	:	##LA_POSMultiPayAmnt != ##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt
 		On	:	Form Accept	:	Yes	:	Set	:	LA_MultiPayAccept	:	yes
+		Background	:	Royal Blue	
+		Space Left	:	2 MMS
+		Space Right	:	2 MMS
 
 		[Part:LA_POSMultiPayRep]
+			Part	:	LA_POSMultiPayRepWithTit,LA_POSMultiPayNumPad
+			Vertical	:	No
+			[Part:LA_POSMultiPayRepWithTit]
+				Part	:	FormSubTitle,LA_POSMultiPayRepMn
+				Vertical	:	yes
+				Local	:	Part	:	FormSubTitle	:	Background	:	Dark Red
+				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Delete	:	Border
+				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Color	:	White
+				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Style	:	Large Bold
+				Local	:	Part	:	FormSubTitle	:	Local	:	Line	:	FormSubTitle	:	Space Top	:	3.5 MMS
+				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Set as	:	"Muliple Payemnt Method For the Amount : " + $$LocaleString:##LA_POSMultiPayAmnt
 
-			Part	:	LA_POSMultiCreditOrDebit,LA_POSMultiCashBenefit
-			Vertical	:	Yes
-			Border	:	thin Box
-			
+			[Part:LA_POSMultiPayRepMn]
+				
+				Part	:	LA_POSMultiCreditOrDebit,LA_POSMultiBenefit,LA_POSMultiCash
+				Vertical	:	Yes
+				Border	:	thin Box
+
+			[Part:LA_POSMultiPayNumPad]
+				Part	:	LA_POSNum
+				Vertical	:	No
+;				Horizontal Align	:	Center
+				Local	:	Part	:	LA_POSNum	:	Height	: 58 % Page
+				Local	:	Part	:	LA_POSNum	:	Add	:	Part	:	Before	:	POS_Back:LA_POSMultiPayArrow
+				
+				[Part:LA_POSMultiPayArrow]
+					Button	:	POS_Up,POS_Down
+					Horizontal Align	:	Center	
+					
 ;;;;;;;;;Credit Card Or Debit Card
 			[Part:LA_POSMultiCreditOrDebit]
 				Line	:	LA_POSMultiCardTypeTitle,LA_POSMultiCardType,+
 							LA_POSMultiCardAmount,LA_POSMultiCardNumber
+							
+				Background	:	Dark Green
+
+				Local	:	Line	:	Default	:	Height	:	7 MMS
+
 				[Line:LA_POSMultiCardTypeTitle]
 					Field	:	FormSubTitle
 					Local	:	Field	:	FormSubTitle	:	Set as	:	"Credit Card/Debit Card"
+					Local	:	Field	:	FormSubTitle	:	Color	:	White
 						
 				[Line:LA_POSMultiCardType]
 					Field	:	Medium Prompt,LA_POSMultiCardType
@@ -174,7 +206,7 @@
 					[Field:LA_POSMultiCardType]
 						Use	:	Name Field
 						Set Always	:	Yes
-						Table	:	LA_POSMultiCardTypeCll
+						Table	:	LA_POSMultiCardTypeCll,NotApplicable
 						Show Table	:	Always
 						Modifies	:	LA_POSMultiCardType	:	Yes
 						Border	:	thin Box
@@ -191,6 +223,8 @@
 						Set Always	:	Yes
 						Modifies	:	LA_POSMultiCardAmount	:	Yes
 						Border	:	thin Box
+						Validate	:	Not $$IsEmpty:$$Value
+						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
 				[Line:LA_POSMultiCardNumber]
 					Field	:	Medium Prompt,LA_POSMultiCardNumber
 					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Number"
@@ -199,21 +233,21 @@
 						Set Always	:	Yes
 						Modifies	:	LA_POSMultiCardNumber	:	Yes
 						Border	:	thin Box
+						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
 ;;;;;;;;;Credit Card Or Debit Card End
 
-			;;;;;;;;;;;;;  Cash Benefit
-			[Part:LA_POSMultiCashBenefit]
+			;;;;;;;;;;;;;  Benefit
 
-				Part	:	LA_POSMultiBenefit,LA_POSMultiCash
-				Vertical	:	No
-				Border	:	Thin Top
-
-				[Part:LA_POSMultiBenefit]
+		[Part:LA_POSMultiBenefit]
 					Line	:	LA_POSMultiBenefitTit,LA_POSMultiBenefit
+					Background	:	Blue
+					Local	:	Line	:	Default	:	Height	:	7 MMS		
+	
 					[Line:LA_POSMultiBenefitTit]
 						Field	:	FormSubTitle
 						Local	:	Field	:	FormSubTitle	:	Set as	:	"Benefit Pay"
-
+						Local	:	Field	:	FormSubTitle	:	Color	:	White
+					
 					[Line:LA_POSMultiBenefit]
 						Field	:	Medium Prompt,LA_POSMultiBenefit
 						Local	:	Field	:	Medium Prompt	:	Set as	:	"Amount"
@@ -222,13 +256,17 @@
 							Set Always	:	Yes
 							Modifies	:	LA_POSMultiBenefitAmnt	:	Yes
 							Border	:	thin Box
-				[Part:LA_POSMultiCash]
+			
+			[Part:LA_POSMultiCash]
 					Line	:	LA_POSMultiCashTit,LA_POSMultiCashAmnt,+
 								LA_POSMultiCashTend,LA_POSMultiCashBalance
+					Background	:	Green
+
 					[Line:LA_POSMultiCashTit]
 						Field	:	FormSubTitle
 						Local	:	Field	:	FormSubTitle	:	Set as	:	"Cash"
-					
+						Local	:	Field	:	FormSubTitle	:	Color	:	White
+						
 					[Line:LA_POSMultiCashAmnt]
 						Field	:	Medium Prompt,LA_POSMultiCashAmnt
 						Local	:	Field	:	Medium Prompt	:	Set as	:	"Cash Amount"
@@ -305,6 +343,18 @@
 	900 : End Walk
 
 
+;;;;;;;;;;;;;;;;;;;;;  Customer Ledger Creation Function	;;;;;;;;;;
+
+[Function:LA_POS_CreatePartyLed]
+	
+	Parameter	:	LA_POS_PartyLed	:	String
+	
+	30	:	New Object	:	Ledger			:	$Name
+	40	:	Set Value	:	name 			:	##LA_POS_PartyLed
+	50	:	Set Value	:	parent			:	$$GroupSundryDebtors
+	80	:	Set Value	:	CountryName		:	@@CmpCountryName
+	90	:	Set Value	:	LedStateName	:	CMPStateName
+	400	:	Save Target
 
 ;;;;;;;;;;;;;;  Multi Cash Variables
 

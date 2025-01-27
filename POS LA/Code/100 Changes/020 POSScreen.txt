@@ -64,6 +64,9 @@
 
 	Option	:	LA_POS_CreateVch	:	Yes
 
+	On	:	Form Accept	:	($$IsEmpty:$Name:Ledger:#VCHPOSPartyContact) and (Not $$IsNotApplicable:#VCHPOSPartyContact)	:	Call	:	LA_POS_CreatePartyLed:#VCHPOSPartyContact
+	On	:	Form Accept	:	Yes:Form Accept
+
 [!Form: DispModeForUser]
 	
 	Local	: Button: Default      : Inactive: Yes
@@ -536,7 +539,7 @@
 						LA_POSHoldAndRetake,LA_POSReturn
 			Vertical: Yes
 			Background: Pattens Blue
-			Height	:	42% page
+			Height	:	34% page
 			Width	: 24 % Page
 			Border	: Thin Box
 			Horizontal Align: Center
@@ -568,11 +571,11 @@
 		[Part:LA_POSNum]
 			Part	: LA_POS_Num7to9, LA_POS_Num4to6,+
 					  LA_POS_Num3to1, LA_POS_Num0AndPoint,+
-					  LA_POS_NumEnt
+					  LA_POS_NumEnt,POS_Back
 					  
 			Vertical: Yes
 			Background: Pattens Blue
-			Height	: 42 % Page
+			Height	: 50 % Page
 			Width	: 24 % Page
 			Border	: Thin Box
 			Horizontal Align: Center
@@ -587,6 +590,8 @@
 			Style	 : NumberKeyStyle
 			Key Color: Black 
 			
+
+
 
 	;;;;;;;;  Button Parts
 
@@ -611,6 +616,11 @@
 				
 				Button: LA_POS_NumEnt
 		
-
-
-	
+			[Part:POS_Back]
+				Button	:	POS_BackInReport
+				Local	:	Button	:	POS_BackInReport	:	Background	:	Dark Red
+				Local	:	Button	:	POS_BackInReport	:	Width	: 23.5 % Page
+				Local	:	Button	:	POS_BackInReport	:	Color	:	White
+				Local	:	Button	:	POS_BackInReport	:	key Color	:	White
+				Local	:	Button	:	POS_BackInReport	:	Horizontal Align	:	Center
+				Local	:	Button	:	POS_BackInReport	:	Vertical Align		:	Center
