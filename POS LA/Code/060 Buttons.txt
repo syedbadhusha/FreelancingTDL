@@ -21,7 +21,19 @@
 	Background	:	Blue
 	Color		:	White
 	Key Color	:	White
-		
+	
+[!Button:POS_DefaultReport]
+	Width		:	10 % Page
+	Height		:	10 mms
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	Skip Forward:	Yes
+	Background	:	LightBlue
+	Key Color	:	Black
+	Color		:	Black
+	Style		:	Large
+	Key Style	:	Large
+	
 [Button:POS_CreateSales]
 	Use			:	POS_Default
 	Title		:	"Create Bills"
@@ -44,19 +56,19 @@
 	Use			:	POS_Default
 	Title		:	"Top Selling Stocks"
 	Key			:	T
-	Action		:	Display Collection 	: Stock Query
+	Action		:	Display		:	POS_TopSellingItems
 
 [Button:POS_DaySummary]
 	Use			:	POS_Default
 	Title		:	"Day Summary"
 	Key			:	D
-	Action		:	Display Collection 	: Stock Query
+	Action		:	Display		:	POS_DaySummary
 
 [Button:POS_DayWiseSales]
 	Use			:	POS_Default
 	Title		:	"Day Wise Sales"
 	Key			:	W
-	Action		:	Display Collection 	: Stock Query
+	Action		:	Display		:	POS_DayWisaSales
 		
 [Button:POS_Back]
 	Use			:	POS_Default
@@ -84,7 +96,31 @@
 	Title		:	"Quit"
 	Key			:	X
 	Action		:	Quit
-		
+
+[Button:POS_Up]
+	Use			:	POS_DefaultReport
+	Title		:	Up
+	Key			:	Up
+	Action		:	Trigger Key	:	Up
+	
+[Button:POS_Down]
+	Use			:	POS_DefaultReport
+	Title		:	Down
+	Key			:	Down
+	Action		:	Trigger Key	:	Down
+	
+[Button:POS_Open]
+	Use			:	POS_DefaultReport
+	Title		:	Open
+	Key			:	O
+	Action		:	Trigger Key	:	Enter
+	
+[Button:POS_Print]
+	Use			:	POS_DefaultReport
+	Title		:	Print
+	Key			:	Ctrl + P
+	Action		:	Print Report:	(.)
+	
 ;;;;;;;;;;  Numers Buttons
 
 			[Button: POS_NUM7]

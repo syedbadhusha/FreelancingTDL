@@ -26,3 +26,45 @@
 	Use			:	StockQuery
 	Delete		:	Report
 	Add			:	Report		:	POS_StockQuery
+	Delete		:	Trigger
+	Add			:	Trigger		:	POS_StockItemName
+	
+[Collection:POS_Sales]
+	Type		:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSales
+	Belongs To	:	Yes
+	
+	Fetch		:	*, Amount
+	
+	Filter		:	UseForPOSInvoice
+	
+[Collection:POS_SalesInventory]
+	Source Collection			:	POS_Sales
+	
+	Walk		:	InventoryEntriesOut
+	
+	By			:	StockItemName			:	$StockItemName
+	
+	Aggr Compute:	TotalQty				:	Sum			:	$BilledQty
+	Aggr Compute:	TotalAmount				:	Sum			:	$Amount
+	
+	Sort		:	@@Default				:	$TotalQty
+	
+[Collection:POS_DayWiseSalesSrc]
+	Type		:	Vouchers
+	
+	Fetch		:	*, Amount
+	
+	Compute		:	VATAmount				:	$$FilterAmtTotal:LedgerEntries:InvoiceVATLedger:$Amount
+	
+	Filter		:	POS_IsSalesVouchers
+	
+[Collection:POS_DayWiseSales]
+	Source Collection		:	POS_DayWiseSalesSrc
+	
+	By			:	DateFrom				:	$$String:$Date
+	
+	Aggr Compute:	TotalVAT				:	Sum			:	$VATAmount
+	Aggr Compute:	TotalAmount				:	Sum			:	$Amount
+	
+	Search Key	:	$DateFrom
