@@ -20,7 +20,12 @@
 		
 	POS_IsSalesVouchers		:	Not ($IsOptional or $IsCancelled) and ((@@IsSalesVch and @@UseForPOSInvoice) or @@IsCreditNote)
 	
-	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt
+	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt + +
+										$$NewLine+"Enter Amount is : " + $$LocaleString:(##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt)++
+										$$NewLine+"Card : " +$$LocaleString:##LA_POSMultiCardAmount + $$NewLine++
+										"Benefit : " + $$LocaleString:##LA_POSMultiBenefitAmnt + +
+										$$NewLine+"Cash : "+$$LocaleString:##LA_POSMultiCashAmnt
+	
 	LA_PaymethodSelect				:	"Please Select Payment Method"
 	
 	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties

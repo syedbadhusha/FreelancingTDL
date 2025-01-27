@@ -31,6 +31,9 @@
 [Function:LA_POSCashFunc]
 
 	Parameter	:	VarInvAmount	:	Amount
+	00000	:	Set	:	LA_PayTypeStr	:	"CASH"
+	
+	000	:	Call	:	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
 	
 	001	:	Set	:	LA_BillPaid	:	Yes
 	100 : Walk Collection: LedgerEntries
@@ -45,8 +48,8 @@
 	530	:	End If
 
 	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
-	700 : 		Set Value   : Amount : $$AsAmount:##VarInvAmount
-	1000	:	Set Value	:	POSCashReceived	:	$$AsAmount:##VarInvAmount
+	700 : 		Set Value   : Amount : ##VarInvAmount
+	1000:		Set Value	:	POSCashReceived	:	##VarInvAmount
 	800 : 	End If
 
 	900 : End Walk
@@ -59,6 +62,9 @@
 [Function:LA_POSHoldFunc]
 
 	Parameter	:	VarInvAmount	:	Amount
+
+	0000000	:	Set	:	LA_PayTypeStr		:	"CASH"
+;	0000	:	Call	:	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
 
 	000	:	Set	:	LA_BillPaid	:	Yes	
 	001	: Set Value	:	ISOPTIONAL	:	Yes
@@ -88,7 +94,8 @@
 [Function:LA_POSBenefitFunc]
 
 	Parameter	:	VarInvAmount	:	Amount
-
+	0000000	:	Set	:	LA_PayTypeStr		:	"BENEFIT PAY"
+	
 	001	:	Set	:	LA_BillPaid	:	Yes
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].
@@ -111,191 +118,45 @@
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  Multiple Pay SettleMent ;;;;;;;;;;
 
-[Function:LA_POSMultiPayFunc]
+[Function:LA_POSMultiPayAlterRep]
 	
 	Parameter	:	LA_POSMultiPayAmnt	:	Amount
+	
+	0000000	:	Set	:	LA_PayTypeStr		:	"MULTIPLE PAY"
 
 	000	:	Set	:	LA_BillPaid	:	Yes	
-	001	:	Alter	:	LA_POSMultiPayRep
 
+	001	:	Alter	:	LA_POSMultiPayRep
+	
+[Function:LA_POSMultiPayFunc]
+	
+	Parameter	:	LA_POSMultiCardAmountPar	:	Amount
+	Parameter	:	LA_POSMultiBenefitAmntPar	:	Amount
+	Parameter	:	LA_POSMultiCashAmntPar		:	Amount
+	
 	00002	:	If	:	##LA_MultiPayAccept
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].
 	
-	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType
-	350	:		Set Value	:	LedgerName		:	if ##LA_POSMultiCardType = "Credit Card" then "Credit Card" else $POSCardLedgerClass:VoucherType:##SVVoucherType
-	400	:		Set Value	:	Amount			:	$$AsAmount:##LA_POSMultiCardAmount
+	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType and Not $$IsNotApplicable:##LA_POSMultiCardType
+	350	:		Set Value	:	LedgerName		:	if ##LA_POSMultiCardType = "Credit Card" then "Credit Card" else $LedgerName
+	400	:		Set Value	:	Amount			:	##LA_POSMultiCardAmount
 	450	:		Set Value	:	POSCardNumber	:	##LA_POSMultiCardNumber
 	500	:	End If
 
-	510	:	If:	$LedgerName = $POSBankLedgerClass:VoucherType:##SVVoucherType
-	520	:		Set Value	:	Amount	:	##LA_POSMultiBenefitAmnt
+	510	:	If:	$LedgerName = $POSBankLedgerClass:VoucherType:##SVVoucherType	
+	520	:		Set Value	:	Amount	:	##LA_POSMultiBenefitAmnt	
 	530	:	End If
 
 	600 : If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
 	800 :	 Set Value   : Amount : ##LA_POSMultiCashAmnt
-	850	:	Set Value	:	POSCashReceived	:	##CashTenderdAmountVar
+	850	:	 Set Value	:	POSCashReceived	:	if $$IsEmpty:##CashTenderdAmountVar then ##LA_POSMultiCashAmnt else ##CashTenderdAmountVar
 	900 : End If
 
 	1000 : End Walk
 
 	1100 : Trigger Key	:	Ctrl+A
-	100000	:	End If
-	
-[Report:LA_POSMultiPayRep]
-	Form	:	LA_POSMultiPayRep
-	Variable	:	LA_POSMultiCardAmount,LA_POSMultiBenefitAmnt,LA_POSMultiCashAmnt
-	
-	[Form:LA_POSMultiPayRep]
-
-		Part	:	LA_POSMultiPayRep
-		Width	:	60 % Page
-		Control	:	LA_MsgWrongMulitPayAmount	:	##LA_POSMultiPayAmnt != ##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt
-		On	:	Form Accept	:	Yes	:	Set	:	LA_MultiPayAccept	:	yes
-		Background	:	Royal Blue	
-		Space Left	:	2 MMS
-		Space Right	:	2 MMS
-
-		[Part:LA_POSMultiPayRep]
-			Part	:	LA_POSMultiPayRepWithTit,LA_POSMultiPayNumPad
-			Vertical	:	No
-			[Part:LA_POSMultiPayRepWithTit]
-				Part	:	FormSubTitle,LA_POSMultiPayRepMn
-				Vertical	:	yes
-				Local	:	Part	:	FormSubTitle	:	Background	:	Dark Red
-				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Delete	:	Border
-				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Color	:	White
-				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Style	:	Large Bold
-				Local	:	Part	:	FormSubTitle	:	Local	:	Line	:	FormSubTitle	:	Space Top	:	3.5 MMS
-				Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Set as	:	"Muliple Payemnt Method For the Amount : " + $$LocaleString:##LA_POSMultiPayAmnt
-
-			[Part:LA_POSMultiPayRepMn]
-				
-				Part	:	LA_POSMultiCreditOrDebit,LA_POSMultiBenefit,LA_POSMultiCash
-				Vertical	:	Yes
-				Border	:	thin Box
-
-			[Part:LA_POSMultiPayNumPad]
-				Part	:	LA_POSNum
-				Vertical	:	No
-;				Horizontal Align	:	Center
-				Local	:	Part	:	LA_POSNum	:	Height	: 58 % Page
-				Local	:	Part	:	LA_POSNum	:	Add	:	Part	:	Before	:	POS_Back:LA_POSMultiPayArrow
-				
-				[Part:LA_POSMultiPayArrow]
-					Button	:	POS_Up,POS_Down
-					Horizontal Align	:	Center	
-					
-;;;;;;;;;Credit Card Or Debit Card
-			[Part:LA_POSMultiCreditOrDebit]
-				Line	:	LA_POSMultiCardTypeTitle,LA_POSMultiCardType,+
-							LA_POSMultiCardAmount,LA_POSMultiCardNumber
-							
-				Background	:	Dark Green
-
-				Local	:	Line	:	Default	:	Height	:	7 MMS
-
-				[Line:LA_POSMultiCardTypeTitle]
-					Field	:	FormSubTitle
-					Local	:	Field	:	FormSubTitle	:	Set as	:	"Credit Card/Debit Card"
-					Local	:	Field	:	FormSubTitle	:	Color	:	White
-						
-				[Line:LA_POSMultiCardType]
-					Field	:	Medium Prompt,LA_POSMultiCardType
-					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Type"
-					[Field:LA_POSMultiCardType]
-						Use	:	Name Field
-						Set Always	:	Yes
-						Table	:	LA_POSMultiCardTypeCll,NotApplicable
-						Show Table	:	Always
-						Modifies	:	LA_POSMultiCardType	:	Yes
-						Border	:	thin Box
-						[Collection:LA_POSMultiCardTypeCll]
-
-							Title	:	"Type of Card"
-							List	:	"Credit Card","Debit Card"
-							
-				[Line:LA_POSMultiCardAmount]
-					Field	:	Medium Prompt,LA_POSMultiCardAmount
-					Local	:	Field	:	Medium Prompt	:	Set as	:	"Amount"
-					[Field:LA_POSMultiCardAmount]
-						Use	:	Amount Field
-						Set Always	:	Yes
-						Modifies	:	LA_POSMultiCardAmount	:	Yes
-						Border	:	thin Box
-						Validate	:	Not $$IsEmpty:$$Value
-						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
-				[Line:LA_POSMultiCardNumber]
-					Field	:	Medium Prompt,LA_POSMultiCardNumber
-					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Number"
-					[Field:LA_POSMultiCardNumber]
-						Use	:	Name Field
-						Set Always	:	Yes
-						Modifies	:	LA_POSMultiCardNumber	:	Yes
-						Border	:	thin Box
-						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
-;;;;;;;;;Credit Card Or Debit Card End
-
-			;;;;;;;;;;;;;  Benefit
-
-		[Part:LA_POSMultiBenefit]
-					Line	:	LA_POSMultiBenefitTit,LA_POSMultiBenefit
-					Background	:	Blue
-					Local	:	Line	:	Default	:	Height	:	7 MMS		
-	
-					[Line:LA_POSMultiBenefitTit]
-						Field	:	FormSubTitle
-						Local	:	Field	:	FormSubTitle	:	Set as	:	"Benefit Pay"
-						Local	:	Field	:	FormSubTitle	:	Color	:	White
-					
-					[Line:LA_POSMultiBenefit]
-						Field	:	Medium Prompt,LA_POSMultiBenefit
-						Local	:	Field	:	Medium Prompt	:	Set as	:	"Amount"
-						[Field:LA_POSMultiBenefit]
-							Use	:	Amount Field
-							Set Always	:	Yes
-							Modifies	:	LA_POSMultiBenefitAmnt	:	Yes
-							Border	:	thin Box
-			
-			[Part:LA_POSMultiCash]
-					Line	:	LA_POSMultiCashTit,LA_POSMultiCashAmnt,+
-								LA_POSMultiCashTend,LA_POSMultiCashBalance
-					Background	:	Green
-
-					[Line:LA_POSMultiCashTit]
-						Field	:	FormSubTitle
-						Local	:	Field	:	FormSubTitle	:	Set as	:	"Cash"
-						Local	:	Field	:	FormSubTitle	:	Color	:	White
-						
-					[Line:LA_POSMultiCashAmnt]
-						Field	:	Medium Prompt,LA_POSMultiCashAmnt
-						Local	:	Field	:	Medium Prompt	:	Set as	:	"Cash Amount"
-
-						[Field:LA_POSMultiCashAmnt]
-							
-							Use	:	Amount Field
-							Set Always	:	Yes
-							Modifies	:	LA_POSMultiCashAmnt	:	Yes
-							Border	:	thin Box
-					[Line:LA_POSMultiCashTend]
-						Field	:	Medium Prompt,LA_POSMultiCashTend
-						Local	:	Field	:	Medium Prompt	:	Set as	:	"Cash Tendered"
-						[Field:LA_POSMultiCashTend]
-							Use	:	Amount Field
-							Set Always	:	Yes
-							Modifies	:	CashTenderdAmountVar	:	Yes
-							Border	:	thin Box
-					[Line:LA_POSMultiCashBalance]
-						Field	:	Medium Prompt,LA_POSMultiCashBalance
-						Local	:	Field	:	Medium Prompt	:	Set as	:	"Balance"
-						[Field:LA_POSMultiCashBalance]
-							Use	:	Amount Field
-							Set Always	:	Yes
-							Set as	:	##LA_POSMultiPayAmnt;if $$IsEmpty:#LA_POSMultiCashTend then "" else (##LA_POSMultiPayAmnt - (##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##CashTenderdAmountVar));## ##LA_POSMultiPayAmnt != +##LA_POSMultiCashAmnt
-							Border	:	thin Box
-							
-	;;;;;;;;;;;;;;;; Cash Benefit End
-	
+	100000	:	End If	
 
 ;;;;;;;;;;;;;;;;;  Update Disc Amount
 
@@ -336,8 +197,8 @@
 	530	:	End If
 
 	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
-	700 : 		Set Value   : Amount : $$AsAmount:##VarInvAmount
-	1000	:	Set Value	:	POSCashReceived	:	$$AsAmount:##VarInvAmount
+	700 : 		Set Value   : Amount : ##VarInvAmount
+	1000	:	Set Value	:	POSCashReceived	:	##VarInvAmount
 	800 : 	End If
 
 	900 : End Walk
@@ -356,51 +217,4 @@
 	90	:	Set Value	:	LedStateName	:	CMPStateName
 	400	:	Save Target
 
-;;;;;;;;;;;;;;  Multi Cash Variables
 
-[Variable:LA_POSMultiCashAmnt]
-	Type	:	Amount
-[Variable:CashTenderdAmountVar]
-	Type	:	Amount
-
-;;;;;;;;;;;  Multi Benefit pay Variables
-
-[Variable:LA_POSMultiBenefitAmnt]
-	
-	Type	:	Amount
-
-;;;;;;;;;;; Multi Card Pay Varibles
-	
-[Variable:LA_POSMultiCardType]
-	Type	:	String
-
-[Variable:LA_POSMultiCardAmount]
-	
-	Type	:	Amount
-	
-[Variable:LA_POSMultiCardNumber]
-	
-	Type	:	String
-
-[Variable:LA_MultiPayAccept]
-	
-	Type	:	Logical
-	
-[Variable:LA_BillPaid]
-
-	Type	:	Logical
-	
-[System:Variable]
-		
-	CashTenderdAmountVar	:	""
-	LA_POSMultiCashAmnt		:	""
-	
-	LA_POSMultiBenefitAmnt		:	""
-
-	LA_POSMultiCardType		:	""
-	LA_POSMultiCardAmount	:	""
-	LA_POSMultiCardNumber	:	""
-	
-	LA_MultiPayAccept		:	No
-	
-	LA_BillPaid				:	No

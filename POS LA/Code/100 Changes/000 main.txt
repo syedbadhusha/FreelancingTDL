@@ -2,3 +2,4 @@
 
 [Include:010 TDL AddOn Features.txt]
 [Include:020 POSScreen.txt]
+[Include:030POSMultiPayScreen.txt]

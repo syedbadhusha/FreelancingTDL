@@ -5,7 +5,7 @@
 [Report:LA_POS_Voucher]
 		
 	Use	:	Voucher
-	Variable	:	LA_MultiPayAccept
+	Variable	:	LA_MultiPayAccept,LA_PayTypeStr 
 	Variable	:	LA_POSMultiCardAmount,LA_POSMultiBenefitAmnt,LA_POSMultiCashAmnt
 	Variable	:	LA_BillPaid	
 ;	Use	:	VATGCC InvAnalysis Report_Variables
@@ -24,7 +24,16 @@
 
 	set	:	LA_MultiPayAccept	:	No
 	Set	:	LA_BillPaid			:	No
+	Set	:	LA_PayTypeStr		:	"CASH"
 	
+	set	:	CashTenderdAmountVar	:	""
+	set	:	LA_POSMultiCashAmnt		:	""	
+	set	:	LA_POSMultiBenefitAmnt	:	""
+
+	set	:	LA_POSMultiCardType		:	""
+	set	:	LA_POSMultiCardAmount	:	""
+	set	:	LA_POSMultiCardNumber	:	""
+
     Horizontal Align: Left
     Vertical Align  : Top
 	Width	: 100 % Page
@@ -61,6 +70,7 @@
    	Option	: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
 	
 ;;;;;;;Screen form
+
 
 	Option	:	LA_POS_CreateVch	:	Yes
 
@@ -449,8 +459,8 @@
 			Local	:	Field	:	VCHPOSInvoiceTotal	:	Color	:	white
 			Local	:	Field	:	VCHPOSInvoiceTotal	:	Background	:	Dark Red
 			Local	:	Field	:	VCHPOSInvoiceTotal	:	Skip	:	No
-			Local	:	Field	:	VCHPOSInvoiceTotal	:	on:	Accept	:	yes	:	Call	:	LA_POSCashAcceptFunc:$LA_POS_InvTotal
-			Local	:	Field	:	VCHPOSInvoiceTotal	:	on:	Accept	:	yes	:	Field Accept
+;			Local	:	Field	:	VCHPOSInvoiceTotal	:	on:	Accept	:	##LA_PayTypeStr	= "CASH":	call	:	la_poscashacceptfunc:$la_pos_invtotal
+;			local	:	field	:	vchposinvoicetotal	:	on:	accept	:	yes	:	Field Accept
 
 		;;;;;;;;;;;;;;;;;;;  Invoice Total Fields	;;;;;;;;;
 

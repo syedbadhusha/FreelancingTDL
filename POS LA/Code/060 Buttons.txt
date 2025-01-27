@@ -84,6 +84,7 @@
 	Style		:	Large
 	Key Style	:	Large
 	Height		:	4
+	Skip Forward: Yes
 	
 [Button:POS_LogOut]
 	Use			:	POS_Default
@@ -249,7 +250,8 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Green
-				ActionEx: 001 : Call : LA_POSBenefitFunc:$LA_POS_InvTotal
+				ActionEx: 001 : Call :	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
+				ActionEx: 002 : Call : LA_POSBenefitFunc:$LA_POS_InvTotal
 
 			[Button:LA_POSMultiPay]
 				
@@ -260,7 +262,9 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Red
-				ActionEx: 001 : Call : LA_POSMultiPayFunc:$LA_POS_InvTotal
+				ActionEx: 001 : Call :	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
+				ActionEx: 002 : Call :	LA_POSMultiPayAlterRep:$LA_POS_InvTotal
+				ActionEx: 003 : Call : 	LA_POSMultiPayFunc:##LA_POSMultiCardAmount:##LA_POSMultiBenefitAmnt:##LA_POSMultiCashAmnt
 
 			[Button:LA_POSHold]
 				
@@ -271,7 +275,8 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Green
-				Action :	Call	:	LA_POSHoldFunc:$LA_POS_InvTotal
+				ActionEx: 001 	: Call 		:	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
+				ActionEx: 002	:	Call	:	LA_POSHoldFunc:$LA_POS_InvTotal
 				
 			[Button:LA_POSReTake]
 				
