@@ -1,5 +1,13 @@
 <DefType:Include>
 
+[Include:001 Common Template.txt]
+
 [Include:005 Default Reports.txt]
 
 [Include:010 POS Home.txt]
+
+[Include:020 Top Selling Items.txt]
+
+[Include:030 Day Summary.txt]
+
+[Include:040 Day Wise Sales.txt]

@@ -1,0 +1,66 @@
+[Report:POS_DayWisaSales]
+	Title		:	"Day Wise Sales"
+	
+	Use			:	POS_CommonTemplate
+	
+	Variable	:	SVPeriodicity
+	
+	Set			:	SVFromDate			:	$$MonthStart:$$CurrentDate
+	Set			:	SVToDate			:	$$MonthEnd:$$CurrentDate
+	Set			:	SVPeriodicity		:	"Day"
+	
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"Day Wise Sales"
+	
+	Local		:	Line		:	POS_CommonColumnTitle	:	Option			:	POS_DayWisaSalesTitle
+	Local		:	Line		:	POS_CommonInfo			:	Option			:	POS_DayWisaSalesInfo
+	Local		:	Line		:	POS_CommonColumnTotal	:	Option			:	POS_DayWisaSalesTotal
+	
+	Local		:	Part		:	POS_CommonInfo			:	Option			:	POS_DayWisaSalesInfo
+
+	Local		:	Part		:	POS_ButtonsInReport		:	Delete			:	Button		:	POS_Open
+	
+[!Part:POS_DayWisaSalesInfo]	
+	Repeat		:	POS_CommonInfo:Period Collection
+	
+	Total		:	POS_VCHTaxable, POS_VCHVAT
+	
+[!Line:POS_DayWisaSalesFields]
+	Add			:	Field		:	After	:	POS_CMNSNo	:	POS_VCHDate
+	Add			:	Right Field	:	At Beginning			:	POS_VCHTaxable, POS_VCHVAT
+	
+	Local		:	Field		:	POS_VCHDate				:	Delete			:	Alter
+	
+[Field:POS_VCHTaxable]
+	Use			:	AmountField
+	Set as		:	$$AmountSubtract:#POS_CMNAmount:#POS_VCHVAT
+	Width		:	30 mms
+	Border		:	ThinLeft
+
+[Field:POS_VCHVAT]
+	Use			:	AmountField
+	Set as		:	$$ReportObject:$$CollectionFieldByKey:$TotalVAT:($$String:$DateFrom):POS_DayWiseSales
+	Width		:	25 mms
+	Border		:	ThinLeft
+	
+[!Line:POS_DayWisaSalesTitle]
+	Use			:	POS_DayWisaSalesFields
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Day Of Week"
+	Local		:	Field		:	POS_VCHDate				:	Set as			:	"Date"
+	Local		:	Field		:	POS_VCHTaxable			:	Set as			:	"Taxable Amount"
+	Local		:	Field		:	POS_VCHVAT				:	Set as			:	"VAT Amount"
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Total Amount"
+	
+[!Line:POS_DayWisaSalesInfo]
+	Use			:	POS_DayWisaSalesFields
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$$DayOfWeek:$DateFrom
+	Local		:	Field		:	POS_VCHDate				:	Set as			:	$DateFrom
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$ReportObject:$$CollectionFieldByKey:$TotalAmount:($$String:$DateFrom):POS_DayWiseSales
+	
+[!Line:POS_DayWisaSalesTotal]
+	Use			:	POS_DayWisaSalesFields
+	
+	Local		:	Field		:	POS_VCHTaxable			:	Set as			:	$$AmountSubtract:#POS_CMNAmount:#POS_VCHVAT
+	Local		:	Field		:	POS_VCHVAT				:	Set as			:	$$Total:POS_VCHVAT
+	

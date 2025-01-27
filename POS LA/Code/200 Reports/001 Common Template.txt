@@ -1,0 +1,124 @@
+[Report:POS_CommonTemplate]
+	Use			:	POS_ButtonsInReport
+	
+	Form		:	POS_CommonTemplate
+	
+	Variable	:	SVFromDate, SVToDate
+	
+	Set			:	SVFromDate			:	$$CurrentDate
+	Set			:	SVToDate			:	$$CurrentDate
+	
+[Form:POS_CommonTemplate]
+	Height		:	100 % Page
+	Width		:	100 % Page
+	
+	Space Top	:	If $$InPrintMode then 10 else 0 mms
+	Space Bottom:	If $$InPrintMode then 10 else 0 mms
+	Space Left	:	If $$InPrintMode then 10 else 0 mms
+	Space Right	:	If $$InPrintMode then 10 else 0 mms
+	
+	Button		:	ChangePeriod
+	
+	Part		:	POS_CommonOpening, POS_CommonInfo
+	
+	Page Break	:	POS_CommonClosing, POS_CommonOpening
+	
+[Part:POS_CommonClosing]
+	Line		:	DSP ContLine
+	
+[Part:POS_CommonOpening]
+	Part		:	POS_CMPDetails, POS_CommonTitle, POS_CommonColumnTitle
+	Vertical	:	Yes
+	
+[Part:POS_CMPDetails]
+	Invisible	:	Not $$InPrintMode
+	
+	Line		:	POS_CMPDetails
+	
+[Line:POS_CMPDetails]
+	Field		:	PlainSubtitle
+	
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@CmpMailName
+	
+[Line:POS_CMPAddress]
+	Field		:	PlainSubtitle
+	
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	$Address
+	Local		:	Field		:	PlainSubtitle			:	Style			:	Normal
+	
+[Part:POS_CommonTitle]
+	Line		:	FormSubtitle, PlainSubtitle
+	
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@DSPDateStr
+	
+[Part:POS_CommonColumnTitle]
+	Border		:	ThinBox
+	
+	CommonBorder:	Yes
+	
+	Line		:	POS_CommonColumnTitle
+	
+[Line:POS_CommonColumnTitle]
+	Use			:	POS_CommonInfo
+	
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Local		:	Field		:	Default					:	Type			:	String
+	Local		:	Field		:	Default					:	Align			:	Center
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Line			:	0
+	
+	Local		:	Field		:	POS_CMNSNo				:	Set as			:	"S. No"
+	
+[Part:POS_CommonInfo]
+	Border		:	ThinBox
+	
+	Line		:	POS_CommonInfo
+	Bottom Line	:	POS_CommonColumnTotal
+	
+	Scroll		:	Vertical
+	CommonBorder:	Yes
+	Float		:	No
+	
+	Total		:	POS_CMNAmount
+	
+[Line:POS_CommonInfo]
+	Field		:	POS_CMNSNo, POS_CMNDesc
+	Right Field	:	POS_CMNAmount
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Option		:	AlterOnEnter
+	
+[Field:POS_CMNSNo]
+	Use			:	NumberField
+	Set as		:	$$Line
+	Width		:	15 mms
+	Format		:	"NoZero"
+	Align		:	Center
+	
+[Field:POS_CMNDesc]
+	Use			:	NameField
+	Full Width	:	Yes
+	Line		:	0
+	Border		:	ThinLeft
+	
+[Field:POS_CMNAmount]
+	Use			:	AmountField
+	Width		:	30 mms
+	Border		:	ThinLeft
+	
+[Line:POS_CommonColumnTotal]
+	Use			:	POS_CommonInfo
+	
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Border		:	ThinTop
+
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Set as			:	""
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Total"
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$Total:POS_CMNAmount

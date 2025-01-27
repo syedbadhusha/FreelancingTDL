@@ -1,0 +1,70 @@
+[Report:POS_TopSellingItems]
+	Title		:	"Top Selling Items"
+	
+	Use			:	POS_CommonTemplate
+	
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"Top Selling Items"
+	
+	Local		:	Line		:	POS_CommonColumnTitle	:	Option			:	POS_TopSellingTitle
+	Local		:	Line		:	POS_CommonInfo			:	Option			:	POS_TopSellingInfo
+	Local		:	Line		:	POS_CommonColumnTotal	:	Option			:	POS_TopSellingTotal
+	
+	Local		:	Part		:	POS_CommonInfo			:	Option			:	POS_TopSellingInfo
+
+	Local		:	Part		:	POS_ButtonsInReport		:	Delete			:	Button		:	POS_Open
+	
+[!Part:POS_TopSellingInfo]	
+	Repeat		:	POS_CommonInfo:POS_SalesInventory
+	
+	Total		:	POS_STKTotalQty
+	
+[!Line:POS_TopSellingFields]
+	Add			:	Right Field	:	At Beginning			:	POS_STKCode, POS_STKCategory, POS_STKTotalQty, POS_STKTotalRate
+
+[Field:POS_STKCode]
+	PartNo		:	$PartNo:StockItem:$StockItemName
+	OnlyAlias	:	$OnlyAlias:StockItem:$StockItemName
+	
+	Use			:	NameField
+	Set as		:	If $$IsEmpty:@PartNo then @OnlyAlias else @PartNo
+	Width		:	40 mms
+	Border		:	ThinLeft
+	
+[Field:POS_STKCategory]
+	Use			:	NameField
+	Set as		:	$Parent:StockItem:$StockItemName
+	Width		:	40 mms
+	Border		:	ThinLeft
+	
+[Field:POS_STKTotalQty]
+	Use			:	QtyField
+	Set as		:	$TotalQty
+	Width		:	30 mms
+	Border		:	ThinLeft
+	
+[Field:POS_STKTotalRate]
+	Use			:	RatePriceField
+	Set as		:	$TotalAmount / $TotalQty
+	Width		:	25 mms
+	Border		:	ThinLeft
+	
+[!Line:POS_TopSellingTitle]
+	Use			:	POS_TopSellingFields
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Item Name"
+	Local		:	Field		:	POS_STKCode				:	Set as			:	"Item Code"
+	Local		:	Field		:	POS_STKCategory			:	Set as			:	"Item Category"
+	Local		:	Field		:	POS_STKTotalQty			:	Set as			:	"Total Qty"
+	Local		:	Field		:	POS_STKTotalRate		:	Set as			:	"Rate"
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Total Amount"
+	
+[!Line:POS_TopSellingInfo]
+	Use			:	POS_TopSellingFields
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$StockItemName
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$TotalAmount
+	
+[!Line:POS_TopSellingTotal]
+	Use			:	POS_TopSellingFields
+	
+	Local		:	Field		:	POS_STKTotalQty			:	Set as			:	$$Total:POS_STKTotalQty

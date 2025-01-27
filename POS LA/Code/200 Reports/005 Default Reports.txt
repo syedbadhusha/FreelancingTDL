@@ -2,9 +2,26 @@
 	Local		:	Form		:	Default						:	+
 		Add		:	Button		:	At Beginning				:	POS_BackInReport
 	
+[!Report:POS_ButtonsInReport]
+	Local		:	Form		:	Default						:	+
+		Add		:	Bottom Part	:	POS_ButtonsInReport
+		
+[Part:POS_ButtonsInReport]
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Horizontal Align	:	Center
+	
+	Button		:	POS_Back, POS_Up, POS_Down, POS_Open, POS_Print
+	
+	Local		:	Button		:	Default						:	Option			:	POS_DefaultReport
+	
+	Local		:	Button		:	POS_Back					:	Option			:	POS_Danger
+	Local		:	Button		:	POS_Print					:	Option			:	POS_Primary
+	
 [Report:POS_StockSummary]
 	Use			:	StockSummary
-	Use			:	POS_BackInReport
+	Use			:	POS_ButtonsInReport
 	
 	Set			:	DSPShowOpening			:	Yes
 	Set			:	DSPShowInwards			:	Yes
@@ -12,4 +29,8 @@
 	
 [Report:POS_StockQuery]
 	Use			:	StockQuery
+	Use			:	POS_ButtonsInReport
+
+[Report:POS_StockItemName]
+	Use			:	StockItemName
 	Use			:	POS_BackInReport
