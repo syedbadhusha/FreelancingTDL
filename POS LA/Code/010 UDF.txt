@@ -4,9 +4,11 @@
 	POS_IsEnabled				:	Logical			:	0110
 	POS_CreditCardId			:	String			:	0120
 	
-	LA_POSStockBal				:	Number			:	0200
-	LA_VCHDisc					:	Number			:	0300
+	LA_POSStockBal				:	Quantity		:	0200
+	LA_VCHDisc					:	Amount			:	0300
 	LA_VCHSubTax				:	Amount			:	0400
 	LA_VCHSubTotal				:	Amount			:	0500
-	LA_POSInvDisc				:	Number			:	0600
+	LA_POSInvDisc				:	Amount			:	0600
 	LA_POS_InvTotal				:	Amount			:	0700
+	LA_POSDiscTotal				:	Amount			:	0800
+	LA_POSRoundOff				:	Amount			:	0900

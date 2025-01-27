@@ -21,3 +21,12 @@
 	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt ;!= ##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt
 	
 	POS_IsSalesVouchers		:	Not ($IsOptional or $IsCancelled) and ((@@IsSalesVch and @@UseForPOSInvoice) or @@IsCreditNote)
+	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt
+	LA_PaymethodSelect				:	"Please Select Payment Method"
+	
+	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties
+	IsDiscLed 	: $LedgerName contains "Discount"
+	IsRoundOff	: $LedgerName contains "Roundoff"		
+
+	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+	
