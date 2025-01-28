@@ -1,0 +1,7 @@
+<DefType:Variable>
+
+[System:Variable]
+	
+[Variable:POS_BarcodeDetails]
+	Variable		:	Barcode			:	String
+	Variable		:	Rate			:	Number

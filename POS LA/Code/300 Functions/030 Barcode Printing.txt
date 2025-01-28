@@ -1,0 +1,21 @@
+<DefType:Function>
+
+[Function:POS_PrintBarcode]
+	Variable		:	Qty			:	Number
+	Variable		:	Index		:	Number		:	1
+	
+	List Variable	:	POS_BarcodeDetails
+	
+	setQty			:	Set			:	Qty			:	$$RoundUp:($$Number:#POS_BarcodeQty):1
+	
+	while			:	While		:	##Qty >= ##Index
+	listAdd			:	List Add Ex	:	POS_BarcodeDetails
+	
+	setLBarcode		:	Set			:	POS_BarcodeDetails[##Index].Barcode		:	#POS_BarcodeNo
+	setLRate		:	Set			:	POS_BarcodeDetails[##Index].Rate		:	#POS_BarcodeRate
+	
+	IncrIndex		:	Increment	:	Index
+	
+	endWhile		:	End While
+	
+	prnReport		:	Print		:	POS_BarcodePrint

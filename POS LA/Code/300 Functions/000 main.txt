@@ -5,3 +5,5 @@
 [Include:010 Initial SetUp.txt]
 
 [Include:020 POS Screen Func.txt]
+
+[Include:030 Barcode Printing.txt]

@@ -1,0 +1,15 @@
+[Report:POS_BarcodePrint]
+	Title		:	"Barcode Printing"
+	
+	Form		:	POS_BarcodePrint
+	
+[Form:POS_BarcodePrint]
+	Width		:	54 mms
+	Height		:	25 mms
+
+	Space Left	:	2 mms
+	
+	Part		:	POS_BarcodePrint
+	
+[Part:POS_BarcodePrint]
+	Line		:	Empty
