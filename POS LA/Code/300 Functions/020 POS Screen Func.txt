@@ -34,7 +34,7 @@
 	00000	:	Set	:	LA_PayTypeStr	:	"CASH"
 	
 	000	:	Call	:	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
-	
+	0100	:	Set Value	:	IsOptional	:	No
 	001	:	Set	:	LA_BillPaid	:	Yes
 	100 : Walk Collection: LedgerEntries
 	200 : 	Set Target  : LedgerEntries[$$LoopIndex].
@@ -63,7 +63,7 @@
 
 	Parameter	:	VarInvAmount	:	Amount
 
-	0000000	:	Set	:	LA_PayTypeStr		:	"CASH"
+	0000000	:	Set	:	LA_PayTypeStr		:	"HOLD"
 
 	000	:	Set	:	LA_BillPaid	:	Yes	
 	001	: Set Value	:	ISOPTIONAL	:	Yes
@@ -94,7 +94,7 @@
 
 	Parameter	:	VarInvAmount	:	Amount
 	0000000	:	Set	:	LA_PayTypeStr		:	"BENEFIT PAY"
-	
+	0100	:	Set Value	:	IsOptional	:	No
 	001	:	Set	:	LA_BillPaid	:	Yes
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].
@@ -124,7 +124,7 @@
 	0000000	:	Set	:	LA_PayTypeStr		:	"MULTIPLE PAY"
 
 	000	:	Set	:	LA_BillPaid	:	Yes	
-
+	0100	:	Set Value	:	IsOptional	:	No
 	001	:	Alter	:	LA_POSMultiPayRep
 	
 [Function:LA_POSMultiPayFunc]
@@ -162,7 +162,6 @@
 [Function:UpdateLedEntriss]
 	Parameter	:	LA_DiscountAmountPar	:	Amount
 	Parameter	:	LA_POSRoundOffPar		:	Amount
-;	Parameter	:	LA_POSVatAmountPar		:	Amount
 
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].	
@@ -176,32 +175,12 @@
 
 	2000	: End Walk
 
-;;;;;;;;;;;;;;;;;  Set Cash amount and save	;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;  Retake Function for Holded Transaction	;;;;;;;;;;;;;;;
 
-[Function:LA_POSCashAcceptFunc]
-
-	Parameter	:	VarInvAmount	:	Amount
+[Function:LA_POSRetakeFunc]
 	
-	001	:	Set	:	LA_BillPaid	:	Yes
-	100 : Walk Collection: LedgerEntries
-	200 : 	Set Target  : LedgerEntries[$$LoopIndex].
-	
-	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
-	400	:		Set Value	:	Amount	:	""
-	500	:	End If
-
-	510	:	If:	$LedgerName = $POSBankLedgerClass:VoucherType:##SVVoucherType
-	520	:		Set Value	:	Amount	:	""
-	530	:	End If
-
-	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
-	700 : 		Set Value   : Amount : ##VarInvAmount
-	1000	:	Set Value	:	POSCashReceived	:	##VarInvAmount
-	800 : 	End If
-
-	900 : End Walk
-
+	100	:	Alter	:	LA_POSRetakeBillSelection
 
 ;;;;;;;;;;;;;;;;;;;;;  Customer Ledger Creation Function	;;;;;;;;;;
 
@@ -215,5 +194,11 @@
 	80	:	Set Value	:	CountryName		:	@@CmpCountryName
 	90	:	Set Value	:	LedStateName	:	CMPStateName
 	400	:	Save Target
+
+
+
+
+
+
 
 

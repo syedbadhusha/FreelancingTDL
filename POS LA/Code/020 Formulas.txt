@@ -36,3 +36,7 @@
 	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
 	
 	POS_AmountFormat		:	$$Sprintf:"NoZero, NoComma,Decimal:%s":($DecimalPlaces:Company:$$CurrentCompany):""
+	
+	GetIDToRetake	:		"ID:" + #ShortNameField
+	
+

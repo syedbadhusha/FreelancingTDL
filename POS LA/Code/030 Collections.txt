@@ -87,4 +87,23 @@
 	Align       :	Right
     FullHeight  :	Yes
     With Alias  :	No
+
+;;;;;;;;;;;;;;;;  For Retake
     
+[Collection:POS_SalesRetake]
+	Type		:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeSales
+	Belongs To	:	Yes
+	Title	:	"List Of Holded Bill"
+	Sub Title	:	"Customer Name","Vch Number","Date","Amount","Id"
+	Format	:	$PartyName
+	Format	:	$VoucherNumber
+	Format	:	$Date
+	Format	:	$LA_POS_InvTotal
+	Format	:	$MasterId
+	
+	Fetch		:	*, Amount,PartyLedgerName,VoucherNumber,MasterID,PartyName,LA_POS_InvTotal
+	Align	:	Right
+	Full Height	:	Yes
+	Filter		:	UseForPOSInvoice,Isoptional
+

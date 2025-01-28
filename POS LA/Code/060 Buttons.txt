@@ -231,6 +231,7 @@
 				Border	: Thin Box
 
 ;;;;;;;;;;;;;;  Settlements Button
+
 		[Button: SettlementCommon]
 			
 			Horizontal Align: Center
@@ -287,6 +288,7 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Green
+
 				ActionEx: 001 	: Call 		:	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
 				ActionEx: 002	:	Call	:	LA_POSHoldFunc:$LA_POS_InvTotal
 				
@@ -299,6 +301,8 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Green
+				
+				ActionEx: 002	:	Call		:	LA_POSRetakeFunc
 
 			[Button:LA_POSReturn]
 				

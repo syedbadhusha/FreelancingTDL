@@ -1,6 +1,13 @@
 
 
 
+[System: Events]
+	
+	SysDateVCHDate 	: Load Company  : Yes	: Call	: FuncSysDateVCHDate
+	
+[Function: FuncSysDateVCHDate]
+	
+	40 : SET : SVCurrentDate : $$MachineDate
 	
 [Report:LA_POS_Voucher]
 		
@@ -8,12 +15,9 @@
 	Variable	:	LA_MultiPayAccept,LA_PayTypeStr 
 	Variable	:	LA_POSMultiCardAmount,LA_POSMultiBenefitAmnt,LA_POSMultiCashAmnt
 	Variable	:	LA_BillPaid	
-;	Use	:	VATGCC InvAnalysis Report_Variables
 
 [Form:LA_POS_Voucher]
 	
-
-
     Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
     Control     			: DateBelowFromDate : $Date < $$SystemPeriodFrom
     Control     			: DateBeyondToDate  : $Date > $$SystemPeriodTo
@@ -28,7 +32,7 @@
 		
 	Bottom Buttons			: Voucher Configuration
 	Key		                : POS Print Key, POS Mail Key, POS Share Key,POS Export Key
-	Button	:	PrintButton
+	Button	:	POS_Print
     ;; Variable has been set on pressing Ctrl+A along with Form accept. This is to identify whether form is getting accepted using Ctrl + A
     ;; When form is accepted using Ctrl+A, in supplementary details form regeneration is not required. To stop the regeneration this approach is used.
     Key                     : FormAcceptKey
@@ -47,33 +51,11 @@
 	Fetch Object			: Godown						: ($ExciseUnitName:VoucherType:##SVVoucherType)	: TaxUnitName
 	Fetch Object			: TaxUnit						: @@CMPExcisePrimaryGodown	: GSTApplicableDate, GSTRegistrationType, GSTRegNumber, IsEwayBillApplicable, EwayApplicableAmount, eWayBillApplicableDate, +
                                                                 StateName, IsStateCessApplicable, StateCessApplicableDate, IsOthTerritoryAssessee
-	
-	On	: Form Accept 		: @@DelCostCentreForVchType									: Call	: DeleteCostCentreDetails
- 	On 	: Form Accept 		: @@IsCostTrackingAutofill 									: Call	: VoucherAutoFillCostTrack 
-	;;On	: Form Accept 		: @@IsVchDelBillType 		 								: Call 	: DeleteBillReferences   
- 	On 	: Form Accept 		: $$IsBatchWiseOn AND (NOT @@IsPhysStockVch)	: Call	: VoucherAutoFillInvBatchAllocations
-
-;; --------------------------------------------------------------------------------------------------------------------
-;; update taxobject for the alter duty amount on form acccept
-;; --------------------------------------------------------------------------------------------------------------------
-
-	Control 				: STRVATCESSTAXNotSelected 									: IF @@IsJournal AND @@KeralaState AND @@VATTaxOnURDPurc AND $$CollAmtTotal:AllLedgerEntries:@@VATStatutoryCessValue > 0 AND NOT $$FilterCount:AllLedgerEntries:CessLedgerType > 0 Then Yes Else No
-	Control 				: StrVATAddlTaxNotSelected  								: If @@IsJournal AND @@GujaratState Then NOT $$VATJrnlWURDPurcHasAddlPurcTax Else No
-
-
-	Set Always              : IsItemExists  : If $$InAlterMode Then NOT ($$IsEmpty:$AllInventoryEntries[1].StockItemName) Else No                                                      
-    Set Always              : VoucherMode   : @@VchModeName
-
-											
-	Set						: vExDlrTINSwap 											: If @@IsExciseDealerOn AND (@@IsPurchase OR @@IsRcptNote) AND ##IsExciseVoucher AND NOT $$InCreateMode AND @@IsExciseDealerVchUnit Then $$ExciseDlrTINSwap Else No
-	Set Always				: vVchDate													: $Date
-
-
-    Set						: IsGVATVoucher 											: Yes
 
 ;;;;;;;;;;;;;
+
 	Control     : LA_PaymethodSelect : Not ##LA_BillPaid and $$InCreateMode
-	Print after Save	: Yes
+	Print after Save	: if ##LA_PayTypeStr = "HOLD" then No else Yes
 	No Confirm : Yes
 
 	set	:	LA_MultiPayAccept	:	No
@@ -125,12 +107,15 @@
 	
 ;;;;;;;Screen form
 
+	Set				:	VARVchDate		:	$$MachineDAte
+
 
 	Option	:	LA_POS_CreateVch	:	Yes
 
 	On	:	Form Accept	:	($$IsEmpty:$Name:Ledger:#VCHPOSPartyContact) and (Not $$IsNotApplicable:#VCHPOSPartyContact)	:	Call	:	LA_POS_CreatePartyLed:#VCHPOSPartyContact
 	On	:	Form Accept	:	Yes:Form Accept
 
+	Switch	: VchTypeColor	  :  POS Invoice Color  : $$IsSales:##SVVoucherType 
 
 [!Form: DispModeForUser]
 	
@@ -140,7 +125,6 @@
 	
 [!Form:LA_POS_CreateVch]
 
-	Option	:	POS Invoice Color	:	Yes
 	Option	: Small Size Form
 	
 	Part	:	VCH Registration, VCH Status, VCH Status,+
@@ -240,7 +224,7 @@
 
 			[Part:LA_POS_VCHDate]
 				Line	:	VCH Date
-
+;				Local	:	Field	:	Plain VCH Date	:	Set as	:	$$MachineDate
 				Local	:	Line	:	VCH Date			:	local	:	Field:VCH Date:Add	:	Field	:	Before	:Plain VCH Date:MediumPrompt
 				Local	:	Field	:	MediumPrompt		:	Set as	:	"Date"
 				Local	:	Field	:	MediumPrompt		:	Width	:	30 MMS
@@ -538,8 +522,6 @@
 			Local	:	Field	:	VCHPOSInvoiceTotal	:	Color	:	white
 			Local	:	Field	:	VCHPOSInvoiceTotal	:	Background	:	Dark Red
 			Local	:	Field	:	VCHPOSInvoiceTotal	:	Skip	:	No
-;			Local	:	Field	:	VCHPOSInvoiceTotal	:	on:	Accept	:	##LA_PayTypeStr	= "CASH":	call	:	la_poscashacceptfunc:$la_pos_invtotal
-;			local	:	field	:	vchposinvoicetotal	:	on:	accept	:	yes	:	Field Accept
 
 		;;;;;;;;;;;;;;;;;;;  Invoice Total Fields	;;;;;;;;;
 
@@ -547,7 +529,7 @@
 
 			Use			:	Amount Forex Field
 			Set Always	:	Yes
-			Set as		:	$$CollNumTotal:InventoryEntries:$$Number:$LA_VCHDisc
+			Set as		:	$$CollAmtTotal:InventoryEntries:$$Abs:$LA_VCHDisc
 			Width		:	 MMS
 			Format		:	"No Zero"
 			Skip		:	Yes

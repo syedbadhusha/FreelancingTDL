@@ -1,0 +1,49 @@
+
+
+[Report:LA_POSRetakeBillSelection]
+	
+	Form	:	LA_POSRetakeBillSelection
+	
+[Form:LA_POSRetakeBillSelection]
+	
+	Part	:	FormSubTitle,LA_POSRetakeBillSelection	
+	Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Set as	:	"Select The Holded Bill"
+	Background	:	Dark Red
+	Local	:	Part	:	Default	:	Background	:	White
+	Space Top	:	3 MMS
+	Space Left	:	3 MMS
+	Space Right	:	3 MMS
+	Width	:	100 MMS
+	
+	[Part:LA_POSRetakeBillSelection]
+		Part	:	LA_POSRetakeBillSelectionMn,LA_POSNum
+		Vertical	:	Yes
+		[Part:LA_POSRetakeBillSelectionMn]
+			Line	:	LA_POSRetakeBillSelection
+		[Line:LA_POSRetakeBillSelection]			
+			Field	:	Name Field,ShortNameField
+
+			Local	:	Field	:	NameField	:	Table	: POS_SalesRetake
+			Local	:	Field	:	NameField	:	Full Width	:	Yes
+			Local	:	Field	:	NameField	:	Show Table	:	Always
+			
+			
+			Local	:	Field	:	ShortNameField	:	Set as	:	$$Table:NameField:$MasterId
+			Local	:	Field	:	ShortNameField	:	Read Only	:	Yes
+			Local	:	Field	:	ShortNameField	: 	Option	:	AlterOnEnter
+			Local	:	Field	:	ShortNameField	:	Key	:	LA_POS_ReTakeKey
+			
+[Key:LA_POS_ReTakeKey]
+	
+	Key	:	Enter
+	ActionEx	:	001	:	Alter	:	LA_POS_ReTakeVch
+	
+[Report:LA_POS_ReTakeVch]
+	
+	Use	:	LA_POS_Voucher
+	Object	:	Voucher:@@GetIDToRetake
+			
+[Form:LA_POS_ReTakeVch]
+	
+	Use	:	LA_POS_Voucher
+	
