@@ -1,4 +1,5 @@
 [Report:POS_DaySummary]
+	
 	Title		:	"Day Summary"
 	
 	Use			:	POS_CommonTemplate

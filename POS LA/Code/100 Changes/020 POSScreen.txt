@@ -17,7 +17,7 @@
 	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
     Control     : DateBelowFromDate : $Date < $$SystemPeriodFrom
     Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo 
-	Control     : LA_PaymethodSelect : Not ##LA_BillPaid 
+	Control     : LA_PaymethodSelect : Not ##LA_BillPaid and $$InCreateMode
 	
 	Print after Save	: No
 	No Confirm : Yes
@@ -42,7 +42,7 @@
     Space Bottom    : 0
      
 	Set             : InvoicingModeFlag : Yes
-	SetAlways       : SVClass           : "POS"
+	SetAlways       : SVClass           : "POS";if $$InAlterMode then "" else "POS"
 	
 	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
 										  If @@InventoryView then $$SysName:InvVchView Else +
@@ -278,11 +278,9 @@
 				Total   : VCHValue, CIValue
 				Total	: VCHBilledQty
 				Border	:	thin Box
-				Local	:	Part	:	CI AccInfo	:	Invisible	:	Yes
+;				Local	:	Part	:	CI AccInfo	:	Invisible	:	Yes
 				Vertical:	Yes
-;				local	:	Part	:	CI AccInfo	:	Local	:	Line	:	CI AccDetails	:	Remove :	#CIAccDesc != "VAT"
-;				local	:	Part	:	CI AccInfo	:	Local	:	Line	:	CI AccDetails	:  Local	:	Field	:	CIAccDesc	:Align	:	Right
-;			
+
 			[Part:LA_POSInvDetailsInv]
 
 				Lines   : CI InvDetails;, EI InvSubTotal
@@ -364,7 +362,9 @@
 		
 		Part	:	VCHPOSModeOfReceipts,Cust_VCHPOSModeOfReceipts
 		Vertical	:	Yes
+
 		Local	:	Part	:	VCHPOSModeOfReceipts	:	Invisible	:	Yes
+		Local	: Field: VCHPOSInvoiceTotal : Set as	:	$$Total:vchValue +$$Total:CIValue
 		Local	: Field: VCHPOSInvoiceTotal : Storage : LA_POS_InvTotal
 		
 [Part:Cust_VCHPOSModeOfReceipts]	
@@ -492,7 +492,7 @@
 			Set Always	:	Yes
 			Width		:	30 MMS
 			Storage     : 	LA_POSDiscTotal
-			Set as		:	$$AsAmount:(#LA_POSItemDiscTotal + #LA_POSInvDisc)
+			Set as		:	(#LA_POSItemDiscTotal + #LA_POSInvDisc)
 			Style		:	Normal Bold
 			Read Only	:	Yes
 			

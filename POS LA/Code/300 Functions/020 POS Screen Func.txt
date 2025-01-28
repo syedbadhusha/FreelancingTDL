@@ -64,7 +64,6 @@
 	Parameter	:	VarInvAmount	:	Amount
 
 	0000000	:	Set	:	LA_PayTypeStr		:	"CASH"
-;	0000	:	Call	:	UpdateLedEntriss:$LA_POSDiscTotal:$LA_POSRoundOff
 
 	000	:	Set	:	LA_BillPaid	:	Yes	
 	001	: Set Value	:	ISOPTIONAL	:	Yes
@@ -165,14 +164,13 @@
 	Parameter	:	LA_POSRoundOffPar		:	Amount
 
 	100 : Walk Collection: LedgerEntries
-	200 : Set Target  : LedgerEntries[$$LoopIndex].
-	
-	300 : 	If: $LedgerName Contains "Discount" 
-	400	:		Set Value	:	Amount			:	-##LA_DiscountAmountPar
+	200 : Set Target  : LedgerEntries[$$LoopIndex].	
+	300 : 	If: $LedgerName = "POS Discount" 
+	400	:		Set Value	:	Amount				:	-##LA_DiscountAmountPar
 	500	:	End If
 
-	600 : 	If: $LedgerName Contains "RoundOff" 
-	700	:		Set Value	:	Amount			:	##LA_POSRoundOffPar
+	600 : 	If: $LedgerName = "RoundOff" 
+	700	:		Set Value	:	Amount				:	##LA_POSRoundOffPar
 	800	:	End If
 	
 	900	: End Walk
