@@ -12,14 +12,68 @@
 
 [Form:LA_POS_Voucher]
 	
-;	Use         : VATNG VATCSTAnalysis Variables	
-;	Option  	: GCCVAT Comprehensive Invoice              : @@IsVChGVATApplicable
-	Control     : DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
-    Control     : DateBelowFromDate : $Date < $$SystemPeriodFrom
-    Control     : DateBeyondToDate  : $Date > $$SystemPeriodTo 
-	Control     : LA_PaymethodSelect : Not ##LA_BillPaid and $$InCreateMode
+
+
+    Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
+    Control     			: DateBelowFromDate : $Date < $$SystemPeriodFrom
+    Control     			: DateBeyondToDate  : $Date > $$SystemPeriodTo
+		
+    Control         		: STXNonServicePartyExistsMsg   : (@@IsIndianServiceTax AND @@IsSTTaxenabledDate_Vch) AND @@IsJournal AND $$IsEmpty:$TaxAdjustment AND $$IsSTXJrnlTaxObjValidate
+	Control					: BankAmountMisMatch			: (@@IsEbankingAlterReconTrans OR @@IsEbankingAlterExportedTrans) AND (IF ##SVSingleEntry Then #ACLSTotal != ##TotalBankAmount Else #VchDrAmtTotal != ##TotalBankAmount) AND $$InAlterMode
+	Control					: EBankingAllocationsError		: $$InDuplicateMode AND $$BankAllocationError	;; If the amount decreased from the Ledger amount is greater than or equal to the LAst Bank Alloc Amount
+		
+    Horizontal Align		: Left
+    Vertical Align  		: Top
+    Space Bottom    		: 0
+		
+	Bottom Buttons			: Voucher Configuration
+	Key		                : POS Print Key, POS Mail Key, POS Share Key,POS Export Key
+	Button	:	PrintButton
+    ;; Variable has been set on pressing Ctrl+A along with Form accept. This is to identify whether form is getting accepted using Ctrl + A
+    ;; When form is accepted using Ctrl+A, in supplementary details form regeneration is not required. To stop the regeneration this approach is used.
+    Key                     : FormAcceptKey
+
+	Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn2_Accept, BottomToolBarBtn3_Delete, BottomToolBarBtn4_Cancel
 	
-	Print after Save	: No
+					
+
+	Volatile   	    		: If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then If ($IsDefaultAllocEnabled:VoucherType:##SVVoucherType AND (##SVVoucherType != ##PreviousVoucherType)) Then $$RegenerateVoucher Else No Else $$RegenerateVoucher
+    Keys            		: Change System Period
+
+    Default Value   		: ""
+
+	Control Ex				: Vch TaxDetailsModified Authorised	: NOT (@@IsMRPGoodsAllowStates OR @@RBVATTransferRightToUseControl) AND (@@IsVchTaxDetailsModified AND @@IsUserAuthorisedToOverride) 	: vVchSelectedIndex
+
+	Fetch Object			: Godown						: ($ExciseUnitName:VoucherType:##SVVoucherType)	: TaxUnitName
+	Fetch Object			: TaxUnit						: @@CMPExcisePrimaryGodown	: GSTApplicableDate, GSTRegistrationType, GSTRegNumber, IsEwayBillApplicable, EwayApplicableAmount, eWayBillApplicableDate, +
+                                                                StateName, IsStateCessApplicable, StateCessApplicableDate, IsOthTerritoryAssessee
+	
+	On	: Form Accept 		: @@DelCostCentreForVchType									: Call	: DeleteCostCentreDetails
+ 	On 	: Form Accept 		: @@IsCostTrackingAutofill 									: Call	: VoucherAutoFillCostTrack 
+	;;On	: Form Accept 		: @@IsVchDelBillType 		 								: Call 	: DeleteBillReferences   
+ 	On 	: Form Accept 		: $$IsBatchWiseOn AND (NOT @@IsPhysStockVch)	: Call	: VoucherAutoFillInvBatchAllocations
+
+;; --------------------------------------------------------------------------------------------------------------------
+;; update taxobject for the alter duty amount on form acccept
+;; --------------------------------------------------------------------------------------------------------------------
+
+	Control 				: STRVATCESSTAXNotSelected 									: IF @@IsJournal AND @@KeralaState AND @@VATTaxOnURDPurc AND $$CollAmtTotal:AllLedgerEntries:@@VATStatutoryCessValue > 0 AND NOT $$FilterCount:AllLedgerEntries:CessLedgerType > 0 Then Yes Else No
+	Control 				: StrVATAddlTaxNotSelected  								: If @@IsJournal AND @@GujaratState Then NOT $$VATJrnlWURDPurcHasAddlPurcTax Else No
+
+
+	Set Always              : IsItemExists  : If $$InAlterMode Then NOT ($$IsEmpty:$AllInventoryEntries[1].StockItemName) Else No                                                      
+    Set Always              : VoucherMode   : @@VchModeName
+
+											
+	Set						: vExDlrTINSwap 											: If @@IsExciseDealerOn AND (@@IsPurchase OR @@IsRcptNote) AND ##IsExciseVoucher AND NOT $$InCreateMode AND @@IsExciseDealerVchUnit Then $$ExciseDlrTINSwap Else No
+	Set Always				: vVchDate													: $Date
+
+
+    Set						: IsGVATVoucher 											: Yes
+
+;;;;;;;;;;;;;
+	Control     : LA_PaymethodSelect : Not ##LA_BillPaid and $$InCreateMode
+	Print after Save	: Yes
 	No Confirm : Yes
 
 	set	:	LA_MultiPayAccept	:	No
@@ -42,7 +96,7 @@
     Space Bottom    : 0
      
 	Set             : InvoicingModeFlag : Yes
-	SetAlways       : SVClass           : "POS";if $$InAlterMode then "" else "POS"
+	SetAlways       : SVClass           : "POS"
 	
 	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
 										  If @@InventoryView then $$SysName:InvVchView Else +
@@ -77,6 +131,7 @@
 	On	:	Form Accept	:	($$IsEmpty:$Name:Ledger:#VCHPOSPartyContact) and (Not $$IsNotApplicable:#VCHPOSPartyContact)	:	Call	:	LA_POS_CreatePartyLed:#VCHPOSPartyContact
 	On	:	Form Accept	:	Yes:Form Accept
 
+
 [!Form: DispModeForUser]
 	
 	Local	: Button: Default      : Inactive: Yes
@@ -84,7 +139,8 @@
 	Local	: Key	: Print Bill   : Inactive: No
 	
 [!Form:LA_POS_CreateVch]
-	
+
+	Option	:	POS Invoice Color	:	Yes
 	Option	: Small Size Form
 	
 	Part	:	VCH Registration, VCH Status, VCH Status,+
@@ -218,10 +274,12 @@
 
 		;;;;;;;;;;;;;;;;  Inventory Entries;;;;;;
 		[Part:LA_POSInvLeft]
+			
 			Part	:	LA_POSBodyColTit,LA_POSInvDetails
 			Bottom Part	:	LA_POSInvTotal
 			Vertical	:	Yes
 			
+
 			[Part:LA_POSBodyColTit]
 					
 				Line:LA_POSBodyColTit
@@ -272,14 +330,23 @@
 						Align       : Centre
 						Skip        : Yes
 						Fixed       : Yes
+						
 			[Part:LA_POSInvDetails]
-
-				Part:LA_POSInvDetailsInv,CI AccInfo;,LA_POSInvDetailsLed
+				
+				Part:LA_POSInvDetailsInv,LA_CIAccInfo
 				Total   : VCHValue, CIValue
 				Total	: VCHBilledQty
 				Border	:	thin Box
-;				Local	:	Part	:	CI AccInfo	:	Invisible	:	Yes
 				Vertical:	Yes
+				
+				Local	:	Part	:	LA_CIAccInfo	:	Invisible	:	Yes
+
+				[Part: LA_CIAccInfo]
+						
+							Lines       : CI AccDetails
+							Repeat      : CI AccDetails : Ledger Entries
+							Set as      : $$NumItems:ClassLedgerEntries +2
+							Set always  : Yes
 
 			[Part:LA_POSInvDetailsInv]
 
@@ -288,6 +355,7 @@
 				BreakOn : $$IsSysName:$StockItemName       
 				Vertical: Yes
 				Scroll  : Vertical
+
 				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At Beginning	:	LA_POSStockBal
 
 				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal
@@ -342,7 +410,6 @@
 					Read Only	: Yes
 					Invisible	:	Yes
 
-					
 				[Field:LA_VCHSubTotal]
 					
 					Use			: Amount Forex Field
@@ -363,20 +430,27 @@
 		Part	:	VCHPOSModeOfReceipts,Cust_VCHPOSModeOfReceipts
 		Vertical	:	Yes
 
-		Local	:	Part	:	VCHPOSModeOfReceipts	:	Invisible	:	Yes
-		Local	: Field: VCHPOSInvoiceTotal : Set as	:	$$Total:vchValue +$$Total:CIValue
-		Local	: Field: VCHPOSInvoiceTotal : Storage : LA_POS_InvTotal
-		
+		Local	: Part	:	VCHPOSModeOfReceipts	:	Invisible	:	Yes
+
+		Local	: Field :   VCHPOSInvoiceTotal 		: Set as	:	$$Total:vchValue +$$Total:CIValue
+		Local	: Field :   VCHPOSInvoiceTotal 		: Storage 	: 	LA_POS_InvTotal
+
+		Local	: Part	:	VCHPOSModeOfReceipts	: Local		:	Field	:	VCHPOSBankLedger	:	Set as	:	$POSBankLedgerClass:VoucherType:##SVVoucherType
+		Local	: Part	:	VCHPOSModeOfReceipts	: Local		:	Field	:	VCHPOSCardLedger	:	Set as	:	$POSCardLedgerClass:VoucherType:##SVVoucherType
+		Local	: Part	:	VCHPOSModeOfReceipts	: Local		:	Field	:	VCHPOSCashLedger	:	Set as	:	$POSCashLedgerClass:VoucherType:##SVVoucherType
+
 [Part:Cust_VCHPOSModeOfReceipts]	
+
 	Part	:	Cust_VCHTotalDiscAndRnd,LA_POSInvDetailsLed
 	Vertical	:	No
+
 	[Part:Cust_VCHTotalDiscAndRnd]
 		Line	:	LA_POSInvTotalTitle,LA_POSInvTotal
 		
 		[Line:LA_POSInvTotalTitle]
 			
 				Field		:	LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
-								LA_POSInvTaxableAmount,LA_POSRoundOff,LA_POSVatTotal
+								LA_POSInvTaxableAmount,LA_POSRoundOff;,LA_POSVatTotal
 ;				Right Field	:	LA_POSInvTotal
 							
 				Local	:	Field	:	Default	:	Type:	String
@@ -390,14 +464,14 @@
 				Local	:	Field	:	LA_POSDiscTotal			:	Set as	:	"Total"++$$NewLine+"Discount"
 				Local	:	Field	:	LA_POSRoundOff			:	Set as	:	"Round Off"
 				Local	:	Field	:	LA_POSInvTaxableAmount	:	Set as	:	"Taxable" +$$NewLine+"Amount"
-				Local	:	Field	:	LA_POSVatTotal			:	Set as	:	"VAT" +$$NewLine+"Amount"
+;				Local	:	Field	:	LA_POSVatTotal			:	Set as	:	"VAT" +$$NewLine+"Amount"
 				
 				Local	:	Field	:	Default					:	Line	:	2
 				
 		[Line:LA_POSInvTotal]
 
 				Field	:	LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
-							LA_POSInvTaxableAmount,LA_POSRoundOff,LA_POSVatTotal
+							LA_POSInvTaxableAmount,LA_POSRoundOff;,LA_POSVatTotal
 ;				Right Field	:	VCHPOSInvoiceTotal;LA_POSInvTotal
 				Local	:	Field	:	Default	:	Border	:	Thin Box
 				Space Top	:	3 MMS
@@ -406,31 +480,36 @@
 ;;;;;;;;;;;;;;  Vat And Total	
 	
 [Part:LA_POSInvDetailsLed]
-	Part	:	LA_POSInvLedLeft,LA_POSInvGrandTotal
 
+	Part	:	LA_POSInvLedLeft,LA_POSInvGrandTotal
+	Horizontal Align	:	Right
 	Local	:	Field	:	Default	:	Border	:	Thin Box
 	[Part:LA_POSInvLedLeft]
 		Line:LA_POSInvDetailsLedTit,LA_POSInvDetailsLed
 		Repeat:LA_POSInvDetailsLed	:	LedgerEntries
 					
 		[Line:LA_POSInvDetailsLedTit]
+			
 			Right Field	:	LA_POSInvTotal
-			Local	:	Field	:	LA_POSInvTotal	:	Set as	:	"VAT" +$$NewLine+"Amount"
+			Local	:	Field	:	LA_POSInvTotal	:	Set as	:	"VAT" +$$NewLine+"Amount"			
 			Local	:	Field	:	LA_POSInvTotal	:	Align	:	Center
 			Local	:	Field	:	LA_POSInvTotal	:	Type	:	String
 			Local	:	Field	:	LA_POSInvTotal	:	Line	:	2
 			Local	:	Field	:	LA_POSInvTotal	:	Skip	:	Yes
+			
 							
 		[Line:LA_POSInvDetailsLed]
 						
 			Right Field	:	LA_POSInvDetailsLed
+
 			Local	:	Field	:	LA_POSInvDetailsLed			:	Border	:	Thin Box
 			Local	:	Field	:	LA_POSInvDetailsLed			:	Background	:	Dark Red
 			Local	:	Field	:	LA_POSInvDetailsLed			:	Color	:	white
 			Local	:	Field	:	LA_POSInvDetailsLed			:	Read Only	:	Yes
 			Local	:	Field	:	LA_POSInvDetailsLed			:	Width	:	35 MMS
-			Local	:	Field	:	LA_POSInvDetailsLed			:	Style	:	Large Bold
-								
+			Local	:	Field	:	LA_POSInvDetailsLed			:	Style	:	Large Bold	
+;			Local	:	Field	:	LA_POSInvDetailsLed			:	Delete	:	Storage
+
 			Remove if	:	Not $$IsSysNameEqual:VAT:$TaxType:Ledger:$LedgerName
 
 			[Field:LA_POSInvDetailsLed]
@@ -496,7 +575,7 @@
 			Style		:	Normal Bold
 			Read Only	:	Yes
 			
-			On	:	Accept	:	Yes	:	Call	:	UpdateLedEntriss:$$Value:$LA_POSRoundOff
+			On	:	Accept	:	Yes	:	Call	:	UpdateLedEntriss:$$Value:#LA_POSRoundOff
 			On	:   Accept	:	Yes	:	Field Accept
 
 		[Field:LA_POSRoundOff]
@@ -506,7 +585,7 @@
 			Style		:	Normal Bold
 			Storage		:	LA_POSRoundOff
 			
-			On	:	Accept	:	Yes	:	Call	:	UpdateLedEntriss:$LA_POSDiscTotal:$$Value
+			On	:	Accept	:	Yes	:	Call	:	UpdateLedEntriss:#LA_POSDiscTotal:$$Value
 			On	:   Accept	:	Yes	:	Field Accept
 			
 		[Field:LA_POSInvTaxableAmount]
@@ -525,7 +604,7 @@
 			Width		:	30 MMS
 			Style		:	Normal Bold
 			Set as		:	@@LedVatAmount
-			Storage		:	Amount:LedgerEntries:First:@@InvoiceVATLedger
+;			Storage		:	Amount:LedgerEntries:First:@@InvoiceVATLedger
 			Set Always	:	Yes
 			Invisible	:	Yes
 			

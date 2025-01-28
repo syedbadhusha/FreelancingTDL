@@ -39,13 +39,13 @@
 	InsLedEntris	:	Insert Collection Object				:	LedgerEntriesList
 		SVLedName	:	Set Value	:	Name					:	##Name
 		SVLedMethod	:	Set Value	:	MethodType				:	##Method
-		SVIsZero	:	Set Value	:	RemoveZeroEntries		:	Yes
+		SVIsZero	:	Set Value	:	RemoveZeroEntries		:	No
 	
 [Function:POS_InsertVCHTypeClassLedgers]
 	InsCLLedgerInv	:	Insert Collection Object				:	LedgerForInventoryList
 		SVSalesLed	:	Set Value	:	Name					:	@@POS_SalesLedName
 		SVClassRate	:	Set Value	:	ClassRate				:	100
-		SVSalesZero	:	Set Value	:	RemoveZeroEntries		:	Yes
+		SVSalesZero	:	Set Value	:	RemoveZeroEntries		:	No
 			
 	InsDiscLedEntris:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_DiscountLedName:($$SysName:AsUserDefined)
 	InsRndLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_RoundOffLedName:($$SysName:AsUserDefined)	

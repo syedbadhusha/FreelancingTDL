@@ -29,8 +29,9 @@
 	LA_PaymethodSelect				:	"Please Select Payment Method"
 	
 	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties
-	IsDiscLed 	: $LedgerName contains "Discount"
-	IsRoundOff	: $LedgerName contains "Roundoff"		
+	VATEnabled 	: $IsSalesTaxOn:Company:##SVCurrentCompany
+	IsDiscLed 	: $LedgerName = "POS Discount"
+	IsRoundOff	: $LedgerName = "Roundoff"		
 
 	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
 	
