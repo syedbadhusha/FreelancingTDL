@@ -11,3 +11,9 @@
 [Include:030 Day Summary.txt]
 
 [Include:040 Day Wise Sales.txt]
+
+[Include:050 Sales Summary.txt]
+
+[Include:060 Barcode Print Config.txt]
+
+[Include:070 Barcode Print.txt]

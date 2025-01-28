@@ -1,0 +1,61 @@
+[Report:POS_BarcodePrinting]
+	Title		:	"Barcode Print Config"
+	Use			:	POS_BackInReport
+	
+	Form		:	POS_BarcodePrinting
+	
+[Form:POS_BarcodePrinting]
+	Vertical Align		:	Top
+	Horizontal Align	:	Left
+	
+	Full Width	:	No
+	
+	Space Left	:	5 mms
+	Space Right	:	5 mms
+	Space Bottom:	5 mms
+	
+	Part		:	FormSubtitle, POS_BarcodePrinting
+		
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"Barcode Print Config"
+	
+	On			:	Form Accept	:	Yes						:	Call			:	POS_PrintBarcode
+	
+[Part:POS_BarcodePrinting]
+	Line		:	POS_BarcodeNo, POS_BarcodeRate, POS_BarcodeQty
+
+[Line:POS_BarcodeNo]
+	Field		:	MediumPrompt, POS_BarcodeNo
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Barcode No"
+	
+[Field:POS_BarcodeNo]
+	Use			:	NameField
+	Width		:	@@LongWidth
+	Table		:	POS_STKPartNos
+	Show Table	:	Always
+
+[Line:POS_BarcodeRate]
+	Field		:	MediumPrompt, POS_BarcodeRate
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Rate"
+	
+[Field:POS_BarcodeRate]
+	Use			:	NumberField
+	Set as		:	$$Number:$$Table:POS_BarcodeNo:$LastSalePrice
+	Set Always	:	Yes
+	Format		:	@@POS_AmountFormat
+	Align		:	Right
+	Width		:	@@ShortWidth
+	Validate	:	$$Value > 0
+	Skip Forward:	Yes
+	
+[Line:POS_BarcodeQty]
+	Field		:	MediumPrompt, POS_BarcodeQty
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Qty"
+	
+[Field:POS_BarcodeQty]
+	Use			:	NumberField
+	Format		:	"NoZero"
+	Set as		:	1
+	Validate	:	$$Value > 0

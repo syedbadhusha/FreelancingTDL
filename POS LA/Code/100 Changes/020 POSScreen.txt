@@ -468,7 +468,7 @@
 
 			Use			:	Amount Forex Field
 			Set Always	:	Yes
-			Set as		:	$$CollNumTotal:InventoryEntries:$LA_VCHDisc
+			Set as		:	$$CollNumTotal:InventoryEntries:$$Number:$LA_VCHDisc
 			Width		:	 MMS
 			Format		:	"No Zero"
 			Skip		:	Yes

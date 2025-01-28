@@ -41,7 +41,7 @@
 [Collection:POS_SalesInventory]
 	Source Collection			:	POS_Sales
 	
-	Walk		:	InventoryEntriesOut
+	Walk		:	InventoryEntries
 	
 	By			:	StockItemName			:	$StockItemName
 	
@@ -68,3 +68,23 @@
 	Aggr Compute:	TotalAmount				:	Sum			:	$Amount
 	
 	Search Key	:	$DateFrom
+
+[Collection:POS_STKPartNos]
+	Title		:	"List Of Barcodes"
+	
+	Source Collection	:	StockItem
+	
+	Walk		:	PartNo
+	
+	Fetch		:	Name, PartNo, ClosingBalance, LastSalePrice
+	
+	Sub Title	:	"Part No", "Name", "Closing Balance"
+	
+	Format		:	$PartNo, 15
+	Format		:	$Name, 35	
+	Format		:	$ClosingBalance, 12
+	
+	Align       :	Right
+    FullHeight  :	Yes
+    With Alias  :	No
+    

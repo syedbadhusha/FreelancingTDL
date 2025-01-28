@@ -18,14 +18,15 @@
 [Part:POS_HomeTop]
 	Horizontal Align	:	Center
 	
-	Button		:	POS_STKQuery, POS_TopStks, POS_STKSummary
+	Button		:	POS_STKQuery, POS_TopStks, POS_STKSummary, POS_SalesSummary
 	
 [Part:POS_HomeCenter]
 	Horizontal Align	:	Center
 	
-	Button		:	POS_DaySummary, POS_CreateSales, POS_DayWiseSales
+	Button		:	POS_DaySummary, POS_CreateSales, POS_BarcodePrinting, POS_DayWiseSales
 	
 	Local		:	Button		:	POS_CreateSales	:	Option			:	POS_Primary
+	Local		:	Button		:	POS_BarcodePrinting	:	Option			:	POS_Primary
 	
 [Part:POS_HomeBottom]
 	Horizontal Align	:	Center
@@ -33,3 +34,5 @@
 	Button		:	POS_Back, POS_LogOut, POS_TallyClose
 	
 	Local		:	Button		:	Default			:	Option			:	POS_Danger
+	Local		:	Button		:	Default			:	Width			:	(80 / 3) % Page
+	Local		:	Button		:	Default			:	Height			:	10 % Page

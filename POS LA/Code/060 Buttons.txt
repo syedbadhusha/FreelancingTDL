@@ -52,6 +52,18 @@
 	Key			:	S
 	Action		:	Display 	:	POS_StockSummary
 
+[Button:POS_SalesSummary]
+	Use			:	POS_Default
+	Title		:	"Sales Summary"
+	Key			:	Alt + S
+	Action		:	Display 	:	POS_SalesSummary
+
+[Button:POS_BarcodePrinting]
+	Use			:	POS_Default
+	Title		:	"Barcode Printing"
+	Key			:	P
+	Action		:	Alter	 	:	POS_BarcodePrinting
+
 [Button:POS_TopStks]
 	Use			:	POS_Default
 	Title		:	"Top Selling Stocks"
@@ -67,7 +79,7 @@
 [Button:POS_DayWiseSales]
 	Use			:	POS_Default
 	Title		:	"Day Wise Sales"
-	Key			:	W
+	Key			:	Alt + D
 	Action		:	Display		:	POS_DayWisaSales
 		
 [Button:POS_Back]
