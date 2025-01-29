@@ -16,9 +16,13 @@
 	Width	:	100 MMS
 	
 	[Part:LA_POSRetakeBillSelection]
-		Part	:	LA_POSRetakeBillSelectionMn,LA_POSNum
+		Part	:	LA_POSRetakeBillSelectionMn;,LA_POSNum
 		Vertical	:	Yes
 		[Part:LA_POSRetakeBillSelectionMn]
+			Space Left	:	2 mms
+			Space Right	:	2 mms
+			Space Bottom:	2 mms
+			
 			Line	:	LA_POSRetakeBillSelection
 		[Line:LA_POSRetakeBillSelection]			
 			Field	:	Name Field,ShortNameField
