@@ -2,21 +2,37 @@
 	
 	Title		:	"Day Summary"
 	
-	Use			:	POS_CommonTemplate
+;	Use			:	POS_CommonTemplate
+	Use			:	POS_ButtonsInReport
+	Use			:	POS Register
 	
-	Local		:	Field		:	FormSubtitle			:	Set as			:	"Day Summary"
+	Variable	:	SVFromDate, SVToDate
 	
-	Local		:	Line		:	POS_CommonColumnTitle	:	Option			:	POS_DaySummaryTitle
-	Local		:	Line		:	POS_CommonInfo			:	Option			:	POS_DaySummaryInfo
-	Local		:	Line		:	POS_CommonColumnTotal	:	Option			:	POS_DaySummaryTotal
+	Set			:	SVFromDate			:	$$MachineDate
+	Set			:	SVToDate			:	$$MachineDate
+;	Set			:	VoucherTypeName		:	@@POS_SalesVCHName
 	
-	Local		:	Part		:	POS_CommonInfo			:	Option			:	POS_DaySummaryInfo
-
-[!Part:POS_DaySummaryInfo]	
-	Repeat		:	POS_CommonInfo:POS_Sales
+	Local		:	Field		:	POSReg GiftVch			:	Invisible		:	Yes
+	
+	Local		:	Line		:	POSRegister ColTitle	:	+
+		Local	:	Field		:	POSReg Cheque			:	Set as			:	"Benefit Pay"
 		
-[!Line:POS_DaySummaryFields]
-	Add			:	Field		:	After	:	POS_CMNSNo	:	POS_VCHDate
+	Local		:	Field		:	DSP VchDate				:	Delete			:	Alter		:	Voucher
+	Local		:	Field		:	DSP VchDate				:	Add				:	Alter		:	LA_POS_Voucher		:	($$IsVoucher AND NOT $IsDeleted AND (NOT @@IsAttendanceVch AND NOT @@IsPayrollVch))
+	
+;	Local		:	Field		:	FormSubtitle			:	Set as			:	"Day Summary"
+;	
+;	Local		:	Line		:	POS_CommonColumnTitle	:	Option			:	POS_DaySummaryTitle
+;	Local		:	Line		:	POS_CommonInfo			:	Option			:	POS_DaySummaryInfo
+;	Local		:	Line		:	POS_CommonColumnTotal	:	Option			:	POS_DaySummaryTotal
+;	
+;	Local		:	Part		:	POS_CommonInfo			:	Option			:	POS_DaySummaryInfo
+
+;[!Part:POS_DaySummaryInfo]	
+;	Repeat		:	POS_CommonInfo:POS_Sales
+;		
+;[!Line:POS_DaySummaryFields]
+;	Add			:	Field		:	After	:	POS_CMNSNo	:	POS_VCHDate
 
 [Field:POS_VCHDate]
 	Use			:	UniDateField
@@ -25,18 +41,18 @@
 	Border		:	ThinLeft
 	Alter		:	LA_POS_Voucher
 	
-[!Line:POS_DaySummaryTitle]
-	Use			:	POS_DaySummaryFields
-	
-	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Bill No"
-	Local		:	Field		:	POS_VCHDate				:	Set as			:	"Date"
-	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Amount"
-	
-[!Line:POS_DaySummaryInfo]
-	Use			:	POS_DaySummaryFields
-	
-	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$VoucherNumber
-	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$Amount
-	
-[!Line:POS_DaySummaryTotal]
-	Use			:	POS_DaySummaryFields
+;[!Line:POS_DaySummaryTitle]
+;	Use			:	POS_DaySummaryFields
+;	
+;	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Bill No"
+;	Local		:	Field		:	POS_VCHDate				:	Set as			:	"Date"
+;	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Amount"
+;	
+;[!Line:POS_DaySummaryInfo]
+;	Use			:	POS_DaySummaryFields
+;	
+;	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$VoucherNumber
+;	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$Amount
+;	
+;[!Line:POS_DaySummaryTotal]
+;	Use			:	POS_DaySummaryFields

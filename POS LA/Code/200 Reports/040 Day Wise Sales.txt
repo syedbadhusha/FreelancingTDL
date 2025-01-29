@@ -22,17 +22,35 @@
 [!Part:POS_DayWisaSalesInfo]	
 	Repeat		:	POS_CommonInfo:Period Collection
 	
-	Total		:	POS_VCHTaxable, POS_VCHVAT
+	Total		:	POS_VCHCash, POS_VCHCard, POS_VCHBenifitPay, POS_VCHTaxable, POS_VCHVAT
 	
 [!Line:POS_DayWisaSalesFields]
 	Add			:	Field		:	After	:	POS_CMNSNo	:	POS_VCHDate
-	Add			:	Right Field	:	At Beginning			:	POS_VCHTaxable, POS_VCHVAT
+	Add			:	Right Field	:	At Beginning			:	POS_VCHCash, POS_VCHCard, POS_VCHBenifitPay, POS_VCHTaxable, POS_VCHVAT
 	
 	Local		:	Field		:	POS_VCHDate				:	Delete			:	Alter
+
+[Field:POS_VCHCash]
+	Use			:	AmountField
+	Set as		:	$$ReportObject:$$CollectionFieldByKey:$TotalCash:($$String:$DateFrom):POS_DayWiseSales
+	Width		:	30 mms
+	Border		:	ThinLeft
+	
+[Field:POS_VCHCard]
+	Use			:	AmountField
+	Set as		:	$$ReportObject:$$CollectionFieldByKey:$TotalCard:($$String:$DateFrom):POS_DayWiseSales
+	Width		:	30 mms
+	Border		:	ThinLeft
+	
+[Field:POS_VCHBenifitPay]
+	Use			:	AmountField
+	Set as		:	$$ReportObject:$$CollectionFieldByKey:$TotalCheque:($$String:$DateFrom):POS_DayWiseSales
+	Width		:	30 mms
+	Border		:	ThinLeft
 	
 [Field:POS_VCHTaxable]
 	Use			:	AmountField
-	Set as		:	$$AmountSubtract:#POS_CMNAmount:#POS_VCHVAT
+	Set as		:	$$AmountSubtract:($$AmountAdd:#POS_VCHCash:($$AmountAdd:#POS_VCHCard:#POS_VCHBenifitPay)):#POS_VCHVAT
 	Width		:	30 mms
 	Border		:	ThinLeft
 
@@ -47,6 +65,9 @@
 	
 	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Day Of Week"
 	Local		:	Field		:	POS_VCHDate				:	Set as			:	"Date"
+	Local		:	Field		:	POS_VCHCash				:	Set as			:	"Cash"
+	Local		:	Field		:	POS_VCHCard				:	Set as			:	"Card"
+	Local		:	Field		:	POS_VCHBenifitPay		:	Set as			:	"Benefit Pay"
 	Local		:	Field		:	POS_VCHTaxable			:	Set as			:	"Taxable Amount"
 	Local		:	Field		:	POS_VCHVAT				:	Set as			:	"VAT Amount"
 	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Total Amount"
@@ -56,11 +77,14 @@
 	
 	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$$DayOfWeek:$DateFrom
 	Local		:	Field		:	POS_VCHDate				:	Set as			:	$DateFrom
-	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$ReportObject:$$CollectionFieldByKey:$TotalAmount:($$String:$DateFrom):POS_DayWiseSales
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$AmountAdd:#POS_VCHTaxable:#POS_VCHVAT
 	
 [!Line:POS_DayWisaSalesTotal]
 	Use			:	POS_DayWisaSalesFields
 	
-	Local		:	Field		:	POS_VCHTaxable			:	Set as			:	$$AmountSubtract:#POS_CMNAmount:#POS_VCHVAT
+	Local		:	Field		:	POS_VCHCash				:	Set as			:	$$Total:POS_VCHCash
+	Local		:	Field		:	POS_VCHCard				:	Set as			:	$$Total:POS_VCHCard
+	Local		:	Field		:	POS_VCHBenifitPay		:	Set as			:	$$Total:POS_VCHBenifitPay
+	Local		:	Field		:	POS_VCHTaxable			:	Set as			:	$$Total:POS_VCHTaxable
 	Local		:	Field		:	POS_VCHVAT				:	Set as			:	$$Total:POS_VCHVAT
 	

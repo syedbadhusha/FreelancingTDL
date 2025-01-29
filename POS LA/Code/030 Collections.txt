@@ -42,6 +42,11 @@
 	
 	Fetch		:	*, Amount
 	
+	Compute		:	VATAmount				:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+	Compute		:	POSRegCard				:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:1:POSCardFilter
+	Compute		:	POSRegCheque			:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:Last:POSChqFilter
+	Compute		:	POSRegCash				:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:1:POSCashFilter
+	
 	Filter		:	UseForPOSInvoice
 	
 [Collection:POS_SalesInventory]
@@ -59,9 +64,12 @@
 [Collection:POS_DayWiseSalesSrc]
 	Type		:	Vouchers
 	
-	Fetch		:	*, Amount
+	Fetch		:	*, Amount, AllLedgerEntries.*
 	
-	Compute		:	VATAmount				:	$$FilterAmtTotal:LedgerEntries:InvoiceVATLedger:$Amount
+	Compute		:	VATAmount				:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+	Compute		:	POSRegCard				:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:1:POSCardFilter
+	Compute		:	POSRegCheque			:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:Last:POSChqFilter
+	Compute		:	POSRegCash				:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:1:POSCashFilter
 	
 	Filter		:	POS_IsSalesVouchers
 	
@@ -69,9 +77,11 @@
 	Source Collection		:	POS_DayWiseSalesSrc
 	
 	By			:	DateFrom				:	$$String:$Date
-	
+		
 	Aggr Compute:	TotalVAT				:	Sum			:	$VATAmount
-	Aggr Compute:	TotalAmount				:	Sum			:	$Amount
+	Aggr Compute:	TotalCard				:	Sum			:	If $$IsEmpty:$POSRegCard then 0 else $POSRegCard
+	Aggr Compute:	TotalCash				:	Sum			:	If $$IsEmpty:$POSRegCash then 0 else $POSRegCash
+	Aggr Compute:	TotalCheque				:	Sum			:	If $$IsEmpty:$POSRegCheque then 0 else $POSRegCheque
 	
 	Search Key	:	$DateFrom
 

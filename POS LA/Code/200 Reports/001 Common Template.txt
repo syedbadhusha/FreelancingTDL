@@ -5,8 +5,8 @@
 	
 	Variable	:	SVFromDate, SVToDate
 	
-	Set			:	SVFromDate			:	$$CurrentDate
-	Set			:	SVToDate			:	$$CurrentDate
+	Set			:	SVFromDate			:	$$MachineDate
+	Set			:	SVToDate			:	$$MachineDate
 	
 [Form:POS_CommonTemplate]
 	Height		:	100 % Page
