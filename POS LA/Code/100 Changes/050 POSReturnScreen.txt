@@ -16,9 +16,13 @@
 	Width	:	100 MMS
 	
 	[Part:POS_ReturnBillSelection]
-		Part	:	POS_ReturnBillSelectionMn,LA_POSNum
+		Part	:	POS_ReturnBillSelectionMn;,LA_POSNum
 		Vertical	:	Yes
 		[Part:POS_ReturnBillSelectionMn]
+			Space Left	:	2 mms
+			Space Right	:	2 mms
+			Space Bottom:	2 mms
+			
 			Line	:	POS_ReturnBillSelection
 		[Line:POS_ReturnBillSelection]			
 			Field	:	Name Field,ShortNameField
@@ -39,7 +43,7 @@
 	ActionEx	:	001	:	Create Collection		:	POS_CompanyCreditNotes
 	
 [Report:POS_CreditNoteEntry]
-	Set			:	SVVocuherType		:	@@POS_CreditNoteVCHName
+	Set			:	SVVoucherType		:	@@POS_CreditNoteVCHName
 	
 	Use			:	Voucher
 	
@@ -58,7 +62,7 @@
 		
 	Bottom Buttons			: Voucher Configuration
 	Key		                : POS Print Key, POS Mail Key, POS Share Key,POS Export Key
-	Button	:	POS_Print
+;	Button	:	POS_Print
     ;; Variable has been set on pressing Ctrl+A along with Form accept. This is to identify whether form is getting accepted using Ctrl + A
     ;; When form is accepted using Ctrl+A, in supplementary details form regeneration is not required. To stop the regeneration this approach is used.
     Key                     : FormAcceptKey
@@ -129,7 +133,7 @@
 	
 	Part	:	VCH Registration, VCH Status, VCH Status,+
 				VCHTitle,VCHTitle2,VCHOptionalInfo,+
-				LA_POS_VCHTitle,LA_POS_VCHTop,LA_POSBody
+				LA_POS_VCHTitle,POS_RtnPartyDetails, POS_RtnBody
 
 	Width	: 100 % page
 	Height	: 100 % Page		
@@ -139,3 +143,11 @@
 	
 	Local	:	Part	:	VCHTitle	:	Invisible	:	Yes
 	Local	:	Part	:	VCHTitle2	:	Invisible	:	Yes
+
+[Part:POS_RtnPartyDetails]
+	Part		:	EIConsignee
+	Right Part	:	LA_POS_VCHTitleRight
+	
+[Part:POS_RtnBody]
+	Part		:	LA_POSInvLeft
+	Right Part	:	LA_POSNum

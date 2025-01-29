@@ -314,4 +314,4 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Red
-;				Action		:	Call		:	POS_Return
+				Action		:	Call		:	POS_Return
