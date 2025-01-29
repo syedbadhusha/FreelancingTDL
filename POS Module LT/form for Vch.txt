@@ -1,0 +1,115 @@
+
+
+[Form:cccc]
+
+    Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
+    Control     			: DateBelowFromDate : $Date < $$SystemPeriodFrom
+    Control     			: DateBeyondToDate  : $Date > $$SystemPeriodTo
+		
+    Control         		: STXNonServicePartyExistsMsg   : (@@IsIndianServiceTax AND @@IsSTTaxenabledDate_Vch) AND @@IsJournal AND $$IsEmpty:$TaxAdjustment AND $$IsSTXJrnlTaxObjValidate
+	Control					: BankAmountMisMatch			: (@@IsEbankingAlterReconTrans OR @@IsEbankingAlterExportedTrans) AND (IF ##SVSingleEntry Then #ACLSTotal != ##TotalBankAmount Else #VchDrAmtTotal != ##TotalBankAmount) AND $$InAlterMode
+	Control					: EBankingAllocationsError		: $$InDuplicateMode AND $$BankAllocationError	;; If the amount decreased from the Ledger amount is greater than or equal to the LAst Bank Alloc Amount
+		
+    Horizontal Align		: Left
+    Vertical Align  		: Top
+    Space Bottom    		: 0
+		
+	Bottom Buttons			: Voucher Configuration
+	Key		                : POS Print Key, POS Mail Key, POS Share Key,POS Export Key
+	Button	:	POS_Print
+    ;; Variable has been set on pressing Ctrl+A along with Form accept. This is to identify whether form is getting accepted using Ctrl + A
+    ;; When form is accepted using Ctrl+A, in supplementary details form regeneration is not required. To stop the regeneration this approach is used.
+    Key                     : FormAcceptKey
+
+	On 	: Form Accept 		: (@@IsSales OR @@IsPurchase OR @@IsCreditNote OR @@IsDebitNote OR @@IsExciseGoodsTransfer OR @@IsJournal) 							: Call : VCHResetFormType
+	On	: Form Accept   	: @@IsVATVchTaxDiffIgnored 									: Call  : VATVchInfoResetTaxDiff
+	
+	Set Always              : IsItemExists  : If $$InAlterMode Then NOT ($$IsEmpty:$AllInventoryEntries[1].StockItemName) Else No                                                      
+    Set Always              : VoucherMode   : @@VchModeName
+	Set						: IsGVATVoucher 											: Yes
+	Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn2_Accept, BottomToolBarBtn3_Delete, BottomToolBarBtn4_Cancel
+	On	: Form Accept		: (@@IsGCCCountriesVATOn AND NOT @@IsOmanCountry AND @@IsPayment AND ($$IsSysNameEqual:VAT:$StatPaymentType) AND NOT $$IsEmpty:$TaxPayPeriodFromDate AND NOT $$IsEmpty:$TaxPayPeriodToDate)	: CALL : GVATVchUpdateSummaryAllocs	:@@GVATReturnPymtPeriodFrom:@@GVATReturnPymtPeriodTo
+					
+    Option                  : Vch CompanyOperations
+	Option					: EL Voucher Number Warning Msg		: @@IsEditLogEnabled
+	Option					: Non Stripes Form					: @@IsStockJrnl OR @@IsPhysStock
+
+	Volatile   	    		: If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then If ($IsDefaultAllocEnabled:VoucherType:##SVVoucherType AND (##SVVoucherType != ##PreviousVoucherType)) Then $$RegenerateVoucher Else No Else $$RegenerateVoucher
+    Keys            		: Change System Period
+
+    Default Value   		: ""
+
+	Control Ex				: Vch TaxDetailsModified Authorised	: NOT (@@IsMRPGoodsAllowStates OR @@RBVATTransferRightToUseControl) AND (@@IsVchTaxDetailsModified AND @@IsUserAuthorisedToOverride) 	: vVchSelectedIndex
+	
+	Fetch Object			: Godown						: ($ExciseUnitName:VoucherType:##SVVoucherType)	: TaxUnitName
+	Fetch Object			: TaxUnit						: @@CMPExcisePrimaryGodown	: GSTApplicableDate, GSTRegistrationType, GSTRegNumber, IsEwayBillApplicable, EwayApplicableAmount, eWayBillApplicableDate, +
+                                                                StateName, IsStateCessApplicable, StateCessApplicableDate, IsOthTerritoryAssessee
+
+;;;;;;;;;;;;;
+
+	Control     : LA_PaymethodSelect : Not ##LA_BillPaid and $$InCreateMode
+	Print after Save	: if ##LA_PayTypeStr = "HOLD" then No else Yes
+	No Confirm : Yes
+
+	set	:	LA_MultiPayAccept	:	No
+	Set	:	LA_BillPaid			:	No
+	Set	:	LA_PayTypeStr		:	"CASH"
+	
+	set	:	CashTenderdAmountVar	:	""
+	set	:	LA_POSMultiCashAmnt		:	""	
+	set	:	LA_POSMultiBenefitAmnt	:	""
+
+	set	:	LA_POSMultiCardType		:	""
+	set	:	LA_POSMultiCardAmount	:	""
+	set	:	LA_POSMultiCardNumber	:	""
+
+    Horizontal Align: Left
+    Vertical Align  : Top
+	Width	: 100 % Page
+	Height	: 100 % Page	
+	
+    Space Bottom    : 0
+
+	SetAlways       : UseClassFmt 					: @@UseClassFmt
+    Set Always		: POSSinglePayment		: If @@UseClassFmt Then No Else ##POSSinglePayment 
+	Set             : InvoicingModeFlag : Yes
+	
+	
+	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
+										  If @@InventoryView then $$SysName:InvVchView Else +
+										  If @@PayrollView	then $$SysName:PaySlipVchView Else +
+										  If (@@MultiMfgrJrnlView OR @@IsJobMaterialVchs) then $$SysName:MulConsVchView Else +										  
+										  If @@StkJrnlView then $$SysName:ConsVchView Else $$ShowMessage:"SVViewName variable is not set properly : Error is triggered from voucher.500"	
+
+	SetAlways       : DSPTitleRefresh   : No
+	Set Always      : SVAccAllocOnOrder : ##ICFGAccAllocOnOrder
+
+	Volatile   	    : If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then No Else $$RegenerateVoucher
+
+    Keys            : Change System Period,Disburse Auto Fill
+    
+    Default Value   : ""
+
+    Key						: GSTVAT TaxAnalysis
+	
+	Set             : SVAccounts         		: ##AccountsVch OR ##PayrollVch 
+    Set             : SVInventory          		: NOT ##AccountsVch AND NOT ##PayrollVch
+    Set             : SVStatutory          		: No
+	Set 			: SVTallyShop				: No
+    Set				: SVVoucherOfType	        : @@TypeOfVoucherPrint	
+	
+	Option 			: DummyOption 				: (##SVClass = "x" OR ##SVClass != "x") OR (##AutoFillDone OR NOT ##AutoFillDone)
+	Option			: VoucherAlterMode		    : $$InAlterMode
+   	Option	: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
+	
+;;;;;;;Screen form
+
+	Set				:	VARVchDate		:	$$MachineDAte
+
+
+	Option	:	LA_POS_CreateVch	:	Yes
+
+;	On	:	Form Accept	:	($$IsEmpty:$Name:Ledger:#VCHPOSPartyContact) and (Not $$IsNotApplicable:#VCHPOSPartyContact)	:	Call	:	LA_POS_CreatePartyLed:#VCHPOSPartyContact
+;	On	:	Form Accept	:	Yes:Form Accept
+
+	Switch	: VchTypeColor	  :  POS Invoice Color  : $$IsSales:##SVVoucherType 

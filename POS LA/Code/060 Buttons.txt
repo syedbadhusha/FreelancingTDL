@@ -249,7 +249,7 @@
 				Use		: SettlementCommon
 				Width	: 12 % page
 				Title	: "CASH"
-				Key		: Alt + A	
+				Key		: Ctrl + C	
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Green

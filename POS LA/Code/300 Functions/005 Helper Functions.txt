@@ -46,10 +46,10 @@
 		SVSalesLed	:	Set Value	:	Name					:	@@POS_SalesLedName
 		SVClassRate	:	Set Value	:	ClassRate				:	100
 		SVSalesZero	:	Set Value	:	RemoveZeroEntries		:	No
-			
+	
+	InsVATLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_VATLedName:($$SysName:VAT)	
 	InsDiscLedEntris:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_DiscountLedName:($$SysName:AsUserDefined)
 	InsRndLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_RoundOffLedName:($$SysName:AsUserDefined)	
-	InsVATLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_VATLedName:($$SysName:VAT)
 	
 [Function:POS_VCHTypeClassPOSLedgersSetValue]
 	SVCrdLed		:	Set Value	:	POSCardLedger			:	@@POS_DebitCardLedName

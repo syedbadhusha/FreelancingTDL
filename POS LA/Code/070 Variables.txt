@@ -1,6 +1,59 @@
 <DefType:Variable>
 
-[System:Variable]
 	
 [Variable:POS_BarcodeDetails]
-	Variable		:	PartNo, Barcode, Rate			:	String
+	Variable		:	PartNo, Barcode, Rate			:	String	
+
+;;;;;;;;;;;;;;  Multi Cash Variables
+
+[Variable:LA_POSMultiCashAmnt]
+	Type	:	Amount
+[Variable:CashTenderdAmountVar]
+	Type	:	Amount
+
+;;;;;;;;;;;  Multi Benefit pay Variables
+
+[Variable:LA_POSMultiBenefitAmnt]
+	
+	Type	:	Amount
+
+;;;;;;;;;;; Multi Card Pay Varibles
+	
+[Variable:LA_POSMultiCardType]
+	Type	:	String
+
+[Variable:LA_POSMultiCardAmount]
+	
+	Type	:	Amount
+	
+[Variable:LA_POSMultiCardNumber]
+	
+	Type	:	String
+
+[Variable:LA_MultiPayAccept]
+	
+	Type	:	Logical
+	
+[Variable:LA_BillPaid]
+
+	Type	:	Logical
+	
+[Variable:LA_PayTypeStr]
+	
+	Type	:	String
+
+[System:Variable]
+		
+	CashTenderdAmountVar	:	""
+	LA_POSMultiCashAmnt		:	""
+	
+	LA_POSMultiBenefitAmnt	:	""
+
+	LA_POSMultiCardType		:	""
+	LA_POSMultiCardAmount	:	""
+	LA_POSMultiCardNumber	:	""
+	LA_PayTypeStr			:	""
+	
+	LA_MultiPayAccept		:	No
+	
+	LA_BillPaid				:	No

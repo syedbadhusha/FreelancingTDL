@@ -185,23 +185,24 @@
 [Function:POS_Return]
 	100	:	Alter	:	POS_ReturnBillSelection
 
+;;;;;;;;;;;;;;
+[Function:UpdatePaidMethod]
+	
+	Parameter	:	LA_PayTypePar	:	String
+
+	10000	:	Set Value	:	LA_POSPaymentMethod	:	##LA_PayTypePar
+
 ;;;;;;;;;;;;;;;;;;;;;  Customer Ledger Creation Function	;;;;;;;;;;
 
-[Function:LA_POS_CreatePartyLed]
-	
-	Parameter	:	LA_POS_PartyLed	:	String
-	
-	30	:	New Object	:	Ledger			:	$Name
-	40	:	Set Value	:	name 			:	##LA_POS_PartyLed
-	50	:	Set Value	:	parent			:	$$GroupSundryDebtors
-	80	:	Set Value	:	CountryName		:	@@CmpCountryName
-	90	:	Set Value	:	LedStateName	:	CMPStateName
-	400	:	Save Target
-
-
-
-
-
-
-
+;[Function:LA_POS_CreatePartyLed]
+;	
+;	Parameter	:	LA_POS_PartyLed	:	String
+;	
+;	30	:	New Object	:	Ledger			:	$Name
+;	40	:	Set Value	:	name 			:	##LA_POS_PartyLed
+;	50	:	Set Value	:	parent			:	$$GroupSundryDebtors
+;	80	:	Set Value	:	CountryName		:	@@CmpCountryName
+;	90	:	Set Value	:	LedStateName	:	CMPStateName
+;	400	:	Save Target
+;
 

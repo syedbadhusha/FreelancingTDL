@@ -8,7 +8,6 @@
 	POS_BarcodeWidth			:	Number			:	0150
 	POS_BarcodeHeight			:	Number			:	0160
 	
-	LA_POSStockBal				:	Quantity		:	0200
 	LA_VCHDisc					:	Amount			:	0300
 	LA_VCHSubTax				:	Amount			:	0400
 	LA_VCHSubTotal				:	Amount			:	0500
@@ -16,3 +15,4 @@
 	LA_POS_InvTotal				:	Amount			:	0700
 	LA_POSDiscTotal				:	Amount			:	0800
 	LA_POSRoundOff				:	Amount			:	0900
+	LA_POSPaymentMethod			:	String			:	1000
