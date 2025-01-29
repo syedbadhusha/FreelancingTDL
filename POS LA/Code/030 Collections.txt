@@ -107,11 +107,11 @@
 	Format	:	$Date
 	Format	:	$LA_POS_InvTotal
 	Format	:	$MasterId
-	
 	Fetch		:	*, Amount,PartyLedgerName,VoucherNumber,MasterID,PartyName,LA_POS_InvTotal
 	Align	:	Right
 	Full Height	:	Yes
 	Filter		:	UseForPOSInvoice,Isoptional
+	
 
 [Collection:POS_SalesReturn]
 	Title		:	"List of Bills"
