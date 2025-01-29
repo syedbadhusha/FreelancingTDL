@@ -10,7 +10,7 @@
 	POS_DebitCardLedName	:	"Debit Card"
 	POS_GiftLedName			:	"Benefit Pay"
 	POS_VATLedName			:	"VAT"
-	POS_DiscountLedName		:	"Discount"
+	POS_DiscountLedName		:	"POS Discount"
 	POS_RoundOffLedName		:	"Round Off"
 	
 	POS_ClassName			:	"POS"
@@ -30,8 +30,8 @@
 	
 	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties
 	VATEnabled 	: $IsSalesTaxOn:Company:##SVCurrentCompany
-	IsDiscLed 	: $LedgerName = "POS Discount"
-	IsRoundOff	: $LedgerName = "Roundoff"		
+	IsDiscLed 	: $LedgerName = @@POS_DiscountLedName
+	IsRoundOff	: $LedgerName = @@POS_RoundOffLedName
 
 	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
 	
@@ -39,4 +39,9 @@
 	
 	GetIDToRetake	:		"ID:" + #ShortNameField
 	
-
+	POS_TDLWidth	:	60
+	POS_TDLIndent	:	3
+	
+	POS_BarcodePrinter		:	$POS_BarcodePrinter:Company:$$CurrentCompany
+	POS_BarcodeWidth		:	$POS_BarcodeWidth:Company:$$CurrentCompany
+	POS_BarcodeHeight		:	$POS_BarcodeHeight:Company:$$CurrentCompany

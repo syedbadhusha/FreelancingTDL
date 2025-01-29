@@ -44,10 +44,10 @@
 	Set as		:	$$Number:$$Table:POS_BarcodeNo:$LastSalePrice
 	Set Always	:	Yes
 	Format		:	@@POS_AmountFormat
-	Align		:	Right
 	Width		:	@@ShortWidth
 	Validate	:	$$Value > 0
 	Skip Forward:	Yes
+	Inactive	:	$$IsEmpty:#POS_BarcodeNo
 	
 [Line:POS_BarcodeQty]
 	Field		:	MediumPrompt, POS_BarcodeQty
@@ -59,3 +59,4 @@
 	Format		:	"NoZero"
 	Set as		:	1
 	Validate	:	$$Value > 0
+	Inactive	:	$$IsEmpty:#POS_BarcodeNo

@@ -8,6 +8,12 @@
     Report      : LA_POS_Voucher
 	IsODBCTable : Yes
 
+[Collection:POS_CompanyCreditNotes]
+	Type		:	Voucher
+	Child Of	:	##SVCurrentDate
+	IsODBCTable	:	Yes
+	Report		:	POS_CreditNoteEntry
+	
 [Collection:POS_CreditCardLedgers]
 	Title		:	"Bank Account Ledgers"
 	Use			:	AliasCollection
@@ -107,3 +113,23 @@
 	Full Height	:	Yes
 	Filter		:	UseForPOSInvoice,Isoptional
 
+[Collection:POS_SalesReturn]
+	Title		:	"List of Bills"
+	
+	Use			:	POS_SalesRetake
+	Fetch		:	*, Amount,PartyLedgerName,VoucherNumber,MasterID,PartyName,LA_POS_InvTotal
+	
+	Delete		:	Filter
+	Add			:	Filter		:	UseForPOSInvoice
+	
+[Collection:POS_BarcodeDetailsSrc]
+	Data Source	:	Variable	:	POS_BarcodeDetails
+	
+[Collection:POS_BarcodeDetails]
+	Source Collection			:	POS_BarcodeDetailsSrc
+	
+	Fetch		:	*
+	
+	Keep Source	:	().
+	Client Only	:	Yes
+	

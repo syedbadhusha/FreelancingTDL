@@ -1,0 +1,141 @@
+
+
+[Report:POS_ReturnBillSelection]
+	
+	Form	:	POS_ReturnBillSelection
+	
+[Form:POS_ReturnBillSelection]
+	
+	Part	:	FormSubTitle,POS_ReturnBillSelection	
+	Local	:	Part	:	FormSubTitle	:	Local	:	Field	:	FormSubTitle	:	Set as	:	"Select Bill for Return"
+	Background	:	Dark Red
+	Local	:	Part	:	Default	:	Background	:	White
+	Space Top	:	3 MMS
+	Space Left	:	3 MMS
+	Space Right	:	3 MMS
+	Width	:	100 MMS
+	
+	[Part:POS_ReturnBillSelection]
+		Part	:	POS_ReturnBillSelectionMn,LA_POSNum
+		Vertical	:	Yes
+		[Part:POS_ReturnBillSelectionMn]
+			Line	:	POS_ReturnBillSelection
+		[Line:POS_ReturnBillSelection]			
+			Field	:	Name Field,ShortNameField
+
+			Local	:	Field	:	NameField	:	Table	: POS_SalesReturn
+			Local	:	Field	:	NameField	:	Full Width	:	Yes
+			Local	:	Field	:	NameField	:	Show Table	:	Always
+			
+			
+			Local	:	Field	:	ShortNameField	:	Set as	:	$$Table:NameField:$MasterId
+			Local	:	Field	:	ShortNameField	:	Read Only	:	Yes
+			Local	:	Field	:	ShortNameField	: 	Option	:	AlterOnEnter
+			Local	:	Field	:	ShortNameField	:	Key	:	POS_ReturnKey
+			
+[Key:POS_ReturnKey]
+	
+	Key	:	Enter
+	ActionEx	:	001	:	Create Collection		:	POS_CompanyCreditNotes
+	
+[Report:POS_CreditNoteEntry]
+	Set			:	SVVocuherType		:	@@POS_CreditNoteVCHName
+	
+	Use			:	Voucher
+	
+[Form:POS_CreditNoteEntry]
+	Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
+    Control     			: DateBelowFromDate : $Date < $$SystemPeriodFrom
+    Control     			: DateBeyondToDate  : $Date > $$SystemPeriodTo
+		
+    Control         		: STXNonServicePartyExistsMsg   : (@@IsIndianServiceTax AND @@IsSTTaxenabledDate_Vch) AND @@IsJournal AND $$IsEmpty:$TaxAdjustment AND $$IsSTXJrnlTaxObjValidate
+	Control					: BankAmountMisMatch			: (@@IsEbankingAlterReconTrans OR @@IsEbankingAlterExportedTrans) AND (IF ##SVSingleEntry Then #ACLSTotal != ##TotalBankAmount Else #VchDrAmtTotal != ##TotalBankAmount) AND $$InAlterMode
+	Control					: EBankingAllocationsError		: $$InDuplicateMode AND $$BankAllocationError	;; If the amount decreased from the Ledger amount is greater than or equal to the LAst Bank Alloc Amount
+		
+    Horizontal Align		: Left
+    Vertical Align  		: Top
+    Space Bottom    		: 0
+		
+	Bottom Buttons			: Voucher Configuration
+	Key		                : POS Print Key, POS Mail Key, POS Share Key,POS Export Key
+	Button	:	POS_Print
+    ;; Variable has been set on pressing Ctrl+A along with Form accept. This is to identify whether form is getting accepted using Ctrl + A
+    ;; When form is accepted using Ctrl+A, in supplementary details form regeneration is not required. To stop the regeneration this approach is used.
+    Key                     : FormAcceptKey
+
+	Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn2_Accept, BottomToolBarBtn3_Delete, BottomToolBarBtn4_Cancel
+	
+					
+
+	Volatile   	    		: If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then If ($IsDefaultAllocEnabled:VoucherType:##SVVoucherType AND (##SVVoucherType != ##PreviousVoucherType)) Then $$RegenerateVoucher Else No Else $$RegenerateVoucher
+    Keys            		: Change System Period
+
+    Default Value   		: ""
+
+	Control Ex				: Vch TaxDetailsModified Authorised	: NOT (@@IsMRPGoodsAllowStates OR @@RBVATTransferRightToUseControl) AND (@@IsVchTaxDetailsModified AND @@IsUserAuthorisedToOverride) 	: vVchSelectedIndex
+
+	Fetch Object			: Godown						: ($ExciseUnitName:VoucherType:##SVVoucherType)	: TaxUnitName
+	Fetch Object			: TaxUnit						: @@CMPExcisePrimaryGodown	: GSTApplicableDate, GSTRegistrationType, GSTRegNumber, IsEwayBillApplicable, EwayApplicableAmount, eWayBillApplicableDate, +
+                                                                StateName, IsStateCessApplicable, StateCessApplicableDate, IsOthTerritoryAssessee
+
+;;;;;;;;;;;;;
+	Print after Save		: No
+	No Confirm 				: Yes
+
+	Horizontal Align: Left
+    Vertical Align  : Top
+	Width	: 100 % Page
+	Height	: 100 % Page	
+	
+    Space Bottom    : 0
+     
+	Set             : InvoicingModeFlag : Yes
+	SetAlways       : SVClass           : "POS"
+	
+	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
+										  If @@InventoryView then $$SysName:InvVchView Else +
+										  If @@PayrollView	then $$SysName:PaySlipVchView Else +
+										  If (@@MultiMfgrJrnlView OR @@IsJobMaterialVchs) then $$SysName:MulConsVchView Else +										  
+										  If @@StkJrnlView then $$SysName:ConsVchView Else $$ShowMessage:"SVViewName variable is not set properly : Error is triggered from voucher.500"	
+
+	SetAlways       : DSPTitleRefresh   : No
+	Set Always      : SVAccAllocOnOrder : ##ICFGAccAllocOnOrder
+
+	Volatile   	    : If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then No Else $$RegenerateVoucher
+
+    Keys            : Change System Period,Disburse Auto Fill
+    
+    Default Value   : ""
+             
+	Set             : SVAccounts         		: ##AccountsVch OR ##PayrollVch 
+    Set             : SVInventory          		: NOT ##AccountsVch AND NOT ##PayrollVch
+    Set             : SVStatutory          		: No
+	Set 			: SVTallyShop				: No
+    Set				: SVVoucherOfType	        : @@TypeOfVoucherPrint	
+	
+	Option 			: DummyOption 				: (##SVClass = "x" OR ##SVClass != "x") OR (##AutoFillDone OR NOT ##AutoFillDone)
+	Option			: VoucherAlterMode		    : $$InAlterMode
+   	Option			: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
+	
+;;;;;;;Screen form
+
+	Set				: VARVchDate				:	$$MachineDAte
+
+
+	Option			: LA_POS_CreateCreditNote	:	Yes
+
+[!Form:LA_POS_CreateCreditNote]
+	Option	: Small Size Form
+	
+	Part	:	VCH Registration, VCH Status, VCH Status,+
+				VCHTitle,VCHTitle2,VCHOptionalInfo,+
+				LA_POS_VCHTitle,LA_POS_VCHTop,LA_POSBody
+
+	Width	: 100 % page
+	Height	: 100 % Page		
+	Delete	: Bottom ToolBar Buttons		
+	Local	:	Style	:	Default	:	Font	:	"Verdana"
+	Background	:	White
+	
+	Local	:	Part	:	VCHTitle	:	Invisible	:	Yes
+	Local	:	Part	:	VCHTitle2	:	Invisible	:	Yes

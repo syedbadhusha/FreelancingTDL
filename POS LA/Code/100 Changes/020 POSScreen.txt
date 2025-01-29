@@ -120,8 +120,6 @@
 [!Form: DispModeForUser]
 	
 	Local	: Button: Default      : Inactive: Yes
-	Local	: Key	: Direct Back  : Inactive: No
-	Local	: Key	: Print Bill   : Inactive: No
 	
 [!Form:LA_POS_CreateVch]
 

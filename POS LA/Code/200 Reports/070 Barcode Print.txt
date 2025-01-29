@@ -3,13 +3,60 @@
 	
 	Form		:	POS_BarcodePrint
 	
+	Variable	:	SVPrinterName
+	Set			:	SVPrinterName		:	@@POS_BarcodePrinter
+	
 [Form:POS_BarcodePrint]
-	Width		:	54 mms
-	Height		:	25 mms
+	Width		:	@@POS_BarcodeWidth mms
+	Height		:	@@POS_BarcodeHeight mms
 
 	Space Left	:	2 mms
+	Space Right	:	2 mms
 	
 	Part		:	POS_BarcodePrint
 	
 [Part:POS_BarcodePrint]
-	Line		:	Empty
+	Line		:	POS_BarcodePrint
+	Repeat		:	POS_BarcodePrint:POS_BarcodeDetails
+	Scroll		:	Vertical
+	
+[Line:POS_BarcodePrint]
+	Space Top	:	2 mms
+	
+	Line		:	POS_PRNCMPName, POS_PRNBarcode, POSPRNPartNo, POS_PRNItemName, POS_PRNItemRate
+	
+[Line:POS_PRNCMPName]	
+	Field		:	POS_Barcode
+		
+	Local		:	Field		:	POS_Barcode					:	Set as			:	@@CMPMailName
+	
+[Field:POS_Barcode]
+	Use			:	NameField
+	Full Width	:	Yes
+	Style		:	Tiny
+	Align		:	Center
+	Style		:	Smaller
+	
+[Line:POS_PRNBarcode]
+	Field		:	POS_Barcode
+		
+	Local		:	Field		:	POS_Barcode					:	Set as			:	$Barcode
+	Local		:	Field		:	Default						:	Style			:	POS_Barcode
+	
+[Line:POSPRNPartNo]
+	Field		:	POS_Barcode
+		
+	Local		:	Field		:	POS_Barcode					:	Set as			:	$PartNo
+	Local		:	Style		:	Default						:	Height			:	5
+	
+[Line:POS_PRNItemName]
+	Field		:	POS_Barcode
+		
+	Local		:	Field		:	POS_Barcode					:	Set as			:	$Name:Stockitem:$PartNo
+	Local		:	Style		:	Default						:	Height			:	8
+	
+[Line:POS_PRNItemRate]
+	Field		:	POS_Barcode
+		
+	Local		:	Field		:	POS_Barcode					:	Set as			:	$Rate
+	Local		:	Style		:	Default						:	Height			:	7

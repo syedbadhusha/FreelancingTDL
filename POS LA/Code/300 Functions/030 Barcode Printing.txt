@@ -11,11 +11,17 @@
 	while			:	While		:	##Qty >= ##Index
 	listAdd			:	List Add Ex	:	POS_BarcodeDetails
 	
-	setLBarcode		:	Set			:	POS_BarcodeDetails[##Index].Barcode		:	#POS_BarcodeNo
-	setLRate		:	Set			:	POS_BarcodeDetails[##Index].Rate		:	#POS_BarcodeRate
+	setLPartNo		:	Set			:	POS_BarcodeDetails[##Index].PartNo		:	#POS_BarcodeNo
+	setLBarcode		:	Set			:	POS_BarcodeDetails[##Index].Barcode		:	$$Sprintf:"*%s*":($$POS_ParseBarcode:#POS_BarcodeNo):""
+	setLRate		:	Set			:	POS_BarcodeDetails[##Index].Rate		:	$$String:($$AsAmount:#POS_BarcodeRate):"ShowBaseSymbol"
 	
 	IncrIndex		:	Increment	:	Index
 	
 	endWhile		:	End While
 	
 	prnReport		:	Print		:	POS_BarcodePrint
+	
+[Function:POS_ParseBarcode]
+	Parameter		:	InBarcode	:	String
+	
+	retVal			:	Return		:	$$StringFindAndReplace:($$RemoveExcelNoiseCharacter:##InBarcode):" ":"="

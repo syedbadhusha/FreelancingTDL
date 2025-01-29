@@ -3,5 +3,4 @@
 [System:Variable]
 	
 [Variable:POS_BarcodeDetails]
-	Variable		:	Barcode			:	String
-	Variable		:	Rate			:	Number
+	Variable		:	PartNo, Barcode, Rate			:	String

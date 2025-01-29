@@ -12,3 +12,9 @@
 	
 	Use		: Large Bold
 	Height	: 13
+
+[Style:POS_Barcode]
+	Font		:	"Free 3 of 9 Extended"
+	Height		:	38
+	Bold		:	No
+	

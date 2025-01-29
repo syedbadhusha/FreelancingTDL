@@ -5,7 +5,7 @@
 [#Part: CMP TallyShopFeatures Left]
 	Add			:	Line		:	POS_IsEnabled
 	
-	Local		:	Field		:	MediumPrompt				:	Width			:	55 mms
+	Local		:	Field		:	MediumPrompt				:	Width			:	@@POS_TDLWidth mms
 	
 [Line:POS_IsEnabled]
 	Field		:	MediumPrompt, POS_IsEnabled
@@ -22,13 +22,13 @@
 	Storage		:	POS_IsEnabled
 	
 [Part:POS_Configuration]
-	Line		:	POS_CreditCardDetail
+	Line		:	POS_CreditCardDetail, POS_EnableBarcodePrint
 	
-	Local		:	Line		:	Default						:	Indent			:	5 mms
+	Local		:	Line		:	Default						:	Indent			:	@@POS_TDLIndent * $$ExplodeLevel mms
 	
 	Local		:	Field		:	Default						:	Style			:	NormalItalic
 	
-	Local		:	Field		:	MediumPrompt				:	Width			:	50 mms
+	Local		:	Field		:	MediumPrompt				:	Width			:	@@POS_TDLWidth - (@@POS_TDLIndent * $$ExplodeLevel) mms
 	
 [Line:POS_CreditCardDetail]
 	Field		:	MediumPrompt, POS_CreditCardLedger, POS_CreditCardId
@@ -40,7 +40,6 @@
 	Show Table	:	Always
 	Set Always	:	Yes
 	Table		:	POS_CreditCardLedgers
-	Key			:	CreateLedger
 	Set as		:	$$POS_LedgerName:$POS_CreditCardId
 	
 [Field:POS_CreditCardId]
@@ -49,3 +48,53 @@
 	Set as		:	$$Table:POS_CreditCardLedger:$MasterId
 	Set Always	:	Yes
 	Invisible	:	Yes
+	
+[Line:POS_EnableBarcodePrint]
+	Field		:	MediumPrompt, POS_EnableBarcodePrint
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Enable Barcode Printing?"
+	
+	Explode		:	POS_BarcodeDetails							:	$POS_IsBarcodePrint
+	
+[Field:POS_EnableBarcodePrint]
+	Use			:	LogicalField
+	Storage		:	POS_IsBarcodePrint
+	Set as		:	No
+	
+[Part:POS_BarcodeDetails]
+	Line		:	POS_BarcodePrinter, POS_BarcodeWidth, POS_BarcodeHeight
+	
+[Line:POS_BarcodePrinter]
+	Field		:	MediumPrompt, POS_BarcodePrinter
+		
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Barcode Printer"
+	
+[Field:POS_BarcodePrinter]
+	Use			:	NameField
+	Storage		:	POS_BarcodePrinter
+	Table		:	ListOfPrinters
+	Show Table	:	Always
+	
+[Line:POS_BarcodeWidth]
+	Field		:	MediumPrompt, POS_BarcodeWidth
+		
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Barcode Width in mm"
+	
+[Field:POS_BarcodeWidth]
+	Use			:	NumberField
+	Storage		:	POS_BarcodeWidth
+	Format		:	"NoZero, NoComma"
+	Set as		:	54
+	Validate	:	$$Value > 0
+	
+[Line:POS_BarcodeHeight]
+	Field		:	MediumPrompt, POS_BarcodeHeight
+		
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Barcode Height in mm"
+	
+[Field:POS_BarcodeHeight]
+	Use			:	NumberField
+	Storage		:	POS_BarcodeHeight
+	Format		:	"NoZero, NoComma"
+	Set as		:	25
+	Validate	:	$$Value > 0

@@ -5,7 +5,7 @@
 	
 	Variable	:	Name		:	String
 	
-	000			:	Set			:	Name		:	"POS SALES"
+	000			:	Set			:	Name		:	@@POS_SalesVCHName;"POS SALES"
 	010			:	Call		:	LA_POS_CreationSet	:	##Name
 
 [Function:LA_POS_CreationSet]
@@ -181,6 +181,9 @@
 [Function:LA_POSRetakeFunc]
 	
 	100	:	Alter	:	LA_POSRetakeBillSelection
+
+[Function:POS_Return]
+	100	:	Alter	:	POS_ReturnBillSelection
 
 ;;;;;;;;;;;;;;;;;;;;;  Customer Ledger Creation Function	;;;;;;;;;;
 

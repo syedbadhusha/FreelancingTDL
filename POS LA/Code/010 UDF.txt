@@ -3,6 +3,10 @@
 [System:UDF]
 	POS_IsEnabled				:	Logical			:	0110
 	POS_CreditCardId			:	String			:	0120
+	POS_IsBarcodePrint			:	Logical			:	0130
+	POS_BarcodePrinter			:	String			:	0140
+	POS_BarcodeWidth			:	Number			:	0150
+	POS_BarcodeHeight			:	Number			:	0160
 	
 	LA_POSStockBal				:	Quantity		:	0200
 	LA_VCHDisc					:	Amount			:	0300

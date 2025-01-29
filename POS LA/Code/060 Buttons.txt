@@ -63,7 +63,8 @@
 	Title		:	"Barcode Printing"
 	Key			:	P
 	Action		:	Alter	 	:	POS_BarcodePrinting
-
+	Inactive	:	Not $POS_IsBarcodePrint:Company:$$CurrentCompany
+	
 [Button:POS_TopStks]
 	Use			:	POS_Default
 	Title		:	"Top Selling Stocks"
@@ -313,4 +314,4 @@
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Red
-				
+;				Action		:	Call		:	POS_Return
