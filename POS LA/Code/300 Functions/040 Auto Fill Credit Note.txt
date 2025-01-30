@@ -2,12 +2,18 @@
 		
 [Function:Setitems]
 	Variable	:	Party			:	String
+	Variable	:	DiscountTotal	:	Amount
+	Variable	:	LA_POSRoundOff	:	Amount
 	
 	setPartyVar	:	Set				:	Party			:	$$CollectionFieldByKey:$PartyName:($$Number:##POS_MasterId):POS_SalesReturn
 	
-	crLed		:	Call			:	POS_CreateLedger:##Party:$$GroupSundryDebtors
+	setDiscVar	:	Set				:	DiscountTotal			:	$$CollectionFieldByKey:$LA_POSDiscTotal:($$Number:##POS_MasterId):POS_SalesReturn
+	setRndVar	:	Set				:	LA_POSRoundOff			:	$$CollectionFieldByKey:$LA_POSRoundOff:($$Number:##POS_MasterId):POS_SalesReturn
+;	crLed		:	Call			:	POS_CreateLedger:##Party:$$GroupSundryDebtors
 
-	setParty	:	Set Value		:	PartyLedgerName	:	##Party
+	setAccount	:	Set Value		:	PartyLedgerName			:	"Cash"
+	setDiscTot	:	Set Value		:	LA_POSDiscTotal			:	##DiscountTotal
+	setParty	:	Set Value		:	POS_VCHPOSCustomer		:	##Party
 	
 	WlkCll		:	Walk Collection	:	POS_SalesReturnInventory
 	

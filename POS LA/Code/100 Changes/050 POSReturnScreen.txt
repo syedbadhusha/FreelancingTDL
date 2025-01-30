@@ -45,13 +45,12 @@
 	ActionEx	:	001	:	Create Collection		:	POS_CompanyCreditNotes
 	
 [Report:POS_CreditNoteEntry]
-	Set			:	SVVoucherType		:	@@POS_CreditNoteVCHName
-	
+	Set			:	SVVoucherType		:	@@POS_CreditNoteVCHName	
 	Use			:	Voucher
-	
 	On		:	Load	:	$$InCreateMode	:	Call		:	SetItems
 	
 [Form:POS_CreditNoteEntry]
+	
 	Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
     Control     			: DateBelowFromDate : $Date < $$SystemPeriodFrom
     Control     			: DateBeyondToDate  : $Date > $$SystemPeriodTo
@@ -136,6 +135,7 @@
 	On			:	Form Accept	:	Yes		:	Trigger Key	:	Ctrl + Q
 	
 [!Form:LA_POS_CreateCreditNote]
+
 	Option	: Small Size Form
 	
 	Part	:	VCH Registration, VCH Status, VCH Status,+
@@ -155,28 +155,55 @@
 	Part		:	EIConsignee
 	Right Part	:	LA_POS_VCHTitleRight
 	
-	Local		:	Part		:	EI Consignee		:	Add			:	Line		:	LA_VCHPOSGodown
-	
-	Local		:	Line		:	EI Consignee		:	+
-		Local	:	Field		:	SimplePrompt		:	Info		:	"Customer"
+	Local	:	Part	:	EIConsignee	:	Add	:	Line	:	after	:	EI Consignee	:	POS_VCHPOSCustomer 
+
+	Local		:	Part		:	EI Consignee		:	Add			:	Line		:	LA_VCHPOSGodown	
+
+	local	:	Part	:	EIConsignee	:	local	:	Line	:	EIConsignee	:	Local	:	Field		:	SimplePrompt		:	Info		:	"Account"
 		
-	Local		:	Field		:	EI Consignee		:	Delete		:	Sub Form
 	
+	Local		:	Line		:	EI Consignee		:	+	
+	Local		:	Field		:	EI Consignee		:	Delete		:	Sub Form
+		Local		:	Field		:	EI Consignee		:	Set as	:	"Cash"
+
 	Local		:	Line		:	LA_VCHPOSGodown		:	+
 		Local	:	Field		:	LA_VCHPOSGodown		:	Set as		:	$$CollectionFieldByKey:$InventoryEntries.GodownName:($$Number:##POS_MasterId):POS_SalesReturn
+
+	Local	:	Part	:	EI Consignee	:	Local 		: Field : Simple Prompt: Width		: @@VchLeftPromptWidth % Page
+
+	Local		:	Line		:	LA_VCHPOSGodown	:	Local 		: Field : Short Prompt: Width		: @@VchLeftPromptWidth % Page
+
+[Line:POS_VCHPOSCustomer]
+	
+	Field	:	SimplePrompt,POS_VCHPOSCustomer 
+	
+	Local	:	Field	:	SimplePrompt	:	Set as	:	"Customer"
 		
+[Field:POS_VCHPOSCustomer]
+	
+	Use	:	Name Field
+	Set Always	:	Yes
+	Storage	:	POS_VCHPOSCustomer
+	Read Only	:	Yes
+	
+
 [Part:POS_RtnBody]
+
 	Part		:	LA_POSInvLeft
 	Right Part	:	LA_POSNum
 	
-	Local		:	Part		:	LA_POSInvDetails	:	Replace		:	Part	:	LA_POSInvDetailsInv	:	LA_POSInvDetailsReturn
-	Local		:	Part		:	LA_POSInvLeft		:	Replace		:	Bottom Part	:	LA_POSInvTotal		:	Cust_VCHPOSModeOfReceipts
-	Local		:	Part		:	Cust_VCHPOSModeOfReceipts	:	Replace	:	Part	:	LA_POSInvDetailsLed	:	LA_POSInvDetailsLedReturn
+	Local		:	Part		:	LA_POSInvDetails					:	Replace		:	Part		:	LA_POSInvDetailsInv	:	LA_POSInvDetailsReturn
+	Local		:	Part		:	LA_POSInvLeft						:	Replace		:	Bottom Part	:	LA_POSInvTotal		:	Cust_VCHPOSModeOfReceipts
+	Local		:	Part		:	Cust_VCHPOSModeOfReceipts			:	Replace		:	Part		:	LA_POSInvDetailsLed	:	LA_POSInvDetailsLedReturn
 	
-	Local		:	Part		:	LA_POSInvDetails	:	+
-				Local	:	Part	:	LA_CIAccInfo	:	Invisible	:	Yes;No
-				
-			[Part:LA_POSInvDetailsReturn]
+;	local		:	part		:	la_posinvdetails	:	+
+;				local	:	part	:	la_ciaccinfo	:	invisible	:	no
+
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
+	Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
+	
+		
+		[Part:LA_POSInvDetailsReturn]
 
 				Lines   : CI InvDetails;, EI InvSubTotal
 				Repeat  : CI InvDetails : Inventory Entries
@@ -190,19 +217,21 @@
 				Local	:	Field	:	Default	:	Border	:	Thin Box
 				
 				Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
+
 				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Invisible: Yes
 				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Inactive: No
-;				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
 				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
 				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Add: Set as: if $$IsEmpty:#LA_VCHPOSGodown then "MainLocation" else #LA_VCHPOSGodown
 				
+
 [Part:LA_POSInvDetailsLedReturn]
 	
 	Part	:	LA_POSInvTaxableAmount,LA_POSInvLedLeft,LA_POSInvGrandTotalRet
 	Horizontal Align	:	Right
 	Vertical	:	No
 	Local	:	Field	:	Default	:	Border	:	Thin Box
-	
+
+
 [Part:LA_POSInvGrandTotalRet]
 	Line	:	LA_POSInvGrandTotalTit,LA_POSInvGrandTotal
 

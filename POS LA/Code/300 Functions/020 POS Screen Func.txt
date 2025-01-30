@@ -166,11 +166,11 @@
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].	
 	300 : 	If: $LedgerName = "POS Discount" 
-	400	:		Set Value	:	Amount				:	-##LA_DiscountAmountPar
+	400	:		Set Value	:	Amount				:	if @@isCreditNote then $$AsDrAmt:##LA_DiscountAmountPar else -##LA_DiscountAmountPar;if @@isCreditNote then ##LA_DiscountAmountPar else -##LA_DiscountAmountPar
 	500	:	End If
 
 	600 : 	If: $LedgerName = "RoundOff" 
-	700	:		Set Value	:	Amount				:	##LA_POSRoundOffPar
+	700	:		Set Value	:	Amount				:	if @@isCreditNote then -$$AsDrAmt:##LA_POSRoundOffPar else ##LA_POSRoundOffPar
 	800	:	End If
 
 	2000	: End Walk

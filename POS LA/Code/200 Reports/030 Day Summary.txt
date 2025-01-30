@@ -15,10 +15,21 @@
 	Local		:	Field		:	POSReg GiftVch			:	Invisible		:	Yes
 	
 	Local		:	Line		:	POSRegister ColTitle	:	+
-		Local	:	Field		:	POSReg Cheque			:	Set as			:	"Benefit Pay"
+	Local		:	Field		:	POSReg Cheque			:	Set as			:	"Benefit Pay"
 		
 	Local		:	Field		:	DSP VchDate				:	Delete			:	Alter		:	Voucher
 	Local		:	Field		:	DSP VchDate				:	Add				:	Alter		:	LA_POS_Voucher		:	($$IsVoucher AND NOT $IsDeleted AND (NOT @@IsAttendanceVch AND NOT @@IsPayrollVch))
+	
+	Local	:	Line	:	POSRegisterColTitle	:	Add	:	Field	:	After	:	DSP VchTypeTitle	:	POS_VCHParty
+	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Set as	:	"Customer"
+	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Delete	:	Border
+	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Align	:	Center
+
+	Local	:	Line	:	POSRegister Detail	:	Add	:	Field	:	After	:	DSP VchType	:	POS_VCHParty
+	Local	:	Line	:	POSRegister Detail	:	Local	:	Field	:	POS_VCHParty	:	Delete	:	Border
+
+	Local	:	Line	:	POSRegister Total	:	Add	:	Field	:	After	:	DSP VchType	:	POS_VCHParty
+	Local	:	Line	:	POSRegister Total	:	Local	:	Field	:	POS_VCHParty	:	Set as	:	""
 	
 ;	Local		:	Field		:	FormSubtitle			:	Set as			:	"Day Summary"
 ;	
@@ -40,6 +51,13 @@
 	Width		:	20 mms
 	Border		:	ThinLeft
 	Alter		:	LA_POS_Voucher
+	
+[Field:POS_VCHParty]
+	
+	Use			:	Name Field
+	Set as		:	$PartyName
+	Width		:	60 MMS
+	Border		:	ThinLeft
 	
 ;[!Line:POS_DaySummaryTitle]
 ;	Use			:	POS_DaySummaryFields

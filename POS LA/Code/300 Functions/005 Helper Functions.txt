@@ -11,9 +11,24 @@
 		setVName	:	Set Value	:	Name			:	##Name
 		setVParent	:	Set Value	:	Parent			:	##Parent
 		
-		ifDuty		:	Do If		:	##Parent = $$GroupDuties:	Set Value	:	TaxType			:	$$SysName:VAT
-		ifDisc		:	Do If		:	##IsVAT					:	Set Value	:	VATApplicable	:	$$SysName:Applicable
-						
+		ifDuty				:	Do If		:	##Parent = $$GroupDuties			:	Set Value	:	TaxType				:	$$SysName:VAT
+		ifDisc				:	Do If		:	##IsVAT								:	Set Value	:	VATDealerNature		:	"Discount";Set Value	:	VATApplicable	:	$$SysName:Applicable
+
+		IsCostcenter 		: 	Set Value	:	IsCostCentresOn						:	No
+
+		isVatforDisc 		: 	Do If		:	##IsVAT								:	Set Value	:	AppropriateFor		:	"VAT"
+		isVatDiscApproTo	:	Do If		:	##IsVAT								:	Set Value	:	GSTAppropriateTo	:	"Goods and Services"
+		
+		IsSalesUpdateNature	:	Do If	:	##Parent = $$GroupSales	and @@IsGCCCountriesVATOn		:	Set Value	:	tempNature	:	"Domestic Taxable Supplies"
+		SetVatList	:	If	:	##Parent = $$GroupSales	and @@IsGCCCountriesVATOn
+			010	: Insert Collection Object	: VATDetails	: ##pCounter
+			020	: 	Set Value	: Fromdate	: $VATApplDate:Company:##SVCurrentCompany
+			030	: 	Set Value	: TaxType	: "Taxable"
+			040	:	Set Value	: RateOfVAT	: $(Company, ##SVCurrentCompany).VATDetails[Last].RateofVAT
+			045	:	Set Value	: StatNatureName	: "Domestic Taxable Supplies"
+			900	: Set Target	: ..
+			1000	:	End If
+
 	saveLedger		:	Save Target
 	
 [Function:POS_BasicVCHTypeSetValue]

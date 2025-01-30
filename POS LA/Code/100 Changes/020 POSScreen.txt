@@ -492,7 +492,7 @@
 			Local	:	Field	:	LA_POSInvTaxableAmount			:	Read Only	:	Yes
 			Local	:	Field	:	LA_POSInvTaxableAmount			:	Width		:	35 MMS
 			Local	:	Field	:	LA_POSInvTaxableAmount			:	Style		:	Large Bold
-			Local	:	Field	:	LA_POSInvTaxableAmount			:	Set as		:	#VCHPOSInvoiceTotal-#LA_POSInvDetailsLed
+			Local	:	Field	:	LA_POSInvTaxableAmount			:	Set as		:	if @@isCreditNote then #EIValueTotal-#LA_POSInvDetailsLed else #VCHPOSInvoiceTotal-#LA_POSInvDetailsLed
 
 	[Part:LA_POSInvLedLeft]
 		
@@ -602,7 +602,8 @@
 			Use         : Amount Forex Field
 			Set as      : ""
 			Style		:	Normal Bold
-			Set Always	:	yes			
+			Set Always	:	yes	
+			
 			
 		[Field:LA_POSInvTotal]
 			Use         : Amount Forex Field

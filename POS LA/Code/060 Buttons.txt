@@ -73,7 +73,7 @@
 
 [Button:POS_DaySummary]
 	Use			:	POS_Default
-	Title		:	"Day Summary"
+	Title		:	"POS Day Summary"
 	Key			:	D
 	Action		:	Display		:	POS_DaySummary
 
@@ -249,7 +249,7 @@
 				Use		: SettlementCommon
 				Width	: 12 % page
 				Title	: "CASH"
-				Key		: Ctrl + C	
+				Key		: Ctrl + S
 				Border	: Thin Box
 				Key Color	:	white
 				Background	:	Dark Green

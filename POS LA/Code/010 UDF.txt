@@ -16,3 +16,5 @@
 	LA_POSDiscTotal				:	Amount			:	0800
 	LA_POSRoundOff				:	Amount			:	0900
 	LA_POSPaymentMethod			:	String			:	1000
+	POS_VCHPOSCustomer			:	String			:	1100
+	
