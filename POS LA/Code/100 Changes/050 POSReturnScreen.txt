@@ -132,7 +132,7 @@
 	Option			: LA_POS_CreateCreditNote	:	Yes
 
 	On			:	Form Accept	:	Yes		:	Form Accept
-	On			:	Form Accept	:	Yes		:	Trigger Key	:	Ctrl + Q
+	On			:	Form Accept	:	$$InCreateMode		:	Trigger Key	:	Ctrl + Q
 	
 [!Form:LA_POS_CreateCreditNote]
 

@@ -54,8 +54,8 @@
 
 [Button:POS_SalesSummary]
 	Use			:	POS_Default
-	Title		:	"Sales Summary"
-	Key			:	Alt + S
+	Title		:	"POS Return Summary"
+	Key			:	R
 	Action		:	Display 	:	POS_SalesSummary
 
 [Button:POS_BarcodePrinting]

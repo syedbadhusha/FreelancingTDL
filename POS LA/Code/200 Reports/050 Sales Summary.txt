@@ -1,12 +1,9 @@
 [Report:POS_SalesSummary]
-	Title		:	"Sales Summary"
+	Title		:	"POS Return Summary"
 	
 	Use			:	POS_CommonTemplate
-	
-	Set			:	SVFromDate			:	$$MonthStart:$$CurrentDate
-	Set			:	SVToDate			:	$$MonthEnd:$$CurrentDate
-	
-	Local		:	Field		:	FormSubtitle			:	Set as			:	"Sales Summary"
+		
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"POS Return Summary"
 	
 	Local		:	Line		:	POS_CommonColumnTitle	:	Option			:	POS_SalesSummaryTitle
 	Local		:	Line		:	POS_CommonInfo			:	Option			:	POS_SalesSummaryInfo
@@ -14,14 +11,14 @@
 	
 	Local		:	Part		:	POS_CommonInfo			:	Option			:	POS_SalesSummaryInfo
 	
+	Local		:	Button		:	POS_Open				:	Delete			:	Action
+	Local		:	Button		:	POS_Open				:	Add				:	Action			:	Trigger Key		:	Ctrl + Enter
+	
 [!Part:POS_SalesSummaryInfo]	
-	Repeat		:	POS_CommonInfo:POS_Sales
-	
-	Total		:	POS_VCHCash, POS_VCHCard, POS_VCHBenifitPay
-	
+	Repeat		:	POS_CommonInfo:POS_CreditNotes
+		
 [!Line:POS_SalesSummaryFields]
 	Add			:	Field		:	After	:	POS_CMNSNo	:	POS_VCHDate,POS_VCHParty
-	Add			:	Right Field	:	At Beginning			:	POS_VCHCash, POS_VCHCard, POS_VCHBenifitPay
 	
 [!Line:POS_SalesSummaryTitle]
 	Use			:	POS_SalesSummaryFields
@@ -29,24 +26,22 @@
 	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Bill No"
 	Local		:	Field		:	POS_VCHDate				:	Set as			:	"Date"
 	Local		:	Field		:	POS_VCHParty			:	Set as			:	"Party"
-	Local		:	Field		:	POS_VCHCash				:	Set as			:	"Cash"
-	Local		:	Field		:	POS_VCHCard				:	Set as			:	"Card"
-	Local		:	Field		:	POS_VCHBenifitPay		:	Set as			:	"Benefit Pay"
 	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Total Amount"
 	
 [!Line:POS_SalesSummaryInfo]
 	Use			:	POS_SalesSummaryFields
+
+	Option		:	DisplayOnEnter
+	Local		:	Field		:	POS_VCHDate				:	Display			:	POS_CreditNoteEntry
+	Local		:	Field		:	POS_VCHDate				:	Delete			:	Alter
+	
+;	Local		:	Field		:	POS_VCHDate				:	Replace			:	Alter		:	LA_POS_Voucher	:	POS_CreditNoteEntry
 	
 	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$VoucherNumber
-	Local		:	Field		:	POS_VCHCash				:	Set as			:	$POSRegCash
-	Local		:	Field		:	POS_VCHCard				:	Set as			:	$POSRegCard
-	Local		:	Field		:	POS_VCHBenifitPay		:	Set as			:	$POSRegCheque
-	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$AmountAdd:#POS_VCHCash:($$AmountAdd:#POS_VCHCard:#POS_VCHBenifitPay)
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$Amount
 	
 [!Line:POS_SalesSummaryTotal]
 	Use			:	POS_SalesSummaryFields
 	
-	Local		:	Field		:	POS_VCHParty			:	Set as			:	""
 	Local		:	Field		:	POS_VCHCash				:	Set as			:	$$Total:POS_VCHCash
 	Local		:	Field		:	POS_VCHCard				:	Set as			:	$$Total:POS_VCHCard
-	Local		:	Field		:	POS_VCHBenifitPay		:	Set as			:	$$Total:POS_VCHBenifitPay

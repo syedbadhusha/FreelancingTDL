@@ -49,6 +49,14 @@
 	
 	Filter		:	UseForPOSInvoice
 	
+[Collection:POS_CreditNotes]
+	Use			:	POS_Sales
+
+	Delete		:	Child Of
+	Add			:	Child Of	:	$$VchTypeCreditNote
+
+	Delete		:	Filter
+	
 [Collection:POS_SalesInventory]
 	Source Collection			:	POS_Sales
 	
