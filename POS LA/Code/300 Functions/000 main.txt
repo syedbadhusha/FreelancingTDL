@@ -7,3 +7,5 @@
 [Include:020 POS Screen Func.txt]
 
 [Include:030 Barcode Printing.txt]
+
+[Include:040 Auto Fill Credit Note.txt]

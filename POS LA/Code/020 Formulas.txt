@@ -45,3 +45,5 @@
 	POS_BarcodePrinter		:	$POS_BarcodePrinter:Company:$$CurrentCompany
 	POS_BarcodeWidth		:	$POS_BarcodeWidth:Company:$$CurrentCompany
 	POS_BarcodeHeight		:	$POS_BarcodeHeight:Company:$$CurrentCompany
+	
+	POS_IsSameSalesReturn	:	$$Number:##POS_MasterId = $$Number:$MasterId

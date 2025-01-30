@@ -36,16 +36,20 @@
 			Local	:	Field	:	ShortNameField	:	Read Only	:	Yes
 			Local	:	Field	:	ShortNameField	: 	Option	:	AlterOnEnter
 			Local	:	Field	:	ShortNameField	:	Key	:	POS_ReturnKey
+			Local	:	Field	:	ShortNameField	:	Set Always	:	Yes
 			
 [Key:POS_ReturnKey]
 	
 	Key	:	Enter
+	ActionEx	:	002	:	Set						:	POS_MasterId		:	@@GetIDToRetake
 	ActionEx	:	001	:	Create Collection		:	POS_CompanyCreditNotes
 	
 [Report:POS_CreditNoteEntry]
 	Set			:	SVVoucherType		:	@@POS_CreditNoteVCHName
 	
 	Use			:	Voucher
+	
+	On		:	Load	:	$$InCreateMode	:	Call		:	SetItems
 	
 [Form:POS_CreditNoteEntry]
 	Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
@@ -128,6 +132,9 @@
 
 	Option			: LA_POS_CreateCreditNote	:	Yes
 
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	Yes		:	Trigger Key	:	Ctrl + Q
+	
 [!Form:LA_POS_CreateCreditNote]
 	Option	: Small Size Form
 	
@@ -148,6 +155,63 @@
 	Part		:	EIConsignee
 	Right Part	:	LA_POS_VCHTitleRight
 	
+	Local		:	Part		:	EI Consignee		:	Add			:	Line		:	LA_VCHPOSGodown
+	
+	Local		:	Line		:	EI Consignee		:	+
+		Local	:	Field		:	SimplePrompt		:	Info		:	"Customer"
+		
+	Local		:	Field		:	EI Consignee		:	Delete		:	Sub Form
+	
+	Local		:	Line		:	LA_VCHPOSGodown		:	+
+		Local	:	Field		:	LA_VCHPOSGodown		:	Set as		:	$$CollectionFieldByKey:$InventoryEntries.GodownName:($$Number:##POS_MasterId):POS_SalesReturn
+		
 [Part:POS_RtnBody]
 	Part		:	LA_POSInvLeft
 	Right Part	:	LA_POSNum
+	
+	Local		:	Part		:	LA_POSInvDetails	:	Replace		:	Part	:	LA_POSInvDetailsInv	:	LA_POSInvDetailsReturn
+	Local		:	Part		:	LA_POSInvLeft		:	Replace		:	Bottom Part	:	LA_POSInvTotal		:	Cust_VCHPOSModeOfReceipts
+	Local		:	Part		:	Cust_VCHPOSModeOfReceipts	:	Replace	:	Part	:	LA_POSInvDetailsLed	:	LA_POSInvDetailsLedReturn
+	
+	Local		:	Part		:	LA_POSInvDetails	:	+
+				Local	:	Part	:	LA_CIAccInfo	:	Invisible	:	Yes;No
+				
+			[Part:LA_POSInvDetailsReturn]
+
+				Lines   : CI InvDetails;, EI InvSubTotal
+				Repeat  : CI InvDetails : Inventory Entries
+				BreakOn : $$IsSysName:$StockItemName       
+				Vertical: Yes
+				Scroll  : Vertical
+
+				Local	:	Line	:	CI InvInfo	:	Explode	:	Default	:	No
+
+				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal
+				Local	:	Field	:	Default	:	Border	:	Thin Box
+				
+				Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
+				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Invisible: Yes
+				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Inactive: No
+;				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
+				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
+				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Add: Set as: if $$IsEmpty:#LA_VCHPOSGodown then "MainLocation" else #LA_VCHPOSGodown
+				
+[Part:LA_POSInvDetailsLedReturn]
+	
+	Part	:	LA_POSInvTaxableAmount,LA_POSInvLedLeft,LA_POSInvGrandTotalRet
+	Horizontal Align	:	Right
+	Vertical	:	No
+	Local	:	Field	:	Default	:	Border	:	Thin Box
+	
+[Part:LA_POSInvGrandTotalRet]
+	Line	:	LA_POSInvGrandTotalTit,LA_POSInvGrandTotal
+
+	Local	:	Line	:	LA_POSInvGrandTotal	:	Replace	:	Field	:	VCHPOSInvoiceTotal	:	EIValueTotal
+	
+	Local	:	Field	:	EIValueTotal	:	Style	:	Large Bold					
+	Local	:	Field	:	EIValueTotal	:	Read Only	:	Yes
+	Local	:	Field	:	EIValueTotal	:	Width	:	35 MMS
+	Local	:	Field	:	EIValueTotal	:	Color	:	white
+	Local	:	Field	:	EIValueTotal	:	Background	:	Dark Red
+	Local	:	Field	:	EIValueTotal	:	Skip	:	No
+	Local	:	Field	:	EIValueTotal	:	Delete	:	Sub Form

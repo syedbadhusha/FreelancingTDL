@@ -132,6 +132,17 @@
 	Delete		:	Filter
 	Add			:	Filter		:	UseForPOSInvoice
 	
+	Search Key	:	$$Number:$MasterId
+	
+[Collection:POS_SalesReturnInventory]
+	Source Collection	:	POS_SalesReturn
+	
+	Walk		:	InventoryEntries
+	
+	Fetch		:	*, MasterId
+	
+	Filter		:	POS_IsSameSalesReturn
+	
 [Collection:POS_BarcodeDetailsSrc]
 	Data Source	:	Variable	:	POS_BarcodeDetails
 	

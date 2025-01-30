@@ -1,0 +1,42 @@
+<DefType:Function>
+		
+[Function:Setitems]
+	Variable	:	Party			:	String
+	
+	setPartyVar	:	Set				:	Party			:	$$CollectionFieldByKey:$PartyName:($$Number:##POS_MasterId):POS_SalesReturn
+	
+	crLed		:	Call			:	POS_CreateLedger:##Party:$$GroupSundryDebtors
+
+	setParty	:	Set Value		:	PartyLedgerName	:	##Party
+	
+	WlkCll		:	Walk Collection	:	POS_SalesReturnInventory
+	
+	insInvEnty	:	Insert Collection Object	:	InventoryEntries
+	setTgt		:	Set Target		:	InventoryEntries[$$LoopIndex]
+	setItmName	:	Set Value		:	StockItemName
+	setItmQty	:	Set Value		:	BilledQty
+	setItmAQty	:	Set Value		:	ActualQty
+	setItmAmt	:	Set Value		:	Amount
+	setItmRate	:	Set Value		:	Rate
+	setItmGdn	:	Set Value		:	GodownName
+	setItmDisc	:	Set Value		:	LA_VCHDisc
+	setItmSubTx	:	Set Value		:	LA_VCHSubTax
+	setitmSubTl	:	Set Value		:	LA_VCHSubTotal
+	
+	insBtchAll	:	Set Target		:	BatchAllocations[1]
+	setBItmName	:	Set Value		:	StockItemName
+	setBItmQty	:	Set Value		:	BilledQty
+	setBItmAQty	:	Set Value		:	ActualQty
+	setBItmAmt	:	Set Value		:	Amount
+	setBItmRate	:	Set Value		:	BatchRate
+	setBItmGdn	:	Set Value		:	GodownName
+	setBtchName	:	Set Value		:	BatchName
+	
+	wlkAccAllo	:	Walk Collection	:	AccountingAllocations
+	InsAccAllo	:	Insert Collection Object	:	AccountingAllocations
+	setLgName	:	Set Value		:	LedgerName
+	setisDeemed	:	Set Value		:	IsDeemedPositive	:	Not $IsDeemedPositive
+	setLAmnt	:	Set Value		:	Amount
+	endWlkAcc	:	End Walk
+	
+	enWlk		:	End Walk
