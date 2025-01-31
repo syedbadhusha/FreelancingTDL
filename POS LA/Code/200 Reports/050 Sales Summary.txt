@@ -31,11 +31,11 @@
 [!Line:POS_SalesSummaryInfo]
 	Use			:	POS_SalesSummaryFields
 
-	Option		:	DisplayOnEnter
+;	Option		:	DisplayOnEnter
 	Local		:	Field		:	POS_VCHDate				:	Display			:	POS_CreditNoteEntry
 	Local		:	Field		:	POS_VCHDate				:	Delete			:	Alter
 	
-;	Local		:	Field		:	POS_VCHDate				:	Replace			:	Alter		:	LA_POS_Voucher	:	POS_CreditNoteEntry
+	Local		:	Field		:	POS_VCHDate				:	Replace			:	Alter		:	LA_POS_Voucher	:	POS_CreditNoteEntry
 	
 	Local		:	Field		:	POS_CMNDesc				:	Set as			:	$VoucherNumber
 	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$Amount
