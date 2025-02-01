@@ -16,6 +16,9 @@
 	Variable	:	LA_POSMultiCardAmount,LA_POSMultiBenefitAmnt,LA_POSMultiCashAmnt
 	Variable	:	LA_BillPaid	
 
+	Local	:	Style	:	Default	:	Font	:	"Verdana"
+	Local	:	Form	:	Default	:	Background	:	White
+
 [Form:LA_POS_Voucher]
 
 	SetAlways       		: SVClass           : "POS"
@@ -129,9 +132,12 @@
 ;	On	:	Form Accept	:	($$IsEmpty:$Name:Ledger:#VCHPOSPartyContact) and (Not $$IsNotApplicable:#VCHPOSPartyContact)	:	Call	:	LA_POS_CreatePartyLed:#VCHPOSPartyContact
 ;	On	:	Form Accept	:	Yes:Form Accept
 
-	On	:	Form Accept	:	yes	:	Call	:	UpdatePaidMethod:##LA_PayTypeStr	
-	Switch	: VchTypeColor	  :  POS Invoice Color  : $$IsSales:##SVVoucherType 
+	On	:	Form Accept		  :	yes					:	Call	 :	UpdatePaidMethod:##LA_PayTypeStr	
+	Switch	: VchTypeColor	  :  POS Invoice Color  : 	$$IsSales:##SVVoucherType 
 	
+;	Local	:	Style	:	Default	:	Font	:	"Verdana"
+;	Background	:	White
+
 [!Form: DispModeForUser]
 	
 	Local	: Button: Default      : Inactive: Yes
@@ -147,8 +153,6 @@
 	Width	: 100 % page
 	Height	: 100 % Page		
 	Delete	: Bottom ToolBar Buttons		
-	Local	:	Style	:	Default	:	Font	:	"Verdana"
-	Background	:	White
 	
 	Local	:	Part	:	VCHTitle	:	Invisible	:	Yes
 	Local	:	Part	:	VCHTitle2	:	Invisible	:	Yes
@@ -198,6 +202,8 @@
 			
 			Local	:	Part	:	EI Price Level		:	Invisible	:	Yes
 			Local	:	Part	:	POS PartyNameInfo	:	Delete		:	Width
+			
+			
 			[Line:LA_POSPaymentMethod]
 				Field	:	Medium Prompt,LA_POSPaymentMethod
 				Local	:	Field	:	Medium Prompt	:	Set as	:	"Payment Method"

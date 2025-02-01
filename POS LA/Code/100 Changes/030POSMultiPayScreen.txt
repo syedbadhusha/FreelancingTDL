@@ -11,7 +11,7 @@
 		Background	:	Royal Blue	
 		Space Left	:	2 MMS
 		Space Right	:	2 MMS
-
+		Local	:	Style	:	Default	:	Font	:	"Verdana"
 		[Part:LA_POSMultiPayRep]
 			Part	:	LA_POSMultiPayRepWithTit,LA_POSMultiPayNumPad
 			Vertical	:	No
@@ -47,8 +47,8 @@
 				Line	:	LA_POSMultiCardTypeTitle,LA_POSMultiCardType,+
 							LA_POSMultiCardAmount,LA_POSMultiCardNumber
 							
-				Background	:	Dark Green
-
+;				Background	:	Dark Green
+				Background	:	White
 				Local	:	Line	:	Default	:	Height	:	7 MMS
 
 				[Line:LA_POSMultiCardTypeTitle]
@@ -80,9 +80,9 @@
 						Modifies	:	LA_POSMultiCardAmount	:	Yes
 						Border	:	thin Box
 						Validate	:	Not $$IsEmpty:$$Value
-						Set as		:	if $$IsNotApplicable:#LA_POSMultiCardType then "" else ##LA_POSMultiCardAmount
+;						Set as		:	if $$IsNotApplicable:#LA_POSMultiCardType then "" else ##LA_POSMultiCardAmount
 						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
-						
+						Width		:	50 MMS
 				[Line:LA_POSMultiCardNumber]
 					Field	:	Medium Prompt,LA_POSMultiCardNumber
 					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Number"
@@ -99,7 +99,8 @@
 
 		[Part:LA_POSMultiBenefit]
 					Line	:	LA_POSMultiBenefitTit,LA_POSMultiBenefit
-					Background	:	Blue
+;					Background	:	Blue
+					Background	:	White
 					Local	:	Line	:	Default	:	Height	:	7 MMS		
 	
 					[Line:LA_POSMultiBenefitTit]
@@ -122,8 +123,9 @@
 										if (Not $$IsEmpty:#LA_POSMultiCashAmnt and $$IsEmpty:#LA_POSMultiCardAmount) then +
 										(##LA_POSMultiPayAmnt - #LA_POSMultiCashAmnt) else if (Not $$IsEmpty:#LA_POSMultiCashAmnt +
 										and Not $$IsEmpty:#LA_POSMultiCardAmount) then ##LA_POSMultiPayAmnt - (#LA_POSMultiCashAmnt+#LA_POSMultiCardAmount) +
-										else ##LA_POSMultiBenefitAmnt
-										
+										else 0
+							Width		:	50 MMS
+							
 ;							Inactive	:	##LA_POSMultiPayAmnt = #LA_POSMultiCardAmount or +
 ;											##LA_POSMultiPayAmnt = #LA_POSMultiCashAmnt or +
 ;											##LA_POSMultiPayAmnt = (#LA_POSMultiBenefit + #LA_POSMultiCashAmnt)
@@ -131,8 +133,8 @@
 			[Part:LA_POSMultiCash]
 					Line	:	LA_POSMultiCashTit,LA_POSMultiCashAmnt,+
 								LA_POSMultiCashTend,LA_POSMultiCashBalance
-					Background	:	Green
-
+;					Background	:	Green
+					Background	:	White
 					[Line:LA_POSMultiCashTit]
 						Field	:	FormSubTitle
 						Local	:	Field	:	FormSubTitle	:	Set as	:	"Cash"
@@ -155,12 +157,13 @@
 											if (Not $$IsEmpty:#LA_POSMultiBenefit and $$IsEmpty:#LA_POSMultiCardAmount) then +
 											(##LA_POSMultiPayAmnt - #LA_POSMultiBenefit) else if +
 											(Not $$IsEmpty:#LA_POSMultiBenefit and Not $$IsEmpty:#LA_POSMultiCardAmount) then +
-											(##LA_POSMultiPayAmnt - (#LA_POSMultiCardAmount+#LA_POSMultiBenefit)) else $$Value
+											(##LA_POSMultiPayAmnt - (#LA_POSMultiCardAmount+#LA_POSMultiBenefit)) else 0
 							
-							Inactive	:	##LA_POSMultiPayAmnt = #LA_POSMultiCardAmount or +
-											##LA_POSMultiPayAmnt = #LA_POSMultiBenefit or +
-											##LA_POSMultiPayAmnt = (#LA_POSMultiBenefit + #LA_POSMultiCardAmount)
-
+;							Inactive	:	##LA_POSMultiPayAmnt = #LA_POSMultiCardAmount or +
+;											##LA_POSMultiPayAmnt = #LA_POSMultiBenefit or +
+;											##LA_POSMultiPayAmnt = (#LA_POSMultiBenefit + #LA_POSMultiCardAmount)
+							Width		:	50 MMS
+							
 					[Line:LA_POSMultiCashTend]
 						Field	:	Medium Prompt,LA_POSMultiCashTend
 						Local	:	Field	:	Medium Prompt	:	Set as	:	"Cash Tendered"
@@ -172,7 +175,7 @@
 							Inactive	:	##LA_POSMultiPayAmnt = #LA_POSMultiCardAmount or +
 											##LA_POSMultiPayAmnt = #LA_POSMultiBenefit or +
 											##LA_POSMultiPayAmnt = (#LA_POSMultiBenefit + #LA_POSMultiCardAmount)
-
+							Width		:	50 MMS
 					[Line:LA_POSMultiCashBalance]
 						Field	:	Medium Prompt,LA_POSMultiCashBalance
 						Local	:	Field	:	Medium Prompt	:	Set as	:	"Balance"
@@ -183,5 +186,6 @@
 							Border		:	thin Box
 							Inactive	:	$$IsEmpty:#LA_POSMultiCashTend
 							Skip	:	Yes
+							Width		:	50 MMS
  	;;;;;;;;;;;;;;;; Cash Benefit End
 
