@@ -68,7 +68,7 @@
 		
 	Local		:	Field		:	Default					:	Color			:	White
 	
-	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Credit Card"
+	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Card"
 	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCard
 
 
