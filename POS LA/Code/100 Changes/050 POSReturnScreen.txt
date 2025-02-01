@@ -196,8 +196,8 @@
 	Local		:	Part		:	LA_POSInvLeft						:	Replace		:	Bottom Part	:	LA_POSInvTotal		:	Cust_VCHPOSModeOfReceipts
 	Local		:	Part		:	Cust_VCHPOSModeOfReceipts			:	Replace		:	Part		:	LA_POSInvDetailsLed	:	LA_POSInvDetailsLedReturn
 	
-	local		:	part		:	la_posinvdetails	:	+
-				local	:	part	:	la_ciaccinfo	:	invisible	:	no
+;	local		:	part		:	la_posinvdetails	:	+
+;				local	:	part	:	la_ciaccinfo	:	invisible	:	no
 
 	Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
 	Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
