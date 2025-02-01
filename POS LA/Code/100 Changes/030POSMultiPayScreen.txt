@@ -54,7 +54,7 @@
 				[Line:LA_POSMultiCardTypeTitle]
 					Field	:	FormSubTitle
 					Local	:	Field	:	FormSubTitle	:	Set as	:	"Credit Card/Debit Card"
-					Local	:	Field	:	FormSubTitle	:	Color	:	White
+;					Local	:	Field	:	FormSubTitle	:	Color	:	White
 						
 				[Line:LA_POSMultiCardType]
 					Field	:	Medium Prompt,LA_POSMultiCardType
@@ -106,7 +106,7 @@
 					[Line:LA_POSMultiBenefitTit]
 						Field	:	FormSubTitle
 						Local	:	Field	:	FormSubTitle	:	Set as	:	"Benefit Pay"
-						Local	:	Field	:	FormSubTitle	:	Color	:	White
+;						Local	:	Field	:	FormSubTitle	:	Color	:	White
 					
 					[Line:LA_POSMultiBenefit]
 						Field	:	Medium Prompt,LA_POSMultiBenefit
@@ -138,7 +138,7 @@
 					[Line:LA_POSMultiCashTit]
 						Field	:	FormSubTitle
 						Local	:	Field	:	FormSubTitle	:	Set as	:	"Cash"
-						Local	:	Field	:	FormSubTitle	:	Color	:	White
+;						Local	:	Field	:	FormSubTitle	:	Color	:	White
 						
 					[Line:LA_POSMultiCashAmnt]
 						Field	:	Medium Prompt,LA_POSMultiCashAmnt
