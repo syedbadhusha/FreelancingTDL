@@ -1,0 +1,67 @@
+
+
+
+	
+[#Part: VTYPBasicDetails]
+	
+	Add	:	Line	:	At End	:	RM_HI_RemoveHFFromItem
+	
+[Line:RM_HI_RemoveHFFromItem]
+	
+	Field	:	Long Prompt,RM_HI_RemoveHFFromItem
+	Local	:	Field	:	Long Prompt	:	Set as	:	"Remove ''-'' from Stockitem Name in Print"
+	Local	:	Field	:	Default	:	Color	:	Royal Blue
+[Field:RM_HI_RemoveHFFromItem]
+	
+	Use	:	Logical Field
+	Storage	:	RM_HI_RemoveHFFromItem
+	Show Table	:	Always
+	
+[System:UDF]
+	
+	RM_HI_RemoveHFFromItem	:	Logical	:	5000
+	
+
+[System:Formula]
+	
+	RM_HI_RemoveHFFromItemFor	:	$RM_HI_RemoveHFFromItem:VoucherType:$VoucherTypeName
+
+[#Field: EXPINVDesc]
+	
+	Option	:	RM_EXPINVDesc	:	@@RM_HI_RemoveHFFromItemFor
+
+[!Field:RM_EXPINVDesc]
+
+	Delete	:	Set as	
+	add	:	Set as	:	$$FuncBreakHifon:1:@CmSetas
+	CmSetas      : If @@InvWithPartNo And (@@UseNamePartNo OR @@UsePartNoName) Then $StockItemName Else If NOT $$IsSysName:$StockItemName then @@InvItemName else ""
+
+
+[#Part: GCCVATEXPINVDetails]
+
+	Option	:	RM_GCCVATEXPINVDetails	:	@@RM_HI_RemoveHFFromItemFor
+	
+[!Part:RM_GCCVATEXPINVDetails]
+	
+	Local	: Line	: EXPINV InvDetails	: Local	: Field	: EXPINV Desc	: Add		:	Set as	: If NOT $$IsEmpty:@arabictext AND NOT ##SAGVATPrntArabicNumber Then $$Sprintf:"%s\%s":@arabictext:@englishtext1 Else @englishtext1
+	Local	: Line	: EXPINV InvDetails	: Local	: Field	: EXPINV Desc	: Add	:	Local Formula: englishtext1: $$FuncBreakHifon:1:@@InvoiceStockItemName
+
+
+[Function: FuncBreakHifon]
+	
+	PARAMETER	: PRCN		: NUMBER
+	PARAMETER	: PRMSG		: STRING
+	VARIABLE	: VARTEMP	: STRING
+	VARIABLE	: COUNTER	: NUMBER:1
+	
+	RETURN: STRING
+	
+    10	: FOR TOKEN : TokenVar 	: ##PRMSG : "-": True
+	12	: SET: VARTEMP: ##TOKENVAR
+	20	: IF: ##PRCN = ##COUNTER
+	25	: BREAK
+	30	: END IF
+ 	35	: SET		: COUNTER	: ##COUNTER + 1
+	40	: END FOR
+ 
+	50: RETURN: ##VARTEMP
