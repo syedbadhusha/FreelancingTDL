@@ -85,6 +85,10 @@
 	Compute		:	POSRegCheque			:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:Last:POSChqFilter
 	Compute		:	POSRegCash				:	$$AsAmount:$$FilterValue:$Amount:AllLedgerEntries:1:POSCashFilter
 	
+	Compute		:	CountRegCard			:	$$Number:$$FilterValue:1:AllLedgerEntries:1:POSCardFilter
+	Compute		:	CountRegCheque			:	$$Number:$$FilterValue:1:AllLedgerEntries:Last:POSChqFilter
+	Compute		:	CountRegCash			:	$$Number:$$FilterValue:1:AllLedgerEntries:1:POSCashFilter
+	
 	Filter		:	POS_IsSalesVouchers
 	
 	Keep Source	:	().
@@ -99,6 +103,10 @@
 	Aggr Compute:	TotalCard				:	Sum			:	If $$IsEmpty:$POSRegCard then 0 else $POSRegCard
 	Aggr Compute:	TotalCash				:	Sum			:	If $$IsEmpty:$POSRegCash then 0 else $POSRegCash
 	Aggr Compute:	TotalCheque				:	Sum			:	If $$IsEmpty:$POSRegCheque then 0 else $POSRegCheque
+	
+	Aggr Compute:	CountCard				:	Sum			:	If $$IsEmpty:$CountRegCard then 0 else $CountRegCard
+	Aggr Compute:	CountCash				:	Sum			:	If $$IsEmpty:$CountRegCash then 0 else $CountRegCash
+	Aggr Compute:	CountCheque				:	Sum			:	If $$IsEmpty:$CountRegCheque then 0 else $CountRegCheque
 	
 	Search Key	:	$DateFrom
 

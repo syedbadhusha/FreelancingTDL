@@ -1,5 +1,6 @@
 [Report:POS_CounterCheckOut]
 	Use			:	POS_BackInReport
+	Use			:	SV Output Config
 	
 	Title		:	"Counter Check Out"
 	
@@ -10,24 +11,26 @@
 	Set			:	SVFromDate			:	$$MachineDate
 	Set			:	SVToDate			:	$$MachineDate
 	
-	Export		:	No
+	Print		:	SV Output Medium
 	
 [Form:POS_CounterCheckOut]
 	Button		:	ChangePeriod
 	
+	Part		:	POS_CounterCheckOut
+	
+	Print		:	POS_CounterPrint
+	
 	Horizontal Align	:	Center
 	Vertical Align		:	Center
-	
-	Part		:	POS_CounterCheckOut
 	
 [Part:POS_CounterCheckOut]
 	Height		:	100 % Page
 	
-	Horizontal Align	:	Center
-	Vertical Align		:	Center
-	
 	Part		:	POS_CounterCheckOutTitle, POS_CounterCheckOutTop, POS_CounterCheckOutBottom
 	Vertical	:	Yes
+	
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
 	
 [Part:POS_CounterCheckOutTitle]
 	Space Bottom:	2 mms
@@ -42,14 +45,14 @@
 [Part:POS_CounterCheckOutTop]
 	Space Bottom:	2 mms
 	
-	Horizontal Align	:	Center
-	
 	Part		:	POS_CounterCash, Empty, POS_CounterCard, POS_Empty, POS_CounterBenefitPay
 
-[Part:POS_CounterCheckOutBottom]
 	Horizontal Align	:	Center
 	
+[Part:POS_CounterCheckOutBottom]
 	Part		:	POS_CounterHold, Empty, POS_Empty, POS_CounterReturn
+	
+	Horizontal Align	:	Center
 	
 [Part:POS_CounterCash]
 	Use			:	POS_Counter
@@ -70,7 +73,6 @@
 	
 	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Card"
 	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCard
-
 
 [Part:POS_CounterBenefitPay]
 	Use			:	POS_Counter
@@ -130,4 +132,140 @@
 	Use			:	AmountField
 	Style		:	LargeBold
 	Format		:	"DrCr,ShowBaseSymbol"
+	
+
+;;;;;;;;;;;;;;;;;;Print Format;;;;;;;;;;;;;;;;;;;
+[Report:POS_CounterPrint]
+	PrintSet	:	Report Title		:	"Counter Check Out"
+
+	Form		:	POS_CounterPrint
+	
+[Form:POS_CounterPrint]
+	Width		:	100 % Page
+	Height		:	100 % Page
+	
+	Space Top	:	10 mms
+	Space Bottom:	10 mms
+	Space Left	:	10 mms
+	Space Right	:	10 mms
+	
+	Part		:	POS_CMPDetails, POS_CounterPrintTitle, POS_CounterPrint, POS_CounterPrintTotal
+	
+[Part:POS_CounterPrintTitle]
+	Space Bottom:	2 mms
+	
+	Line		:	FormSubtitle, PlainSubtitle
+	
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"Counter Check Out Report"
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@DSPDateStr
+	
+[Part:POS_CounterPrint]
+	Border		:	ThinBox
+	CommonBorder:	Yes
+	
+	Line		:	POS_CounterPrintTitle, POS_CounterCash, POS_CounterCard, POS_CounterBenefitPay, POS_CounterReturn
+	
+	Total		:	POS_Count, POS_CMNAmount
+	
+[Line:POS_CounterPrintTitle]
+	Border		:	ThinBottom
+	
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Type			:	String
+	Local		:	Field		:	Default					:	Align			:	Center
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Line			:	0
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Description"
+	Local		:	Field		:	POS_CMNDesc				:	Align			:	Left
+	
+	Local		:	Field		:	POS_Count				:	Set as			:	"Count"	
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	"Amount"
+	
+[Line:POS_CounterCash]
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Field		:	POS_CMNDesc
+	Right Field	:	POS_Count, POS_CMNAmount
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Cash"
+	Local		:	Field		:	POS_Count				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$CountCash
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCash
+	Local		:	Field		:	POS_CMNAmount			:	Format			:	"DrCr, ShowBaseSymbol"
+	Local		:	Field		:	POS_CMNAmount			:	Width			:	40 mms
+	
+[Field:POS_Count]
+	Use			:	NumberField
+	Width		:	15 mms
+	Format		:	"NoZero"
+	Align		:	Center
+	Border		:	ThinLeft
+	
+[Line:POS_CounterCard]
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Card"
+	Local		:	Field		:	POS_Count				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$CountCard
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCard
+	
+[Line:POS_CounterBenefitPay]
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Benefit Pay"
+	Local		:	Field		:	POS_Count				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$CountCheque
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCheque
+	
+[Line:POS_CounterReturn]
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Less: Return"
+	Local		:	Field		:	POS_Count				:	Set as			:	0;$$NumItems:POS_CreditNotes
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	-$$ReportObject:$$CollAmtTotal:POS_CreditNotes:$Amount
+	
+[Part:POS_CounterPrintTotal]
+	Border		:	ThinBox
+	CommonBorder:	Yes
+	
+	Line		:	POS_CounterTotal, POS_CounterHold, POS_CounterPrintTotal
+	
+[Line:POS_CounterTotal]
+	Border		:	ThinBottom
+	
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Total"
+	Local		:	Field		:	POS_Count				:	Set as			:	$$Total:POS_Count
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$Total:POS_CMNAmount
+	
+[Line:POS_CounterHold]
+	Border		:	ThinBottom
+	
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Hold"
+	Local		:	Field		:	POS_Count				:	Set as			:	$$NumItems:POS_DayWiseSalesHold
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSalesHold:($$AmountAdd:$TotalCash:($$AmountAdd:$TotalCard:$TotalCheque))
+	
+[Line:POS_CounterPrintTotal]
+	Use			:	POS_CounterCash
+	
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	
+	Local		:	Field		:	POS_CMNDesc				:	Set as			:	"Net Total"
+	Local		:	Field		:	POS_Count				:	Set as			:	$$Total:POS_Count + $$PrevLineField
+	Local		:	Field		:	POS_CMNAmount			:	Set as			:	$$Total:POS_CMNAmount + $$PrevLineField
 	

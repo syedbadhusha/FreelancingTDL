@@ -118,13 +118,13 @@
 	Use			:	POS_DefaultReport
 	Title		:	Up
 	Key			:	Up
-;	Action		:	Trigger Key	:	Up
+	Action		:	Trigger Key	:	Up
 	
 [Button:POS_Down]
 	Use			:	POS_DefaultReport
 	Title		:	Down
 	Key			:	Down
-;	Action		:	Trigger Key	:	Down
+	Action		:	Trigger Key	:	Down
 	
 [Button:POS_Open]
 	Use			:	POS_DefaultReport
