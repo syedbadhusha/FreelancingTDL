@@ -63,6 +63,8 @@
 
 	Parameter	:	VarInvAmount	:	Amount
 
+	ifRet	:	Do If	:	($$IsEmpty:##VarInvAmount)	:	Return
+	
 	0000000	:	Set	:	LA_PayTypeStr		:	"HOLD"
 
 	000	:	Set	:	LA_BillPaid	:	Yes	

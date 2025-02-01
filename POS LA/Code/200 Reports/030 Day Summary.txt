@@ -23,7 +23,7 @@
 	Local	:	Line	:	POSRegisterColTitle	:	Add	:	Field	:	After	:	DSP VchTypeTitle	:	POS_VCHParty
 	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Set as	:	"Customer"
 	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Delete	:	Border
-	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Align	:	Center
+	Local	:	Line	:	POSRegisterColTitle	:	Local	:	Field	:	POS_VCHParty	:	Align	:	Left
 
 	Local	:	Line	:	POSRegister Detail	:	Add	:	Field	:	After	:	DSP VchType	:	POS_VCHParty
 	Local	:	Line	:	POSRegister Detail	:	Local	:	Field	:	POS_VCHParty	:	Delete	:	Border
@@ -57,7 +57,7 @@
 	Use			:	Name Field
 	Set as		:	$PartyName
 	Width		:	60 MMS
-	Border		:	ThinLeft
+;	Border		:	ThinLeft
 	
 ;[!Line:POS_DaySummaryTitle]
 ;	Use			:	POS_DaySummaryFields

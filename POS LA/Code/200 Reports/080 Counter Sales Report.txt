@@ -1,0 +1,133 @@
+[Report:POS_CounterCheckOut]
+	Use			:	POS_BackInReport
+	
+	Title		:	"Counter Check Out"
+	
+	Form		:	POS_CounterCheckOut
+
+	Variable	:	SVFromDate, SVToDate
+	
+	Set			:	SVFromDate			:	$$MachineDate
+	Set			:	SVToDate			:	$$MachineDate
+	
+	Export		:	No
+	
+[Form:POS_CounterCheckOut]
+	Button		:	ChangePeriod
+	
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	
+	Part		:	POS_CounterCheckOut
+	
+[Part:POS_CounterCheckOut]
+	Height		:	100 % Page
+	
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	
+	Part		:	POS_CounterCheckOutTitle, POS_CounterCheckOutTop, POS_CounterCheckOutBottom
+	Vertical	:	Yes
+	
+[Part:POS_CounterCheckOutTitle]
+	Space Bottom:	2 mms
+	
+	Line		:	PlainSubtitle
+	
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@DSPDateStr
+	
+[Part:POS_Empty]
+	Use			:	Empty
+	
+[Part:POS_CounterCheckOutTop]
+	Space Bottom:	2 mms
+	
+	Horizontal Align	:	Center
+	
+	Part		:	POS_CounterCash, Empty, POS_CounterCard, POS_Empty, POS_CounterBenefitPay
+
+[Part:POS_CounterCheckOutBottom]
+	Horizontal Align	:	Center
+	
+	Part		:	POS_CounterHold, Empty, POS_Empty, POS_CounterReturn
+	
+[Part:POS_CounterCash]
+	Use			:	POS_Counter
+	
+	Background	:	Blue
+		
+	Local		:	Field		:	Default					:	Color			:	White
+	
+	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Cash"
+	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCash
+
+[Part:POS_CounterCard]
+	Use			:	POS_Counter
+	
+	Background	:	Blue
+		
+	Local		:	Field		:	Default					:	Color			:	White
+	
+	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Credit Card"
+	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCard
+
+
+[Part:POS_CounterBenefitPay]
+	Use			:	POS_Counter
+	
+	Background	:	Blue
+		
+	Local		:	Field		:	Default					:	Color			:	White
+	
+	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Benefit Pay"
+	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSales:$TotalCheque
+
+[Part:POS_CounterReturn]
+	Width		:	30 % Page
+	Height		:	20 % Page
+		
+	Use			:	POS_Counter
+	
+	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Return"
+	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_CreditNotes:$Amount
+	
+[Part:POS_CounterHold]
+	Width		:	30 % Page
+	Height		:	20 % Page
+	
+	Use			:	POS_Counter
+	
+	Local		:	Field		:	POS_CounterTitle		:	Set as			:	"Hold"
+	Local		:	Field		:	POS_Counter				:	Set as			:	$$ReportObject:$$CollAmtTotal:POS_DayWiseSalesHold:($$AmountAdd:$TotalCash:($$AmountAdd:$TotalCard:$TotalCheque))
+	
+[Part:POS_Counter]
+	Background	:	LightBlue
+	
+	Width		:	20 % Page
+	Height		:	30 % Page
+	
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	
+	Line		:	POS_CounterTitle, POS_Counter
+	
+	Local		:	Field		:	Default					:	Full Width		:	Yes
+	Local		:	Field		:	Default					:	Skip			:	Yes
+	Local		:	Field		:	Default					:	Align			:	Center
+	Local		:	Field		:	Default					:	Color			:	Black
+	
+[Line:POS_CounterTitle]
+	Field		:	POS_CounterTitle
+	
+[Field:POS_CounterTitle]
+	Use			:	NameField
+	Style		:	Large
+
+[Line:POS_Counter]
+	Field		:	POS_Counter
+	
+[Field:POS_Counter]
+	Use			:	AmountField
+	Style		:	LargeBold
+	Format		:	"DrCr,ShowBaseSymbol"
+	

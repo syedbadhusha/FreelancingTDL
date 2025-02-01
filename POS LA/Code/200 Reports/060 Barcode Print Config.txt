@@ -14,14 +14,27 @@
 	Space Right	:	5 mms
 	Space Bottom:	5 mms
 	
+	Button		:	POS_AlterCMPVAT
+	
 	Part		:	FormSubtitle, POS_BarcodePrinting
 		
 	Local		:	Field		:	FormSubtitle			:	Set as			:	"Barcode Print Config"
 	
 	On			:	Form Accept	:	Yes						:	Call			:	POS_PrintBarcode
 	
+[Button:POS_AlterCMPVAT]
+	Title		:	"Alter VAT"
+	Key			:	Alt + V
+	Action		:	Alter		:	POS_VATGCCDetails
+	Inactive	:	Not $$GlobalAllow:Alter:CompanyFeatures:$$CurrentSimpleCompany
+	
+[Report:POS_VATGCCDetails]
+	Object		:	Company
+	Use			:	RBVAT CMP VAT Details
+	Form		:	RBVAT CMP VAT Details
+	
 [Part:POS_BarcodePrinting]
-	Line		:	POS_BarcodeNo, POS_BarcodeRate, POS_BarcodeQty
+	Line		:	POS_BarcodeNo, POS_BarcodeRate, POS_BarcodeRateVATIncl, POS_BarcodeQty
 
 [Line:POS_BarcodeNo]
 	Field		:	MediumPrompt, POS_BarcodeNo
@@ -37,16 +50,29 @@
 [Line:POS_BarcodeRate]
 	Field		:	MediumPrompt, POS_BarcodeRate
 	
-	Local		:	Field		:	MediumPrompt			:	Set as			:	"Rate"
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Standard Price"
 	
 [Field:POS_BarcodeRate]
 	Use			:	NumberField
-	Set as		:	$$Number:$$Table:POS_BarcodeNo:$LastSalePrice
+	Set as		:	$$Number:$$Table:POS_BarcodeNo:$StandardPrice
 	Set Always	:	Yes
 	Format		:	@@POS_AmountFormat
 	Width		:	@@ShortWidth
 	Validate	:	$$Value > 0
-	Skip Forward:	Yes
+	Inactive	:	$$IsEmpty:#POS_BarcodeNo
+	
+[Line:POS_BarcodeRateVATIncl]
+	Field		:	MediumPrompt, POS_BarcodeRateVATIncl
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	$$Sprintf:"Price (Incl. %s%% VAT)":@@POS_CompanyVATRate
+	
+[Field:POS_BarcodeRateVATIncl]
+	Use			:	NumberField
+	Set as		:	(1 + (@@POS_CompanyVATRate / 100)) * #POS_BarcodeRate
+	Set Always	:	Yes
+	Format		:	@@POS_AmountFormat
+	Width		:	@@ShortWidth
+	Skip		:	Yes
 	Inactive	:	$$IsEmpty:#POS_BarcodeNo
 	
 [Line:POS_BarcodeQty]

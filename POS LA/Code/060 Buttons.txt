@@ -42,10 +42,13 @@
 	
 [Button:POS_STKQuery]
 	Use			:	POS_Default
-	Title		:	"Stock Query"
-	Key			:	Q
-	Action		:	Display Collection		:	POS_StockQuery
-
+;	Title		:	"Stock Query"
+;	Key			:	Q
+;	Action		:	Display Collection		:	POS_StockQuery
+	Title		:	"POS Hold Report"
+	Key			:	H
+	Action		:	Display		:	POS_HoldReport
+	
 [Button:POS_STKSummary]
 	Use			:	POS_Default
 	Title		:	"Stock Summary"
@@ -67,9 +70,9 @@
 	
 [Button:POS_TopStks]
 	Use			:	POS_Default
-	Title		:	"Top Selling Stocks"
-	Key			:	T
-	Action		:	Display		:	POS_TopSellingItems
+	Title		:	"Counter Check Out";"Top Selling Stocks"
+	Key			:	Alt + C;T
+	Action		:	Display		:	POS_CounterCheckOut;POS_TopSellingItems
 
 [Button:POS_DaySummary]
 	Use			:	POS_Default

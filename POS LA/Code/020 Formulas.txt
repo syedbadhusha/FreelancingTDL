@@ -1,8 +1,9 @@
 <DefType:System:Formula>
 
 [System:Formula]
+	<InUse:System:Formula:POS_VATAppliableFrom>
+	
 	POS_IsEnabled			:	$POS_IsEnabled:Company:$$CurrentCompany
-	NoItems   : $$CollNumTotal:InventoryEntries:$$Number:$BilledQty = 0
 	
 	POS_SalesLedName		:	"POS Sales"
 ;	POS_CreditCardLedName	:	"Credit Card"
@@ -18,7 +19,8 @@
 	POS_SalesVCHName		:	"POS Sales"
 	POS_CreditNoteVCHName	:	"POS Credit Note"
 		
-	POS_IsSalesVouchers		:	Not ($IsOptional or $IsCancelled) and ((@@IsSalesVch and @@UseForPOSInvoice) or @@IsCreditNote)
+	POS_IsSalesVouchers		:	Not ($IsOptional or $IsCancelled) and @@IsSalesVch and @@UseForPOSInvoice
+	POS_IsSalesHoldVouchers	:	$IsOptional and Not $IsCancelled and @@IsSalesVch and @@UseForPOSInvoice
 	
 	LA_MsgWrongMulitPayAmount		:	"Amount Not Matching with : " + $$LocaleString:##LA_POSMultiPayAmnt + +
 										$$NewLine+"Enter Amount is : " + $$LocaleString:(##LA_POSMultiCardAmount+##LA_POSMultiBenefitAmnt+##LA_POSMultiCashAmnt)++
@@ -28,12 +30,12 @@
 	
 	LA_PaymethodSelect				:	"Please Select Payment Method"
 	
-	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties
-	VATEnabled 	: $IsSalesTaxOn:Company:##SVCurrentCompany
-	IsDiscLed 	: $LedgerName = @@POS_DiscountLedName
-	IsRoundOff	: $LedgerName = @@POS_RoundOffLedName
+;	IsTaxLed  	: $$IsLedOfGrp:$LedgerName:$$GroupDuties
+;	VATEnabled 	: $IsSalesTaxOn:Company:##SVCurrentCompany
+;	IsDiscLed 	: $LedgerName = @@POS_DiscountLedName
+;	IsRoundOff	: $LedgerName = @@POS_RoundOffLedName
 
-	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+;	LedVATAmount      			: $$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
 	
 	POS_AmountFormat		:	$$Sprintf:"NoZero, NoComma,Decimal:%s":($DecimalPlaces:Company:$$CurrentCompany):""
 	
@@ -47,3 +49,7 @@
 	POS_BarcodeHeight		:	$POS_BarcodeHeight:Company:$$CurrentCompany
 	
 	POS_IsSameSalesReturn	:	$$Number:##POS_MasterId = $$Number:$MasterId
+	
+	POS_VATAppliableFrom	:	$$Date:$FromDate <= $$CurrentDate
+	POS_CompanyVATRate		:	$(Company, $$CurrentCompany).VATDetails[-1, @@POS_VATAppliableFrom].RateofVAT
+	

@@ -13,7 +13,7 @@
 	
 	setLPartNo		:	Set			:	POS_BarcodeDetails[##Index].PartNo		:	#POS_BarcodeNo
 	setLBarcode		:	Set			:	POS_BarcodeDetails[##Index].Barcode		:	$$Sprintf:"*%s*":($$POS_ParseBarcode:#POS_BarcodeNo):""
-	setLRate		:	Set			:	POS_BarcodeDetails[##Index].Rate		:	$$String:($$AsAmount:#POS_BarcodeRate):"ShowBaseSymbol"
+	setLRate		:	Set			:	POS_BarcodeDetails[##Index].Rate		:	$$String:($$AsAmount:#POS_BarcodeRateVATIncl):"ShowBaseSymbol"
 	
 	IncrIndex		:	Increment	:	Index
 	

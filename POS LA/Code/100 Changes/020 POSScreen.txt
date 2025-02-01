@@ -630,13 +630,13 @@
 			Border	: Thin Box
 			Horizontal Align: Center
 
-			[Button: SettleMnetsBtns]
-			
-				Horizontal Align: Center
-				Skip Forward: Yes
-				Key Style: NumberKeyStyle
-				Style	 : NumberKeyStyle
-				Key Color: Black 
+;			[Button: SettleMnetsBtns]
+;			
+;				Horizontal Align: Center
+;				Skip Forward: Yes
+;				Key Style: NumberKeyStyle
+;				Style	 : NumberKeyStyle
+;				Key Color: Black 
 
 			[Part:LA_POSCashAndBenefit]
 

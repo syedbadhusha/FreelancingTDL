@@ -25,18 +25,20 @@
 	
 	Line		:	POS_PRNCMPName, POS_PRNBarcode, POSPRNPartNo, POS_PRNItemName, POS_PRNItemRate
 	
-[Line:POS_PRNCMPName]	
+[Line:POS_PRNCMPName]
+	Space Bottom:	1 mms
+	
 	Field		:	POS_Barcode
 		
 	Local		:	Field		:	POS_Barcode					:	Set as			:	@@CMPMailName
+	Local		:	Style		:	Default						:	Height			:	9
 	
 [Field:POS_Barcode]
 	Use			:	NameField
 	Full Width	:	Yes
-	Style		:	Tiny
+	Style		:	TinyBold
 	Align		:	Center
-	Style		:	Smaller
-	
+		
 [Line:POS_PRNBarcode]
 	Field		:	POS_Barcode
 		
@@ -47,16 +49,16 @@
 	Field		:	POS_Barcode
 		
 	Local		:	Field		:	POS_Barcode					:	Set as			:	$PartNo
-	Local		:	Style		:	Default						:	Height			:	5
+	
+	Local		:	Style		:	Default						:	Height			:	7
+	Local		:	Style		:	Default						:	Bold			:	No
 	
 [Line:POS_PRNItemName]
 	Field		:	POS_Barcode
 		
 	Local		:	Field		:	POS_Barcode					:	Set as			:	$Name:Stockitem:$PartNo
-	Local		:	Style		:	Default						:	Height			:	8
 	
 [Line:POS_PRNItemRate]
 	Field		:	POS_Barcode
 		
-	Local		:	Field		:	POS_Barcode					:	Set as			:	$Rate
-	Local		:	Style		:	Default						:	Height			:	7
+	Local		:	Field		:	POS_Barcode					:	Set as			:	$$Sprintf:"Rate: %s/- (Incl. VAT)":$Rate

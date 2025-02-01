@@ -40,11 +40,11 @@
 	
 	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@CmpMailName
 	
-[Line:POS_CMPAddress]
-	Field		:	PlainSubtitle
-	
-	Local		:	Field		:	PlainSubtitle			:	Set as			:	$Address
-	Local		:	Field		:	PlainSubtitle			:	Style			:	Normal
+;[Line:POS_CMPAddress]
+;	Field		:	PlainSubtitle
+;	
+;	Local		:	Field		:	PlainSubtitle			:	Set as			:	$Address
+;	Local		:	Field		:	PlainSubtitle			:	Style			:	Normal
 	
 [Part:POS_CommonTitle]
 	Line		:	FormSubtitle, PlainSubtitle

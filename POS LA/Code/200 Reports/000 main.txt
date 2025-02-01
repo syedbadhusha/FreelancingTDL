@@ -6,7 +6,7 @@
 
 [Include:010 POS Home.txt]
 
-[Include:020 Top Selling Items.txt]
+;[Include:020 Top Selling Items.txt]
 
 [Include:030 Day Summary.txt]
 
@@ -17,3 +17,5 @@
 [Include:060 Barcode Print Config.txt]
 
 [Include:070 Barcode Print.txt]
+
+[Include:080 Counter Sales Report.txt]

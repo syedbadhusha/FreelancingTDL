@@ -28,12 +28,12 @@
 	Keep Source	:	().
 	Client Only	:	Yes
 	
-[Collection:POS_StockQuery]
-	Use			:	StockQuery
-	Delete		:	Report
-	Add			:	Report		:	POS_StockQuery
-	Delete		:	Trigger
-	Add			:	Trigger		:	POS_StockItemName
+;[Collection:POS_StockQuery]
+;	Use			:	StockQuery
+;	Delete		:	Report
+;	Add			:	Report		:	POS_StockQuery
+;	Delete		:	Trigger
+;	Add			:	Trigger		:	POS_StockItemName
 	
 [Collection:POS_Sales]
 	Type		:	Vouchers:VoucherType
@@ -49,6 +49,9 @@
 	
 	Filter		:	UseForPOSInvoice
 	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
 [Collection:POS_CreditNotes]
 	Use			:	POS_Sales
 
@@ -57,17 +60,20 @@
 
 	Delete		:	Filter
 	
-[Collection:POS_SalesInventory]
-	Source Collection			:	POS_Sales
-	
-	Walk		:	InventoryEntries
-	
-	By			:	StockItemName			:	$StockItemName
-	
-	Aggr Compute:	TotalQty				:	Sum			:	$BilledQty
-	Aggr Compute:	TotalAmount				:	Sum			:	$Amount
-	
-	Sort		:	@@Default				:	$TotalQty
+;[Collection:POS_SalesInventory]
+;	Source Collection			:	POS_Sales
+;	
+;	Walk		:	InventoryEntries
+;	
+;	By			:	StockItemName			:	$StockItemName
+;	
+;	Aggr Compute:	TotalQty				:	Sum			:	$BilledQty
+;	Aggr Compute:	TotalAmount				:	Sum			:	$Amount
+;	
+;	Sort		:	@@Default				:	$TotalQty
+;	
+;	Keep Source	:	().
+;	Client Only	:	Yes
 	
 [Collection:POS_DayWiseSalesSrc]
 	Type		:	Vouchers
@@ -81,11 +87,14 @@
 	
 	Filter		:	POS_IsSalesVouchers
 	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
 [Collection:POS_DayWiseSales]
 	Source Collection		:	POS_DayWiseSalesSrc
 	
 	By			:	DateFrom				:	$$String:$Date
-		
+	
 	Aggr Compute:	TotalVAT				:	Sum			:	$VATAmount
 	Aggr Compute:	TotalCard				:	Sum			:	If $$IsEmpty:$POSRegCard then 0 else $POSRegCard
 	Aggr Compute:	TotalCash				:	Sum			:	If $$IsEmpty:$POSRegCash then 0 else $POSRegCash
@@ -93,6 +102,21 @@
 	
 	Search Key	:	$DateFrom
 
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+[Collection:POS_DayWiseSalesHoldSrc]
+	Use			:	POS_DayWiseSalesSrc
+	
+	Delete		:	Filter
+	Add			:	Filter					:	POS_IsSalesHoldVouchers
+	
+[Collection:POS_DayWiseSalesHold]
+	Use			:	POS_DayWiseSales
+	
+	Delete		:	Source Collection
+	Add			:	Source Collection		:	POS_DayWiseSalesHoldSrc
+	
 [Collection:POS_STKPartNos]
 	Title		:	"List Of Barcodes"
 	
@@ -100,7 +124,7 @@
 	
 	Walk		:	PartNo
 	
-	Fetch		:	Name, PartNo, ClosingBalance, LastSalePrice
+	Fetch		:	Name, PartNo, ClosingBalance, StandardPrice, StandardPrice,*
 	
 	Sub Title	:	"Part No", "Name", "Closing Balance"
 	
@@ -119,9 +143,9 @@
 	Child Of	:	$$VchTypeSales
 	Belongs To	:	Yes
 	Title	:	"List Of Holded Bill"
-	Sub Title	:	"Customer Name","Vch Number","Date","Amount","Id"
-	Format	:	$PartyName
+	Sub Title	:	"Vch Number","Customer Name","Date","Amount","Id"
 	Format	:	$VoucherNumber
+	Format	:	$PartyName
 	Format	:	$Date
 	Format	:	$LA_POS_InvTotal
 	Format	:	$MasterId

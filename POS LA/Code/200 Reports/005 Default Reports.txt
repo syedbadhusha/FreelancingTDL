@@ -27,10 +27,22 @@
 	Set			:	DSPShowInwards			:	Yes
 	Set			:	DSPShowOutwards			:	Yes
 	
-[Report:POS_StockQuery]
-	Use			:	StockQuery
-	Use			:	POS_ButtonsInReport
+;[Report:POS_StockQuery]
+;	Use			:	StockQuery
+;	Use			:	POS_ButtonsInReport
 
-[Report:POS_StockItemName]
-	Use			:	StockItemName
-	Use			:	POS_BackInReport
+[Report:POS_HoldReport]
+	Use			:	POS_DaySummary
+
+	Local		:	Line		:	POSRegister Title			:	+
+		Local	:	Field		:	Name Field					:	Set as			:	$$LocaleString:"List of All POS Hold Vouchers"
+		
+	Local		:	Line		:	POSRegister Detail			:	Empty			:	Not $IsOptional or @@ForexEmpty
+
+	Local		:	Field		:	DSP VchDate					:	Delete			:	Alter		:	LA_POS_Voucher
+	
+	Local		:	Field		:	DSP VchNumber				:   Set as      	:	(if NOT $$IsVoucher then "" else If $IsPostDated And $Date>@@EntryEndingat Then $$LocaleString:"(Post-Dated) " Else "") + @VchNo
+	
+;[Report:POS_StockItemName]
+;	Use			:	StockItemName
+;	Use			:	POS_BackInReport
