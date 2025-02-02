@@ -716,3 +716,14 @@
 				Local	:	Button	:	POS_BackInReport	:	key Color	:	White
 				Local	:	Button	:	POS_BackInReport	:	Horizontal Align	:	Center
 				Local	:	Button	:	POS_BackInReport	:	Vertical Align		:	Center
+
+
+
+;;;;;;;;;;;;;;;;;   Change Chequw as Benefit pay ;;;;;;
+
+
+[#Line: POS ChequeLedger]
+	
+	Local		: Field	: Short Prompt		: Set as	: $$LocaleString:"Benefit Pay" + ":"
+
+
