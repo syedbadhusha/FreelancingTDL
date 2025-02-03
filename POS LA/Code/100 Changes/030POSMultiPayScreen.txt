@@ -44,7 +44,7 @@
 					
 ;;;;;;;;;Credit Card Or Debit Card
 			[Part:LA_POSMultiCreditOrDebit]
-				Line	:	LA_POSMultiCardTypeTitle,LA_POSMultiCardType,+
+				Line	:	LA_POSMultiCardTypeTitle,+;,LA_POSMultiCardType,+
 							LA_POSMultiCardAmount,LA_POSMultiCardNumber
 							
 ;				Background	:	Dark Green
@@ -53,23 +53,24 @@
 
 				[Line:LA_POSMultiCardTypeTitle]
 					Field	:	FormSubTitle
-					Local	:	Field	:	FormSubTitle	:	Set as	:	"Credit Card/Debit Card"
+					Local	:	Field	:	FormSubTitle	:	Set as	:	"Card Payment";"Credit Card/Debit Card"
 ;					Local	:	Field	:	FormSubTitle	:	Color	:	White
 						
-				[Line:LA_POSMultiCardType]
-					Field	:	Medium Prompt,LA_POSMultiCardType
-					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Type"
-					[Field:LA_POSMultiCardType]
-						Use	:	Name Field
-						Set Always	:	Yes
-						Table	:	LA_POSMultiCardTypeCll,NotApplicable
-						Show Table	:	Always
-						Modifies	:	LA_POSMultiCardType	:	Yes
-						Border	:	thin Box
-						[Collection:LA_POSMultiCardTypeCll]
-
-							Title	:	"Type of Card"
-							List	:	"Credit Card","Debit Card"
+;				[Line:LA_POSMultiCardType]
+;					Field	:	Medium Prompt,LA_POSMultiCardType
+;					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Type"
+;					[Field:LA_POSMultiCardType]
+;						Use	:	Name Field
+;						Set Always	:	Yes
+;						Table	:	LA_POSMultiCardTypeCll,NotApplicable
+;						Show Table	:	Always
+;						Modifies	:	LA_POSMultiCardType	:	Yes
+;						Border	:	thin Box
+;						
+;						[Collection:LA_POSMultiCardTypeCll]
+;
+;							Title	:	"Type of Card"
+;							List	:	"Credit Card","Debit Card"
 							
 				[Line:LA_POSMultiCardAmount]
 					Field	:	Medium Prompt,LA_POSMultiCardAmount
@@ -79,10 +80,11 @@
 						Set Always	:	Yes
 						Modifies	:	LA_POSMultiCardAmount	:	Yes
 						Border	:	thin Box
-						Validate	:	Not $$IsEmpty:$$Value
+;						Validate	:	Not $$IsEmpty:$$Value
 ;						Set as		:	if $$IsNotApplicable:#LA_POSMultiCardType then "" else ##LA_POSMultiCardAmount
-						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
+;						Inactive	:	$$IsNotApplicable:#LA_POSMultiCardType
 						Width		:	50 MMS
+
 				[Line:LA_POSMultiCardNumber]
 					Field	:	Medium Prompt,LA_POSMultiCardNumber
 					Local	:	Field	:	Medium Prompt	:	Set as	:	"Card Number"
@@ -118,7 +120,7 @@
 							Border	:	thin Box
 							
 							Set as	:	if $$IsEmpty:#LA_POSMultiCardAmount and $$IsEmpty:#LA_POSMultiCashAmnt +
-										then ##LA_POSMultiPayAmnt else if (Not $$IsEmpty:#LA_POSMultiCardAmount and $$IsEmpty:LA_POSMultiCashAmnt) +
+										then ##LA_POSMultiPayAmnt else if (Not $$IsEmpty:#LA_POSMultiCardAmount and $$IsEmpty:#LA_POSMultiCashAmnt) +
 										then (##LA_POSMultiPayAmnt - #LA_POSMultiCardAmount) else +
 										if (Not $$IsEmpty:#LA_POSMultiCashAmnt and $$IsEmpty:#LA_POSMultiCardAmount) then +
 										(##LA_POSMultiPayAmnt - #LA_POSMultiCashAmnt) else if (Not $$IsEmpty:#LA_POSMultiCashAmnt +

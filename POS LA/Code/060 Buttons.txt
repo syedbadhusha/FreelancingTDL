@@ -115,14 +115,15 @@
 	Action		:	Quit
 
 [Button:POS_Up]
+
 	Use			:	POS_DefaultReport
-	Title		:	Up
+	Title		:	""
 	Key			:	Up
 	Action		:	Trigger Key	:	Up
 	
 [Button:POS_Down]
 	Use			:	POS_DefaultReport
-	Title		:	Down
+	Title		:	""
 	Key			:	Down
 	Action		:	Trigger Key	:	Down
 	
