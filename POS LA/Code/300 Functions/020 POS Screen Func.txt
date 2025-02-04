@@ -39,7 +39,7 @@
 	100 : Walk Collection: LedgerEntries
 	200 : 	Set Target  : LedgerEntries[$$LoopIndex].
 	
-	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
+	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType; or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
 	400	:		Set Value	:	Amount	:	""
 	500	:	End If
 
@@ -73,7 +73,7 @@
 	100 : Walk Collection: LedgerEntries
 	200 : 	Set Target  : LedgerEntries[$$LoopIndex].
 	
-	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
+	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType; or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
 	400	:		Set Value	:	Amount	:	""
 	500	:	End If
 
@@ -101,7 +101,7 @@
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].
 	
-	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
+	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType; or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
 	400	:		Set Value	:	Amount	:	""
 	500	:	End If
 

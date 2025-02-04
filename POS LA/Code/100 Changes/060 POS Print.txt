@@ -1,0 +1,29 @@
+[#Part: POS InvInfo]
+	Option		:	POS_CustomPrint		:	@@POS_IsEnabled
+	
+[!Part:POS_CustomPrint]
+	Delete		:	Repeat
+	
+	Add			:	Repeat		:	POS_InvDetails			:	Inventory Entries
+	
+;	Add			:	Line		:	At Beginning			:	POS_InvColTitleOne
+	
+	Replace		:	Line		:	POS InvDetails			:	POS_InvDetails
+	
+;	Local		:	Line		:	POS InvColTitleOne		:	Delete		:	Fields
+	
+;[Line:POS_InvColTitleOne]
+;	Use			:	POS InvColTitleOne
+;	
+;	Delete		:	Border
+;	Delete		:	Right Field
+;	Delete		:	Option
+	
+[Line:POS_InvDetails]
+	Line		:	POSInvDetails1, POSInvDetails
+	
+	Local		:	Line		:	POSInvDetails			:	Delete		:	Fields
+	
+[Line: POS InvDetails1]
+	Fields		:	POS SLNo, POS InvDesc
+	

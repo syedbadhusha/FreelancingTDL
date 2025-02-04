@@ -9,3 +9,5 @@
 [Include:040POSReTakeScreen.txt]
 
 [Include:050 POSReturnScreen.txt]
+
+[Include:060 POS Print.txt]

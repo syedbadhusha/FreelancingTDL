@@ -96,9 +96,9 @@
 			
 	saveVCHType		:	Save Target
 	
-[Function:POS_LedgerName]
-	Parameter		:	MasterId	:	String
-	
-	Return			:	String
-	
-	000				:	Return		:	$$CollectionFieldByKey:$Name:##MasterId:POS_LedgerName
+;[Function:POS_LedgerName]
+;	Parameter		:	MasterId	:	String
+;	
+;	Return			:	String
+;	
+;	000				:	Return		:	$$CollectionFieldByKey:$Name:##MasterId:POS_LedgerName

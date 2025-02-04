@@ -22,7 +22,7 @@
 	Storage		:	POS_IsEnabled
 	
 [Part:POS_Configuration]
-	Line		:	POS_CreditCardDetail, POS_EnableBarcodePrint
+	Line		:	/*POS_CreditCardDetail, */ POS_EnableBarcodePrint
 	
 	Local		:	Line		:	Default						:	Indent			:	@@POS_TDLIndent * $$ExplodeLevel mms
 	
@@ -30,24 +30,24 @@
 	
 	Local		:	Field		:	MediumPrompt				:	Width			:	@@POS_TDLWidth - (@@POS_TDLIndent * $$ExplodeLevel) mms
 	
-[Line:POS_CreditCardDetail]
-	Field		:	MediumPrompt, POS_CreditCardLedger, POS_CreditCardId
-	
-	Local		:	Field		:	MediumPrompt				:	Set as			:	"Credit Card Ledger"
-	
-[Field:POS_CreditCardLedger]
-	Use			:	NameField
-	Show Table	:	Always
-	Set Always	:	Yes
-	Table		:	POS_CreditCardLedgers
-	Set as		:	$$POS_LedgerName:$POS_CreditCardId
-	
-[Field:POS_CreditCardId]
-	Use			:	NameField
-	Storage		:	POS_CreditCardId
-	Set as		:	$$Table:POS_CreditCardLedger:$MasterId
-	Set Always	:	Yes
-	Invisible	:	Yes
+;[Line:POS_CreditCardDetail]
+;	Field		:	MediumPrompt, POS_CreditCardLedger, POS_CreditCardId
+;	
+;	Local		:	Field		:	MediumPrompt				:	Set as			:	"Credit Card Ledger"
+;	
+;[Field:POS_CreditCardLedger]
+;	Use			:	NameField
+;	Show Table	:	Always
+;	Set Always	:	Yes
+;	Table		:	POS_CreditCardLedgers
+;	Set as		:	$$POS_LedgerName:$POS_CreditCardId
+;	
+;[Field:POS_CreditCardId]
+;	Use			:	NameField
+;	Storage		:	POS_CreditCardId
+;	Set as		:	$$Table:POS_CreditCardLedger:$MasterId
+;	Set Always	:	Yes
+;	Invisible	:	Yes
 	
 [Line:POS_EnableBarcodePrint]
 	Field		:	MediumPrompt, POS_EnableBarcodePrint
