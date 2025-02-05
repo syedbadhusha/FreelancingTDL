@@ -132,7 +132,13 @@
 	Option			: LA_POS_CreateCreditNote	:	Yes
 
 	On			:	Form Accept	:	Yes		:	Form Accept
-	On			:	Form Accept	:	$$InCreateMode		:	Trigger Key	:	Ctrl + Q
+	On			:	Form Accept	:	$$InCreateMode		:	Call		:	POS_ReturnBack
+
+[Function:POS_ReturnBack]	
+	gotSelectRet:	Trigger Key	:	Ctrl + Q
+	gotoPOS		:	Trigger Key	:	Ctrl + Q
+	gotoHome	:	Trigger Key	:	Ctrl + Q
+	gotoPosCre	:	Trigger Key	:	C
 	
 [!Form:LA_POS_CreateCreditNote]
 

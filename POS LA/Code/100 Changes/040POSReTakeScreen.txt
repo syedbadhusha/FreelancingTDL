@@ -48,6 +48,15 @@
 	Object	:	Voucher:@@GetIDToRetake
 			
 [Form:LA_POS_ReTakeVch]
+	Print after Save	:	No
 	
 	Use	:	LA_POS_Voucher
 	
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	Yes		:	Call	:	POS_RetakeBack
+
+[Function:POS_RetakeBack]
+	prntRep		:	Print Report:	(.)
+	gotoPOS		:	Trigger Key	:	Ctrl + Q
+	gotoHome	:	Trigger Key	:	Ctrl + Q
+	gotoPOSCret	:	Trigger Key	:	C
