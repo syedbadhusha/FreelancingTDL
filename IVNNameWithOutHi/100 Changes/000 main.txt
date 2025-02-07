@@ -1,0 +1,10 @@
+<DefType:Include>
+
+
+[Include:010 Voucher Type.txt]
+
+[Include:020 Comprehensive Invoice.txt]
+
+[Include:030 Sales Print Config.txt]
+
+[Include:040 Voucher.txt]

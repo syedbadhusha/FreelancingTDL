@@ -1,0 +1,15 @@
+[#Part: VTYPBasicDetails]
+	
+	Add	:	Line	:	At End	:	RM_HI_RemoveHFFromItem
+	
+[Line:RM_HI_RemoveHFFromItem]
+	
+	Field	:	Long Prompt,RM_HI_RemoveHFFromItem
+	Local	:	Field	:	Long Prompt	:	Set as	:	"Remove ''-'' from Stockitem Name in Print"
+	Local	:	Field	:	Default	:	Color	:	Royal Blue
+	
+[Field:RM_HI_RemoveHFFromItem]
+	
+	Use	:	Logical Field
+	Storage	:	RM_HI_RemoveHFFromItem
+	Show Table	:	Always

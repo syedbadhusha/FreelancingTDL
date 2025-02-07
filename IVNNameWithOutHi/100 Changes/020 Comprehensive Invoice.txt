@@ -1,0 +1,189 @@
+[#Form: GCCVAT Comp Bilingual Format2]
+	Add			:	Option		:	IN_Bilingual Format2:	@@RM_CustomPrint
+	
+[!Form:IN_Bilingual Format2]
+	Add			:	Bottom Part	:	Before	:	EXPINV InvoiceCompGen	:	EXPINV VATGCC BilDeclaration
+	
+	Local		:	Part		:	EXPINV VATGCC BilDeclaration:	Border			:	ThinBox
+	
+[#Part:GCCVATEXPINV CMPDetails]
+	Option		:	IN_CMPDetails		:	@@RM_CustomPrint
+	
+[!Part:IN_CMPDetails]
+	Local		:	Part		:	GCCVATEXPINV Company		:	Space Top		:	5 mms
+	Local		:	Part		:	GCCVATBilingual Company		:	Space Top		:	5 mms
+
+[#Part:GCCVATEXPInv TopLeft]
+	Option		:	IN_TopLeft			:	@@RM_CustomPrint
+	
+[!Part:IN_TopLeft]
+	Width		:	50 % Page
+	
+	Local		:	Part		:	GCCVATEXPSMP BilingualBuyer	:	Width			:	50 % Page
+	Local		:	Part		:	GCCVATEXPSMP BilingualBuyer	:	+
+		Local	:	Field		:	Default						:	Width			:	50 % Page
+		
+	Local		:	Part		:	GCCVATEXPSMP BilingualBuyer	:	+
+		Local	:	Line		:	Default						:	+
+		Local	:	Field		:	Name Field					:	Width			:	50 % Page
+
+[#Part	: GCCVATEXPInv TopRight]
+	Option		:	IN_TopRight			:	@@RM_CustomPrint
+	
+[!Part:IN_TopRight]
+	Add			:	Part		:	Before	:	GCCVATINV Terms	:	GCCVATINV ModeTerms
+	
+	Local		:	Part		:	GCCVATINV ModeTerms			:	Option			:	IN_Terms
+
+[#Part: GCCVATINV BasicLeft]
+	Option		:	IN_Basic			:	@@RM_CustomPrint
+	Option		:	IN_BasicLeft		:	@@RM_CustomPrint
+	
+[!Part:IN_BasicLeft]
+	Delete		:	Part		:	GCCVATINV DespDocNo,  GCCVATINV PreCarr
+	Add			:	Part		:	IN_PONo
+	
+	Local		:	Part		:	GCCVATINV DcNumber			:	+
+		Local	:	Field		:	EXPINV SubTitle				:	Info			:	"D/N #"
+	
+[Part:IN_PONo]
+	Lines		:	GCCVATINV SubTitle
+	BottomLines	:	IN_PONo
+	
+	Local		:	Field		:	EXPINV SubTitle				:	Info			:	"PO #"
+	Local		:	Field		:	GCCVATINV SubTitle			:	Set as			:	"";$$Translate:"PO #":##vLocalLanguageID
+	
+	Height		:	9 mms
+	Border		:	Full Thin Bottom
+
+[Line:IN_PONo]
+	Use			:	GCCVATINV Number
+	
+	Local		:	Field		:	Name Field 					:	Set as			:	$IN_PONo
+	Local		:	Field		:	GCCVATINV Number			:	Set as			:	""
+			
+[#Part: GCCVATINV BasicRight]
+	Option		:	IN_Basic			:	@@RM_CustomPrint
+	Option		:	IN_BasicRight		:	@@RM_CustomPrint
+	
+[!Part:IN_BasicRight]
+	Delete		:	Part		:	GCCVATINV ModeTerms, GCCVATINV Destination
+	Add			:	Part		:	IN_PODate
+	
+	Local		:	Part		:	GCCVATINV DcDate			:	+
+		Local	:	Field		:	EXPINV SubTitle				:	Info			:	"D/N Date"
+		
+[Part:IN_PODate]
+	Lines		:	GCCVATINV SubTitle
+	BottomLines	:	IN_PODate
+	
+	Local		:	Field		:	EXPINV SubTitle				:	Info			:	"PO Date"
+	Local		:	Field		:	GCCVATINV SubTitle			:	Set as			:	"";$$Translate:"PO Date":##vLocalLanguageID
+	
+	Height		:	9 mms
+	Border		:	Full Thin Bottom
+
+[Line:IN_PODate]
+	Use			:	GCCVATINV Number
+	
+	Local		:	Field		:	Name Field 					:	Set as			:	$IN_PODate
+	Local		:	Field		:	GCCVATINV Number			:	Set as			:	""
+	
+[!Part:IN_Basic]
+	Width		:	25 % Page
+	
+	Local		:	Part		:	Default						:	Width			:	25% Page
+	
+	Local		:	Part		:	Default						:	+
+		Local	:	Line		:	Default						:	+
+		Local	:	Field		:	Default						:	Width			:	12.5 % PAge
+		
+	Local		:	Part		:	Default						:	+
+		Local	:	Line		:	Default						:	+
+		Local	:	Field		:	EXPINV SubTitle				:	Width			:	12.5% Page
+	
+[#Part	: GCCVATINV Terms]
+	Option		:	IN_Terms			:	@@RM_CustomPrint
+	
+[!Part:IN_Terms]
+	Width		:	50 % Page
+	
+	Local		:	Line		:	GCCVATINV SubTitle			:	+
+		Local	:	Field		:	EXPINV SubTitle				:	Width			:	25 % Page
+		
+	Local		:	Line		:	GCCVATINV SubTitle			:	+
+		Local	:	Field		:	GCCVATINV SubTitle			:	Width			:	25 % Page
+	
+	Local		:	Line		:	GCCVATINV Terms				:	+
+		Local	:	Field		:	NameField					:	Width			:	25 % Page
+	
+[#Part: GCCVAT EXPINV ColumnFormat2]
+	Option		:	IN_ColumnFormat2	:	@@RM_CustomPrint
+	
+[!Part:IN_ColumnFormat2]
+	Local		:	Line		:	EXPINV Column1				:	+
+		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	"#"
+	
+	Local		:	Line		:	EXPINV Column2				:	+
+		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	""
+	
+	Local		:	Line		:	EXPINV BilingualColumn1		:	+
+		Local	:	Field		:	EXPINV SLNoTitle			:	Info			:	""
+	
+[#Field: EXPINVDesc]
+	Option	:	RM_EXPINVDesc	:	@@RM_HI_RemoveHFFromItemFor
+
+[!Field:RM_EXPINVDesc]
+	Delete		:	Set as	
+	add			:	Set as		:	$$FuncBreakHifon:1:@@InvoiceStockItemName
+	
+[#Part: GCCVATEXPINVDetails]
+	Option		:	IN_INVDetails		:	@@RM_HI_RemoveHFFromItemFor
+	
+[#Part:GCCVAT EXPINVDetailsFormat2]
+	Option		:	IN_INVDetails		:	@@RM_CustomPrint
+	
+[!Part:IN_INVDetails]
+	Local		:	Line		:	EXPINV InvDetails			:	+
+		Local	:	Field		:	EXPINV Desc					:	Set as			:	If NOT $$IsEmpty:@arabictext AND NOT ##SAGVATPrntArabicNumber Then $$Sprintf:"%s\%s":@arabictext:($$FuncBreakHifon:1:@@InvoiceStockItemName):"" Else $$FuncBreakHifon:1:@@InvoiceStockItemName
+	
+[#Part: GCCVAT EXPINV LeftSign]
+	Option		:	IN_LeftSign			:	@@RM_CustomPrint
+	
+[!Part:IN_LeftSign]
+	Delete		:	Bottom Part	:	EXPINV VATGCC BilDeclaration
+	Add			:	Bottom Part	:	EXPINV BankDetails
+	
+	Local		:	Part		:	EXPINV BankDetails			:	+
+		Local	:	Style		:	Default 					:	Height			:	@@SmallSize - 1
+		
+	Local		:	Line		:	EXPINV BankTitle			:	+
+		Local	:	Style		:	Default 					:	Height			:	@@NormalSize
+	
+[#Part:GCCVAT EXPINV BankInfo]
+	Option		:	IN_BankInfo			:	@@RM_CustomPrint
+	
+[!Part:IN_BankInfo]
+	Local		:	Part		:	EXPINV BankDetails			:	Option			:	IN_SecondBankDetails
+	
+[!Part:IN_SecondBankDetails]
+	Local		:	Field		:	EXPINV AcHolder				:	Set as			:	If (@@IsSales Or @@IsSalesOrder Or @@IsCreditNote Or @@IsDebitNote) and ##SABankInfo AND $$IsObjectExists:Ledger:##IN_SABankName Then $BankAccHolderName:Ledger:##IN_SABankName Else ""
+	
+	Local		:	Field		:	EXPINV BankName				:	Set as			:	$MailingName:Ledger:##IN_SABankName
+	Local		:	Field		:	EXPINV BankName				:	Inactive		:	$$IsSysName:##IN_SABankName OR $$IsEmpty:$(Ledger,##IN_SABankName).Name
+	
+	Local		:	Field		:	EXPINV BankAccountNo		:	Set as			:	$BankDetails:Ledger:##IN_SABankName
+	Local		:	Field		:	EXPINV BankAccountNo		:	Inactive		:	$$IsEmpty:##IN_SABankName
+
+	Local		:	Field		:	EXPINV GVAT IBAN			:	Set as			:	$BankIBAN:Ledger:##IN_SABankName
+	Local		:	Field		:	EXPINV GVAT IBAN			:	Inactive		:	$$IsEmpty:##IN_SABankName
+
+	Local		:	Field		:	EXPINV Swiftcode			:	Set as			:	$Swiftcode:Ledger:##IN_SABankName
+	Local		:	Field		:	EXPINV Swiftcode			:	Inactive		:	$$IsEmpty:##IN_SABankName
+
+[#Part:EXPINV BankDetails]
+	Option		:	IN_BankDetails		:	@@RM_CustomPrint
+	
+[!Part:IN_BankDetails]
+	Delete		:	Line		:	EXPINV BankBranchInfo
+	

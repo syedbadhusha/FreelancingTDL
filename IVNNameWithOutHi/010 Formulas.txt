@@ -1,0 +1,8 @@
+<DefType:System:Formula>
+
+
+[System:Formula]
+	RM_HI_RemoveHFFromItemFor	:	$RM_HI_RemoveHFFromItem:VoucherType:$VoucherTypeName
+
+	RM_CustomPrint				:	@@IsSales
+	

@@ -1,0 +1,8 @@
+<DefType:System:UDF>
+
+
+[System:UDF]
+	RM_HI_RemoveHFFromItem	:	Logical	:	5000
+	
+	IN_PONo					:	String	:	6000
+	IN_PODate				:	Date	:	6010

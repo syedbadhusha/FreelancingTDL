@@ -1,0 +1,31 @@
+[#Report: VCH Sales OutputConfig]
+	Local		:	Collection	:	Company Details				:	+
+	Add			:	Object		:	After	:	SABankInfo		:	IN_SABankName
+	
+[Object:IN_SABankName]
+	Use			:	Vch Output Configuration
+	Name		:	"Show Second Bank"
+	Value		:	##IN_SABankName
+	IsDependent	:	NOT ##SABankInfo
+	IsInVisible	:	NOT (@@IsSalesConfig OR @@IsSalesOrderConfig OR @@IsCreditNoteConfig OR @@IsDebitNoteConfig)
+	
+	Action		:	ConfigAction: 	Do If	:	##SABankInfo	:	Modify Variables	:	IN_SABankName
+
+[Report:IN_SABankName]
+    Use			:	Vch CompanyPrintConfig
+	
+    Local		:	Part		:	Modify Variables  			:	Line		:	SABankName
+	Local		:	Line		:	SABankName					:	Replace		:	Field		:	SABankName		:	IN_SABankName
+	
+[Field:IN_SABankName]
+	Use         :	SABankName
+	
+	Delete		:	Modifies
+    Add			:	Modifies    :	IN_SABankName
+	
+[Variable:IN_SABankName]
+    Type        : String
+    Persistent	: Yes	
+
+[System:Variable]
+	IN_SABankName              	: ""

@@ -1,0 +1,21 @@
+<DefType:Function>
+
+
+[Function: FuncBreakHifon]
+	
+	PARAMETER	: PRCN		: NUMBER
+	PARAMETER	: PRMSG		: STRING
+	VARIABLE	: VARTEMP	: STRING
+	VARIABLE	: COUNTER	: NUMBER:1
+	
+	RETURN: STRING
+	
+    10	: FOR TOKEN : TokenVar 	: ##PRMSG : "-": True
+	12	: SET: VARTEMP: ##TOKENVAR
+	20	: IF: ##PRCN = ##COUNTER
+	25	: BREAK
+	30	: END IF
+ 	35	: SET		: COUNTER	: ##COUNTER + 1
+	40	: END FOR
+ 
+	50: RETURN: ##VARTEMP

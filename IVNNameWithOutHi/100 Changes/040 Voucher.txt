@@ -1,0 +1,22 @@
+[#Part:EI DelNoteInfo]
+	Option		:	IN_DelNoteInfo		:	@@RM_CustomPrint
+	
+[!Part:IN_DelNoteInfo]
+	Line		:	IN_PODetails
+	
+[Line:IN_PODetails]
+	Field		:	MediumPrompt, IN_PONo, SimpleField, IN_PODate
+	
+	Local		:	Field		:	Default					:	Color			:	RoyalBlue
+	
+	Local		:	Field		:	MediumPrompt				:	Info			:	"PO #"
+	Local		:	Field		:	SimpleField					:	Info			:	"Date"
+	
+[Field:IN_PONo]
+	Use			:	NameField
+	Storage		:	IN_PONo
+	Width		:	@@ShortNameWidth
+	
+[Field:IN_PODate]
+	Use			:	UniDateField
+	Storage		:	IN_PODate
