@@ -13,6 +13,77 @@
 	Local		:	Part		:	GCCVATEXPINV Company		:	Space Top		:	5 mms
 	Local		:	Part		:	GCCVATBilingual Company		:	Space Top		:	5 mms
 
+[#Line: EXPINV Column1]
+	Option		:	IN_InvColumn		:	@@RM_CustomPrint
+
+[#Line: EXPINV BilingualColumn1]
+	Option		:	IN_InvColumn		:	@@RM_CustomPrint
+
+[#Line: EXPINV Column2]
+	Option		:	IN_InvColumn		:	@@RM_CustomPrint
+
+[#Line: EXPINV BilingualColumn2]
+	Option		:	IN_InvColumn		:	@@RM_CustomPrint
+
+[!Line:IN_InvColumn]
+	Delete		:	Right Field	:	EXPINV PartNoTitle
+	Add			:	Left Field	:	Before		:	EXPINV DescTitle	:	EXPINV PartNoTitle	
+	
+	Local		:	Field		:	EXPINV PartNoTitle			:	Border			:	ThinRight
+	
+[#Line: EXPINV InvDetails]
+	Option		:	IN_InvDetails		:	@@RM_CustomPrint
+
+[#Line:EXPINV InvSubTotal]
+	Option		:	IN_InvDetails		:	@@RM_CustomPrint
+
+[#Line: EXPINV AccDetails]
+	Option		:	IN_InvDetails		:	@@RM_CustomPrint
+
+[#Line : EXPInvDescExplosion]
+	Option		:	IN_InvDetails		:	@@RM_CustomPrint
+
+[#Line: EI DescExplosion]
+	Option		:	IN_InvDetails		:	@@RM_CustomPrint
+	
+[#Line: EI VATGCC DescExplosion]
+	Option		:	IN_InvDetails		:	@@RM_CustomPrint
+
+[!Line:IN_InvDetails]
+	Delete		:	Right Field	:	EXPINV PartNo
+	Add			:	Left Field	:	Before		:	EXPINV Desc			:	EXPINV PartNo	
+	Add			:	Left Field	:	Before		:	EXPINV AccDesc		:	EXPINV PartNo	
+	Add			:	Left Field	:	Before		:	EI Desc		:	EXPINV PartNo	
+	
+	Local		:	Field		:	EXPINV PartNo				:	Border			:	ThinRight
+	
+[#Line: EXPINV BatchName]
+	Option		:	IN_BatchName		:	@@RM_CustomPrint
+
+[#Line: EXPINV AltQty]
+	Option		:	IN_BatchName		:	@@RM_CustomPrint
+
+[#Line: EXPINV AltUnitsDetails]
+	Option		:	IN_BatchName		:	@@RM_CustomPrint
+
+[#Line: EXPINV GodownName]
+	Option		:	IN_BatchName		:	@@RM_CustomPrint
+	
+[!Line:IN_BatchName]
+	Delete		:	Right Field	:	EXPINV PartNoTitle
+	Add			:	Left Field	:	Before		:	EXPINV BatchNamePrompt			:	EXPINV PartNoTitle	
+	
+	Local		:	Field		:	EXPINV PartNoTitle			:	Border			:	ThinRight
+
+[#Line: EXPINV BillRefDetails]
+	Option		:	IN_BillRefDetails	:	@@RM_CustomPrint
+	
+[!Line:IN_BillRefDetails]
+	Delete		:	Right Field	:	EXPINV PartNo
+	Add			:	Left Field	:	Before		:	EXPINV BillRef					:	EXPINV PartNo
+	
+	Local		:	Field		:	EXPINV PartNo				:	Border			:	ThinRight
+
 [#Part:GCCVATEXPInv TopLeft]
 	Option		:	IN_TopLeft			:	@@RM_CustomPrint
 	
