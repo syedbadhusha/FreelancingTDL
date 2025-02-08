@@ -56,6 +56,7 @@
 	Add			:	Left Field	:	Before		:	EI Desc		:	EXPINV PartNo	
 	
 	Local		:	Field		:	EXPINV PartNo				:	Border			:	ThinRight
+	Local		:	Field		:	EXPINV Qty					:	Format	:	"No symbol,decimal:0"
 	
 [#Line: EXPINV BatchName]
 	Option		:	IN_BatchName		:	@@RM_CustomPrint
