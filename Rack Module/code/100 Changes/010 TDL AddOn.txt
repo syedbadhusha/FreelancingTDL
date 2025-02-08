@@ -1,0 +1,77 @@
+[#Part: CMP TallyShopFeatures Left]
+	Add			:	Line		:	RM_IsEnabled
+	
+	Local		:	Field		:	MediumPrompt				:	Width			:	@@RM_TDLWidth mms
+	
+[Line:RM_IsEnabled]
+	Field		:	MediumPrompt, RM_IsEnabled
+	
+	Local		:	Field		:	Default						:	Color			:	RoyalBlue
+	Local		:	Field		:	Default						:	Style			:	NormalBold
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Enable Module?"
+	
+	Explode		:	RM_Configuration							:	$RM_IsEnabled
+	
+[Field:RM_IsEnabled]
+	Use			:	LogicalField
+	Storage		:	RM_IsEnabled
+	
+[Part:RM_Configuration]
+	Line		:	RM_EnableBarcodePrint
+	
+	Local		:	Line		:	Default						:	Indent			:	@@RM_TDLIndent * $$ExplodeLevel mms
+	
+	Local		:	Field		:	Default						:	Style			:	NormalItalic
+	
+	Local		:	Field		:	MediumPrompt				:	Width			:	@@RM_TDLWidth - (@@RM_TDLIndent * $$ExplodeLevel) mms
+	
+[Line:RM_EnableBarcodePrint]
+	Field		:	MediumPrompt, RM_EnableBarcodePrint
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Enable Barcode Printing?"
+	
+	Explode		:	RM_BarcodeDetails							:	$RM_IsBarcodePrint
+	
+[Field:RM_EnableBarcodePrint]
+	Use			:	LogicalField
+	Storage		:	RM_IsBarcodePrint
+	Set as		:	No
+	
+[Part:RM_BarcodeDetails]
+	Line		:	RM_BarcodePrinter, RM_BarcodeWidth, RM_BarcodeHeight
+	
+[Line:RM_BarcodePrinter]
+	Field		:	MediumPrompt, RM_BarcodePrinter
+		
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Barcode Printer"
+	
+[Field:RM_BarcodePrinter]
+	Use			:	NameField
+	Storage		:	RM_BarcodePrinter
+	Table		:	ListOfPrinters
+	Show Table	:	Always
+	
+[Line:RM_BarcodeWidth]
+	Field		:	MediumPrompt, RM_BarcodeWidth
+		
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Barcode Width in mm"
+	
+[Field:RM_BarcodeWidth]
+	Use			:	NumberField
+	Storage		:	RM_BarcodeWidth
+	Format		:	"NoZero, NoComma"
+	Set as		:	54
+	Validate	:	$$Value > 0
+	
+[Line:RM_BarcodeHeight]
+	Field		:	MediumPrompt, RM_BarcodeHeight
+		
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Barcode Height in mm"
+	
+[Field:RM_BarcodeHeight]
+	Use			:	NumberField
+	Storage		:	RM_BarcodeHeight
+	Format		:	"NoZero, NoComma"
+	Set as		:	25
+	Validate	:	$$Value > 0

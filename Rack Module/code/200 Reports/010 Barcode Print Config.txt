@@ -1,0 +1,87 @@
+[Report:RM_BarcodePrinting]
+	Title		:	"Barcode Print Config"
+	
+	Form		:	RM_BarcodePrinting
+	
+[Form:RM_BarcodePrinting]
+	Vertical Align		:	Top
+	Horizontal Align	:	Left
+	
+	Full Width	:	No
+	
+	Space Left	:	5 mms
+	Space Right	:	5 mms
+	Space Bottom:	5 mms
+	
+	Button		:	RM_AlterCMPVAT
+	
+	Part		:	FormSubtitle, RM_BarcodePrinting
+		
+	Local		:	Field		:	FormSubtitle			:	Set as			:	"Barcode Print Config"
+	
+	On			:	Form Accept	:	Yes						:	Call			:	RM_PrintBarcode
+	
+[Button:RM_AlterCMPVAT]
+	Title		:	"Alter VAT"
+	Key			:	Alt + V
+	Action		:	Alter		:	RM_VATGCCDetails
+	Inactive	:	Not $$GlobalAllow:Alter:CompanyFeatures:$$CurrentSimpleCompany
+	
+[Report:RM_VATGCCDetails]
+	Object		:	Company
+	Use			:	RBVAT CMP VAT Details
+	Form		:	RBVAT CMP VAT Details
+	
+[Part:RM_BarcodePrinting]
+	Line		:	RM_BarcodeNo, RM_BarcodeRate, RM_BarcodeRateVATIncl, RM_BarcodeQty
+
+[Line:RM_BarcodeNo]
+	Field		:	MediumPrompt, RM_BarcodeNo
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Barcode No"
+	
+[Field:RM_BarcodeNo]
+	Use			:	NameField
+	Width		:	@@LongWidth
+	Table		:	RM_STKPartNos
+	Show Table	:	Always
+
+[Line:RM_BarcodeRate]
+	Field		:	MediumPrompt, RM_BarcodeRate
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Standard Price"
+	
+[Field:RM_BarcodeRate]
+	Use			:	NumberField
+	Set as		:	$$Number:$$Table:RM_BarcodeNo:$StandardPrice
+	Set Always	:	Yes
+	Format		:	@@RM_AmountFormat
+	Width		:	@@ShortWidth
+	Validate	:	$$Value > 0
+	Inactive	:	$$IsEmpty:#RM_BarcodeNo
+	
+[Line:RM_BarcodeRateVATIncl]
+	Field		:	MediumPrompt, RM_BarcodeRateVATIncl
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	$$Sprintf:"Price (Incl. %s%% VAT)":@@RM_CompanyVATRate
+	
+[Field:RM_BarcodeRateVATIncl]
+	Use			:	NumberField
+	Set as		:	(1 + (@@RM_CompanyVATRate / 100)) * #RM_BarcodeRate
+	Set Always	:	Yes
+	Format		:	@@RM_AmountFormat
+	Width		:	@@ShortWidth
+	Skip		:	Yes
+	Inactive	:	$$IsEmpty:#RM_BarcodeNo
+	
+[Line:RM_BarcodeQty]
+	Field		:	MediumPrompt, RM_BarcodeQty
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Qty"
+	
+[Field:RM_BarcodeQty]
+	Use			:	NumberField
+	Format		:	"NoZero"
+	Set as		:	1
+	Validate	:	$$Value > 0
+	Inactive	:	$$IsEmpty:#RM_BarcodeNo

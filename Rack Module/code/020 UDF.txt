@@ -1,0 +1,11 @@
+<DefType:System:UDF>
+
+
+[System:UDF]
+	RM_IsEnabled			:	Logical			:	1010
+	RM_IsBarcodePrint		:	Logical			:	1020
+	RM_BarcodePrinter		:	String			:	1030
+	RM_BarcodeWidth			:	Number			:	1040
+	RM_BarcodeHeight		:	Number			:	1050
+	
+	RM_Rack					:	String			:	2010

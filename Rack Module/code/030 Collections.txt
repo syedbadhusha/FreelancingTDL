@@ -1,0 +1,32 @@
+<DefType:Collection>
+
+
+[Collection:RM_STKPartNos]
+	Title		:	"List Of Barcodes"
+	
+	Source Collection	:	StockItem
+	
+	Walk		:	PartNo
+	
+	Fetch		:	Name, PartNo, ClosingBalance, StandardPrice, StandardPrice,*
+	
+	Sub Title	:	"Part No", "Name", "Closing Balance"
+	
+	Format		:	$PartNo, 15
+	Format		:	$Name, 35	
+	Format		:	$ClosingBalance, 12
+	
+	Align       :	Right
+    FullHeight  :	Yes
+    With Alias  :	No
+	
+[Collection:RM_BarcodeDetailsSrc]
+	Data Source	:	Variable	:	RM_BarcodeDetails
+	
+[Collection:RM_BarcodeDetails]
+	Source Collection			:	RM_BarcodeDetailsSrc
+	
+	Fetch		:	*
+	
+	Keep Source	:	().
+	Client Only	:	Yes

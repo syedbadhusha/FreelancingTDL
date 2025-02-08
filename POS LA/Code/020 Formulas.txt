@@ -53,3 +53,5 @@
 	POS_VATAppliableFrom	:	$$Date:$FromDate <= $$CurrentDate
 	POS_CompanyVATRate		:	$(Company, $$CurrentCompany).VATDetails[-1, @@POS_VATAppliableFrom].RateofVAT
 	
+	POS_PartyEmptyLineFilter:	Not (If $$IsSysNameEqual:AllItems:##POS_Party then Yes else If $$IsSysNameEqual:NotApplicable:##POS_Party then $$IsSysName:$PartyName else ##POS_Party = $PartyName)
+	

@@ -1,0 +1,6 @@
+<DefType:Include>
+
+
+[Include:010 Barcode Print Config.txt]
+
+[Include:020 Barcode Print.txt]

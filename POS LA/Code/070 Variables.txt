@@ -45,6 +45,9 @@
 [Variable:POS_MasterId]
 	Type		:	String
 
+[Variable:POS_Party]
+	Type		:	String
+	
 [System:Variable]
 		
 	CashTenderdAmountVar	:	""
@@ -62,3 +65,5 @@
 	LA_BillPaid				:	No
 	
 	POS_MasterId			:	""
+	POS_Party				:	""
+	

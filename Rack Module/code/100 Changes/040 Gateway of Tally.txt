@@ -1,0 +1,6 @@
+[#Menu:GateWayOfTally]
+	Option		:	RM_Gateway			:	@@RM_IsEnabled
+	
+[!Menu:RM_Gateway]
+	Add			:	Item		:	Before		:	@@LocQuit		:	Blank
+	Add			:	Item		:	Before		:	@@LocQuit		:	"Barcode Printing"		:	Alter	 	:	RM_BarcodePrinting

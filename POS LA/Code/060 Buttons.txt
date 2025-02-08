@@ -319,3 +319,9 @@
 				Key Color	:	white
 				Background	:	Dark Red
 				Action		:	Call		:	POS_Return
+
+[Button:LA_PartyFilter]
+	Title		:	"Party"
+	Key			:	Ctrl + X
+	Color		:	RoyalBlue
+	Action		:	Modify Variables	:	POS_PartyFilter

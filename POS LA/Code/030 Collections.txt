@@ -194,3 +194,11 @@
 	Keep Source	:	().
 	Client Only	:	Yes
 	
+
+[Collection:POS_Parties]
+	Title		:	"List Of Parties"
+	Use			:	POS Vouchers
+	Full Height	:	Yes
+	Align		:	Center
+	
+	Format		:	$PartyName
