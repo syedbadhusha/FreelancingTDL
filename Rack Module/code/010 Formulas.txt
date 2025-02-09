@@ -1,0 +1,22 @@
+<DefType:System:Formula>
+
+
+[System:Formula]
+	RM_TDLWidth				:	60
+	RM_TDLIndent			:	3
+	
+	RM_IsEnabled			:	$RM_IsEnabled:Company:$$CurrentCompany
+	
+	RM_AllowedVCHs			:	@@IsInvoice and @@RM_IsEnabled
+	
+	RM_STKRack				:	$RM_Rack:StockItem:$StockItemName
+	
+	RM_BarcodePrinter		:	$RM_BarcodePrinter:Company:$$CurrentCompany
+	RM_BarcodeWidth			:	$RM_BarcodeWidth:Company:$$CurrentCompany
+	RM_BarcodeHeight		:	$RM_BarcodeHeight:Company:$$CurrentCompany
+	
+	RM_VATAppliableFrom		:	$$Date:$FromDate <= $$CurrentDate
+	RM_CompanyVATRate		:	$(Company, $$CurrentCompany).VATDetails[-1, @@RM_VATAppliableFrom].RateofVAT
+	
+	RM_AmountFormat			:	$$Sprintf:"NoZero, NoComma,Decimal:%s":($DecimalPlaces:Company:$$CurrentCompany):""
+	

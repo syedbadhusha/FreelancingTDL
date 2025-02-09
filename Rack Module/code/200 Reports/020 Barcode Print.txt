@@ -1,0 +1,79 @@
+[Report:RM_BarcodePrint]
+	Title		:	"Barcode Printing"
+	
+	Form		:	RM_BarcodePrint
+	
+	Variable	:	SVPrinterName
+	Set			:	SVPrinterName		:	@@RM_BarcodePrinter
+	
+[Form:RM_BarcodePrint]
+	Width		:	@@RM_BarcodeWidth mms
+	Height		:	@@RM_BarcodeHeight mms
+
+	Space Left	:	2 mms
+	Space Right	:	2 mms
+	
+	Part		:	RM_BarcodePrint
+	
+[Part:RM_BarcodePrint]
+	Line		:	RM_BarcodePrint
+	Repeat		:	RM_BarcodePrint:RM_BarcodeDetails
+	Scroll		:	Vertical
+	
+[Line:RM_BarcodePrint]
+	Space Top	:	2 mms
+	
+	Line		:	RM_PRNCMPName, RM_PRNBarcode, POSPRNPartNo, RM_PRNItemName, RM_PRNItemRate, RM_PRNRack
+	
+	Option		:	RM_DelRack	:	$$IsSysName:($RM_Rack:Stockitem:$PartNo)
+	
+[!Line:RM_DelRack]
+	Delete		:	Line		:	RM_PRNRack
+	
+[Line:RM_PRNCMPName]
+	Space Bottom:	1 mms
+	
+	Field		:	RM_Barcode
+		
+	Local		:	Field		:	RM_Barcode					:	Set as			:	@@CMPMailName
+	Local		:	Style		:	Default						:	Height			:	9
+	
+[Field:RM_Barcode]
+	Use			:	NameField
+	Full Width	:	Yes
+	Style		:	TinyBold
+	Align		:	Center
+		
+[Line:RM_PRNBarcode]
+	Field		:	RM_Barcode
+		
+	Local		:	Field		:	RM_Barcode					:	Set as			:	$Barcode
+	Local		:	Field		:	Default						:	Style			:	RM_Barcode
+	
+[Style:RM_Barcode]
+	Font		:	"Free 3 of 9 Extended"
+	Height		:	38
+	Bold		:	No
+
+[Line:POSPRNPartNo]
+	Field		:	RM_Barcode
+		
+	Local		:	Field		:	RM_Barcode					:	Set as			:	$PartNo
+	
+	Local		:	Style		:	Default						:	Height			:	7
+	Local		:	Style		:	Default						:	Bold			:	No
+	
+[Line:RM_PRNItemName]
+	Field		:	RM_Barcode
+		
+	Local		:	Field		:	RM_Barcode					:	Set as			:	$Name:Stockitem:$PartNo
+	
+[Line:RM_PRNItemRate]
+	Field		:	RM_Barcode
+		
+	Local		:	Field		:	RM_Barcode					:	Set as			:	$$Sprintf:"Rate: %s/- (Incl. VAT)":$Rate
+	
+[Line:RM_PRNRack]
+	Field		:	RM_Barcode
+		
+	Local		:	Field		:	RM_Barcode					:	Set as			:	$$Sprintf:"Rack: %s":($RM_Rack:Stockitem:$PartNo):""

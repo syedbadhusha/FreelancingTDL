@@ -1,0 +1,5 @@
+<DefType:Variable>
+
+
+[Variable:RM_BarcodeDetails]
+	Variable		:	PartNo, Barcode, Rate			:	String	

@@ -1,0 +1,19 @@
+[#Part: STKI AdvancedOptions]
+	Option		:	RM_STKRack			:	@@RM_IsEnabled
+	
+[!Part:RM_STKRack]
+	Add			:	Line		:	RM_STKRack
+	
+[Line:RM_STKRack]
+	Field		:	MediumPrompt, RM_STKRack
+	
+	Local		:	Field		:	Default					:	Color			:	RoyalBlue
+	
+	Local		:	Field		:	MediumPrompt			:	Set as			:	"Rack"
+	
+[Field:RM_STKRack]
+	Use			:	NameField
+	Storage		:	RM_Rack
+	Table		:	ListOfGodowns, NotApplicable
+	Show Table	:	Always
+	

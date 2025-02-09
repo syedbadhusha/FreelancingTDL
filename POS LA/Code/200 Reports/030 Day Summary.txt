@@ -6,11 +6,14 @@
 	Use			:	POS_ButtonsInReport
 	Use			:	POS Register
 	
-	Variable	:	SVFromDate, SVToDate
+	Variable	:	SVFromDate, SVToDate, POS_Party
 	
 	Set			:	SVFromDate			:	$$MachineDate
 	Set			:	SVToDate			:	$$MachineDate
+	Set			:	POS_Party			:	$$SysName:AllItems
 ;	Set			:	VoucherTypeName		:	@@POS_SalesVCHName
+	
+	Local		:	Form		:	Default					:	Add				:	Bottom Button	:	At Beginning	:	LA_PartyFilter
 	
 	Local		:	Field		:	POSReg GiftVch			:	Invisible		:	Yes
 	
@@ -28,6 +31,7 @@
 	Local	:	Line	:	POSRegister Detail	:	Add	:	Field	:	After	:	DSP VchType	:	POS_VCHParty
 	Local	:	Line	:	POSRegister Detail	:	Local	:	Field	:	POS_VCHParty	:	Delete	:	Border
 
+	Local	:	Line	:	POSRegister Detail	:	Empty	:	@@POS_PartyEmptyLineFilter
 	Local	:	Line	:	POSRegister Total	:	Add	:	Field	:	After	:	DSP VchType	:	POS_VCHParty
 	Local	:	Line	:	POSRegister Total	:	Local	:	Field	:	POS_VCHParty	:	Set as	:	""
 	

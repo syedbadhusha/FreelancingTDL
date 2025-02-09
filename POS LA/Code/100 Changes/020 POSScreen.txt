@@ -304,14 +304,14 @@
 				[Line:LA_POSBodyColTit]
 
 					Fields      : VCH ItemTitle
-					Right Fields: VCHBilledQtyTitle,+ ;LA_POSStockBalTit,
+					Right Fields: VCHBilledQtyTitle,VCH InclRateTitle,+ ;LA_POSStockBalTit,
 								  VCHRateTitle, VCHRateUnitsTitle, +
 								  VCHDiscTitle,VCHAmtTitle,LA_VCHDiscTitle,LA_VCHSubTaxTitle,LA_VCHSubTotalTitle
 					
 					Local	:	Field	:	VCHBilledQtyTitle	:	Delete	:	Inactive
 					Local	:	Field	:	VCHBilledQtyTitle	:	Set as	:	"Quantity"
 					Local	:	Field	:	Default	:	Style	:	Small Bold
-					
+					Local	:	Field	:	VCH InclRateTitle	:	Set as	:	"Rate Incl."
 
 					[Field:LA_VCHDiscTitle]
 						Width       : @@VCHQtyWidth

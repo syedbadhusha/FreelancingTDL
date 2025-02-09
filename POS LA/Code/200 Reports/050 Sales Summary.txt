@@ -20,6 +20,8 @@
 [!Line:POS_SalesSummaryFields]
 	Add			:	Field		:	After	:	POS_CMNSNo	:	POS_VCHDate,POS_VCHParty
 	
+	Local		:	Field		:	POS_VCHParty			:	Border			:	ThinLeft
+	
 [!Line:POS_SalesSummaryTitle]
 	Use			:	POS_SalesSummaryFields
 	

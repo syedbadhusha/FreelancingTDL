@@ -37,7 +37,7 @@
 	Local		:	Line		:	POSRegister Title			:	+
 		Local	:	Field		:	Name Field					:	Set as			:	$$LocaleString:"List of All POS Hold Vouchers"
 		
-	Local		:	Line		:	POSRegister Detail			:	Empty			:	Not $IsOptional or @@ForexEmpty
+	Local		:	Line		:	POSRegister Detail			:	Empty			:	(Not $IsOptional or @@ForexEmpty) or @@POS_PartyEmptyLineFilter
 
 	Local		:	Field		:	DSP VchDate					:	Delete			:	Alter		:	LA_POS_Voucher
 	
@@ -46,3 +46,18 @@
 ;[Report:POS_StockItemName]
 ;	Use			:	StockItemName
 ;	Use			:	POS_BackInReport
+
+[Report:POS_PartyFilter]
+	Use			:	CollectionVariable
+	
+	Local		:	Field		:	MVTitle						:	Set as			:	"Select Party"
+	Local		:	Line		:	CollectionVariable			:	Field			:	POS_PartyFilter
+	
+[Field:POS_PartyFilter]
+	Use			:	NameField
+	Modifies	:	POS_Party
+	Table		:	POS_Parties, AllItems, NotApplicable
+	Show Table	:	Always
+	
+[Report:POS_HoldPartyFilter]
+	Use			:	POS_PartyFilter

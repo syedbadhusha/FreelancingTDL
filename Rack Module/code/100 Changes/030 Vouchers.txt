@@ -1,0 +1,48 @@
+[#Part:EI Column]
+	Option		:	RM_VCHRack			:	@@RM_AllowedVCHs
+	
+[!Part:RM_VCHRack]
+	Local		:	Line		:	Default					:	Option		:	RM_VCHRackTitle
+	Local		:	Line		:	EI ColumnOne			:	Option		:	RM_VCHRackTitle1
+	
+[!Line:RM_VCHRackTitle]
+	Use			:	RM_VCHRack
+	
+	Local		:	Field		:	RM_VCHRack				:	Option		:	RM_VCHTitle
+	
+[!Field:RM_VCHTitle]
+	Type		:	String
+	Align		:	Center
+	Style		:	NormalBold
+	Skip		:	Yes
+	Set as		:	""
+	
+[!Line:RM_VCHRackTitle1]
+	Local		:	Field		:	RM_VCHRack				:	Set as		:	"Rack"
+	
+[#Line:EIInvInfo]
+	Option		:	RM_VCHRack			:	@@RM_AllowedVCHs
+	
+[#Line:CIInvInfo]
+	Option		:	RM_VCHRack			:	@@RM_AllowedVCHs
+	
+[!Line:RM_VCHRack]
+	Add			:	Right Field	:	At Beginning			:	RM_VCHRack
+	
+[Field:RM_VCHRack]
+	Use			:	NameField
+	Width		:	25 mms
+	Skip		:	Yes
+	Set Always	:	Yes
+	Set as		:	@@RM_STKRack
+	Color		:	RoyalBlue
+	Style		:	Normal
+	Align		:	Center
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Batch Allocations;;;;;;;;;;;;;;;;;;;;;;;;;;
+[#Field: VCHBATCH Godown]
+	Option		:	RM_BCHRack			:	@@RM_AllowedVCHs
+	
+[!Field:RM_BCHRack]
+	Read Only	:	Not $$IsSysName:@@RM_STKRack
+	Set as		:	@@RM_STKRack

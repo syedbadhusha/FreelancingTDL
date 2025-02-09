@@ -1,0 +1,27 @@
+<DefType:Function>
+
+[Function:RM_PrintBarcode]
+	Variable		:	Qty			:	Number
+	Variable		:	Index		:	Number		:	1
+	
+	List Variable	:	RM_BarcodeDetails
+	
+	setQty			:	Set			:	Qty			:	$$RoundUp:($$Number:#RM_BarcodeQty):1
+	
+	while			:	While		:	##Qty >= ##Index
+	listAdd			:	List Add Ex	:	RM_BarcodeDetails
+	
+	setLPartNo		:	Set			:	RM_BarcodeDetails[##Index].PartNo	:	#RM_BarcodeNo
+	setLBarcode		:	Set			:	RM_BarcodeDetails[##Index].Barcode	:	$$Sprintf:"*%s*":($$RM_ParseBarcode:#RM_BarcodeNo):""
+	setLRate		:	Set			:	RM_BarcodeDetails[##Index].Rate		:	$$String:($$AsAmount:#RM_BarcodeRateVATIncl):"ShowBaseSymbol"
+	
+	IncrIndex		:	Increment	:	Index
+	
+	endWhile		:	End While
+	
+	prnReport		:	Print		:	RM_BarcodePrint
+	
+[Function:RM_ParseBarcode]
+	Parameter		:	InBarcode	:	String
+	
+	retVal			:	Return		:	$$StringFindAndReplace:($$RemoveExcelNoiseCharacter:##InBarcode):" ":"="
