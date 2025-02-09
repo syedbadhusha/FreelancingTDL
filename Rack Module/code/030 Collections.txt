@@ -30,3 +30,43 @@
 	
 	Keep Source	:	().
 	Client Only	:	Yes
+	
+;;;;;Part No in Default Vouchers
+[#Collection    : ListofExtractStockItems]
+	Option		:	RM_ListofExtractStockItems	:	@@RM_IsEnabled
+	
+[!Collection:RM_ListofExtractStockItems]
+	Delete		:	Option
+	Add			:	Option		:	RM_ListofExtractStockItemsServer : NOT $$IsRemoteCompany
+	Add			:	Option      :	RM_ListofExtractStockItemsRemote : $$IsRemoteCompany
+
+[!Collection:RM_ListofExtractStockItemsServer]
+	Use			:	List of Stock Items
+	Sub Title	:	"Name", "Part No"
+	Format		:	$$Name, 35
+	Format		:	$PartNo, 20
+	
+[!Collection:RM_ListofExtractStockItemsRemote]
+    Use			:	ListofExtractStockItemsRemote
+	Sub Title	:	"Name", "Part No"
+	Format		:	$$Name, 35
+	Format		:	$PartNo, 20
+	
+[#Collection:ItemBatchGodownVoucher]
+	Option		:	RM_ItemBatchGodownVoucher	:	@@RM_IsEnabled
+	
+[!Collection:RM_ItemBatchGodownVoucher]
+	Sub Title	:	"Name", "Part No"
+	Format		:	$Partno, 20
+	Fetch		:	PartNo
+	
+[#Collection: Vch Stock Item Extract]
+	Option		:	RM_StockItemExtract			:	@@RM_AllowedVCHs
+	
+[#Collection: List of POSStockItems]
+	Option		:	RM_StockItemExtract			:	@@RM_AllowedVCHs
+	
+[!Collection:RM_StockItemExtract]
+	Sub Title	:	"Name", "Closing Balance", "Part No"
+	Add			:	Format		:	$Partno, 20
+	Fetch		:	PartNo
