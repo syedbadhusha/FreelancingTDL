@@ -1,0 +1,24 @@
+<DefType:System:Formula>
+
+
+[System:Formula]
+	EAT_TDLWidth				:	60
+	EAT_TDLIndent				:	3
+	EAT_LogoWidth				:	200
+	
+	EAT_IsEnabled				:	$EAT_IsEnabled:Company:$$CurrentCompany
+	EAT_HeaderPath				:	$EAT_HeaderPath:Company:$$CurrentCompany
+		
+	EAT_IsFileExists			:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
+	
+	EAT_PurchaseInquiry			:	"Purchase Inquiry"
+	EAT_PurchaseOrder			:	"Purchase Order"
+	EAT_LocalPurchase			:	"Local Purchase"
+	EAT_ForeignPurchase			:	"Foreign Purchase"
+	EAT_JobCard					:	"Job Card"
+	
+	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
+	EAT_VCHPrintTypeVch			:	$EAT_VCHPrintType:VoucherType:$VoucherTypeName
+	
+	EAT_IsPurcEnquiry			:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseInquiry
+	EAT_IsPurcOrder				:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseOrder

@@ -1,0 +1,90 @@
+[#Part:VTYPBasicDetails]
+	Option		:	EAT_VCHTypeConfig		:	@@EAT_IsEnabled
+	
+[!Part:EAT_VCHTypeConfig]
+	Local		:	Line		:	VTYP IsActive			:	Option			:	EAT_VCHTypeConfig
+	
+[!Line:EAT_VCHTypeConfig]
+	Add			:	Explode		:	At Beginning			:	EAT_CMNConfig
+
+[Part:EAT_CMNConfig]
+	Local		:	Field		:	Default					:	Color			:	RoyalBlue
+	Local		:	Field		:	Default					:	Width			:	20
+	
+	Local		:	Field		:	LongPrompt				:	Width			:	@@LongWidth + 5
+	
+	Switch		:	Config		:	EAT_POConfig			:	$$IsPurcOrder:$Parent
+	Switch		:	Config		:	EAT_PurcConfig			:	$$IsPurchase:$Parent
+	Switch		:	Config		:	EAT_SOConfig			:	$$IsSalesOrder:$Parent
+	Switch		:	Config		:	EAT_DefConfig			:	Yes
+	
+[!Part:EAT_DefConfig]
+	Line		:	Empty
+	
+	Local		:	Line		:	Empty					:	Invisible		:	Yes
+	
+[!Part:EAT_POConfig]	
+	Line		:	EAT_VCHType, EAT_VCHPrintType
+	
+	Local		:	Field		:	EAT_VCHType				:	Option			:	EAT_AutoConfigEnquiry
+	
+[!Field:EAT_AutoConfigEnquiry]
+	On			:	Accept		:	Yes		:	Field Accept
+	On			:	Accept		:	Yes		:	Call		:	EAT_AutoConfigEnquiry
+	
+[#Field: VTYPOptional]
+	Option		:	EAT_Optional	:	@@EAT_IsEnabled
+	
+[!Field:EAT_Optional]
+	Skip		:	$EAT_VCHType = @@EAT_PurchaseInquiry
+	
+[Line:EAT_VCHType]
+	Field		:	LongPrompt, EAT_VCHType
+	
+	Local		:	Field		:	LongPrompt				:	Set as			:	"Purchase Order Type"
+	
+[Field:EAT_VCHType]
+	Use			:	NameField
+	Storage		:	EAT_VCHType
+	Table		:	EAT_POVCHTypes, NotApplicable
+	Show Table	:	Always
+	Set Always	:	Yes
+	
+[Line:EAT_VCHPrintType]
+	Field		:	LongPrompt, EAT_VCHPrintType
+	
+	Local		:	Field		:	LongPrompt				:	Set as			:	"Purchase Order Print Type"
+	
+[Field:EAT_VCHPrintType]
+	Use			:	NameField
+	Storage		:	EAT_VCHPrintType
+	Table		:	EAT_POVCHTypes, NotApplicable
+	Show Table	:	Always
+	Set as		:	$$Table:EAT_VCHType:$Name
+	Set Always	:	Yes
+	
+[!Part:EAT_PurcConfig]
+	Line		:	EAT_VCHPrintType
+	
+	Local		:	Line		:	EAT_VCHPrintType		:	+
+		Local	:	Field		:	LongPrompt				:	Set as			:	"Purchase Print Type"
+	
+	Local		:	Field		:	EAT_VCHPrintType		:	Option			:	EAT_VCHPurcPrintType
+	
+[!Field:EAT_VCHPurcPrintType]
+	Delete		:	Table
+	Delete		:	Set as
+	Add			:	Table		:	EAT_PurcVCHTypes, NotApplicable
+	
+[!Part:EAT_SOConfig]
+	Line		:	EAT_VCHType
+	
+	Local		:	Line		:	EAT_VCHType				:	+
+		Local	:	Field		:	LongPrompt				:	Set as			:	"Sales Order Type"
+	
+	Local		:	Field		:	EAT_VCHType				:	Option			:	EAT_VCHSOType
+	
+[!Field:EAT_VCHSOType]
+	Delete		:	Table
+	Add			:	Table		:	EAT_SOVCHTypes, NotApplicable
+	

@@ -1,0 +1,10 @@
+[#Form:PurcOrderColor]
+	Option		:	EAT_PurcInquiryPrint		:	@@EAT_IsPurcEnquiry
+	
+[!Form:EAT_PurcInquiryPrint]
+	Delete		:	Print
+	Add			:	Print			:	EAT_PurcInquiryPrint
+	
+[Report:EAT_PurcInquiryPrint]
+	Use			:	EAT_PRNCommon
+	

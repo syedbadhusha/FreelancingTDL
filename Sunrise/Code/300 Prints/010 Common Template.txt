@@ -1,0 +1,256 @@
+[Report:EAT_PRNCommon]
+	Use			:	STDInvoice
+    Use			:	VATGCC InvAnalysis Report_Variables
+	
+	Object		:	Voucher
+	
+	Form		:	EAT_PRNCommon
+	
+	Print Set	:	Report Title		:	If (NOT ##OptionalFlag AND @@IsSales AND NOT $$IsEmpty:$VCHPrintTitle:VoucherType:##SVVoucherType) then +
+											$VCHPrintTitle:VoucherType:##SVVoucherType else If @@IsExciseMfgVchUnit AND ##IsExciseVoucher AND @@IsSales AND @@IsExciseSupplemInvoice Then $$LocaleString:"SUPPLEMENTARY INVOICE" Else +
+											If (@@IsTraderExciseSalesDNUnit OR (@@IsExciseMfgVchUnit AND ##IsExciseVoucher AND ((@@IsSales OR @@IsDebitNote))) AND NOT ##SATraderCommercial) OR (@@IsExciseGoodsTransfer AND NOT @@VtypJobWorkEnabled AND NOT ##DNMfgrCommercial) Then $$LocaleString:"EXCISE INVOICE" Else +
+											If (@@IsSales AND $$IsEmpty:##SATitle) OR (@@IsPurchase AND $$IsEmpty:##PUTitle) then $$LocaleString:"INVOICE" else  @@InvTitle
+	
+[Form:EAT_PRNCommon]
+	Use			:	GCCVAT InvoiceTaxAnalysis
+
+	Width		:	210 mms
+	Height		:	294 mms
+	
+	Space Left	:	5 mms
+	Space Right	:	5 mms
+	Space Top	:	5 mms
+	Space Bottom:	5 mms
+	
+	Page Break	:	EAT_ClosingBreak, EAT_PRNCMNOpening
+	
+	Part		:	EAT_PRNCMNOpening, EAT_Column
+	Bottom Part	:	EAT_CMNSign
+	
+[Part:EAT_ClosingBreak]
+	Space Top	:	2 mms
+	Space Bottom:	2 mms
+	
+	Line		:	EAT_ClosingBreak
+	
+[Line:EAT_ClosingBreak]
+	Right Field	:	SimpleField
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Continue..."
+	
+[Part:EAT_PRNCMNOpening]
+	Part		:	EAT_HeaderLogoContainer, EAT_Title, EAT_VCHDetails, EAT_ColumnTitle
+	Vertical	:	Yes
+	
+[Part:EAT_HeaderLogoContainer]
+	Height		:	30 mms
+	Space Bottom:	2 mms
+	
+	Part		:	EAT_HeaderLogo
+	
+	Horizontal Align	:	Center
+	
+[Part:EAT_HeaderLogo]
+	Line		:	Empty
+	
+	Width		:	@@EAT_LogoWidth mms
+	
+	Graph Type	:	@@EAT_HeaderPath
+	
+	Horizontal Align	:	Center
+	
+[Part:EAT_Title]
+	Line		:	DSPPageNo, EAT_Title
+	
+[Line:EAT_Title]
+	Space Bottom:	1 mms
+	
+	Line		:	FormSubtitle
+	
+	Local		:	Field		:	FormSubtitle			:	Set as		:	##ReportTitle
+	Local		:	Field		:	FormSubtitle			:	Style		:	ExtraLargeBold
+	
+[Part:EAT_VCHDetails]
+	Space Bottom:	2 mms
+	
+	Part		:	EAT_PartyDetails
+	Right Part	:	EAT_VoucherDetails
+	
+	Local		:	Line		:	Default					:	Space Top	:	1 mms
+	Local		:	Line		:	Default					:	Space Bottom:	1 mms
+	
+[Part:EAT_PartyDetails]
+	Line		:	EAT_PartyToTitle, EAT_PartyName, EAT_PartyAddress, EAT_PartyContact, EAT_PartyCountry, EAT_PartyTRNNo
+	
+	Local		:	Field		:	MediumPrompt			:	Width		:	@@ShortWidth
+	Local		:	Field		:	NameField				:	Full Width	:	Yes
+	Local		:	Field		:	NameField				:	Line		:	0
+	
+[Line:EAT_PartyToTitle]
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	"To"
+	
+[Line:EAT_PartyName]
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	$PartyLedgerName
+	
+[Line:EAT_PartyAddress]
+	Invisible	:	$$IsEmptyCollection:Address
+	
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	$$FullList:Address:$Address
+	
+[Line:EAT_PartyContact]
+	Invisible	:	$$IsEmpty:$LedgerPhone:Ledger:$PartyLedgername and $$IsEmpty:$LedgerFax:Ledger:$PartyLedgername
+	
+	Field		:	MediumPrompt, ShortNameField, ShortPrompt, SimpleField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Tel"
+	Local		:	Field		:	ShortNameField			:	Set as		:	$LedgerPhone:Ledger:$PartyLedgername
+	Local		:	Field		:	ShortPrompt				:	Set as		:	"Fax"
+	Local		:	Field		:	SimpleField				:	Set as		:	$LedgerFax:Ledger:$PartyLedgername
+	Local		:	Field		:	SimpleField				:	Style		:	NormalBold
+	
+[Line:EAT_PartyCountry]
+	Invisible	:	$$IsSysName:$CountryofResidence
+	
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Country"
+	Local		:	Field		:	NameField				:	Set as		:	$CountryofResidence
+
+[Line:EAT_PartyTRNNo]
+	Invisible	:	$$IsEmpty:$BasicBuyersSalesTaxNo
+	
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"VAT No."
+	Local		:	Field		:	NameField				:	Set as		:	$BasicBuyersSalesTaxNo
+
+[Part:EAT_VoucherDetails]
+	Line		:	EAT_VCHNo, EAT_VCHDate
+	
+	Local		:	Field		:	MediumPrompt			:	Width		:	25 mms
+	Local		:	Field		:	NameField				:	Width		:	35 mms
+
+[Line:EAT_VCHNo]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"INV No."
+	Local		:	Field		:	NameField				:	Set as		:	$VoucherNumber
+
+[Line:EAT_VCHDate]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Date"
+	Local		:	Field		:	NameField				:	Set as		:	$Date
+
+[Part:EAT_ColumnTitle]
+	Border		:	ThinTopBottom
+	CommonBorder:	Yes
+	
+	Line		:	EAT_ColumnTitle
+	
+[Line:EAT_ColumnTitle]
+	Use			:	EAT_Column
+	
+	Space Top	:	1 mms
+	Space Bottom:	2 mms
+	
+	Local		:	Field		:	Default						:	Type			:	String
+	Local		:	Field		:	Default						:	Style			:	NormalBold
+	Local		:	Field		:	Default						:	Line			:	0
+	
+	Local		:	Field		:	EAT_SNo						:	Set as			:	"S. No."
+	Local		:	Field		:	EAT_Description				:	Set as			:	"Description"
+	Local		:	Field		:	EAT_Qty						:	Set as			:	"Qty"
+	Local		:	Field		:	EAT_RateSymbol				:	Set as			:	"Units"
+	Local		:	Field		:	EAT_Rate					:	Set as			:	"U. Price"
+	Local		:	Field		:	EAT_Amount					:	Set as			:	"Amount"
+	
+[Part:EAT_Column]
+	Border		:	ThinTopBottom
+	
+	Part		:	EAT_InventoryEntries, EAT_LedgerEntries
+	
+	Scroll		:	Vertical
+	CommonBorder:	Yes
+	Float		:	No
+	
+	Total		:	EAT_Qty, EAT_Amount
+	
+[Part:EAT_InventoryEntries]
+	Line		:	EAT_Column
+	Repeat		:	EAT_Column:InventoryEntries
+	
+	Local		:	Line		:	EAT_Column					:	Empty			:	$$IsSysName:$StockItemName
+	
+[Part:EAT_LedgerEntries]
+	Line		:	EAT_Column
+	Repeat		:	EAT_Column:LedgerEntries
+	
+	Local		:	Line		:	EAT_Column					:	Empty			:	$$IsSysName:$LedgerName or $LedgerName = $PartyLedgerName or @@InvoiceVATLedger
+	
+	Local		:	Field		:	EAT_SNo						:	Set as			:	""
+	
+	Local		:	Field		:	EAT_Description				:	Set as			:	$LedgerName
+	Local		:	Field		:	EAT_Description				:	Align			:	Right
+	
+[Line:EAT_Column]
+	Field		:	EAT_SNo, EAT_Description
+	Right Field	:	EAT_Qty, EAT_RateSymbol, EAT_Rate, EAT_Amount
+	
+	Local		:	Field		:	Default						:	Style			:	Normal
+	
+[Field:EAT_SNo]
+	Use			:	NumberField
+	Width		:	15 mms
+	Set as		:	$$Line
+	Format		:	"NoZero"
+	
+[Field:EAT_Description]
+	Use			:	NameField
+	Full Width	:	Yes
+	Set as		:	$StockItemName
+	Line		:	0
+	
+[Field:EAT_Qty]
+	Use			:	QtyField
+	Width		:	18 mms
+	Set as		:	$BilledQty
+	Format		:	"NoSymbol"
+
+[Field:EAT_RateSymbol]
+	Use			:	RateUnitsField
+	Width		:	15 mms
+	Set as		:	$Rate
+	Align		:	Right
+	
+[Field:EAT_Rate]
+	Use			:	RatePriceField
+	Width		:	22 mms
+	Set as		:	$Rate
+	Format		:	"Forex,Symbol"
+	
+[Field:EAT_Amount]
+	Use			:	AmountForexField
+	Width		:	25 mms
+	Set as		:	$Amount
+	
+[Part:EAT_CMNSign]
+	Right Part	:	EAT_CMNForSign
+	
+[Part:EAT_CMNForSign]
+	Width		:	50 % Page
+	Height		:	25 mms
+	
+	Bottom Line	:	EAT_CMNSign
+	
+[Line:EAT_CMNSign]
+	Field		:	PlainSubtitle
+	
+	Local		:	Field		:	PlainSubtitle				:	Set as			:	$$Sprintf:"For %s":@@CMPMailName
+	

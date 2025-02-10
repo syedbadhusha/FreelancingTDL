@@ -1,0 +1,9 @@
+<DefType:Include>
+
+
+[Include:010 Common Template.txt]
+
+[Include:020 Purchase Inquiry.txt]
+
+[Include:030 Purchase Order.txt]
+

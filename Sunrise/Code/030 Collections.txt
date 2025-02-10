@@ -1,0 +1,33 @@
+<DefType:Collection>
+
+
+[Collection:EAT_POVCHTypes]
+	Title		:	"List Of Purchase Order Types"
+	
+	List Name	:	@@EAT_PurchaseInquiry, @@EAT_PurchaseOrder
+	
+	Full Height	:	Yes
+	Align		:	Right
+	
+	Format		:	$Name, 35
+	
+[Collection:EAT_PurcVCHTypes]
+	Title		:	"List Of Purchase Types"
+	
+	List Name	:	@@EAT_LocalPurchase, @@EAT_ForeignPurchase
+	
+	Full Height	:	Yes
+	Align		:	Right
+	
+	Format		:	$Name, 35
+	
+[Collection:EAT_SOVCHTypes]
+	Title		:	"List Of Sales Order Types"
+	
+	List Name	:	@@EAT_JobCard
+	
+	Full Height	:	Yes
+	Align		:	Right
+	
+	Format		:	$Name, 35
+	

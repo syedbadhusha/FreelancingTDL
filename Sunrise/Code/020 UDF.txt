@@ -1,0 +1,11 @@
+<DefType:System:UDF>
+
+
+[System:UDF]
+	;;;;;TDL AddOn;;;;;
+	EAT_IsEnabled			:	Logical			:	1010
+	EAT_HeaderPath			:	String			:	1020
+	
+	;;;;;Voucher Type;;;;;
+	EAT_VCHType				:	String			:	2010
+	EAT_VCHPrintType		:	String			:	2020

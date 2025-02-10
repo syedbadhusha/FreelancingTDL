@@ -1,0 +1,6 @@
+<DefType:Function>
+
+
+[Function:EAT_AutoConfigEnquiry]
+	000			:	Set Value	:	IsOptional				:	$EAT_VCHType = @@EAT_PurchaseInquiry
+	

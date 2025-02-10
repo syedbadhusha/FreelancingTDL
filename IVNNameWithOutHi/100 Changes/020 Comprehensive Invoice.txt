@@ -194,7 +194,7 @@
 	
 [!Part:IN_ColumnFormat2]
 	Local		:	Line		:	EXPINV Column1				:	+
-		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	"#"
+		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	"Sl #"
 	
 	Local		:	Line		:	EXPINV Column2				:	+
 		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	""

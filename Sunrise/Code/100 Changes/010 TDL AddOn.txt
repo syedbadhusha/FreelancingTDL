@@ -1,0 +1,39 @@
+[#Part: CMP TallyShopFeatures Left]
+	Add			:	Line		:	EAT_IsEnabled
+	
+	Local		:	Field		:	MediumPrompt				:	Width			:	@@EAT_TDLWidth mms
+	
+[Line:EAT_IsEnabled]
+	Field		:	MediumPrompt, EAT_IsEnabled
+	
+	Local		:	Field		:	Default						:	Color			:	RoyalBlue
+	Local		:	Field		:	Default						:	Style			:	NormalBold
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Enable Customization?"
+	
+	Explode		:	EAT_Configuration							:	$EAT_IsEnabled
+	
+[Field:EAT_IsEnabled]
+	Use			:	LogicalField
+	Storage		:	EAT_IsEnabled
+	
+[Part:EAT_Configuration]
+	Line		:	EAT_HeaderPath
+	
+	Local		:	Line		:	Default						:	Indent			:	@@EAT_TDLIndent * $$ExplodeLevel mms
+	
+	Local		:	Field		:	Default						:	Style			:	NormalItalic
+	
+	Local		:	Field		:	MediumPrompt				:	Width			:	@@EAT_TDLWidth - (@@EAT_TDLIndent * $$ExplodeLevel) mms
+	
+[Line:EAT_HeaderPath]
+	Field		:	MediumPrompt, EAT_HeaderPath
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Header Logo Path"
+	
+[Field:EAT_HeaderPath]
+	Use			:	NameField
+	Storage		:	EAT_HeaderPath
+	Case		:	Normal
+	Full Width	:	Yes
+	Control		:	FiledonotExist		:	@@EAT_IsFileExists

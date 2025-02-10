@@ -1,0 +1,10 @@
+[#Form:PurcOrderColor]
+	Option		:	EAT_PurcOrderPrint			:	@@EAT_IsPurcOrder
+	
+[!Form:EAT_PurcOrderPrint]
+	Delete		:	Print
+	Add			:	Print			:	EAT_PurcOrderPrint
+	
+[Report:EAT_PurcOrderPrint]
+	Use			:	EAT_PRNCommon
+	
