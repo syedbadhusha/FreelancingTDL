@@ -7,3 +7,6 @@
 
 [Include:030 Purchase Order.txt]
 
+[Include:040 Local Purchase.txt]
+
+[Include:050 Foreign Purchase.txt]

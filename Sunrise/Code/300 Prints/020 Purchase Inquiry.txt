@@ -1,10 +1,75 @@
 [#Form:PurcOrderColor]
-	Option		:	EAT_PurcInquiryPrint		:	@@EAT_IsPurcEnquiry
+	Option		:	EAT_PurcInquiryPrint		:	@@EAT_IsPurcEnquiryPrint
 	
 [!Form:EAT_PurcInquiryPrint]
 	Delete		:	Print
-	Add			:	Print			:	EAT_PurcInquiryPrint
+	Add			:	Print		:	EAT_PurcInquiryPrint
 	
 [Report:EAT_PurcInquiryPrint]
 	Use			:	EAT_PRNCommon
+	
+	Local		:	Form		:	Default					:	Delete		:	Bottom Part			:	EAT_CMNAmountSummary
+	
+	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_InquiryOpening
+	Local		:	Part		:	EAT_CMNSign				:	Option		:	EAT_InquirySign
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_InquiryFields
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_InquiryFields
+	
+[!Part:EAT_InquiryOpening]
+	Add			:	Part		:	Before		:	EAT_ColumnTitle			:	EAT_InquiryTerms
+	
+	Local		:	Line		:	EAT_VCHNo				:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"Doc No."
+		
+[Part:EAT_InquiryTerms]
+	Space Bottom:	2 mms
+	
+	Line		:	EAT_InquiryTermsTitle, EAT_InquiryTerms
+	
+[Line:EAT_InquiryTermsTitle]
+	Field		:	SimpleField
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Dear Sir,"
+	
+[Line:EAT_InquiryTerms]
+	Space Top	:	1 mms
+	
+	Field		:	SimpleField
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Kindly quote us your most competitive price for below mentioned enquiry at earliest."
+	
+[!Part:EAT_InquirySign]
+	Delete		:	Right Part
+	Add			:	Part		:	EAT_InquirySignContainer
+	
+[Part:EAT_InquirySignContainer]
+	Space Top	:	2 mms
+	
+	Part		:	EAT_InquirySignTitle, EAT_CMNForSign
+	Vertical	:	Yes
+	
+	Local		:	Field		:	PlainSubtitle			:	Align		:	Left
+	
+[Part:EAT_InquirySignTitle]
+	Line		:	EAT_InquirySignTitle, EAT_InquiryRegards
+	
+[Line:EAT_InquirySignTitle]
+	Field		:	SimpleField
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Your immediate response in this matter shall highly be valued."
+	
+[Line:EAT_InquiryRegards]
+	Space Top	:	1 mms
+	
+	Field		:	SimpleField
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Regards,"
+	
+[!Line:EAT_InquiryFields]
+	Delete		:	Right Field
+	Add			:	Right Field	:	EAT_Qty, EAT_RateSymbol
+	
+	Local		:	Field		:	EAT_Qty					:	Width		:	25 mms
+	Local		:	Field		:	EAT_RateSymbol			:	Width		:	25 mms
 	

@@ -20,5 +20,15 @@
 	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
 	EAT_VCHPrintTypeVch			:	$EAT_VCHPrintType:VoucherType:$VoucherTypeName
 	
-	EAT_IsPurcEnquiry			:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseInquiry
-	EAT_IsPurcOrder				:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseOrder
+	EAT_IsPurcEnquiryPrint		:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseInquiry
+	EAT_IsPurcOrderPrint		:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseOrder
+	EAT_IsLocalPurcPrint		:	@@EAT_IsEnabled and @@IsPurchase and @@EAT_VCHPrintType = @@EAT_LocalPurchase
+	EAT_IsForeignPurcPrint		:	@@EAT_IsEnabled and @@IsPurchase and @@EAT_VCHPrintType = @@EAT_ForeignPurchase
+	
+	EAT_VATAmount				:	$$FilterAmtTotal:LedgerEntries:InvoiceVATLedger:$Amount
+	EAT_Discount				:	$$FilterAmtTotal:LedgerEntries:EAT_IsDiscountLedger:$Amount
+	EAT_RoundOff				:	$$FilterAmtTotal:LedgerEntries:EAT_IsRoundOffLedger:$Amount
+	
+	EAT_IsDiscountLedger		:	$VATDealerNature:Ledger:$LedgerName = "Discount"
+	EAT_IsRoundOffLedger		:	$VATDealerNature:Ledger:$LedgerName = "Invoice Rounding"
+	

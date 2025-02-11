@@ -25,7 +25,7 @@
 	Page Break	:	EAT_ClosingBreak, EAT_PRNCMNOpening
 	
 	Part		:	EAT_PRNCMNOpening, EAT_Column
-	Bottom Part	:	EAT_CMNSign
+	Bottom Part	:	EAT_CMNAmountSummary, EAT_CMNSign
 	
 [Part:EAT_ClosingBreak]
 	Space Top	:	2 mms
@@ -80,7 +80,8 @@
 	Local		:	Line		:	Default					:	Space Bottom:	1 mms
 	
 [Part:EAT_PartyDetails]
-	Line		:	EAT_PartyToTitle, EAT_PartyName, EAT_PartyAddress, EAT_PartyContact, EAT_PartyCountry, EAT_PartyTRNNo
+	Line		:	EAT_PartyToTitle, EAT_PartyName, EAT_PartyAddress, EAT_PartyContact, EAT_PartyCountry, EAT_PartyTRNNo, +
+					EAT_PartyAttn
 	
 	Local		:	Field		:	MediumPrompt			:	Width		:	@@ShortWidth
 	Local		:	Field		:	NameField				:	Full Width	:	Yes
@@ -130,6 +131,14 @@
 	Local		:	Field		:	MediumPrompt			:	Set as		:	"VAT No."
 	Local		:	Field		:	NameField				:	Set as		:	$BasicBuyersSalesTaxNo
 
+[Line:EAT_PartyAttn]
+	Invisible	:	$$IsEmpty:$LedgerContact:Ledger:$PartyLedgername
+	
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Attention"
+	Local		:	Field		:	NameField				:	Set as		:	$LedgerContact:Ledger:$PartyLedgername
+
 [Part:EAT_VoucherDetails]
 	Line		:	EAT_VCHNo, EAT_VCHDate
 	
@@ -160,16 +169,18 @@
 	Space Top	:	1 mms
 	Space Bottom:	2 mms
 	
-	Local		:	Field		:	Default						:	Type			:	String
-	Local		:	Field		:	Default						:	Style			:	NormalBold
-	Local		:	Field		:	Default						:	Line			:	0
+	Local		:	Field		:	Default					:	Type			:	String
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Line			:	0
 	
-	Local		:	Field		:	EAT_SNo						:	Set as			:	"S. No."
-	Local		:	Field		:	EAT_Description				:	Set as			:	"Description"
-	Local		:	Field		:	EAT_Qty						:	Set as			:	"Qty"
-	Local		:	Field		:	EAT_RateSymbol				:	Set as			:	"Units"
-	Local		:	Field		:	EAT_Rate					:	Set as			:	"U. Price"
-	Local		:	Field		:	EAT_Amount					:	Set as			:	"Amount"
+	Local		:	Field		:	EAT_SNo					:	Set as			:	"S. No."
+	Local		:	Field		:	EAT_Description			:	Set as			:	"Description"
+	Local		:	Field		:	EAT_JobNo				:	Set as			:	"Job No."
+	Local		:	Field		:	EAT_TrackingNo			:	Set as			:	"MRN"
+	Local		:	Field		:	EAT_Qty					:	Set as			:	"Qty"
+	Local		:	Field		:	EAT_RateSymbol			:	Set as			:	"Unit"
+	Local		:	Field		:	EAT_Rate				:	Set as			:	"U. Price"
+	Local		:	Field		:	EAT_Amount				:	Set as			:	"Amount"
 	
 [Part:EAT_Column]
 	Border		:	ThinTopBottom
@@ -186,24 +197,24 @@
 	Line		:	EAT_Column
 	Repeat		:	EAT_Column:InventoryEntries
 	
-	Local		:	Line		:	EAT_Column					:	Empty			:	$$IsSysName:$StockItemName
+	Local		:	Line		:	EAT_Column				:	Empty			:	$$IsSysName:$StockItemName
 	
 [Part:EAT_LedgerEntries]
 	Line		:	EAT_Column
 	Repeat		:	EAT_Column:LedgerEntries
 	
-	Local		:	Line		:	EAT_Column					:	Empty			:	$$IsSysName:$LedgerName or $LedgerName = $PartyLedgerName or @@InvoiceVATLedger
+	Local		:	Line		:	EAT_Column				:	Empty			:	$$IsSysName:$LedgerName or $LedgerName = $PartyLedgerName or @@InvoiceVATLedger or @@EAT_IsDiscountLedger or @@EAT_IsRoundOffLedger
 	
-	Local		:	Field		:	EAT_SNo						:	Set as			:	""
+	Local		:	Field		:	EAT_SNo					:	Set as			:	""
 	
-	Local		:	Field		:	EAT_Description				:	Set as			:	$LedgerName
-	Local		:	Field		:	EAT_Description				:	Align			:	Right
+	Local		:	Field		:	EAT_Description			:	Set as			:	$LedgerName
+	Local		:	Field		:	EAT_Description			:	Align			:	Right
 	
 [Line:EAT_Column]
 	Field		:	EAT_SNo, EAT_Description
 	Right Field	:	EAT_Qty, EAT_RateSymbol, EAT_Rate, EAT_Amount
 	
-	Local		:	Field		:	Default						:	Style			:	Normal
+	Local		:	Field		:	Default					:	Style			:	Normal
 	
 [Field:EAT_SNo]
 	Use			:	NumberField
@@ -216,6 +227,16 @@
 	Full Width	:	Yes
 	Set as		:	$StockItemName
 	Line		:	0
+	
+[Field:EAT_JobNo]
+	Use			:	NameField
+	Set			:	$
+	Width		:	15 mms
+	
+[Field:EAT_TrackingNo]
+	Use			:	NameField
+	Set			:	If $$IsSysName:$TrackingNumber then "" else $TrackingNumber
+	Width		:	15 mms
 	
 [Field:EAT_Qty]
 	Use			:	QtyField
@@ -239,7 +260,66 @@
 	Use			:	AmountForexField
 	Width		:	25 mms
 	Set as		:	$Amount
+
+[Part:EAT_CMNAmountSummary]
+	Space Bottom:	1 mms
+	Space Top	:	1 mms
 	
+	Part		:	EAT_CMNAmountInWords
+	Right Part	:	EAT_CMNAmountDetails
+	
+	Local		:	Line		:	Default					:	Space Top	:	1 mms
+	Local		:	Line		:	Default					:	Space Bottom:	1 mms
+	
+	Local		:	Field		:	Default					:	Style		:	NormalBold
+	
+[Part:EAT_CMNAmountInWords]
+	Line		:	EAT_CMNAmountInWords
+	
+[Line:EAT_CMNAmountInWords]
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	$$InWords:$Amount:"Forex"
+	Local		:	Field		:	NameField				:	Full Width	:	Yes
+	Local		:	Field		:	NameField				:	Line		:	0
+	
+[Part:EAT_CMNAmountDetails]
+	Line		:	EAT_CMNTotalAmount, EAT_CMNDiscount, EAT_CMNVAT, EAT_CMNRoundOff, EAT_CMNGrandTotal
+	
+	Local		:	Field		:	MediumPrompt			:	Align		:	Right
+	
+[Line:EAT_CMNTotalAmount]
+	Field		:	MediumPrompt, EAT_Amount
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Total Amount :"
+	Local		:	Field		:	EAT_Amount				:	Set as		:	$$Total:EAT_Amount
+
+[Line:EAT_CMNDiscount]
+	Field		:	MediumPrompt, EAT_Amount
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Discount :"
+	Local		:	Field		:	EAT_Amount				:	Set as		:	@@EAT_Discount
+		
+[Line:EAT_CMNVAT]
+	Invisible	:	$$IsEmpty:@@EAT_VATAmount
+	
+	Field		:	MediumPrompt, EAT_Amount
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"VAT@10% :"
+	Local		:	Field		:	EAT_Amount				:	Set as		:	@@EAT_VATAmount
+
+[Line:EAT_CMNRoundOff]
+	Field		:	MediumPrompt, EAT_Amount
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Round Off :"
+	Local		:	Field		:	EAT_Amount				:	Set as		:	@@EAT_RoundOff
+
+[Line:EAT_CMNGrandTotal]
+	Field		:	MediumPrompt, EAT_Amount
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	$$Sprintf:"Grand Total %s :":($$Currency:$Amount):""
+	Local		:	Field		:	EAT_Amount				:	Set as		:	$Amount
+
 [Part:EAT_CMNSign]
 	Right Part	:	EAT_CMNForSign
 	
@@ -252,5 +332,5 @@
 [Line:EAT_CMNSign]
 	Field		:	PlainSubtitle
 	
-	Local		:	Field		:	PlainSubtitle				:	Set as			:	$$Sprintf:"For %s":@@CMPMailName
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	$$Sprintf:"For %s":@@CMPMailName
 	

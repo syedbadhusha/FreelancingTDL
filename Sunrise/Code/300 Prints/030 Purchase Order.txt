@@ -1,10 +1,32 @@
 [#Form:PurcOrderColor]
-	Option		:	EAT_PurcOrderPrint			:	@@EAT_IsPurcOrder
+	Option		:	EAT_PurcOrderPrint			:	@@EAT_IsPurcOrderPrint
 	
 [!Form:EAT_PurcOrderPrint]
 	Delete		:	Print
-	Add			:	Print			:	EAT_PurcOrderPrint
+	Add			:	Print		:	EAT_PurcOrderPrint
 	
 [Report:EAT_PurcOrderPrint]
 	Use			:	EAT_PRNCommon
+		
+	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_POOpening
+	
+[!Part:EAT_POOpening]
+	Add			:	Part		:	Before		:	EAT_ColumnTitle			:	EAT_POTerms
+	
+	Local		:	Line		:	EAT_VCHNo				:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"LPO No."
+	
+	Local		:	Line		:	EAT_VCHDate				:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"LPO Date"
+	
+[Part:EAT_POTerms]
+	Space Bottom:	2 mms
+	
+	Line		:	EAT_POTerms
+
+[Line:EAT_POTerms]
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	"Please supply us the following item & send us your invoice to proceed with Payments."
+	Local		:	Field		:	NameField				:	Full Width	:	Yes
 	

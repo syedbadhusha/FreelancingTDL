@@ -1,0 +1,29 @@
+[#Form:PurchaseColor]
+	Option		:	EAT_LocalPurcPrint			:	@@EAT_IsLocalPurcPrint
+	
+[!Form:EAT_LocalPurcPrint]
+	Delete		:	Print
+	Add			:	Print		:	EAT_LocalPurcPrint
+	
+[Report:EAT_LocalPurcPrint]
+	Use			:	EAT_PRNCommon
+	
+	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHReference, EAT_VCHRefDate
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_LocalPurcFields
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_LocalPurcFields
+	
+[Line:EAT_VCHReference]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Bill No."
+	Local		:	Field		:	NameField				:	Set as		:	$Reference
+
+[Line:EAT_VCHRefDate]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Bill Date"
+	Local		:	Field		:	NameField				:	Set as		:	$ReferenceDate
+
+[!Line:EAT_LocalPurcFields]
+	Add			:	Right Field	:	At Beginning			:	EAT_JobNo, EAT_TrackingNo
