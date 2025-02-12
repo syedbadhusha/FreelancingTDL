@@ -727,3 +727,81 @@
 	Local		: Field	: Short Prompt		: Set as	: $$LocaleString:"Benefit Pay" + ":"
 
 
+;[#Field:Vch Rate]
+[#Field: VCHPOSRate]
+	
+	Option	:	POS_VCHPOSRate	:	@@POS_IsEnabled
+	
+[!Field:POS_VCHPOSRate]
+	
+	Delete	:	Set as	
+
+	Add		:	Set as		: 	  If (@TaxationEnabled AND (@@InvoiceInCreate OR NOT $$IsEmpty:$InclusiveTaxValue) AND ##ICFGInclTax AND @@SalesInvoiceMode) AND NOT ($$IsEmpty:$$Number:$InclusiveTaxValue OR (($Amount != 0) AND ($Amount != @POSCalcedAmt))) Then $$POS_InclusiveTaxValue:@@ExItemRate:@@STItemRate:@@VATItemRate:@@TCSItemRate:@@GSTItemRate:@@GSTItemQtyRate:@@ExItemMRPDutyValue:@@VATItemMRPDutyValue:@@ExItemQuantum Else  +
+								  If $StockItemName != #VCHPrevItem AND NOT $$IsStartupValue Then $$ForexValue:@@StdVchRate Else If $$InAlterMode OR $$InDuplicateMode Then @AltermodeVal Else +
+								  If $$IsStartUpValue OR ($$IsEmpty:$Rate AND $$IsFieldEdited) Then $$Value Else If $$InCreateMode Then @POSCreateRate Else @AlterRate
+
+
+
+[System:Formula]
+	
+		POS_VATItemRate     : If (@@IsRBVATSupportedState AND @@VATGetVatApplStatusofItem) OR @@IsGCCCountriesVATOn Then $$POS_GetVATItemRate Else 0
+
+
+[Function: POS_InclusiveTaxValue]
+			
+	Parameter	: ExciseRate	: Number
+	Parameter	: ST Rate		: Number
+	Parameter	: VAT Rate		: Number
+	Parameter	: TCS Rate		: Number
+	Parameter	: GST Rate		: Number
+	Parameter	: GSTQtyRate	: Number	: $$InitValue:Number
+	Parameter	: ExciseMRPRate	: Amount	: $$InitValue:Amount
+	Parameter	: VATMRPRate	: Amount	: $$InitValue:Amount
+	Parameter	: ExciseQtmValue: Amount	: $$InitValue:Amount
+
+	Variable	: InclTaxValue	: Rate		: $InclusiveTaxValue
+	Variable	: StockItemRate	: Rate		: $InclusiveTaxValue
+	Variable	: IsGSTStockItem: Logical	: If @@IsIndia AND @@VCHIsGSTRegularCompOnAndAppl Then $IsGSTApplStkItm Else No
+	
+;	Variable	: VATRateTempValue	: Amount
+
+	Variable	: ExciseRateValue	: Number
+	Variable	: STRateValue		: Number
+	Variable	: VATRateValue		: Number
+	Variable	: TCSRateValue		: Number
+	Variable	: GSTRateValue		: Number
+	
+	Returns		: Rate
+	
+	001	: If		: ##IsGSTStockItem
+	002	: 	Set		: GSTRateValue	: ##GSTRate/100
+	003	: 	Set		: StockItemRate	: (##InclTaxValue-##GSTQtyRate) / (1+##GSTRateValue)
+	004	: 	Do If	: ($$InCreateMode OR (NOT ##IsRateupdated))	: Call	: VCHBatchIsFieldAltered	: Yes
+	005	: Return	: If $$Number:##StockItemRate <= 0 Then 0 Else ##StockItemRate
+	
+	006	: End If
+	
+	070	: Do If		: (NOT $$IsEmpty:##ExciseMRPRate) 	: Set	: ExciseRate	: $$Number:0
+	075	: Do If		: (NOT $$IsEmpty:##ExciseMRPRate) 	: Set	: ExciseQtmValue: $$AsAmount:0
+	085	: Do If		: (NOT $$IsEmpty:##VATMRPRate) 		: Set	: VAT Rate		: $$Number:0
+	
+	500	: Do If		: NOT ($$IsEmpty:##ExciseQtmValue) 	: Set	: InclTaxValue	: ##InclTaxValue - ##ExciseQtmValue * (1+ ##VATRate/100 + (1+##VATRate/100)* ##TCSRate/100)
+	510	: Do If		: NOT ($$IsEmpty:##ExciseMRPRate) 	: Set	: InclTaxValue	: ##InclTaxValue - ##ExciseMRPRate * (1+ ##VATRate/100 + (1+##VATRate/100)* ##TCSRate/100)
+	520	: Do If		: NOT ($$IsEmpty:##VATMRPRate) 		: Set	: InclTaxValue	: ##InclTaxValue - ##VATMRPRate * (1+ ##VATRate/100 + (1+##VATRate/100)* ##TCSRate/100)	
+
+	010	: SET		: ExciseRateValue					: If $$IsEmpty:##ExciseRate	Then 0 Else ##ExciseRate/100
+	020	: SET		: STRateValue						: If $$IsEmpty:##STRate	Then 0 Else ##STRate/100
+
+	030	: SET		: VATRateValue						:  IF @@IsGCCCountriesVATOn AND ##VARVchDate >= ##GVATApplicableDate +		;;;;;;;;;Changed Tax Rate as 10 % instead of 5%  By Syed
+																AND $$IsSysNameEqual:Taxable:@@GVATItemTotalTaxRate_Stk AND $$IsEmpty:##VATRate +
+																	Then ((1+##ExciseRateValue+##STRateValue)*$$Number:10/100) Else If $$IsEmpty:##VATRate Then 0 +
+																		Else (1+##ExciseRateValue+##STRateValue)*##VATRate/100
+
+	040	: SET		: TCSRateValue						: If $$IsEmpty:##TCSRate Then 0 Else (1+##ExciseRateValue+##STRateValue+##VATRateValue) * ##TCSRate/100
+				
+	050	: Set		: StockItemRate						: ##InclTaxValue /(1+ ##ExciseRateValue + ##STRateValue + ##VATRateValue + ##TCSRateValue)
+	
+	055	: Call		: VCHBatchIsFieldAltered			: Yes
+	056	: Set		: IsRateupdated	: False
+
+	060	: Return	: If $$Number:##StockItemRate <= 0 Then 0 Else ##StockItemRate
