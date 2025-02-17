@@ -1,3 +1,98 @@
 <DefType:Function>
 
+[Function:EAT_AutoFillInquires]
+	ifNotEmptyInv	:	Do If				:	($$NumFilledItems:InventoryEntries != 0)		:	Return
+	
+	turnOff			:	Set					:	SVAccAllocOnOrder		:	Not ##ICFGCommonLed
+	
+	fetchData		:	Call				:	EAT_FetchInquiryData
+	loadData		:	Call				:	EAT_LoadInquiryData
+	
+[Function:EAT_FetchInquiryData]
+	Variable		:	MasterId			:	String
+	Variable		:	InvIndex, LedIndex	:	Number					:	1
+	
+	delExInvdtls	:	List Delete Ex		:	EAT_InquiryBatch
+	delExLedDetails	:	List Delete Ex		:	EAT_InquiryLedgers
+	
+	WlkSelInq		:	Walk Collection		:	EAT_SelectedInquiries
+	
+		setMasterId	:	Set					:	MasterId				:	$EAT_PurcInquiryId
+		
+		WlkMasterId	:	Walk Collection		:	EAT_MasterIdVCH
+		
+			wlkInv	:	Walk Collection		:	InventoryEntries
+				
+				wlkB:	Walk Collection		:	BatchAllocations
+					
+					laeb	:	List Add Ex	:	EAT_InquiryBatch
+					sbItem	:	Set			:	EAT_InquiryBatch[##InvIndex].ItemName		:	$StockItemName
+					sBName	:	Set			:	EAT_InquiryBatch[##InvIndex].BatchName		:	$BatchName
+					sGName	:	Set			:	EAT_InquiryBatch[##InvIndex].GodownName		:	$GodownName
+					sBQty	:	Set			:	EAT_InquiryBatch[##InvIndex].Qty			:	$BilledQty
+					sBRate	:	Set			:	EAT_InquiryBatch[##InvIndex].Rate			:	$BatchRate
+					sBAmount:	Set			:	EAT_InquiryBatch[##InvIndex].Amount			:	$Amount		
+					sbDue	:	Set			:	EAT_InquiryBatch[##InvIndex].DueDate		:	$OrderDueDate
+					
+					IncI	:	Increment	:	InvIndex
+					
+				endB:	End Walk
+			endInv	:	End Walk
+			
+			wlkLed	:	Walk Collection		:	LedgerEntries
+				
+				ifP	:	Do If				:	$LedgerName = $PartyLedgerName					:	Continue
+				
+				lail:	List Add Ex			:	EAT_InquiryLedgers
+				slNa:	Set					:	EAT_InquiryLedgers[##LedIndex].LedgerName		:	$LedgerName
+				slis:	Set					:	EAT_InquiryLedgers[##LedIndex].IsDeemed			:	$IsDeemedPositive
+				slAt:	Set					:	EAT_InquiryLedgers[##LedIndex].Amount			:	$Amount
+				
+				IncL:	Increment			:	LedIndex
+			endLed	:	End Walk
+			
+		endMasterId	:	End Walk
+	EndWlkInq		:	End Walk
+	
+[Function:EAT_LoadInquiryData]
+	Variable	:	Index			:	Number
+	
+	010000		:	Walk Collection	:	EAT_InquiryInventory
+	
+	010001		:	Insert Collection Object				:	InventoryEntries
+	010002		:	Set Target		:	InventoryEntries[$$LoopIndex]
+	
+	010010		:	Set Value		:	StockItemName
+	010020		:	Set Value		:	BilledQty
+	010030		:	Set Value		:	ActualQty			:	$BilledQty
+	010040		:	Set Value		:	Rate				:	$Rate
+	010050		:	Set Value		:	Amount
 
+	001000		:	Walk Collection	:	EAT_InquiryBatches
+		
+	001001		:	Insert Collection Object				:	BatchAllocations
+	001002		:	Set Target		:	BatchAllocations[$$LoopIndex]
+	001010		:	Set Value		:	BatchName
+	001020		:	Set Value		:	GodownName
+	001030		:	Set Value		:	BilledQty
+	001040		:	Set Value		:	ActualQty			:	$BilledQty
+	001050		:	Set Value		:	BatchRate			:	$Rate
+	001060		:	Set Value		:	Amount
+	001070		:	Set Value		:	OrderDueDate
+	009999		:	End Walk
+	
+	099999		:	End Walk
+	
+	020000		:	Set				:	Index				:	$$NumFilledItems:LedgerEntries + 1
+	
+	020001		:	Walk Collection	:	EAT_InquiryLedgers
+	
+	021000		:	Insert Collection Object				:	LedgerEntries
+	021001		:	Set Target		:	LedgerEntries[##Index]
+	
+	021100		:	Set Value		:	LedgerName
+	021101		:	Set Value		:	IsDeemedPositive
+	021103		:	Set Value		:	Amount				:	If $$IsDebit:$Amount then $Amount else -$Amount
+	
+	029998		:	Increment		:	Index
+	029999		:	End Walk

@@ -8,6 +8,8 @@
 	Add			:	Explode		:	At Beginning			:	EAT_CMNConfig
 
 [Part:EAT_CMNConfig]
+	Line		:	EAT_ReportTitle
+	
 	Local		:	Field		:	Default					:	Color			:	RoyalBlue
 	Local		:	Field		:	Default					:	Width			:	20
 	
@@ -16,15 +18,26 @@
 	Switch		:	Config		:	EAT_POConfig			:	$$IsPurcOrder:$Parent
 	Switch		:	Config		:	EAT_PurcConfig			:	$$IsPurchase:$Parent
 	Switch		:	Config		:	EAT_SOConfig			:	$$IsSalesOrder:$Parent
-	Switch		:	Config		:	EAT_DefConfig			:	Yes
 	
-[!Part:EAT_DefConfig]
-	Line		:	Empty
+[Line:EAT_ReportTitle]
+	Invisible	:	Not ($$IsPurcOrder:$Parent or $$IsPurchase:$Parent or $$IsSalesOrder:$Parent)
 	
-	Local		:	Line		:	Empty					:	Invisible		:	Yes
+	Field		:	LongPrompt, EAT_ReportTitle
+	
+	Local		:	Field		:	Default					:	Inactive		:	$$IsSysName:$EAT_VCHPrintType
+	
+	Local		:	Field		:	LongPrompt				:	Set as			:	"Print Title"
+	
+[Field:EAT_ReportTitle]
+	Use			:	NameField
+	Storage		:	EAT_ReportTitle
+	Show Table	:	Always
+	Set Always	:	Yes
+	Set as		:	$EAT_VCHPrintType
+	Validate	:	Not $$IsEmpty:$$Value
 	
 [!Part:EAT_POConfig]	
-	Line		:	EAT_VCHType, EAT_VCHPrintType
+	Add			:	Line		:	At Beginning			:	EAT_VCHType, EAT_VCHPrintType
 	
 	Local		:	Field		:	EAT_VCHType				:	Option			:	EAT_AutoConfigEnquiry
 	
@@ -64,7 +77,7 @@
 	Set Always	:	Yes
 	
 [!Part:EAT_PurcConfig]
-	Line		:	EAT_VCHPrintType
+	Add			:	Line		:	At Beginning			:	EAT_VCHPrintType
 	
 	Local		:	Line		:	EAT_VCHPrintType		:	+
 		Local	:	Field		:	LongPrompt				:	Set as			:	"Purchase Print Type"
@@ -77,7 +90,7 @@
 	Add			:	Table		:	EAT_PurcVCHTypes, NotApplicable
 	
 [!Part:EAT_SOConfig]
-	Line		:	EAT_VCHType
+	Add			:	Line		:	At Beginning			:	EAT_VCHType
 	
 	Local		:	Line		:	EAT_VCHType				:	+
 		Local	:	Field		:	LongPrompt				:	Set as			:	"Sales Order Type"

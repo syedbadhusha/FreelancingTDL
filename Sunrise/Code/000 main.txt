@@ -7,6 +7,8 @@
 
 [Include:030 Collections.txt]
 
+[Include:040 Variables.txt]
+
 [Include:100 Changes/000 main.txt]
 
 [Include:200 Reports/000 main.txt]

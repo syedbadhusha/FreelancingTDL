@@ -7,5 +7,7 @@
 
 [Include:030 Vouchers.txt]
 
-[Include:040 Gateway of Tally.txt]
+[Include:040 Voucher Order Details.txt]
+
+[Include:050 Gateway of Tally.txt]
 

@@ -1,0 +1,117 @@
+[Report:EAT_CommonTemplate]
+	Form		:	EAT_CommonTemplate
+	
+	Variable	:	SVFromDate, SVToDate
+	
+	Set			:	SVFromDate			:	$$MonthStart:$$CurrentDate
+	Set			:	SVToDate			:	$$MonthEnd:$$CurrentDate
+	
+[Form:EAT_CommonTemplate]
+	Height		:	100 % Page
+	Width		:	100 % Page
+	
+	Space Top	:	If $$InPrintMode then 10 else 0 mms
+	Space Bottom:	If $$InPrintMode then 10 else 0 mms
+	Space Left	:	If $$InPrintMode then 10 else 0 mms
+	Space Right	:	If $$InPrintMode then 10 else 0 mms
+	
+	Button		:	ChangePeriod
+	
+	Part		:	EAT_CommonOpening, EAT_CommonInfo
+	
+	Page Break	:	EAT_CommonClosing, EAT_CommonOpening
+	
+[Part:EAT_CommonClosing]
+	Line		:	DSP ContLine
+	
+[Part:EAT_CommonOpening]
+	Part		:	EAT_CMPDetails, EAT_CommonTitle, EAT_CommonColumnTitle
+	Vertical	:	Yes
+	
+[Part:EAT_CMPDetails]
+	Invisible	:	Not $$InPrintMode
+	
+	Line		:	EAT_CMPDetails
+	
+[Line:EAT_CMPDetails]
+	Field		:	PlainSubtitle
+	
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@CmpMailName
+	
+[Part:EAT_CommonTitle]
+	Line		:	FormSubtitle, PlainSubtitle
+	
+	Local		:	Field		:	FormSubtitle			:	Set as			:	$$ContextKeyword
+	Local		:	Field		:	PlainSubtitle			:	Set as			:	@@DSPDateStr
+	
+[Part:EAT_CommonColumnTitle]
+	Border		:	ThinBox
+	
+	CommonBorder:	Yes
+	
+	Line		:	EAT_CommonColumnTitle
+	
+[Line:EAT_CommonColumnTitle]
+	Use			:	EAT_CommonInfo
+	
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Local		:	Field		:	Default					:	Type			:	String
+	Local		:	Field		:	Default					:	Align			:	Center
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Line			:	0
+	
+	Local		:	Field		:	EAT_CMNSNo				:	Set as			:	"S. No"
+	
+[Part:EAT_CommonInfo]
+	Border		:	ThinBox
+	
+	Line		:	EAT_CommonInfo
+	Bottom Line	:	EAT_CommonColumnTotal
+	
+	Scroll		:	Vertical
+	CommonBorder:	Yes
+	Float		:	No
+	
+	Total		:	EAT_CMNAmount
+	
+[Line:EAT_CommonInfo]
+	Field		:	EAT_CMNSNo, EAT_CMNDesc
+	Right Field	:	EAT_CMNAmount
+	
+	Local		:	Field		:	Default					:	Style			:	Normal
+	
+	Option		:	AlterOnEnter
+	
+[Field:EAT_CMNSNo]
+	Use			:	NumberField
+	Set as		:	$$Line
+	Width		:	15 mms
+	Format		:	"NoZero"
+	Align		:	Center
+	
+[Field:EAT_CMNDesc]
+	Use			:	NameField
+	Full Width	:	Yes
+	Line		:	0
+	Border		:	ThinLeft
+	
+[Field:EAT_CMNAmount]
+	Use			:	AmountField
+	Width		:	30 mms
+	Border		:	ThinLeft
+	
+[Line:EAT_CommonColumnTotal]
+	Use			:	EAT_CommonInfo
+	
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Border		:	ThinTop
+
+	Local		:	Field		:	Default					:	Style			:	NormalBold
+	Local		:	Field		:	Default					:	Set as			:	""
+	
+	Local		:	Field		:	EAT_CMNDesc				:	Set as			:	"Total"
+	Local		:	Field		:	EAT_CMNAmount			:	Set as			:	$$Total:EAT_CMNAmount

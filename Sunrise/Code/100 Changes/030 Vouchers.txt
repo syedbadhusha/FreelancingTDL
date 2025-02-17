@@ -1,0 +1,78 @@
+[#Form:Voucher]
+	Option		:	EAT_UpdateInquiries	:	@@EAT_IsPurcOrder
+	
+[!Form:EAT_UpdateInquiries]
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	($$InCreateMode and Not $$IsSysName:$EAT_Inquiries.EAT_PurcInquiry)		:	Call		:	EAT_UpdateInquiries:$MasterId
+	
+[#Part:DBLLineNarration]
+	Option		:	EAT_InquiryTracking	:	@@EAT_IsPurcEnquiry
+	
+[!Part:EAT_InquiryTracking]
+	Add			:	Line		:	EAT_InquiryTracking
+	
+[Line:EAT_InquiryTracking]
+	Invisible	:	Not $$InDeveloperMode
+	
+	Field		:	MediumPrompt, EAT_TrackingId, EAT_TrackingDetails
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Tracked VCH Id"
+	
+[Field:EAT_TrackingId]
+	Use			:	NameField
+	Storage		:	EAT_TrackingId
+	
+[Field:EAT_TrackingDetails]
+	Use			:	NameField
+	Skip		:	Yes
+	Full Width	:	Yes
+	Set as		:	$$EAT_TrackingDetails:#EAT_TrackingId
+	Set Always	:	Yes
+	
+[#Part: EI Column]
+	Option		:	EAT_JobDetails	:	@@EAT_IsLocalPurcPrint
+	
+[!Part:EAT_JobDetails]
+	Local		:	Line			:	Default				:	Option		:	EAT_JobDetailTitle
+	
+	Local		:	Line			:	EI ColumnOne		:	Option		:	EAT_JobDetailTitle1
+	
+[!Line:EAT_JobDetailTitle]
+	Use			:	EAT_JobDetails
+	
+	Local		:	Field			:	EAT_VCHJobNo		:	Option		:	EAT_Title
+
+[!Field:EAT_Title]
+	Delete		:	Storage
+	Delete		:	Inactive
+	Skip		:	Yes
+	Set as		:	""
+	Type		:	String
+	Style		:	NormalBold
+
+[!Line:EAT_JobDetailTitle1]
+	Use			:	EAT_JobDetailTitle
+	
+	Local		:	Field			:	EAT_VCHJobNo		:	Set as		:	"Job No"
+	
+[#Line:EIInvInfo]
+	Option		:	EAT_JobDetails	:	@@EAT_IsLocalPurcPrint
+	
+[#Line:CIInvInfo]
+	Option		:	EAT_JobDetails	:	@@EAT_IsLocalPurcPrint
+	
+[!Line:EAT_JobDetails]
+	Add			:	Right Field		:	At Beginning		:	EAT_VCHJobNo
+	
+[Field:EAT_VCHJobNo]
+	Use			:	NameField
+	Width		:	25 mms
+	Storage		:	EAT_JobNo
+	Color		:	RoyalBlue
+	Style		:	Normal
+	Set Always	:	Yes
+	Inactive	:	$$IsSysName:$StockItemName
+	Table		:	EAT_JobOrders, NotApplicable
+	Show Table	:	Always

@@ -1,3 +1,14 @@
 <DefType:Function>
 
 
+[Function:EAT_UpdateInquiries]
+	Parameter		:	Id					:	String
+	
+	Variable		:	MasterId			:	String
+		
+	WlkSelInq		:	Walk Collection		:	EAT_SelectedInquiries
+	
+		setMasterId	:	Set					:	MasterId				:	$$Sprintf:"ID:%s":$EAT_PurcInquiryId
+		updateTrack	:	Modify Object		:	(Voucher, ##MasterId).EAT_TrackingId[1].EAT_TrackingId	:	$$Sprintf:"ID:%s":##Id
+		
+	EndWlkInq		:	End Walk

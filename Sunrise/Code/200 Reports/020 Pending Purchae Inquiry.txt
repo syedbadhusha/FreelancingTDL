@@ -1,0 +1,48 @@
+[Report:EAT_PendingInquiries]
+	Title		:	"Pending Inquiries"
+	
+	Use			:	EAT_CommonTemplate
+	
+	Local		:	Part		:	EAT_CommonInfo			:	Option			:	EAT_PendingInquiries
+	
+	Local		:	Line		:	EAT_CommonColumnTitle	:	Option			:	EAT_PendingInquiryTitle
+	
+[!Part:EAT_PendingInquiries]	
+	Repeat		:	EAT_CommonInfo:EAT_PurcInquiriesCMN
+	
+	Local		:	Line		:	Default					:	Option			:	EAT_PendingInquiryFields
+	
+	Local		:	Line		:	EAT_CommonInfo			:	Option			:	EAT_PendingInquiry
+	
+[!Line:EAT_PendingInquiryTitle]
+	Use			:	EAT_PendingInquiryFields
+	
+	Local		:	Field		:	EAT_CMNDesc				:	Set as			:	"Party"
+	Local		:	Field		:	EAT_VCHDate				:	Set as			:	"Date"
+	Local		:	Field		:	EAT_VCHNo				:	Set as			:	"VCH No"
+	Local		:	Field		:	EAT_REPVCHType			:	Set as			:	"VCH Type"
+	Local		:	Field		:	EAT_CMNAmount			:	Set as			:	"Amount"
+	
+[!Line:EAT_PendingInquiryFields]
+	Add			:	Left Field	:	After	:	EAT_CMNSNo	:	EAT_VCHDate, EAT_VCHNo, EAT_REPVCHType
+
+[!Line:EAT_PendingInquiry]
+	Local		:	Field		:	EAT_CMNDesc				:	Set as			:	$PartyLedgerName
+	Local		:	Field		:	EAT_CMNAmount			:	Set as			:	$Amount
+	
+[Field:EAT_VCHDate]
+	Use			:	ShortDateField
+	Set as		:	$Date
+	Border		:	ThinLeft
+	
+[Field:EAT_VCHNo]
+	Use			:	NameField
+	Set as		:	$VoucherNumber
+	Border		:	ThinLeft
+	
+[Field:EAT_REPVCHType]
+	Use			:	NameField
+	Set as		:	$VoucherTypeName
+	Border		:	ThinLeft
+	Alter		:	Voucher
+	

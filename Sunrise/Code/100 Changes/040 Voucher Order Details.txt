@@ -1,0 +1,59 @@
+[#Form: VchSuppl DespatchOrderDetails]
+	Option		:	EAT_AutoFillInquiries	:	@@EAT_IsPurcOrder
+	
+[!Form:EAT_AutoFillInquiries]
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	($$InCreateMode and Not $$IsSysName:$EAT_Inquiries.EAT_PurcInquiry)		:	Call		:	EAT_AutoFillInquires
+	
+[#Part: SupplOrderDetails]
+	Option		:	EAT_InquiryDetails		:	@@EAT_IsPurcOrder
+	
+[!Part:EAT_InquiryDetails]
+	Add			:	Part		:	At Beginning			:	EAT_PurcInquiry
+	
+[Part:EAT_PurcInquiry]
+	Height		:	5
+	
+	Line		:	EAT_PurcInquiryTitle, EAT_PurcInquiry
+	Repeat		:	EAT_PurcInquiry:EAT_Inquiries
+	
+	Break on	:	$$IsSysName:$EAT_PurcInquiry
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+	
+[Line:EAT_PurcInquiryTitle]
+	Use			:	EI OrderDetailsTitle
+	
+	Local		:	Field		:	Medium Prompt			:	Set as		:	$$LocaleString:"Purchase Inquiries"
+	
+[Line:EAT_PurcInquiry]
+	Field		:	EAT_PurcInquiry, EAT_PurcInquiryId, SimplePrompt, EAT_PurcInquiryDate
+	
+	Local		:	Field		:	SimplePrompt			:	Set as		:	"Date :"
+	Local		:	Field		:	SimplePrompt			:	Align		:	Right
+	Local		:	Field		:	SimplePrompt			:	Width		:	14
+	Local		:	Field		:	SimplePrompt			:	Inactive	:	$$IsSysName:$EAT_PurcInquiry
+	
+[Field:EAT_PurcInquiry]
+	Use			:	NameField
+	Storage		:	EAT_PurcInquiry
+	Table		:	EAT_PurcInquiries, NotApplicable
+	Show Table	:	Always
+	Set Always	:	Yes
+	Width		:	18
+	Unique		:	Yes
+	
+[Field:EAT_PurcInquiryId]
+	Use			:	NameField
+	Set as		:	$$Table:EAT_PurcInquiry:$MasterId
+	Storage		:	EAT_PurcInquiryId
+	Set Always	:	Yes
+	Skip		:	Yes
+	Invisible	:	Yes
+	
+[Field:EAT_PurcInquiryDate]
+	Use			:	ShortDateField
+	Set as		:	$$Table:EAT_PurcInquiry:$Date
+	Set Always	:	Yes
+	Skip		:	Yes
+	Inactive	:	$$IsSysName:$EAT_PurcInquiry

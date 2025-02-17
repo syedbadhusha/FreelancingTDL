@@ -4,3 +4,14 @@
 [Function:EAT_AutoConfigEnquiry]
 	000			:	Set Value	:	IsOptional				:	$EAT_VCHType = @@EAT_PurchaseInquiry
 	
+[Function:EAT_TrackingDetails]
+	Parameter	:	MasterId	:	String
+
+	Return		:	String
+	
+	ifEmpty		:	Do If		:	($$IsEmpty:##MasterId)	:	Return
+	ifExists	:	Do If		:	($$IsObjectExists:Voucher:##MasterId)	:	Return
+	
+	Object		:	Voucher		:	##MasterId
+	
+	000			:	Return		:	$$Sprintf:"Date: %s, VCH No.: %s, VCH Type: %s, Party: %s":$Date:$VoucherNumber:$VoucherTypeName:$PartyLedgerName

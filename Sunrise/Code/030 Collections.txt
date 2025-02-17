@@ -1,33 +1,133 @@
 <DefType:Collection>
 
 
+[Collection:EAT_CMNVCHTypes]
+	Full Height	:	Yes
+	Align		:	Right
+	
+	Format		:	$Name, 35
+	
 [Collection:EAT_POVCHTypes]
+	Use			:	EAT_CMNVCHTypes
+	
 	Title		:	"List Of Purchase Order Types"
 	
 	List Name	:	@@EAT_PurchaseInquiry, @@EAT_PurchaseOrder
 	
-	Full Height	:	Yes
-	Align		:	Right
-	
-	Format		:	$Name, 35
-	
 [Collection:EAT_PurcVCHTypes]
+	Use			:	EAT_CMNVCHTypes
+	
 	Title		:	"List Of Purchase Types"
 	
 	List Name	:	@@EAT_LocalPurchase, @@EAT_ForeignPurchase
 	
-	Full Height	:	Yes
-	Align		:	Right
-	
-	Format		:	$Name, 35
-	
 [Collection:EAT_SOVCHTypes]
+	Use			:	EAT_CMNVCHTypes
+	
 	Title		:	"List Of Sales Order Types"
 	
 	List Name	:	@@EAT_JobCard
 	
+[Collection:EAT_Vouchers]	
+	Type		:	Vouchers
+			
 	Full Height	:	Yes
 	Align		:	Right
 	
-	Format		:	$Name, 35
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+	Fetch		:	Amount, PartyLedgerName
+
+[Collection:EAT_JobOrders]
+	Use			:	EAT_Vouchers
+	
+	Title		:	"List Of Job Orders"
+	
+	Filter		:	EAT_IsJobCardVch
+	
+	Sub Title	:	"VCH No.", "Date", "Reference"
+	
+	Format		:	$VoucherNumber, 20
+	Format		:	$Date, 9
+	
+[Collection:EAT_PurcInquiriesCMN]
+	Use			:	EAT_Vouchers
+	
+	Title		:	"List Of Purchase Inquiries"
+	
+	Filter		:	EAT_IsPurcInquiryVch, EAT_NotIsTracked
+	
+[Collection:EAT_PurcInquiries]
+	Use			:	EAT_PurcInquiriesCMN
+		
+	Parm Var	:	SVFromDate			:	Date		:	$StartingFrom:Company:##SVCurrentCompany
+	Parm Var	:	SVToDate			:	Date		:	$Date
+	Parm Var	:	Party				:	String		:	If $$IsEmpty:($$BaseOwner:$PartyLedgerName) then $LedgerEntries[1].LedgerName Else ($$BaseOwner:$PartyLedgerName)
+	
+	Filter		:	EAT_IsSamePartyVchs
+	
+	Sub Title	:	"VCH No.", "Date", "Reference"
+	
+	Format		:	$VoucherNumber, 25
+	Format		:	$Date, 10
+	Format		:	$Reference, 20
+	
+[Collection:EAT_SelectedInquiries]
+	Source Collection	:	Default
+	Walk		:	EAT_Inquiries
+	
+	Fetch		:	*
+	
+[Collection:EAT_MasterIdVCH]
+	Type		:	Vouchers:MasterId
+	Child Of	:	##MasterId
+	
+	Fetch		:	*
+	
+[Collection:EAT_InquiryBatchSrc]
+	Data Source	:	Variable		:	EAT_InquiryBatch
+	
+	Fetch		:	*
+	
+[Collection:EAT_InquiryInventory]
+	Source Collection		:	EAT_InquiryBatchSrc
+	
+	By			:	StockItemName	:	$ItemName
+	By			:	RateStr			:	$$String:$Rate
+	
+	Compute		:	Rate			:	$Rate
+	
+	Aggr Compute:	BilledQty		:	Sum		:	$Qty
+	Aggr Compute:	Amount			:	Sum		:	$Amount
+	
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+[Collection:EAT_InquiryBatches]
+	Use			:	EAT_InquiryInventory
+	
+	By			:	GodownName		:	$GodownName
+	By			:	BatchName		:	$BatchName
+	By			:	DueDateStr		:	$$String:$DueDate
+	
+	Compute		:	OrderDueDate	:	$DueDate
+	
+	Filter		:	EAT_IsSameItemWithRate
+	
+[Collection:EAT_InquiryLedgersSrc]
+	Data Source	:	Variable		:	EAT_InquiryLedgers
+	
+	Fetch		:	*
+
+[Collection:EAT_InquiryLedgers]
+	Source Collection		:	EAT_InquiryLedgersSrc
+	
+	By			:	LedgerName		:	$LedgerName
+	By			:	IsDeemedPositive:	$IsDeemed
+	
+	Aggr Compute:	Amount			:	Sum		:	$Amount
+	
+	Keep Source	:	().
+	Client Only	:	Yes
 	

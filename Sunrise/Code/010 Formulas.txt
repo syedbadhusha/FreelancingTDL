@@ -18,12 +18,24 @@
 	EAT_JobCard					:	"Job Card"
 	
 	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
-	EAT_VCHPrintTypeVch			:	$EAT_VCHPrintType:VoucherType:$VoucherTypeName
+	EAT_ReportTitle				:	$EAT_ReportTitle:VoucherType:##SVVoucherType
+	EAT_VCHType					:	$EAT_VCHType:VoucherType:##SVVoucherType
+	
+	EAT_VCHTypeVCH				:	$EAT_VCHType:VoucherType:$VoucherTypeName
 	
 	EAT_IsPurcEnquiryPrint		:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseInquiry
 	EAT_IsPurcOrderPrint		:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseOrder
 	EAT_IsLocalPurcPrint		:	@@EAT_IsEnabled and @@IsPurchase and @@EAT_VCHPrintType = @@EAT_LocalPurchase
 	EAT_IsForeignPurcPrint		:	@@EAT_IsEnabled and @@IsPurchase and @@EAT_VCHPrintType = @@EAT_ForeignPurchase
+	
+	EAT_IsPurcOrder				:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHType = @@EAT_PurchaseOrder
+	EAT_IsPurcEnquiry			:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHType = @@EAT_PurchaseInquiry
+	
+	EAT_IsPurcInquiryVch		:	@@EAT_IsEnabled and @@IsPurcOrderVch and @@EAT_VCHTypeVch = @@EAT_PurchaseInquiry
+	EAT_IsJobCardVch			:	@@EAT_IsEnabled and @@IsSalesOrderVch and @@EAT_VCHTypeVch = @@EAT_JobCard
+	
+	EAT_IsSamePartyVchs			:	$PartyLedgerName = ##Party
+	EAT_NotIsTracked			:	$$IsEmpty:$EAT_TrackingId
 	
 	EAT_VATAmount				:	$$FilterAmtTotal:LedgerEntries:InvoiceVATLedger:$Amount
 	EAT_Discount				:	$$FilterAmtTotal:LedgerEntries:EAT_IsDiscountLedger:$Amount
@@ -32,3 +44,4 @@
 	EAT_IsDiscountLedger		:	$VATDealerNature:Ledger:$LedgerName = "Discount"
 	EAT_IsRoundOffLedger		:	$VATDealerNature:Ledger:$LedgerName = "Invoice Rounding"
 	
+	EAT_IsSameItemWithRate		:	$StockItemName = $$ReqObject:$StockItemName and $RateStr = $$ReqObject:$RateStr

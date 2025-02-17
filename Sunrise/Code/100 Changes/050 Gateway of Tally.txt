@@ -1,0 +1,11 @@
+[#Menu:GatewayOfTally]
+	Option		:	EAT_GatewayOfTally		:	@@EAT_IsEnabled
+	
+[!Menu:EAT_GatewayOfTally]
+	Add			:	Item		:	Before	:	@@LocQuit		:	Blank
+	Add			:	Item		:	Before	:	@@LocQuit		:	"Customized Menu"		:	Menu		:	EAT_GOT
+	
+[Menu:EAT_GOT]
+	Title		:	"Customized Menu"
+	
+	Item		:	"Pending Inquiries"		:	Display			:	EAT_PendingInquiries

@@ -9,3 +9,12 @@
 	;;;;;Voucher Type;;;;;
 	EAT_VCHType				:	String			:	2010
 	EAT_VCHPrintType		:	String			:	2020
+	EAT_ReportTitle			:	String			:	2030
+	
+	;;;;;Voucher;;;;;;;
+	EAT_Inquiries			:	Aggregate		:	3010
+	EAT_PurcInquiryId		:	String			:	3020
+	EAT_PurcInquiry			:	String			:	3030
+	
+	EAT_TrackingId			:	String			:	3110
+	EAT_JobNo				:	String			:	3120

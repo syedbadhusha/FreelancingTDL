@@ -8,10 +8,8 @@
 [Report:EAT_ForeignPurcPrint]
 	Use			:	EAT_LocalPurcPrint
 	
-	Local		:	Line		:	EAT_ColumnTitle			:	Delete		:	Option
-	Local		:	Line		:	EAT_ColumnTitle			:	Add			:	Option		:	EAT_ForeignPurcFields
-	Local		:	Line		:	EAT_Column				:	Delete		:	Option
-	Local		:	Line		:	EAT_Column				:	Add			:	Option		:	EAT_ForeignPurcFields
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_ForeignPurcFields
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_ForeignPurcFields
 	
 [!Line:EAT_ForeignPurcFields]
 	Delete		:	Right Field	:	EAT_JobNo

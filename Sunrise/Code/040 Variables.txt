@@ -1,0 +1,18 @@
+<DefType:System:Variable>
+
+[System:Variable]
+	List Variable	:	EAT_InquiryBatch
+	List Variable	:	EAT_InquiryLedgers
+	
+[Variable:EAT_InquiryBatch]
+	Variable		:	ItemName, BatchName, GodownName		:	String
+	Variable		:	Qty				:	Quantity
+	Variable		:	Rate			:	Rate
+	Variable		:	Amount			:	Amount
+	Variable		:	DueDate			:	Due Date
+	
+[Variable:EAT_InquiryLedgers]
+	Variable		:	LedgerName		:	String
+	Variable		:	IsDeemed		:	Logical
+	Variable		:	Amount			:	Amount
+	
