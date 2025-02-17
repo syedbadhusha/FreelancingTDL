@@ -22,9 +22,13 @@
 	Page Break	:	EAT_ClosingBreak, EAT_PRNCMNOpening
 	
 	Part		:	EAT_PRNCMNOpening, EAT_Column
-	Bottom Part	:	EAT_CMNAmountSummary, EAT_CMNSign
+	Bottom Part	:	EAT_CMNAmountSummary, EAT_CMNSign, EAT_FooterLogoContainer
 	
 [Part:EAT_ClosingBreak]
+	Part		:	EAT_Closing, EAT_FooterLogoContainer
+	Vertical	:	Yes
+
+[Part:EAT_Closing]
 	Space Top	:	2 mms
 	Space Bottom:	2 mms
 	
@@ -34,6 +38,23 @@
 	Right Field	:	SimpleField
 	
 	Local		:	Field		:	SimpleField				:	Set as		:	"Continue..."
+		
+[Part:EAT_FooterLogoContainer]
+	Space Top	:	2 mms
+	Height		:	15 mms
+	
+	Part		:	EAT_FooterLogo
+	
+	Horizontal Align	:	Center
+	
+[Part:EAT_FooterLogo]
+	Line		:	Empty
+	
+	Width		:	@@EAT_LogoWidth mms
+	
+	Graph Type	:	@@EAT_FooterPath
+	
+	Horizontal Align	:	Center
 	
 [Part:EAT_PRNCMNOpening]
 	Part		:	EAT_HeaderLogoContainer, EAT_Title, EAT_VCHDetails, EAT_ColumnTitle
@@ -171,7 +192,9 @@
 	Local		:	Field		:	Default					:	Line			:	0
 	
 	Local		:	Field		:	EAT_SNo					:	Set as			:	"S. No."
+	Local		:	Field		:	EAT_Name				:	Set as			:	"Name"
 	Local		:	Field		:	EAT_Description			:	Set as			:	"Description"
+	Local		:	Field		:	EAT_OrderNo				:	Set as			:	"J.C. No."
 	Local		:	Field		:	EAT_JobNo				:	Set as			:	"Job No."
 	Local		:	Field		:	EAT_TrackingNo			:	Set as			:	"MRN"
 	Local		:	Field		:	EAT_Qty					:	Set as			:	"Qty"
@@ -223,6 +246,17 @@
 	Width		:	15 mms
 	Set as		:	$$Line
 	Format		:	"NoZero"
+	
+[Field:EAT_OrderNo]
+	Use			:	NameField
+	Width		:	20 mms
+	Set as		:	$OrderNo
+	
+[Field:EAT_Name]
+	Use			:	NameField
+	Set as		:	$StockItemName
+	Width		:	50 mms
+	Line		:	0
 	
 [Field:EAT_Description]
 	Use			:	NameField

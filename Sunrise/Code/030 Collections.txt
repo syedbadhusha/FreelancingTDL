@@ -28,6 +28,11 @@
 	
 	List Name	:	@@EAT_JobCard
 	
+[Collection:EAT_SOVCHPrintTypes]
+	Use			:	EAT_SOVCHTypes
+	
+	List Name	:	@@EAT_Quotation
+	
 [Collection:EAT_Vouchers]	
 	Type		:	Vouchers
 			
@@ -50,6 +55,11 @@
 	
 	Format		:	$VoucherNumber, 20
 	Format		:	$Date, 9
+	
+[Collection:EAT_PendingDelNotes]
+	Use			:	EAT_Vouchers
+	
+	Filter		:	IsDelNoteVch, EAT_IsEmptyLPO
 	
 [Collection:EAT_PurcInquiriesCMN]
 	Use			:	EAT_Vouchers

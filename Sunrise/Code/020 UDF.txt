@@ -5,16 +5,26 @@
 	;;;;;TDL AddOn;;;;;
 	EAT_IsEnabled			:	Logical			:	1010
 	EAT_HeaderPath			:	String			:	1020
+	EAT_FooterPath			:	String			:	1030
 	
 	;;;;;Voucher Type;;;;;
 	EAT_VCHType				:	String			:	2010
 	EAT_VCHPrintType		:	String			:	2020
 	EAT_ReportTitle			:	String			:	2030
+	EAT_IsCustomPrint		:	Logical			:	2040
 	
-	;;;;;Voucher;;;;;;;
+	;;;;;Voucher Order Details;;;;;;;
 	EAT_Inquiries			:	Aggregate		:	3010
 	EAT_PurcInquiryId		:	String			:	3020
 	EAT_PurcInquiry			:	String			:	3030
 	
+	EAT_Prices				:	String			:	3040
+	EAT_Delivery			:	String			:	3050
+	EAT_Validity			:	String			:	3060
+	EAT_OrderedBy			:	String			:	3070
+	EAT_LPONo				:	String			:	3080
+	
+	;;;;;Voucher;;;;;;;
 	EAT_TrackingId			:	String			:	3110
 	EAT_JobNo				:	String			:	3120
+		

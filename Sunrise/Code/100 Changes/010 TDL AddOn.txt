@@ -18,7 +18,7 @@
 	Storage		:	EAT_IsEnabled
 	
 [Part:EAT_Configuration]
-	Line		:	EAT_HeaderPath
+	Line		:	EAT_HeaderPath, EAT_FooterPath
 	
 	Local		:	Line		:	Default						:	Indent			:	@@EAT_TDLIndent * $$ExplodeLevel mms
 	
@@ -34,6 +34,18 @@
 [Field:EAT_HeaderPath]
 	Use			:	NameField
 	Storage		:	EAT_HeaderPath
+	Case		:	Normal
+	Full Width	:	Yes
+	Control		:	FiledonotExist		:	@@EAT_IsFileExists
+	
+[Line:EAT_FooterPath]
+	Field		:	MediumPrompt, EAT_FooterPath
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Footer Logo Path"
+	
+[Field:EAT_FooterPath]
+	Use			:	NameField
+	Storage		:	EAT_FooterPath
 	Case		:	Normal
 	Full Width	:	Yes
 	Control		:	FiledonotExist		:	@@EAT_IsFileExists

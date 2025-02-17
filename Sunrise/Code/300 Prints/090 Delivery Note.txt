@@ -1,0 +1,24 @@
+[#Form:DeliveryNoteColor]
+	Option		:	EAT_DelNotePrint			:	@@EAT_IsDelCustomPrint
+	
+[!Form:EAT_DelNotePrint]
+	Delete		:	Print
+	Add			:	Print		:	EAT_DelNotePrint
+	
+[Report:EAT_DelNotePrint]
+	Use			:	EAT_SalesPrint
+	
+	
+	Local		:	Part		:	EAT_CMNAmountSummary	:	Option		:	EAT_DelAdditionalDetails
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_DelQtyOnly		:	@@EAT_IsEmptyLPO
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_DelQtyOnly		:	@@EAT_IsEmptyOwnerLPO
+	
+[!Line:EAT_DelQtyOnly]
+	Delete		:	Right Field
+	Add			:	Right Field	:	EAT_Qty
+	
+[!Part:EAT_DelAdditionalDetails]
+	Local		:	Part		:	EAT_CMNAmountDetails	:	Invisible	:	@@EAT_IsEmptyLPO
+	Local		:	Part		:	EAT_CMNAmountInWords	:	Invisible	:	@@EAT_IsEmptyLPO
+	

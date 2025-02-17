@@ -57,3 +57,85 @@
 	Set Always	:	Yes
 	Skip		:	Yes
 	Inactive	:	$$IsSysName:$EAT_PurcInquiry
+	
+[#Part: EI OrderTerms]
+	Option		:	EAT_OrderDetails		:	@@EAT_IsSalesProcess
+	
+[!Part:EAT_OrderDetails]
+	Height		:	12
+	
+	Add			:	Lines		:	At Beginning			:	EAT_Prices, EAT_Delivery, EAT_Validity, EAT_OrderedBy, EAT_LPONO
+	
+	Local		:	Line		:	EI DueDate				:	+
+		Local	:	Field		:	Default					:	Color		:	RoyalBlue
+		
+	Local		:	Line		:	EI DueDate				:	+
+		Local	:	Field		:	MediumPrompt 			:	Info		:	"Payment Terms"
+		
+[Line:EAT_Prices]
+	Left Fields	:	Medium Prompt, EAT_Prices
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+		
+	Local		:	Field		:	MediumPrompt 			:	Set as		:	"Prices"
+
+[Field:EAT_Prices]
+	Use			:	Short Name Field
+    Storage		:	EAT_Prices
+    Case		:	Normal
+    Set always	:	Yes
+	
+[Line:EAT_Delivery]
+	Left Fields	:	Medium Prompt, EAT_Delivery
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+		
+	Local		:	Field		:	MediumPrompt 			:	Set as		:	"Delivery"
+
+[Field:EAT_Delivery]
+	Use			:	Short Name Field
+    Storage		:	EAT_Delivery
+    Case		:	Normal
+    Set always	:	Yes
+	
+[Line:EAT_Validity]
+	Left Fields	:	Medium Prompt, EAT_Validity
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+		
+	Local		:	Field		:	MediumPrompt 			:	Set as		:	"Validity"
+
+[Field:EAT_Validity]
+	Use			:	Short Name Field
+    Storage		:	EAT_Validity
+    Case		:	Normal
+    Set always	:	Yes
+	
+[Line:EAT_OrderedBy]
+	Left Fields	:	Medium Prompt, EAT_OrderedBy
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+		
+	Local		:	Field		:	MediumPrompt 			:	Set as		:	"Ordered By"
+
+[Field:EAT_OrderedBy]
+	Use			:	Short Name Field
+    Storage		:	EAT_OrderedBy
+    Case		:	Normal
+    Set always	:	Yes
+	
+[Line:EAT_LPONo]
+	Invisible	:	Not (@@IsSales or @@IsDelNote)
+	
+	Left Fields	:	Medium Prompt, EAT_LPONo
+	
+	Local		:	Field		:	Default					:	Color		:	RoyalBlue
+		
+	Local		:	Field		:	MediumPrompt 			:	Set as		:	"LPO No."
+
+[Field:EAT_LPONo]
+	Use			:	Short Name Field
+    Storage		:	EAT_LPONo
+    Case		:	Normal
+    Set always	:	Yes
+	

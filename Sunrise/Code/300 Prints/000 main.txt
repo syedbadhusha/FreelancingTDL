@@ -10,3 +10,11 @@
 [Include:040 Local Purchase.txt]
 
 [Include:050 Foreign Purchase.txt]
+
+[Include:060 Job Card.txt]
+
+[Include:070 Quotation.txt]
+
+[Include:080 Sales.txt]
+
+[Include:090 Delivery Note.txt]

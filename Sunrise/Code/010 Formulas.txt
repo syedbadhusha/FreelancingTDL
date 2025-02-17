@@ -8,6 +8,7 @@
 	
 	EAT_IsEnabled				:	$EAT_IsEnabled:Company:$$CurrentCompany
 	EAT_HeaderPath				:	$EAT_HeaderPath:Company:$$CurrentCompany
+	EAT_FooterPath				:	$EAT_FooterPath:Company:$$CurrentCompany
 		
 	EAT_IsFileExists			:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
 	
@@ -16,10 +17,12 @@
 	EAT_LocalPurchase			:	"Local Purchase"
 	EAT_ForeignPurchase			:	"Foreign Purchase"
 	EAT_JobCard					:	"Job Card"
+	EAT_Quotation				:	"Quotation"
 	
 	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
+	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
 	EAT_ReportTitle				:	$EAT_ReportTitle:VoucherType:##SVVoucherType
-	EAT_VCHType					:	$EAT_VCHType:VoucherType:##SVVoucherType
+	EAT_IsCustomPrint			:	$EAT_IsCustomPrint:VoucherType:##SVVoucherType
 	
 	EAT_VCHTypeVCH				:	$EAT_VCHType:VoucherType:$VoucherTypeName
 	
@@ -27,6 +30,11 @@
 	EAT_IsPurcOrderPrint		:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHPrintType = @@EAT_PurchaseOrder
 	EAT_IsLocalPurcPrint		:	@@EAT_IsEnabled and @@IsPurchase and @@EAT_VCHPrintType = @@EAT_LocalPurchase
 	EAT_IsForeignPurcPrint		:	@@EAT_IsEnabled and @@IsPurchase and @@EAT_VCHPrintType = @@EAT_ForeignPurchase
+	EAT_IsJobCardPrint			:	@@EAT_IsEnabled and @@IsSalesOrder and @@EAT_VCHPrintType = @@EAT_JobCard
+	EAT_IsQuotationPrint		:	@@EAT_IsEnabled and @@IsSalesOrder and @@EAT_VCHPrintType = @@EAT_Quotation
+	
+	EAT_IsDelCustomPrint		:	@@EAT_IsEnabled and @@IsDelNote and @@EAT_IsCustomPrint
+	EAT_IsSalesCustomPrint		:	@@EAT_IsEnabled and @@IsSales and @@EAT_IsCustomPrint
 	
 	EAT_IsPurcOrder				:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHType = @@EAT_PurchaseOrder
 	EAT_IsPurcEnquiry			:	@@EAT_IsEnabled and @@IsPurcOrder and @@EAT_VCHType = @@EAT_PurchaseInquiry
@@ -45,3 +53,8 @@
 	EAT_IsRoundOffLedger		:	$VATDealerNature:Ledger:$LedgerName = "Invoice Rounding"
 	
 	EAT_IsSameItemWithRate		:	$StockItemName = $$ReqObject:$StockItemName and $RateStr = $$ReqObject:$RateStr
+	
+	EAT_IsSalesProcess			:	@@EAT_IsEnabled and (@@IsSales or @@IsDelNote or @@IsSalesOrder)
+	
+	EAT_IsEmptyLPO				:	$$IsEmpty:$EAT_LPONo
+	EAT_IsEmptyOwnerLPO			:	$$IsEmpty:$$Owner:$EAT_LPONo

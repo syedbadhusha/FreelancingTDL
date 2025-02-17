@@ -1,0 +1,36 @@
+[#Form:SalesOrderColor]
+	Option		:	EAT_JobCardPrint			:	@@EAT_IsJobCardPrint
+	
+[!Form:EAT_JobCardPrint]
+	Delete		:	Print
+	Add			:	Print		:	EAT_JobCardPrint
+	
+[Report:EAT_JobCardPrint]
+	Use			:	EAT_PRNCommon
+	
+	Local		:	Form		:	Default					:	Delete		:	Bottom Part
+	
+	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_JobCardOpening
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_JobCardFields
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_JobCardFieldInfo
+
+[!Part:EAT_JobCardOpening]
+	Delete		:	Parts
+	Add			:	Part		:	EAT_JobCardTitle, EAT_ColumnTitle
+	
+[Part:EAT_JobCardTitle]
+	Line		:	FormSubtitle
+	
+	Local		:	Field		:	FormSubtitle			:	Set as		:	$$Sprintf:"JOB NO.: %s DATE: %s":$VoucherNumber:$Date
+	Local		:	Field		:	FormSubtitle			:	Style		:	ExtraLargeBold
+	
+[!Line:EAT_JobCardFields]
+	Use			:	EAT_InquiryFields
+	
+	Add			:	Field		:	After	:	EAT_SNo		:	EAT_Name
+
+[!Line:EAT_JobCardFieldInfo]
+	Use			:	EAT_JobCardFields
+	
+	Local		:	Field		:	EAT_Description			:	Set as		:	$BasicUserDescription

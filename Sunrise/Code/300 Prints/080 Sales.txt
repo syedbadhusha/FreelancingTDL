@@ -1,0 +1,78 @@
+[#Form:DeliveryNoteColor]
+	Option		:	EAT_SalesPrint				:	@@EAT_IsSalesCustomPrint
+	
+[!Form:EAT_SalesPrint]
+	Delete		:	Print
+	Add			:	Print		:	EAT_SalesPrint
+	
+[Report:EAT_SalesPrint]
+	Use			:	EAT_PRNCommon
+
+	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_SalesOpening
+	Local		:	Part		:	EAT_CMNAmountSummary	:	Option		:	EAT_SalesAdditionalDetails
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_SalesTitle
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_SalesInfo
+
+[!Part:EAT_SalesOpening]
+	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHOrderNo
+	
+[Line:EAT_VCHOrderNo]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"P.O. No."
+	Local		:	Field		:	NameField				:	Set as		:	$EAT_LPONo
+
+[!Line:EAT_SalesFields]
+	Add			:	Field		:	After	:	EAT_SNo		:	EAT_OrderNo, EAT_Name
+	
+[!Line:EAT_SalesTitle]
+	Use			:	EAT_SalesFields
+	
+	Local		:	Field		:	EAT_Name				:	Set as		:	"Equipment"
+	Local		:	Field		:	EAT_Description			:	Set as		:	"Job Description"
+	
+[!Line:EAT_SalesInfo]
+	Use			:	EAT_SalesFields
+	
+	Local		:	Field		:	EAT_Description			:	Set as		:	$BasicUserDescription
+	
+[!Part:EAT_SalesAdditionalDetails]
+	Replace		:	Part		:	EAT_CMNAmountInWords	:	EAT_SalesAmountInWords
+		
+[Part:EAT_SalesAmountInWords]
+	Part		:	EAT_CMNAmountInWords, EAT_SalesAddDetails
+	
+	Vertical	:	Yes
+	
+[Part:EAT_SalesAddDetails]
+	Space Top	:	2 mms
+	
+	Line		:	EAT_QuoPaymentTerms, EAT_SalesOrderBy, EAT_SalesReceiver, EAT_SalesReceiverName
+	
+	Local		:	Field		:	MediumPrompt			:	Width		:	30 mms
+	Local		:	Field		:	NameField				:	Full Width	:	Yes
+	
+	Local		:	Field		:	MediumPrompt			:	Style		:	Normal
+	
+	Local		:	Field		:	ShortNameField			:	Border		:	ThinBottom
+	
+	Local		:	Line		:	EAT_QuoPaymentTerms		:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"Pay Terms"
+		
+[Line:EAT_SalesOrderBy]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Ordered By"
+	Local		:	Field		:	NameField				:	Set as		:	$EAT_OrderedBy
+	
+[Line:EAT_SalesReceiver]
+	Field		:	MediumPrompt, ShortNameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Receiver's Name"
+	
+[Line:EAT_SalesReceiverName]
+	Field		:	MediumPrompt, ShortNameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Receiver's Sign"
+	

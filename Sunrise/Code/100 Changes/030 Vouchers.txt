@@ -33,6 +33,7 @@
 	
 [#Part: EI Column]
 	Option		:	EAT_JobDetails	:	@@EAT_IsLocalPurcPrint
+	Option		:	EAT_Description	:	@@EAT_IsSalesProcess
 	
 [!Part:EAT_JobDetails]
 	Local		:	Line			:	Default				:	Option		:	EAT_JobDetailTitle
@@ -57,11 +58,28 @@
 	
 	Local		:	Field			:	EAT_VCHJobNo		:	Set as		:	"Job No"
 	
+[!Part:EAT_Description]
+	Local		:	Line			:	Default				:	Option		:	EAT_DescriptionTitle
+	
+	Local		:	Line			:	EI ColumnOne		:	Option		:	EAT_DescriptionTitle1
+	
+[!Line:EAT_DescriptionTitle]
+	Use			:	EAT_Description
+	
+	Local		:	Field			:	EAT_AlterDesc		:	Option		:	EAT_Title
+
+[!Line:EAT_DescriptionTitle1]
+	Use			:	EAT_DescriptionTitle
+	
+	Local		:	Field			:	EAT_AlterDesc		:	Set as		:	"Alter Desc?"
+	
 [#Line:EIInvInfo]
 	Option		:	EAT_JobDetails	:	@@EAT_IsLocalPurcPrint
+	Option		:	EAT_Description	:	@@EAT_IsSalesProcess
 	
 [#Line:CIInvInfo]
 	Option		:	EAT_JobDetails	:	@@EAT_IsLocalPurcPrint
+	Option		:	EAT_Description	:	@@EAT_IsSalesProcess
 	
 [!Line:EAT_JobDetails]
 	Add			:	Right Field		:	At Beginning		:	EAT_VCHJobNo
@@ -76,3 +94,20 @@
 	Inactive	:	$$IsSysName:$StockItemName
 	Table		:	EAT_JobOrders, NotApplicable
 	Show Table	:	Always
+	
+[!Line:EAT_Description]
+	Add			:	Right Field		:	At Beginning		:	EAT_AlterDesc
+
+	Delete		:	Explode			:	EI DescExplosion
+	
+	Local		:	Field			:	VCH Stockitem		:	Delete		:	Sub Form		:	EI DescExplosion
+	
+[Field:EAT_AlterDesc]
+	Use			:	LogicalField
+	Color		:	RoyalBlue
+	Style		:	Normal
+	Set Always	:	Yes
+	Inactive	:	$$IsSysName:$StockItemName
+	Set as		:	No
+	Width		:	20 mms
+	Sub Form	:	EAT_Description	:	$$Value

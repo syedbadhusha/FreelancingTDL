@@ -17,14 +17,15 @@
 	
 	Switch		:	Config		:	EAT_POConfig			:	$$IsPurcOrder:$Parent
 	Switch		:	Config		:	EAT_PurcConfig			:	$$IsPurchase:$Parent
-	Switch		:	Config		:	EAT_SOConfig			:	$$IsSalesOrder:$Parent
+	Switch		:	Config		:	EAT_SOConfig			:	$$IsSalesOrder:$Parent	
+	Switch		:	Config		:	EAT_DNConfig			:	$$IsDelNote:$Parent
 	
 [Line:EAT_ReportTitle]
-	Invisible	:	Not ($$IsPurcOrder:$Parent or $$IsPurchase:$Parent or $$IsSalesOrder:$Parent)
+	Invisible	:	Not ($$IsPurcOrder:$Parent or $$IsPurchase:$Parent or $$IsSalesOrder:$Parent or $$IsDelNote:$Parent)
 	
 	Field		:	LongPrompt, EAT_ReportTitle
 	
-	Local		:	Field		:	Default					:	Inactive		:	$$IsSysName:$EAT_VCHPrintType
+	Local		:	Field		:	Default					:	Inactive		:	$$IsSysName:$EAT_VCHPrintType and not $EAT_IsCustomPrint
 	
 	Local		:	Field		:	LongPrompt				:	Set as			:	"Print Title"
 	
@@ -90,14 +91,35 @@
 	Add			:	Table		:	EAT_PurcVCHTypes, NotApplicable
 	
 [!Part:EAT_SOConfig]
-	Add			:	Line		:	At Beginning			:	EAT_VCHType
+	Add			:	Line		:	At Beginning			:	EAT_VCHType, EAT_VCHPrintType
 	
 	Local		:	Line		:	EAT_VCHType				:	+
 		Local	:	Field		:	LongPrompt				:	Set as			:	"Sales Order Type"
 	
 	Local		:	Field		:	EAT_VCHType				:	Option			:	EAT_VCHSOType
 	
+	Local		:	Line		:	EAT_VCHPrintType		:	+
+		Local	:	Field		:	LongPrompt				:	Set as			:	"Sales Order Print Type"
+	
+	Local		:	Field		:	EAT_VCHPrintType		:	Option			:	EAT_VCHSOPrintType
+	
 [!Field:EAT_VCHSOType]
 	Delete		:	Table
 	Add			:	Table		:	EAT_SOVCHTypes, NotApplicable
+	
+[!Field:EAT_VCHSOPrintType]
+	Delete		:	Table
+	Add			:	Table		:	EAT_SOVCHPrintTypes, NotApplicable
+	
+[!Part:EAT_DNConfig]
+	Add			:	Line		:	At Beginning			:	EAT_IsCustomPrint
+	
+[Line:EAT_IsCustomPrint]
+	Field		:	LongPrompt, EAT_IsCustomPrint
+	
+	Local		:	Field		:	LongPrompt				:	Set as			:	"Is Custom Print?"
+	
+[Field:EAT_IsCustomPrint]
+	Use			:	LogicalField
+	Storage		:	EAT_IsCustomPrint
 	

@@ -1,0 +1,16 @@
+[Report:EAT_PendingDelNotes]
+	Title		:	"Pending Delivery Notes"
+	
+	Use			:	EAT_CommonTemplate
+	
+	Local		:	Part		:	EAT_CommonInfo			:	Option			:	EAT_PendingDelNotes
+	
+	Local		:	Line		:	EAT_CommonColumnTitle	:	Option			:	EAT_PendingInquiryTitle
+	
+[!Part:EAT_PendingDelNotes]	
+	Repeat		:	EAT_CommonInfo:EAT_PendingDelNotes
+	
+	Local		:	Line		:	Default					:	Option			:	EAT_PendingInquiryFields
+	
+	Local		:	Line		:	EAT_CommonInfo			:	Option			:	EAT_PendingInquiry
+	

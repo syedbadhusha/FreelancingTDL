@@ -1,0 +1,124 @@
+[#Form:SalesOrderColor]
+	Option		:	EAT_QuotationPrint			:	@@EAT_IsQuotationPrint
+	
+[!Form:EAT_QuotationPrint]
+	Delete		:	Print
+	Add			:	Print		:	EAT_QuotationPrint
+	
+[Report:EAT_QuotationPrint]
+	Use			:	EAT_PRNCommon
+
+	Local		:	Form		:	Default					:	Add			:	Bottom Part	:	Before		:	EAT_CMNSign		:	EAT_QuotationNotes
+	
+	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_QuotationOpening
+	Local		:	Part		:	EAT_CMNAmountSummary	:	Option		:	EAT_QuoAdditioanlDetails
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_QuotationTitle
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_QuotationInfo
+
+[!Part:EAT_QuotationOpening]
+	Add			:	Part		:	Before		:	EAT_ColumnTitle			:	EAT_QuotationTerms
+	
+	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHReference
+	
+	Local		:	Line		:	EAT_VCHNo				:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"QT No."
+	
+	Local		:	Line		:	EAT_VCHDate				:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"QT Date"
+	
+	Local		:	Line		:	EAT_VCHReference		:	+
+		Local	:	Field		:	MediumPrompt			:	Set as		:	"Job No"
+	
+[Part:EAT_QuotationTerms]
+	Use			:	EAT_InquiryTerms
+	
+	Local		:	Line		:	EAT_InquiryTerms		:	+
+		Local	:	Field		:	SimpleField				:	Set as		:	"Thank you for inviting us to quote for the following. We are pleased to quote for the same as below:"
+		
+[!Line:EAT_QuotationFields]
+	Delete		:	Right Field
+	Add			:	Right Field	:	EAT_Amount
+	
+	Add			:	Field		:	After	:	EAT_SNo		:	EAT_Name
+
+[!Line:EAT_QuotationTitle]
+	Use			:	EAT_QuotationFields
+	
+	Local		:	Field		:	EAT_Name				:	Set as		:	"Equipment"
+	Local		:	Field		:	EAT_Description			:	Set as		:	"Job Description"
+	
+[!Line:EAT_QuotationInfo]
+	Use			:	EAT_QuotationFields
+	
+	Local		:	Field		:	EAT_Description			:	Set as		:	$BasicUserDescription
+	
+[Part:EAT_QuotationNotes]
+	Space Top	:	2 mms
+	
+	Line		:	EAT_QuotationTerms, EAT_QuotationNotes
+	
+[Line:EAT_QuotationTerms]
+	Space Bottom:	2 mms
+	
+	Field		:	SimpleField
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Hope that you will find the above quote inline and looking forward to hear from you, assuring our best services always."
+	Local		:	Field		:	SimpleField				:	Full Width	:	Yes
+	
+[Line:EAT_QuotationNotes]
+	Space Bottom:	2 mms
+	
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	"Note: Any other works / spares not mentioned above, if required on test commissioning shall be charges as extra."
+	Local		:	Field		:	NameField				:	Full Width	:	Yes
+	Local		:	Field		:	NameField				:	Line		:	0
+	
+[!Part:EAT_QuoAdditioanlDetails]
+	Replace		:	Part		:	EAT_CMNAmountInWords	:	EAT_QuoAmountInWords
+	
+[Part:EAT_QuoAmountInWords]
+	Part		:	EAT_CMNAmountInWords, EAT_QuoAddDetails
+	
+	Vertical	:	Yes
+	
+[Part:EAT_QuoAddDetails]
+	Space Top	:	2 mms
+	
+	Line		:	EAT_QuoAddTitle, EAT_QuoPrices, EAT_QuoDelivery, EAT_QuoValidity, EAT_QuoPaymentTerms
+	
+	Local		:	Field		:	MediumPrompt			:	Width		:	30 mms
+	Local		:	Field		:	NameField				:	Full Width	:	Yes
+	
+	Local		:	Field		:	MediumPrompt			:	Style		:	Normal
+	
+[Line:EAT_QuoAddTitle]
+	Field		:	NameField
+	
+	Local		:	Field		:	NameField				:	Set as		:	"Terms & Conditions :"
+	
+[Line:EAT_QuoPrices]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Prices"
+	Local		:	Field		:	NameField				:	Set as		:	$EAT_Prices
+	
+[Line:EAT_QuoDelivery]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Delivery"
+	Local		:	Field		:	NameField				:	Set as		:	$EAT_Delivery
+	
+[Line:EAT_QuoValidity]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Validity"
+	Local		:	Field		:	NameField				:	Set as		:	$EAT_Validity
+	
+[Line:EAT_QuoPaymentTerms]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Payment Terms"
+	Local		:	Field		:	NameField				:	Set as		:	$BasicDueDateOfPymt
+	

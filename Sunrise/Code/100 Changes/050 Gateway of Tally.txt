@@ -8,4 +8,7 @@
 [Menu:EAT_GOT]
 	Title		:	"Customized Menu"
 	
+	Indent		:	"Reports"
+	
 	Item		:	"Pending Inquiries"		:	Display			:	EAT_PendingInquiries
+	Item		:	"Pending Delivery Notes":	Display			:	EAT_PendingDelNotes

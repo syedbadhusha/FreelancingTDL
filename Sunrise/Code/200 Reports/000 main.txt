@@ -5,3 +5,6 @@
 
 [Include:020 Pending Purchae Inquiry.txt]
 
+[Include:030 Description Subform.txt]
+
+[Include:040 Pending Delivery Note.txt]
