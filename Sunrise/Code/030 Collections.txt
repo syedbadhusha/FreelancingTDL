@@ -141,3 +141,15 @@
 	Keep Source	:	().
 	Client Only	:	Yes
 	
+[Collection:EAT_CreateVouchers]
+	Object		:	EAT_LocPurchaseEnquiry
+	Object		:	EAT_LocPurchaseOrder
+	Object		:	EAT_LocReceiptNote
+	Object		:	EAT_LocPurchase
+	Object		:	EAT_ForPurchaseEnquiry
+	Object		:	EAT_ForPurchaseOrder
+	Object		:	EAT_ForReceiptNote
+	Object		:	EAT_ForPurchase
+	Object		:	EAT_JobOrder
+	Object		:	EAT_DeliveryNote
+	Object		:	EAT_Sales

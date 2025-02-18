@@ -12,15 +12,27 @@
 		
 	EAT_IsFileExists			:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
 	
-	EAT_PurchaseInquiry			:	"Purchase Inquiry"
+	EAT_PurchaseInquiry			:	"Purchase Enquiry"
 	EAT_PurchaseOrder			:	"Purchase Order"
 	EAT_LocalPurchase			:	"Local Purchase"
 	EAT_ForeignPurchase			:	"Foreign Purchase"
-	EAT_JobCard					:	"Job Card"
+	EAT_JobCard					:	"Job Order"
 	EAT_Quotation				:	"Quotation"
 	
+	EAT_LocPurchaseEnquiryName	:	"Purchase Enquiry"
+	EAT_LocPurchaseOrderName	:	"Purchase Order"
+	EAT_LocReceiptNoteName		:	"Receipt Note"
+	EAT_LocPurchaseName			:	"Purchase"
+	EAT_ForPurchaseEnquiryName	:	"Foreign Purchase Enquiry"
+	EAT_ForPurchaseOrderName	:	"Foreign Purchase Order"
+	EAT_ForReceiptNoteName		:	"Foreign Receipt Note"
+	EAT_ForPurchaseName			:	"Foreign Purchase"
+	EAT_JobOrderName			:	"Job Order"
+	EAT_DeliveryNoteName		:	"Delivery Note"
+	EAT_SalesName				:	"Sales"
+	
 	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
-	EAT_VCHPrintType			:	$EAT_VCHPrintType:VoucherType:##SVVoucherType
+	EAT_VCHType					:	$EAT_VCHType:VoucherType:##SVVoucherType
 	EAT_ReportTitle				:	$EAT_ReportTitle:VoucherType:##SVVoucherType
 	EAT_IsCustomPrint			:	$EAT_IsCustomPrint:VoucherType:##SVVoucherType
 	

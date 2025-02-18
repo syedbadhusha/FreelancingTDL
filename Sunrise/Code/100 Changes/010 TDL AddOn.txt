@@ -1,3 +1,7 @@
+[#Form: CMP TallyShop Features]
+	On			:	Form Accept	:	Yes							:	Form Accept
+	On			:	Form Accept	:	$EAT_IsEnabled				:	Call			:	EAT_InitialSetUp
+
 [#Part: CMP TallyShopFeatures Left]
 	Add			:	Line		:	EAT_IsEnabled
 	

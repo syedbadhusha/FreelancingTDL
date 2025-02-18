@@ -18,10 +18,10 @@
 	Switch		:	Config		:	EAT_POConfig			:	$$IsPurcOrder:$Parent
 	Switch		:	Config		:	EAT_PurcConfig			:	$$IsPurchase:$Parent
 	Switch		:	Config		:	EAT_SOConfig			:	$$IsSalesOrder:$Parent	
-	Switch		:	Config		:	EAT_DNConfig			:	$$IsDelNote:$Parent
+	Switch		:	Config		:	EAT_DNConfig			:	$$IsDelNote:$Parent or $$IsSales:$Parent
 	
 [Line:EAT_ReportTitle]
-	Invisible	:	Not ($$IsPurcOrder:$Parent or $$IsPurchase:$Parent or $$IsSalesOrder:$Parent or $$IsDelNote:$Parent)
+	Invisible	:	Not ($$IsPurcOrder:$Parent or $$IsPurchase:$Parent or $$IsSalesOrder:$Parent or $$IsDelNote:$Parent or $$IsSales:$Parent)
 	
 	Field		:	LongPrompt, EAT_ReportTitle
 	

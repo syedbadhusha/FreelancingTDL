@@ -2,16 +2,64 @@
 
 
 [Function:EAT_AutoConfigEnquiry]
-	000			:	Set Value	:	IsOptional				:	$EAT_VCHType = @@EAT_PurchaseInquiry
+	000			:	Set Value		:	IsOptional				:	$EAT_VCHType = @@EAT_PurchaseInquiry
 	
 [Function:EAT_TrackingDetails]
-	Parameter	:	MasterId	:	String
+	Parameter	:	MasterId		:	String
 
 	Return		:	String
 	
-	ifEmpty		:	Do If		:	($$IsEmpty:##MasterId)	:	Return
-	ifExists	:	Do If		:	($$IsObjectExists:Voucher:##MasterId)	:	Return
+	ifEmpty		:	Do If			:	($$IsEmpty:##MasterId)	:	Return
+	ifExists	:	Do If			:	($$IsObjectExists:Voucher:##MasterId)	:	Return
 	
-	Object		:	Voucher		:	##MasterId
+	Object		:	Voucher			:	##MasterId
 	
-	000			:	Return		:	$$Sprintf:"Date: %s, VCH No.: %s, VCH Type: %s, Party: %s":$Date:$VoucherNumber:$VoucherTypeName:$PartyLedgerName
+	000			:	Return			:	$$Sprintf:"Date: %s, VCH No.: %s, VCH Type: %s, Party: %s":$Date:$VoucherNumber:$VoucherTypeName:$PartyLedgerName
+	
+[Function:EAT_CreateVoucherType]
+	Parameter	:	Name			:	String
+	Parameter	:	Parent			:	String
+	Parameter	:	VCHType			:	String	:	$$SysName:NotApplicable
+	Parameter	:	PrintType		:	String	:	$$SysName:NotApplicable
+	Parameter	:	ReportTitle		:	String	:	$$SysName:NotApplicable
+	Parameter	:	IsCustomPrint	:	String	:	$$SysName:NotApplicable
+	
+	ifEmptName	:	Do If			:	($$IsEmpty:##Name):	Return
+	
+	newVCHType	:	New Object		:	VoucherType				:	If ($$IsEmpty:$Name:VoucherType:##Name) then "" else ##Name
+		
+	SVName		:	Set Value		:	Name					:	##Name
+	SVParent	:	Set Value		:	Parent					:	##Parent
+	SVIsActive	:	Set Value		:	Is Active				:	Yes
+	
+	SVVCHType	:	Do If			:	(Not $$IsSysName:##VCHType)			:	Set Value	:	EAT_VCHType				:	##VCHType
+	SVVCHPrntTyp:	Do If			:	(Not $$IsSysName:##PrintType)		:	Set Value	:	EAT_VCHPrintType		:	##PrintType
+	SVReportTit	:	Do If			:	(Not $$IsSysName:##ReportTitle)		:	Set Value	:	EAT_ReportTitle			:	##ReportTitle
+	SVIsCusPrint:	Do If			:	(Not $$IsSysName:##IsCustomPrint)	:	Set Value	:	EAT_IsCustomPrint		:	##IsCustomPrint
+	
+	ifExists	:	If				:	$$IsEmpty:$Name:VoucherType:##Name
+		InsNumSr:	Insert Collection Object					:	VoucherNumberSeries
+		SVNumNm	:	Set Value		:	Name					:	$$SysName:Default
+		SVNumMtd:	Set Value		:	NumberingMethod			:	"Automatic (Manual Override)"
+		SVSNumMd:	Set Value		:	NumberingSubMethod		:	"Auto Retain"
+		SVPrvDup:	Set Value		:	PreventDuplicates		:	Yes
+	endExists	:	End If
+	
+	saveVCHType	:	Save Target
+	
+[Function:EAT_InitialSetUp]
+	WlkCll		:	Walk Collection	:	EAT_CreateVouchers
+		crtVchs	:	Call			:	EAT_CreateVoucherType	:	$Name:$Parent:$VCHType:$PrintType:$ReportTitle:$IsCustomPrint
+	endWlk		:	End Walk
+	
+[Function:EAT_OpenVoucher]
+	IfEmpty		:	If				:	$$IsEmpty:$Name:VoucherType:$Name
+		crtVCHt	:	Call			:	EAT_CreateVoucherType	:	$Name:$Parent:$VCHType:$PrintType:$ReportTitle:$IsCustomPrint
+	endIf		:	End If
+	
+	000			:	Set				:	SVVoucherType			:	$Name
+	001			:	Set				:	SVViewName				:	$$SysName:InvVchView	
+	002			:	Set				:	InvoicingModeFlag		:	Yes
+
+	010			:	CreateCollection:	Company Vouchers
+	

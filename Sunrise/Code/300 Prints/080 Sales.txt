@@ -1,4 +1,4 @@
-[#Form:DeliveryNoteColor]
+[#Form:SalesColor]
 	Option		:	EAT_SalesPrint				:	@@EAT_IsSalesCustomPrint
 	
 [!Form:EAT_SalesPrint]

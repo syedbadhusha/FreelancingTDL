@@ -2,13 +2,195 @@
 	Option		:	EAT_GatewayOfTally		:	@@EAT_IsEnabled
 	
 [!Menu:EAT_GatewayOfTally]
-	Add			:	Item		:	Before	:	@@LocQuit		:	Blank
-	Add			:	Item		:	Before	:	@@LocQuit		:	"Customized Menu"		:	Menu		:	EAT_GOT
+	Delete		:	Key Item
+	Delete		:	Item
 	
-[Menu:EAT_GOT]
-	Title		:	"Customized Menu"
+	Add			:	Indent		:	"Local Purchase Process"
+	
+	Add			:	Item		:	"Purchase Inquiry"			:	Call		:	EAT_LocPurchaseEnquiry
+	Add			:	Item		:	"Purchase Order"			:	Call		:	EAT_LocPurchaseOrder
+	Add			:	Item		:	"Receipt Note"				:	Call		:	EAT_LocReceiptNote
+	Add			:	Item		:	"Purchase"					:	Call		:	EAT_LocPurchase
+	
+	Add			:	Item		:	Blank
+	
+	Add			:	Indent		:	"Foreign Purchase Process"
+	
+	Add			:	Item		:	"Foreign Purchase Inquiry"	:	Call		:	EAT_ForPurchaseEnquiry
+	Add			:	Item		:	"Foreign Purchase Order"	:	Call		:	EAT_ForPurchaseOrder
+	Add			:	Item		:	"Foreign Receipt Note"		:	Call		:	EAT_ForReceiptNote
+	Add			:	Item		:	"Foreign Purchase"			:	Call		:	EAT_ForPurchase
+	
+	Add			:	Item		:	Blank
+	
+	Add			:	Indent		:	"Sales Process"
+	
+	Add			:	Item		:	"Job Order"					:	Call		:	EAT_JobOrder
+	Add			:	Item		:	"Delivery Note"				:	Call		:	EAT_DeliveryNote
+	Add			:	Item		:	"Sales"						:	Call		:	EAT_Sales
+	
+	Add			:	Item		:	Blank
+	
+	Add			:	Indent		:	Others
+	
+	Add			:	Item		:	@@locDayBook				:	Display   	:	Day Book				:	@IsDayBookVisible
+	Add			:	Item		:	"Reports"					:	Menu		:	EAT_Reports
+	Add			:	Item		:	Blank
+	Add			:	Item		:	"Default Gateway"			:	Menu		:	EAT_DefaultGateway
+
+[Function:EAT_LocPurchaseEnquiry]
+	Object		:	EAT_LocPurchaseEnquiry
+	
+	000			:	Call		:	EAT_OpenVoucher
+	
+[Function:EAT_LocPurchaseOrder]
+	Object		:	EAT_LocPurchaseOrder
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_LocReceiptNote]
+	Object		:	EAT_LocReceiptNote
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_LocPurchase]
+	Object		:	EAT_LocPurchase
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_ForPurchaseEnquiry]
+	Object		:	EAT_ForPurchaseEnquiry
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_ForPurchaseOrder]
+	Object		:	EAT_ForPurchaseOrder
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_ForReceiptNote]
+	Object		:	EAT_ForReceiptNote
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_ForPurchase]
+	Object		:	EAT_ForPurchase
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_JobOrder]
+	Object		:	EAT_JobOrder
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_DeliveryNote]
+	Object		:	EAT_DeliveryNote
+	
+	000			:	Call		:	EAT_OpenVoucher
+
+[Function:EAT_Sales]
+	Object		:	EAT_Sales
+	
+	000			:	Call		:	EAT_OpenVoucher
+	
+[Menu:EAT_Reports]
+	Title		:	"Customized Reports"
 	
 	Indent		:	"Reports"
 	
 	Item		:	"Pending Inquiries"		:	Display			:	EAT_PendingInquiries
 	Item		:	"Pending Delivery Notes":	Display			:	EAT_PendingDelNotes
+	
+[Menu:EAT_DefaultGateway]
+	Use			:	GateWayOfTally
+	
+	Delete		:	Option
+	
+[Object:EAT_LocPurchaseEnquiry]
+	Name			:	@@EAT_LocPurchaseEnquiryName
+	Parent			:	$$VchTypePurcOrder
+	VCHType			:	@@EAT_PurchaseInquiry
+	PrintType		:	@@EAT_PurchaseInquiry
+	ReportTitle		:	@@EAT_LocPurchaseEnquiryName
+	IsCustomPrint	:	No
+
+[Object:EAT_LocPurchaseOrder]
+	Name			:	@@EAT_LocPurchaseOrderName
+	Parent			:	$$VchTypePurcOrder
+	VCHType			:	@@EAT_PurchaseOrder
+	PrintType		:	@@EAT_PurchaseOrder
+	ReportTitle		:	@@EAT_LocPurchaseOrderName
+	IsCustomPrint	:	No
+
+[Object:EAT_LocReceiptNote]
+	Name			:	@@EAT_LocReceiptNoteName
+	Parent			:	$$VchTypeRcptNote
+	VCHType			:	$$SysName:NotApplicable
+	PrintType		:	$$SysName:NotApplicable
+	ReportTitle		:	""
+	IsCustomPrint	:	No
+
+[Object:EAT_LocPurchase]
+	Name			:	@@EAT_LocPurchaseName
+	Parent			:	$$VchTypePurchase
+	VCHType			:	$$SysName:NotApplicable
+	PrintType		:	@@EAT_LocalPurchase
+	ReportTitle		:	@@EAT_LocPurchaseName
+	IsCustomPrint	:	No
+
+[Object:EAT_ForPurchaseEnquiry]
+	Name			:	@@EAT_ForPurchaseEnquiryName
+	Parent			:	$$VchTypePurcOrder
+	VCHType			:	@@EAT_PurchaseInquiry
+	PrintType		:	@@EAT_PurchaseInquiry
+	ReportTitle		:	@@EAT_ForPurchaseEnquiryName
+	IsCustomPrint	:	No
+
+[Object:EAT_ForPurchaseOrder]
+	Name			:	@@EAT_ForPurchaseOrderName
+	Parent			:	$$VchTypePurcOrder
+	VCHType			:	@@EAT_PurchaseOrder
+	PrintType		:	@@EAT_PurchaseOrder
+	ReportTitle		:	@@EAT_ForPurchaseOrderName
+	IsCustomPrint	:	No
+
+[Object:EAT_ForReceiptNote]
+	Name			:	@@EAT_ForReceiptNoteName
+	Parent			:	$$VchTypeRcptNote
+	VCHType			:	$$SysName:NotApplicable
+	PrintType		:	$$SysName:NotApplicable
+	ReportTitle		:	""
+	IsCustomPrint	:	No
+
+[Object:EAT_ForPurchase]
+	Name			:	@@EAT_ForPurchaseName
+	Parent			:	$$VchTypePurchase
+	VCHType			:	$$SysName:NotApplicable
+	PrintType		:	@@EAT_ForeignPurchase
+	ReportTitle		:	@@EAT_ForPurchaseName
+	IsCustomPrint	:	No
+
+[Object:EAT_JobOrder]
+	Name			:	@@EAT_JobOrderName
+	Parent			:	$$VchTypeSalesOrder
+	VCHType			:	@@EAT_JobCard
+	PrintType		:	@@EAT_JobCard
+	ReportTitle		:	@@EAT_JobOrderName
+	IsCustomPrint	:	No
+
+[Object:EAT_DeliveryNote]
+	Name			:	@@EAT_DeliveryNoteName
+	Parent			:	$$VchTypeDelNote
+	VCHType			:	$$SysName:NotApplicable
+	PrintType		:	$$SysName:NotApplicable
+	ReportTitle		:	@@EAT_DeliveryNoteName
+	IsCustomPrint	:	Yes
+
+[Object:EAT_Sales]
+	Name			:	@@EAT_SalesName
+	Parent			:	$$VchTypeSales
+	VCHType			:	$$SysName:NotApplicable
+	PrintType		:	$$SysName:NotApplicable
+	ReportTitle		:	@@EAT_SalesName
+	IsCustomPrint	:	Yes
+	
