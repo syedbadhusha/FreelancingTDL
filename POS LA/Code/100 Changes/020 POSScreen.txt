@@ -802,6 +802,7 @@
 	050	: Set		: StockItemRate						: ##InclTaxValue /(1+ ##ExciseRateValue + ##STRateValue + ##VATRateValue + ##TCSRateValue)
 	
 	055	: Call		: VCHBatchIsFieldAltered			: Yes
+	
 	056	: Set		: IsRateupdated	: False
 
 	060	: Return	: If $$Number:##StockItemRate <= 0 Then 0 Else ##StockItemRate
