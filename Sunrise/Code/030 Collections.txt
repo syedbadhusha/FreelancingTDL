@@ -47,7 +47,7 @@
 [Collection:EAT_JobOrders]
 	Use			:	EAT_Vouchers
 	
-	Title		:	"List Of Job Orders"
+	Title		:	"List Of Job Cards"
 	
 	Filter		:	EAT_IsJobCardVch
 	

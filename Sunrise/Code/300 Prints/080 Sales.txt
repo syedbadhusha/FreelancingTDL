@@ -14,6 +14,9 @@
 	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_SalesTitle
 	Local		:	Line		:	EAT_Column				:	Option		:	EAT_SalesInfo
 
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_AddTracking		:	@@EAT_IsNotEmptyDN
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_AddTracking		:	@@EAT_IsNotEmptyOwnerDN
+	
 [!Part:EAT_SalesOpening]
 	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHOrderNo
 	
@@ -26,11 +29,15 @@
 [!Line:EAT_SalesFields]
 	Add			:	Field		:	After	:	EAT_SNo		:	EAT_OrderNo, EAT_Name
 	
+[!Line:EAT_AddTracking]
+	Add			:	Field		:	After	:	EAT_OrderNo	:	EAT_TrackingNo
+	
 [!Line:EAT_SalesTitle]
 	Use			:	EAT_SalesFields
 	
 	Local		:	Field		:	EAT_Name				:	Set as		:	"Equipment"
 	Local		:	Field		:	EAT_Description			:	Set as		:	"Job Description"
+	Local		:	Field		:	EAT_TrackingNo			:	Set as		:	"DN No."
 	
 [!Line:EAT_SalesInfo]
 	Use			:	EAT_SalesFields

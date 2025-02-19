@@ -7,7 +7,7 @@
 	
 	Add			:	Indent		:	"Local Purchase Process"
 	
-	Add			:	Item		:	"Purchase Inquiry"			:	Call		:	EAT_LocPurchaseEnquiry
+	Add			:	Item		:	"Purchase Enquiry"			:	Call		:	EAT_LocPurchaseEnquiry
 	Add			:	Item		:	"Purchase Order"			:	Call		:	EAT_LocPurchaseOrder
 	Add			:	Item		:	"Receipt Note"				:	Call		:	EAT_LocReceiptNote
 	Add			:	Item		:	"Purchase"					:	Call		:	EAT_LocPurchase
@@ -16,7 +16,7 @@
 	
 	Add			:	Indent		:	"Foreign Purchase Process"
 	
-	Add			:	Item		:	"Foreign Purchase Inquiry"	:	Call		:	EAT_ForPurchaseEnquiry
+	Add			:	Item		:	"Foreign Purchase Enquiry"	:	Call		:	EAT_ForPurchaseEnquiry
 	Add			:	Item		:	"Foreign Purchase Order"	:	Call		:	EAT_ForPurchaseOrder
 	Add			:	Item		:	"Foreign Receipt Note"		:	Call		:	EAT_ForReceiptNote
 	Add			:	Item		:	"Foreign Purchase"			:	Call		:	EAT_ForPurchase
@@ -25,7 +25,7 @@
 	
 	Add			:	Indent		:	"Sales Process"
 	
-	Add			:	Item		:	"Job Order"					:	Call		:	EAT_JobOrder
+	Add			:	Item		:	"Job Card"					:	Call		:	EAT_JobOrder
 	Add			:	Item		:	"Delivery Note"				:	Call		:	EAT_DeliveryNote
 	Add			:	Item		:	"Sales"						:	Call		:	EAT_Sales
 	
