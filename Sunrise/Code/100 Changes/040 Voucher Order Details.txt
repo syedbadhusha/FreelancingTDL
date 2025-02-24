@@ -125,7 +125,7 @@
     Set always	:	Yes
 	
 [Line:EAT_LPONo]
-	Invisible	:	Not (@@IsSales or @@IsDelNote)
+	Invisible	:	Yes;Not (@@IsSales or @@IsDelNote)
 	
 	Left Fields	:	Medium Prompt, EAT_LPONo
 	

@@ -28,3 +28,14 @@
 	EAT_TrackingId			:	String			:	3110
 	EAT_JobNo				:	String			:	3120
 		
+
+	;;;;;;;;;;;  Job Card ;;;;;;;;
+	
+	JC_VCHLPONumDesc		:	String			:	3140
+	JC_VCHEquipment			:	String			:	3150
+	JC_VCHEquipmentDesc		:	String			:	3160
+	JC_VCHManualNo			:	String			:	3170
+	JC_VCHCustFeedBack		:	String			:	3180
+	JC_VCHPower				:	String			:	3200
+	JC_VCHMemo				:	String			:	3210
+

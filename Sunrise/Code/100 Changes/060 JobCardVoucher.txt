@@ -1,0 +1,200 @@
+
+
+
+
+[#Form: VCHBasic InvoiceMode]	
+
+	Option	:	JC_VCHBASICForm	:	@@EAT_IsJobCardVch or @@IsDelNote or @@Issales
+
+[!Form:JC_VCHBASICForm]
+	
+	Add	:	Parts	:	After:EI SalesCurrBalanceInfo	:	JC_VCHDetails
+	
+	[Part:JC_VCHDetails]
+		
+		Line	:	JC_VCHDetailsTit1,JC_VCHDetails1,+
+					JC_VCHDetailsTit2,JC_VCHDetails2,+
+					JC_VCHDetailsTit3,JC_VCHDetails3
+					
+		Border	:	Thin Box
+		Background	:	White
+		
+		[Line:JC_VCHDetailsTit1]
+
+			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3,JC_FLD_VCHDetailsTit4
+
+			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"LPO Number"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"LPO Description"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as	:	"Equipment"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit4	:	Set as	:	"Equipment Description"
+
+		[Line:JC_VCHDetails1]
+			
+			Field	:	JC_VCHLPONum,JC_VCHLPONumDesc,JC_VCHEquipment,JC_VCHEquipmentDesc
+
+
+		[Line:JC_VCHDetailsTit2]
+
+			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3
+
+			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Job Card Manual Number"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Customer's Feedback"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as	:	"Terms Of Payment"
+
+		[Line:JC_VCHDetails2]
+			
+			Field	:	JC_VCHManualNo,JC_VCHCustFeedBack,JC_VCHTermsPay
+
+
+		[Line:JC_VCHDetailsTit3]
+
+			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2
+
+			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Power"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Memo"
+
+		[Line:JC_VCHDetails3]
+			
+			Field	:	JC_VCHPower,JC_VCHMemo
+
+
+;;;;;;;;;;;;;;;;;;  Ttitle Field
+			
+			[Field:JC_FLD_VCHDetailsTit1]
+
+				Use			:	name field
+				Set Always	:	Yes
+				Set as		:	""
+				Width		:	25% page
+				Style		:	Small Bold
+				Background	:	Dark Red
+				Color		:	White
+				Skip		:	Yes
+				Align	:	Center
+				
+			[Field:JC_FLD_VCHDetailsTit2]
+
+				Use			:	name field
+				Set Always	:	Yes
+				Set as		:	""
+				Width		:	25% page
+				Style		:	Small Bold
+				Background	:	Dark Red
+				Color		:	White
+				Skip		:	Yes
+				Align	:	Center
+				
+			[Field:JC_FLD_VCHDetailsTit3]
+
+				Use			:	name field
+				Set Always	:	Yes
+				Set as		:	""
+				Width		:	25% page
+				Style		:	Small Bold
+				Background	:	Dark Red
+				Color		:	White
+				Skip		:	Yes
+				Align	:	Center
+
+			[Field:JC_FLD_VCHDetailsTit4]
+				
+				Use			:	name field
+				Set Always	:	Yes
+				Set as		:	""
+				Width		:	25% page
+				Style		:	Small Bold
+				Background	:	Dark Red
+				Color		:	White
+				Skip		:	Yes
+				Align	:	Center
+
+;;;;;;;;;;;;;;;;;;;;;;  Job Card Detail Fields	;;;;;;;;;;;;;
+
+			[Field:JC_VCHLPONum]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	EAT_LPONo
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+			[Field:JC_VCHLPONumDesc]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHLPONumDesc
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHEquipment]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHEquipment
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHEquipmentDesc]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHEquipmentDesc
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHManualNo]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHManualNo
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHCustFeedBack]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHCustFeedBack
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHTermsPay]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	BasicDueDateOfPymt
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHPower]
+
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHPower
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
+				
+			[Field:JC_VCHMemo]
+				
+				Use			:	Name Field
+				Set Always	:	Yes
+				Storage		:	JC_VCHMemo
+				Width		:	25% page
+				Border		:	Thin box
+				Align		:	Center
+				Style		:	Normal
