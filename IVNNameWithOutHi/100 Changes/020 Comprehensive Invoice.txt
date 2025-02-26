@@ -397,7 +397,7 @@
 [Part:IC_FooterLogo]
 	Line		:	Empty
 	
-	Width		:	@@EAT_LogoWidth mms
+	Width		:	@@EAT_LogoWidth inch
 	
 	Graph Type	:	@@IC_FooterPath
 	

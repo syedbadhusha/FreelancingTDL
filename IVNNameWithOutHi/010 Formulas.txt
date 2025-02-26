@@ -6,6 +6,9 @@
 
 	RM_CustomPrint				:	@@IsSales
 	
-	FiledonotExist				: $$LocaleString:"File does not exist."
+;	FiledonotExist				: $$LocaleString:"File does not exist."
 	
 	IC_FooterPath				:	$IC_FooterPath:Company:$$CurrentCompany
+	
+	EAT_IsFileExists			:	Not $$IsEmpty:$$Value and not $$IsFileExists:$$Value
+	EAT_LogoWidth				:	@@InvWidth - @@InvSpaceLeft
