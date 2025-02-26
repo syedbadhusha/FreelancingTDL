@@ -6,3 +6,5 @@
 	
 	IN_PONo					:	String	:	6000
 	IN_PODate				:	Date	:	6010
+	IC_FooterPath			:	String	:	6020
+	

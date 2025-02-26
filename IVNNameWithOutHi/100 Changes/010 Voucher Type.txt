@@ -13,3 +13,23 @@
 	Use	:	Logical Field
 	Storage	:	RM_HI_RemoveHFFromItem
 	Show Table	:	Always
+
+
+[#Part: CMP TallyShopFeatures Left]
+	
+	Add	:	Line	:	IC_FooterPath
+
+[Line:IC_FooterPath]
+
+	Field		:	MediumPrompt, IC_FooterPath
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"Footer Logo Path"
+	
+[Field:IC_FooterPath]
+	Use			:	NameField
+	Storage		:	IC_FooterPath
+	Case		:	Normal
+	Full Width	:	Yes
+	Control		:	FiledonotExist		:	@@EAT_IsFileExists
+	
+

@@ -1,10 +1,35 @@
+
+;;;;;;;;;;;;;;;;;;  Remove Contact From Company Address
+
+[#Collection: Company Address]
+
+	Option		:	IN_CompanyAddress:	@@RM_CustomPrint
+
+[!Collection:IN_CompanyAddress]
+	
+	Delete	:	Object      : Company Contacts
+
+[#Collection: VATGCCCompanyAddressNative]
+
+	Option		:	IN_VATGCCCompanyAddressNative:	@@RM_CustomPrint
+
+[!Collection:IN_VATGCCCompanyAddressNative]
+	
+	Delete	:	Object      : GCCCMP Contacts Native
+
+;;;;;;;;;;;;;;;;
+
 [#Form: GCCVAT Comp Bilingual Format2]
 	Add			:	Option		:	IN_Bilingual Format2:	@@RM_CustomPrint
 	
 [!Form:IN_Bilingual Format2]
+
 	Add			:	Bottom Part	:	Before	:	EXPINV InvoiceCompGen	:	EXPINV VATGCC BilDeclaration
-	
+	Add			:	Bottom Part	:	At End	:	IC_FooterLogoContainer
+
 	Local		:	Part		:	EXPINV VATGCC BilDeclaration:	Border			:	ThinBox
+	
+;;;;;;;;;;;;;;;;;;
 	
 [#Part:GCCVATEXPINV CMPDetails]
 	Option		:	IN_CMPDetails		:	@@RM_CustomPrint
@@ -12,6 +37,51 @@
 [!Part:IN_CMPDetails]
 	Local		:	Part		:	GCCVATEXPINV Company		:	Space Top		:	5 mms
 	Local		:	Part		:	GCCVATBilingual Company		:	Space Top		:	5 mms
+
+;;;;;;;;;;; Total Line Added
+
+[#Part: GCCVATTotalsFormat2]
+	Option		:	IC_GCCVATTotalsFormat2		:	@@RM_CustomPrint
+	
+[!Part:IC_GCCVATTotalsFormat2]
+
+	Local		: Line		: EXPINV Totals					: Invisible	: No
+	Local		: Line		: EXPINV Arabic Totals			: Invisible	: No
+
+	Local		: Line		: EXPINV Totals					: Local	:	Field	:	Default	:	Invisible:Yes
+	Local		: Line		: EXPINV Arabic Totals			: Local	:	Field	:	Default	:	Invisible:Yes
+	
+	Local		: Line		: EXPINV Totals					: Local	:	Field	:	EXPINV VATGCC TotalTaxableAmt	:	Invisible:No
+	Local		: Line		: EXPINV Totals					: Local	:	Field	:	EXPINV VATGCC AmtTotal			:	Invisible:No
+	
+	Local		: Line		: EXPINV Totals					: Local	:	Field	:	EXPINV VATGCC TotalTaxableAmt			:	Width	: @@AmountWidth*##VATGCCTotalInvWidth
+
+	Local		: Line		: EXPINV Totals					: Local	:	Field	:	EXPINV VATGCC TotalTaxableAmt			:	Style	:	Normal Bold
+
+
+;;;;;;;;;;;;;;  Titles Changes
+[#Part: GCCVAT EXPINV ColumnFormat2]
+	Option		:	IN_ColumnFormat2	:	@@RM_CustomPrint
+	
+[!Part:IN_ColumnFormat2]
+	Delete	:	Line	:	EXPINV BilingualColumn1
+	Delete	:	Line	:	EXPINV Column2
+	
+	Local		:	Line		:	EXPINV Column1				:	+
+		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	"Sl #"
+	
+	Local		:	Line		:	EXPINV Column1				:	+
+		Local : Field : EXPINV AmountTitle    	: Info   : $$LocaleString:"Amount " + @@GVATCurrFormat
+
+
+	Local		:	Line		:	EXPINV Column1				:	+
+		Local : Field: EXPINV VATGCC AmtTitle           : Set as  : "VAT " + @@GVATCurrFormat
+	
+	Local		:	Line		:	EXPINV BilingualColumn2		:	+
+		Local		:	Field		:	EXPINVBilledQtyTitle			:	Info			:	$$Translate:"Quantity":##vLocalLanguageId
+
+	Local		:	Line		:	EXPINV BilingualColumn2		:	+
+		Local		:	Field		:	EXPINVBilledQtyTitle			:	Delete	:	Inactive
 
 [#Line: EXPINV Column1]
 	Option		:	IN_InvColumn		:	@@RM_CustomPrint
@@ -21,15 +91,17 @@
 
 [#Line: EXPINV Column2]
 	Option		:	IN_InvColumn		:	@@RM_CustomPrint
-
+	
 [#Line: EXPINV BilingualColumn2]
 	Option		:	IN_InvColumn		:	@@RM_CustomPrint
-
+	
 [!Line:IN_InvColumn]
 	Delete		:	Right Field	:	EXPINV PartNoTitle
 	Add			:	Left Field	:	Before		:	EXPINV DescTitle	:	EXPINV PartNoTitle	
 	
 	Local		:	Field		:	EXPINV PartNoTitle			:	Border			:	ThinRight
+
+;;;;;;;;;;;;;;;; Details Part Changes
 	
 [#Line: EXPINV InvDetails]
 	Option		:	IN_InvDetails		:	@@RM_CustomPrint
@@ -84,6 +156,25 @@
 	Add			:	Left Field	:	Before		:	EXPINV BillRef					:	EXPINV PartNo
 	
 	Local		:	Field		:	EXPINV PartNo				:	Border			:	ThinRight
+
+[#Field: EXPINVDesc]
+	Option	:	RM_EXPINVDesc	:	@@RM_HI_RemoveHFFromItemFor
+
+[!Field:RM_EXPINVDesc]
+	Delete		:	Set as	
+	add			:	Set as		:	$$FuncBreakHifon:1:@@InvoiceStockItemName
+	
+[#Part: GCCVATEXPINVDetails]
+	Option		:	IN_INVDetails		:	@@RM_HI_RemoveHFFromItemFor
+	
+[#Part:GCCVAT EXPINVDetailsFormat2]
+	Option		:	IN_INVDetails		:	@@RM_CustomPrint
+	
+[!Part:IN_INVDetails]
+	Local		:	Line		:	EXPINV InvDetails			:	+
+		Local	:	Field		:	EXPINV Desc					:	Set as			:	If NOT $$IsEmpty:@arabictext AND NOT ##SAGVATPrntArabicNumber Then $$Sprintf:"%s\%s":@arabictext:($$FuncBreakHifon:1:@@InvoiceStockItemName):"" Else $$FuncBreakHifon:1:@@InvoiceStockItemName
+
+;;;;;;;;;;;;;;;;;;  Top Part Changes
 
 [#Part:GCCVATEXPInv TopLeft]
 	Option		:	IN_TopLeft			:	@@RM_CustomPrint
@@ -173,6 +264,9 @@
 	Local		:	Part		:	Default						:	+
 		Local	:	Line		:	Default						:	+
 		Local	:	Field		:	EXPINV SubTitle				:	Width			:	12.5% Page
+
+
+;;;;;;;;;;;;;;;;;;;;;;;  Bottom Changes
 	
 [#Part	: GCCVATINV Terms]
 	Option		:	IN_Terms			:	@@RM_CustomPrint
@@ -189,35 +283,8 @@
 	Local		:	Line		:	GCCVATINV Terms				:	+
 		Local	:	Field		:	NameField					:	Width			:	25 % Page
 	
-[#Part: GCCVAT EXPINV ColumnFormat2]
-	Option		:	IN_ColumnFormat2	:	@@RM_CustomPrint
 	
-[!Part:IN_ColumnFormat2]
-	Local		:	Line		:	EXPINV Column1				:	+
-		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	"Sl #"
-	
-	Local		:	Line		:	EXPINV Column2				:	+
-		Local	:	Field		:	EXPINV SLNoTitle			:	Set as			:	""
-	
-	Local		:	Line		:	EXPINV BilingualColumn1		:	+
-		Local	:	Field		:	EXPINV SLNoTitle			:	Info			:	""
-	
-[#Field: EXPINVDesc]
-	Option	:	RM_EXPINVDesc	:	@@RM_HI_RemoveHFFromItemFor
 
-[!Field:RM_EXPINVDesc]
-	Delete		:	Set as	
-	add			:	Set as		:	$$FuncBreakHifon:1:@@InvoiceStockItemName
-	
-[#Part: GCCVATEXPINVDetails]
-	Option		:	IN_INVDetails		:	@@RM_HI_RemoveHFFromItemFor
-	
-[#Part:GCCVAT EXPINVDetailsFormat2]
-	Option		:	IN_INVDetails		:	@@RM_CustomPrint
-	
-[!Part:IN_INVDetails]
-	Local		:	Line		:	EXPINV InvDetails			:	+
-		Local	:	Field		:	EXPINV Desc					:	Set as			:	If NOT $$IsEmpty:@arabictext AND NOT ##SAGVATPrntArabicNumber Then $$Sprintf:"%s\%s":@arabictext:($$FuncBreakHifon:1:@@InvoiceStockItemName):"" Else $$FuncBreakHifon:1:@@InvoiceStockItemName
 	
 [#Part: GCCVAT EXPINV LeftSign]
 	Option		:	IN_LeftSign			:	@@RM_CustomPrint
@@ -259,3 +326,80 @@
 [!Part:IN_BankDetails]
 	Delete		:	Line		:	EXPINV BankBranchInfo
 	
+;;;;;;;;;;;  Total Summary Part Changes
+
+[#Part: GCCVATEXPINVSignOffFormat2]
+	
+	Option		:	IN_SummaryWithArInword		:	@@RM_CustomPrint
+
+[!Part:IN_SummaryWithArInword]
+	
+	Delete	:	Right Part
+	
+	Add	:	Right Part	:	IN_SummaryWithArInwordRight
+
+
+	Local	:	Part	:	EXPINV VATGCC Bilingual AmtInWords	:	Local	:	Line	:	EXPINV VATGCC Bilingual TotalTitle	:	Local	:	Field	:	EXPINV SubTitle	:	Invisible	:	Yes
+	Local	:	Part	:	EXPINV VATGCC Bilingual AmtInWords	:	Local	:	Line	:	EXPINV VATGCC Native TotalValue	:	Invisible	:	Yes
+		
+	Local	:	Part	:	EXPINV VATGCC Bilingual AmtInWords	:	Local	:	Line	:	EXPINV VATGCC Bilingual TaxAmtTitle	:	Local	:	Field	:	EXPINV SubTitle	:	Invisible	:	Yes
+	Local	:	Part	:	EXPINV VATGCC Bilingual AmtInWords	:	Local	:	Line	:	EXPINV VATGCC Bilingual Native TaxAmt	:	Invisible	:	Yes
+	
+	[Part:IN_SummaryWithArInwordRight]
+		
+		Parts	:	EXPINVGCCInvoiceSummaryDetailsBil,IC_EXPINVVATGCCBilingualAmtInWords
+
+		Vertical	:	Yes
+	;;;;;;;;;;;; Invisible for Summary Lines
+		Local	:	Line		: EXPINV GCCTaxableAmount			:		Invisible	:	Yes
+		Local	:	Line		: EXPINV GCCTaxableAmountAracbic	:		Invisible	:	Yes
+		Local	:	Line		: EXPINV GCCVATAmount				:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCVATAmountArabic			:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCInvoiceDiscount			:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCInvoiceDiscountArabic	:		Invisible	:	Yes 
+		
+
+		Local	:	Line		: EXPINV GCCOOSAmount					:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCOOSAmountArabic				:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCNOTApprAmountOthersBil		:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCNOTApprAmountOthersArabic	:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCRoundedoffAmount			:		Invisible	:	Yes 
+		Local	:	Line		: EXPINV GCCRoundedoffAmountArabic		:		Invisible	:	Yes 
+
+;		Width	:	50 % page
+
+
+[Part:IC_EXPINVVATGCCBilingualAmtInWords]
+	Use	:	EXPINVVATGCCBilingualAmtInWords
+	Delete	:	Width
+	
+	;;;;;;;;;  Inword Right Part invisible fields and lines
+	Local	:	Line	:	EXPINV VATGCC Bilingual TotalTitle	:	Local	:	Field	:	Info Field	:	Invisible	:	Yes
+	Local	:	Line	:	EXPINV VATGCC English TotalValue	:	Invisible	:	Yes
+	
+	Local	:	Line	:	EXPINV VATGCC Bilingual TaxAmtTitle	:	Local	:	Field	:	Info Field	:	Invisible	:	Yes
+	Local	:	Line	:	EXPINV VATGCC Bilingual Eng TaxAmt	:	Invisible	:	Yes
+
+	
+;;;;;;;;;;;;;;;; Footer Logo
+
+
+
+[Part:IC_FooterLogoContainer]
+	Space Top	:	2 mms
+	Height		:	18 mms
+	
+	Part		:	IC_FooterLogo
+	
+	Horizontal Align	:	Center
+	Width	:	100 % page
+	
+[Part:IC_FooterLogo]
+	Line		:	Empty
+	
+	Width		:	@@EAT_LogoWidth mms
+	
+	Graph Type	:	@@IC_FooterPath
+	
+	Horizontal Align	:	Center
+

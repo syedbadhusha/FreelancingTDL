@@ -6,3 +6,6 @@
 
 	RM_CustomPrint				:	@@IsSales
 	
+	FiledonotExist				: $$LocaleString:"File does not exist."
+	
+	IC_FooterPath				:	$IC_FooterPath:Company:$$CurrentCompany
