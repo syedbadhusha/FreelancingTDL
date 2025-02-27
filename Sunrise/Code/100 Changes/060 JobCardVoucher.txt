@@ -1,14 +1,55 @@
 
 
+[#Form: SalesOrderColor]
+	
+	Option	:	JC_VCHBASICFormClr	:	@@EAT_IsJobCardVch ;or @@IsDelNote or @@Issales
+	
+[!Form:JC_VCHBASICFormClr]
+	
+	Background	:	White
+	Local	:	Style	:	Default	:	Font	:	"Verdana"
+
+	Local	:	Part	:	Ei Consignee	:	Local	:	Field	:	EI Consignee	:	Border	:	Thin Box
+;;;;;;;;  Vch Number Field
+
+	Local	:	Field	:	Vch Number	:	Border			:	thin Box
+	Local	:	Field	:	Vch Number	:	Background		:	Dark Red
+	Local	:	Field	:	Vch Number	:	Color			:	White
+
+;;;;;;;;; Vch Date Field
+
+	Local	:	Field	:	Plain Vch Date	:	Border		:	thin Box
+	Local	:	Field	:	Plain Vch Date	:	Background	:	Dark Red
+	Local	:	Field	:	Plain Vch Date	:	Color		:	White
+	
+;;;;;;;;;;;;;;  Colunm Title	;;;;;;;
+
+	Local	:	Part	:	EI Column	:	Background	:	@@SV_VCHTYPE
+	Local	:	Part	:	EI Column	:	Local	:	Field	:	Default	:	Color	:	White
+	
+;;;;;;;;;;;;  Total Fields ;;;;;
+
+	Local	:	Field	:	EI ValueTotal	:	Background	:	Dark Red
+	Local	:	Field	:	EI ValueTotal	:	Color		:	White
 
 
+	Local	:	Field	:	EIBilledQtyTotal	:	Background	:	Dark Red
+	Local	:	Field	:	EIBilledQtyTotal	:	Color		:	White
+
+	
+;;;;;;;;;  Details Part	;;;;;;;;;
+
+	Local	:	Line	:	EI InvInfo	:	Border	:	thin Top bottom
+	
 [#Form: VCHBasic InvoiceMode]	
 
 	Option	:	JC_VCHBASICForm	:	@@EAT_IsJobCardVch or @@IsDelNote or @@Issales
-
+	
 [!Form:JC_VCHBASICForm]
 	
 	Add	:	Parts	:	After:EI SalesCurrBalanceInfo	:	JC_VCHDetails
+	
+	Local	:	Part	:	Ei Consignee	:	Local	:	Field	:	EI Consignee
 	
 	[Part:JC_VCHDetails]
 		
@@ -16,21 +57,20 @@
 					JC_VCHDetailsTit2,JC_VCHDetails2,+
 					JC_VCHDetailsTit3,JC_VCHDetails3
 					
-		Border	:	Thin Box
-		Background	:	White
+		Local	:	Field	:	Default	:	Border	:	Thin Box
 		
 		[Line:JC_VCHDetailsTit1]
 
-			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3,JC_FLD_VCHDetailsTit4
+			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3;,JC_FLD_VCHDetailsTit4
 
 			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"LPO Number"
 			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"LPO Description"
 			Local	:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as	:	"Equipment"
-			Local	:	Field	:	JC_FLD_VCHDetailsTit4	:	Set as	:	"Equipment Description"
+;			Local	:	Field	:	JC_FLD_VCHDetailsTit4	:	Set as	:	"Equipment Description"
 
 		[Line:JC_VCHDetails1]
 			
-			Field	:	JC_VCHLPONum,JC_VCHLPONumDesc,JC_VCHEquipment,JC_VCHEquipmentDesc
+			Field	:	JC_VCHLPONum,JC_VCHLPONumDesc,JC_VCHEquipment
 
 
 		[Line:JC_VCHDetailsTit2]
@@ -39,23 +79,24 @@
 
 			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Job Card Manual Number"
 			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Customer's Feedback"
-			Local	:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as	:	"Terms Of Payment"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as	:	"Equipment Description"
 
 		[Line:JC_VCHDetails2]
 			
-			Field	:	JC_VCHManualNo,JC_VCHCustFeedBack,JC_VCHTermsPay
+			Field	:	JC_VCHManualNo,JC_VCHCustFeedBack,JC_VCHEquipmentDesc
 
 
 		[Line:JC_VCHDetailsTit3]
 
-			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2
+			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3
 
-			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Power"
-			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Memo"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Terms Of Payment"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Power"
+			Local	:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as	:	"Memo"
 
 		[Line:JC_VCHDetails3]
 			
-			Field	:	JC_VCHPower,JC_VCHMemo
+			Field	:	JC_VCHTermsPay,JC_VCHPower,JC_VCHMemo
 
 
 ;;;;;;;;;;;;;;;;;;  Ttitle Field
