@@ -306,7 +306,7 @@
 					Fields      : VCH ItemTitle
 					Right Fields: VCHBilledQtyTitle,VCH InclRateTitle,+ ;LA_POSStockBalTit,
 								  VCHRateTitle, VCHRateUnitsTitle, +
-								  VCHDiscTitle,VCHAmtTitle,LA_VCHDiscTitle,LA_VCHSubTaxTitle,LA_VCHSubTotalTitle
+								  VCHDiscTitle,VCHAmtTitle,LA_VCHDiscTitle,LA_VCHSubTaxTitle,LA_VCHSubTotalTitle, LA_InclVATTotalTitle
 					
 					Local	:	Field	:	VCHBilledQtyTitle	:	Delete	:	Inactive
 					Local	:	Field	:	VCHBilledQtyTitle	:	Set as	:	"Quantity"
@@ -338,6 +338,15 @@
 						Skip        : Yes
 						Fixed       : Yes
 						
+					[Field:LA_InclVATTotalTitle]
+						Width       : @@VCHQtyWidth
+						Setas       : $$LocaleString:"Total Incl"
+						Style       : Small
+						Align       : Centre
+						Skip        : Yes
+						Fixed       : Yes
+						Invisible	: @@InclTaxcfg
+						
 			[Part:LA_POSInvDetails]
 				
 				Part:LA_POSInvDetailsInv,LA_CIAccInfo
@@ -364,7 +373,7 @@
 
 				Local	:	Line	:	CI InvInfo	:	Explode	:	Default	:	No
 
-				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal
+				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal, LA_VCHSubTotalIncl
 				Local	:	Field	:	Default	:	Border	:	Thin Box
 				
 				Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
@@ -415,8 +424,21 @@
 					Width       : @@VCHQtyWidth
 					Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
 					Read Only	: Yes
-					Set Always	:	yes
-					Set as	:	$Amount - $LA_VCHDisc
+					Set Always	: yes
+					Set as		: $Amount - $LA_VCHDisc
+				
+				[Field:LA_VCHSubTotalIncl]
+					Use			: Amount Forex Field
+					Style       : Small
+					Align       : Centre
+					Border      : Thin Right
+					Skip        : Yes
+					Fixed       : Yes
+					Width       : @@VCHQtyWidth
+					Inactive    : $$IsEnd:$StockItemName OR @@NoBaseUnits
+					Set Always	: yes
+					Set as		: ($BilledQty * $InclusiveTaxValue)- $LA_VCHDisc
+					Invisible	: @@InclTaxcfg
 				
 	[Part:LA_POSInvTotal]
 		
@@ -442,7 +464,7 @@
 		
 		[Line:LA_POSInvTotalTitle]
 			
-				Field		:	LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
+				Field		:	LA_Expense1, LA_Expense2, LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
 								LA_POSRoundOff
 							
 				Local	:	Field	:	Default	:	Type:	String
@@ -450,7 +472,9 @@
 				Local	:	Field	:	Default	:	Align	:	Center
 				Local	:	Field	:	Default	:	Style	:	Small Bold
 				Local	:	Field	:	Default	:	Skip	:	yes
-					
+				
+				Local	:	Field	:	LA_Expense1				:	Set as	:	@@POS_AddLedger1Name
+				Local	:	Field	:	LA_Expense2				:	Set as	:	@@POS_AddLedger2Name
 				Local	:	Field	:	LA_POSItemDiscTotal		:	Set as	:	"Item Disc"+$$NewLine+"Total"
 				Local	:	Field	:	LA_POSInvDisc			:	Set as	:	"Inv." +$$NewLine+"Discount"
 				Local	:	Field	:	LA_POSDiscTotal			:	Set as	:	"Total"++$$NewLine+"Discount"
@@ -460,7 +484,7 @@
 				
 		[Line:LA_POSInvTotal]
 
-				Field	:	LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
+				Field	:	LA_Expense1, LA_Expense2, LA_POSItemDiscTotal,LA_POSInvDisc,LA_POSDiscTotal,+
 							LA_POSRoundOff
 				Local	:	Field	:	Default	:	Border	:	Thin Box
 				Space Top	:	3 MMS
@@ -558,23 +582,47 @@
 
 		;;;;;;;;;;;;;;;;;;;  Invoice Total Fields	;;;;;;;;;
 
+		[Field:LA_Expense1]
+			Invisible	:	$$IsSysName:@@POS_AddLedger1Name
+			Inactive	:	$$IsSysName:@@POS_AddLedger1Name
+			Use			:	Amount Forex Field
+			Set Always	:	Yes
+			Width		:	25 MMS
+			Set as		:	$LedgerEntries[1, @@POS_IsAddLedger1].Amount
+			On		:	Accept	:	Yes	:	Field Accept
+			On		:	Accept	:	Yes	:	Call	:	PS_UpdateAddLedger1
+			
+[Function:PS_UpdateAddLedger1]
+	010	:	Set Target	:	LedgerEntries[1, @@POS_IsAddLedger1].
+	000	:	Set Value	:	Amount :	$$Value
+	
+		[Field:LA_Expense2]
+			Invisible	:	$$IsSysName:@@POS_AddLedger2Name
+			Inactive	:	$$IsSysName:@@POS_AddLedger2Name
+			Use			:	Amount Forex Field
+			Set Always	:	Yes
+			Width		:	25 MMS
+			Set as		:	$LedgerEntries[1, @@POS_IsAddLedger2].Amount
+			On		:	Accept	:	Yes	:	Field Accept
+			On		:	Accept	:	Yes	:	Call	:	PS_UpdateAddLedger2
+			
+[Function:PS_UpdateAddLedger2]
+	010	:	Set Target	:	LedgerEntries[1, @@POS_IsAddLedger2].
+	000	:	Set Value	:	Amount :	$$Value
+	
 		[Field:LA_POSItemDiscTotal]
 
 			Use			:	Amount Forex Field
 			Set Always	:	Yes
 			Set as		:	$$CollAmtTotal:InventoryEntries:$$Abs:$LA_VCHDisc
-			Width		:	 MMS
-			Format		:	"No Zero"
 			Skip		:	Yes
-			Style		:	Normal Bold
-			Width		:	30 MMS
-			Align		:	Right
+			Width		:	25 MMS
 			Read Only	:	Yes
 			
 		[Field:LA_POSInvDisc]
 			Use	:	Amount Forex Field
 			Set Always	:	Yes
-			Width		:	30 MMS
+			Width		:	25 MMS
 			Format		:	"No Zero"
 			Storage		:	LA_POSInvDisc
 			Style		:	Normal Bold
@@ -584,7 +632,7 @@
 
 			Use	:	Amount Forex Field
 			Set Always	:	Yes
-			Width		:	30 MMS
+			Width		:	25 MMS
 			Storage     : 	LA_POSDiscTotal
 			Set as		:	(#LA_POSItemDiscTotal + #LA_POSInvDisc)
 			Style		:	Normal Bold

@@ -19,14 +19,14 @@
 ;	Use			:	AliasCollection
 ;	Type		:	Ledger
 ;	Include		:	Group:$$GroupBank
-;	
-;[Collection:POS_LedgerName]
-;	Type		:	Ledgers
-;	
-;	Search Key	:	$MasterId
-;	
-;	Keep Source	:	().
-;	Client Only	:	Yes
+	
+[Collection:POS_LedgerName]
+	Type		:	Ledgers
+	
+	Search Key	:	$MasterId
+	
+	Keep Source	:	().
+	Client Only	:	Yes
 	
 ;[Collection:POS_StockQuery]
 ;	Use			:	StockQuery

@@ -64,7 +64,11 @@
 	InsVATLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_VATLedName:($$SysName:VAT)	
 	InsDiscLedEntris:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_DiscountLedName:($$SysName:AsUserDefined)
 	InsRndLedEntries:	Call		:	POS_InsVCHTYPLedEntries	:	@@POS_RoundOffLedName:($$SysName:AsUserDefined)	
-	
+	InsAdd1LedEntrie:	Do If		:	(Not $$IsSysName:@@POS_AddLedger1Name)	:	+
+							Call	:	POS_InsVCHTYPLedEntries	:	@@POS_AddLedger1Name:($$SysName:AsUserDefined)
+	InsAdd2LedEntrie:	Do If		:	(Not $$IsSysName:@@POS_AddLedger2Name)	:	+
+							Call	:	POS_InsVCHTYPLedEntries	:	@@POS_AddLedger2Name:($$SysName:AsUserDefined)
+							
 [Function:POS_VCHTypeClassPOSLedgersSetValue]
 	SVCrdLed		:	Set Value	:	POSCardLedger			:	@@POS_DebitCardLedName
 	SVCshLed		:	Set Value	:	POSCashLedger			:	@@POS_CashLedName
@@ -96,9 +100,9 @@
 			
 	saveVCHType		:	Save Target
 	
-;[Function:POS_LedgerName]
-;	Parameter		:	MasterId	:	String
-;	
-;	Return			:	String
-;	
-;	000				:	Return		:	$$CollectionFieldByKey:$Name:##MasterId:POS_LedgerName
+[Function:POS_LedgerName]
+	Parameter		:	MasterId	:	String
+	
+	Return			:	String
+	
+	000				:	Return		:	$$CollectionFieldByKey:$Name:##MasterId:POS_LedgerName

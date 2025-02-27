@@ -22,7 +22,7 @@
 	Storage		:	POS_IsEnabled
 	
 [Part:POS_Configuration]
-	Line		:	/*POS_CreditCardDetail, */ POS_EnableBarcodePrint
+	Line		:	/*POS_CreditCardDetail, */ POS_EnableBarcodePrint, POS_AddLedger1, POS_AddLedger2
 	
 	Local		:	Line		:	Default						:	Indent			:	@@POS_TDLIndent * $$ExplodeLevel mms
 	
@@ -48,6 +48,47 @@
 ;	Set as		:	$$Table:POS_CreditCardLedger:$MasterId
 ;	Set Always	:	Yes
 ;	Invisible	:	Yes
+
+[Line:POS_AddLedger1]
+	Field		:	MediumPrompt, POS_AddLedger1, POS_AddLedger1Id
+	
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"POS Expense Ledger 1"
+	
+[Field:POS_AddLedger1]
+	Use			:	NameField
+	Show Table	:	Always
+	Set Always	:	Yes
+	Table		:	Ledger, NotApplicable
+	Set as		:	$$POS_LedgerName:$POS_AddLedger1Id
+	Control		:	DuplicateEntry		:	Not $$IsSysName:$$Value and $$Value = #POS_AddLedger2
+	
+[Field:POS_AddLedger1Id]
+	Use			:	NameField
+	Storage		:	POS_AddLedger1Id
+	Set as		:	$$Table:POS_AddLedger1:$MasterId
+	Set Always	:	Yes
+	Invisible	:	Yes
+
+[Line:POS_AddLedger2]
+	Field		:	MediumPrompt, POS_AddLedger2, POS_AddLedger2Id
+	
+	Local		:	Field		:	Default						:	Inactive		:	$$IsSysName:#POS_AddLedger1
+	Local		:	Field		:	MediumPrompt				:	Set as			:	"POS Expense Ledger 2"
+	
+[Field:POS_AddLedger2]
+	Use			:	NameField
+	Show Table	:	Always
+	Set Always	:	Yes
+	Table		:	Ledger, NotApplicable
+	Set as		:	$$POS_LedgerName:$POS_AddLedger2Id
+	Control		:	DuplicateEntry		:	Not $$IsSysName:$$Value and $$Value = #POS_AddLedger1
+	
+[Field:POS_AddLedger2Id]
+	Use			:	NameField
+	Storage		:	POS_AddLedger2Id
+	Set as		:	$$Table:POS_AddLedger2:$MasterId
+	Set Always	:	Yes
+	Invisible	:	Yes
 	
 [Line:POS_EnableBarcodePrint]
 	Field		:	MediumPrompt, POS_EnableBarcodePrint

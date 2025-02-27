@@ -55,3 +55,11 @@
 	
 	POS_PartyEmptyLineFilter:	Not (If $$IsSysNameEqual:AllItems:##POS_Party then Yes else If $$IsSysNameEqual:NotApplicable:##POS_Party then $$IsSysName:$PartyName else ##POS_Party = $PartyName)
 	
+	POS_AddLedger1Id		:	$POS_AddLedger1Id:Company:$$CurrentCompany
+	POS_AddLedger1Name		:	If $$IsSysName:@@POS_AddLedger1Id then "" else $$POS_LedgerName:@@POS_AddLedger1Id
+	
+	POS_AddLedger2Id		:	$POS_AddLedger2Id:Company:$$CurrentCompany
+	POS_AddLedger2Name		:	If $$IsSysName:@@POS_AddLedger2Id then "" else $$POS_LedgerName:@@POS_AddLedger2Id
+	
+	POS_IsAddLedger1		:	$LedgerName = @@POS_AddLedger1Name
+	POS_IsAddLedger2		:	$LedgerName = @@POS_AddLedger2Name

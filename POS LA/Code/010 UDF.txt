@@ -7,6 +7,8 @@
 	POS_BarcodePrinter			:	String			:	0140
 	POS_BarcodeWidth			:	Number			:	0150
 	POS_BarcodeHeight			:	Number			:	0160
+	POS_AddLedger1Id			:	String			:	0170
+	POS_AddLedger2Id			:	String			:	0180
 	
 	LA_VCHDisc					:	Amount			:	0300
 	LA_VCHSubTax				:	Amount			:	0400
