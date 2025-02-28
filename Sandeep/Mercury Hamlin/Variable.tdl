@@ -1,0 +1,8 @@
+[Variable:ReceiptSummaryData]
+	Variable:VoucherDate:Date
+	Variable:Particulars:String
+	Variable:TotalAmount:Amount
+	Variable:LedgerName:String
+	Variable:InvoiceNumber:String
+	Variable:LedgerAmount:Amount
+	Variable:UnsettledAmount:Amount

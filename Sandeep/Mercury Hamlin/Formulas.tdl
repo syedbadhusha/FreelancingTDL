@@ -1,0 +1,4 @@
+[System:Formulae]
+	IsSuspenseLedger:$$IsLedOfGrp:$LedgerName:$$GroupSuspense
+	RemoveBankAndSuspenseLedgers:NOT ($$IsLedOfGrp:$LedgerName:$$GroupBank OR $$IsLedOfGrp:$LedgerName:$$GroupCash OR $$IsLedOfGrp:$LedgerName:$$GroupBankOD OR $$IsLedOfGrp:$LedgerName:$$GroupSuspense)
+	IsBankLedger1:$$IsLedOfGrp:$LedgerName:$$GroupBank OR $$IsLedOfGrp:$LedgerName:$$GroupCash OR $$IsLedOfGrp:$LedgerName:$$GroupBankOD

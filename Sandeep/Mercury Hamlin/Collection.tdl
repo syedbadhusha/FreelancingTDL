@@ -1,0 +1,25 @@
+[Collection:Receipt Collection]
+	Type:Vouchers
+	Fetch:*,*.*
+	Filter:IsReceiptVch
+	
+[Collection:Receipt Summary Collection]
+	Source Collection:Receipt Collection
+	Walk:LedgerEntries
+	Compute:VoucherId:$$Owner:$$Name
+	Compute:VoucherDate:$$Owner:$Date
+	Compute:VoucherNumber:$$Owner:$VoucherNumber
+	Compute:Particulars:$$Owner:$Narration
+	Compute:TotalAmount:$$Owner:$TotalAmount
+	Compute:LedgerName:$LedgerName
+	Compute:InvoiceNumber:$BillAllocations[1].Name
+	Compute:LedgerAmount:$Amount
+	Compute:UnsettledAmount:$$Owner:$UnsettledAmount
+	Compute:BankLedgerName:$$Owner:$BankLedgerName
+	Filter:RemoveBankAndSuspenseLedgers
+	
+;select $VoucherDate, $VoucherNumber From ReceiptSummaryCollection
+[#Object:Voucher]
+	UnsettledAmount:$$FilterAmtTotal:LedgerEntries:IsSuspenseLedger:$Amount
+	TotalAmount:$$FilterAmtTotal:LedgerEntries:IsDr:$Amount
+	BankLedgerName:$LedgerEntries[1, @@IsBankLedger1].LedgerName

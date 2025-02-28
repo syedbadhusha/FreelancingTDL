@@ -1,0 +1,204 @@
+[Report:Suspense Receipt Report]
+Variable:SVFromDate:Date
+Variable:SVToDate:Date
+Form:Suspense Receipt Report
+
+[Form:Suspense Receipt Report]
+Height:100% page
+Width:100% page
+Part:SRR Form Title, SRR Body
+Button:ExplodeFlag, RefreshTDL, F2 Change Period
+Bottom Button:Filter
+
+[Button:Filter]
+Title:"Filter"
+Key:Alt + F12
+Action:Alter:Filter Report
+	
+[Button:RefreshTDL]
+Title:"Refresh TDL"
+Key:Alt + F3
+Action:refresh tdl
+
+[Part:SRR Form Title]
+Line:SRR CompName, SRR Address, SRR Period
+Repeat:SRR Address:Company Address
+Space Bottom:2% page
+
+[Line:SRR CompName]
+Field:Name Field
+Local:Field:Name Field:Set as:$$CurrentCompany
+Local:Field:Name Field:Local:Style:Default:Height:15
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+
+[Line:SRR Address]
+Field:Name Field
+Local:Field:Name Field:Set as:$Address
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+Remove if:$$Line>2
+
+[Line:SRR Period]
+Field:Name Field
+Local:Field:Name Field:Set as:@@DspDateStr
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+
+;----------------------BODY-------------------------------
+
+[Part:SRR Body]
+Line:SRR Column, SRR Body
+Repeat:SRR body:Receipt Summary Collection
+Bottom Lines:SRR Total
+Scroll:Vertical
+Common Borders:Yes
+Totals:SRRAmount, SRRInvoiceAmount, SRRUnsettledBalance
+
+[Line:SRR Column]
+Use:SRR Body
+Local:Field:Default:Style:Calibri Default
+Local:Style:Default:Height:@@LargeSize -1
+Local:Field:Default:Delete:Background
+Local:Field:Default:Delete:Color
+Local:Field:Default:Type:String
+Local:Field:Default:Line:0
+Local:Field:SRR Is Same Voucher:Set as:"Is Same Voucher"
+Local:Field:SRR Is Last Line Voucher:Set as:"Is Last Line"
+Local:Field:SRR Voucher Date:Set As:"Date"
+Local:Field:SRR Particulars:Set As:"Particulars"
+Local:Field:SRR Amount:Set As:"Amount"
+Local:Field:SRR Invoice Number:Set as:"Invoice Number"
+Local:Field:SRR Company Name:Set As:"Company Name"
+Local:Field:SRR Invoice Amount:Set as:"Invoice Amount"
+Local:Field:SRR Unsettled Balance:Set As:"Unsettled Balance"
+Local:Field:SRR Bank Ledger Name:Set As:"Bank Ledger Name"
+Border:Column Titles
+Delete:Remove if
+
+[Line:SRR Body]
+Fields:SRR Is Same Voucher, SRR Is Last Line Voucher, SRR Voucher Id, SRR Voucher Date, SRR Particulars, SRR Amount, SRR Invoice Number, SRR Company Name, SRR Invoice Amount, +
+SRR Unsettled Balance, SRR Bank Ledger Name
+Local:Field:Default:Line:0
+Option	: AlterOnEnter
+Key     : VchrAlterOnEnter
+
+[Key: VchrAlterOnEnter]
+Key     : Enter
+Action  : Alter : CurntVoucher
+	
+[Report: CurntVoucher]
+Use     : Voucher
+Delete:Set:vResetIgnoreGSTIN
+Delete:Set:vResetOverriddenFlags
+Form    : Voucher
+Object  : Voucher :#SRRVoucherId
+
+[Field:SRR Is Same Voucher]
+Use:Logical Field
+Set as:If $$Line = 1 Then No Else If $$PrevObj:$VoucherNumber = $VoucherNumber Then Yes Else No
+Width:10
+Style:Calibri Default
+Invisible:Yes
+
+[Field:SRR Is Last Line Voucher]
+Use:Logical Field
+Set as:If $$Line = 1 Then No Else If $$IsLastLine Then Yes Else If $$NextObj:$VoucherNumber != $VoucherNumber Then Yes Else No
+Width:10
+Style:Calibri Default
+Invisible:Yes
+
+[Field:SRR VoucherId]
+Use:Name Field
+Set as:$VoucherId
+Set Always:Yes
+Width:30
+Full Width:Yes
+Style:Calibri Default Bold
+Invisible:Yes
+
+[Field:SRR Voucher Date]
+Use:Uni Date Field
+Set as:$VoucherDate
+Set By Condition:#SRRIsSameVoucher:""
+Width:15
+Align:Left
+Style:Calibri Default
+
+[Field:SRR Particulars]
+Use:Name Field
+Set as:$Particulars
+Set By Condition:#SRRIsSameVoucher:""
+Set Always:Yes
+Width:30
+Full Width:Yes
+Style:Calibri Default Bold
+
+[Field:SRR Amount]
+Use:Number Field
+Set as:$TotalAmount
+Set By Condition:#SRRIsSameVoucher:""
+Set Always:Yes
+Width:15
+Align:Centre
+Format:"NoZero, Decimal:2"
+Style:Calibri Default Bold
+
+[Field:SRR Invoice Number]
+Use:Name Field
+Set as:$InvoiceNumber
+Set Always:Yes
+Width:20
+Style:Calibri Default
+Align:Centre
+
+[Field:SRR Company Name]
+Use:Name Field
+Set as:$LedgerName
+Width:20
+Style:Calibri Default Bold
+Align:Centre
+
+[Field:SRR Invoice Amount]
+Use:Number Field
+Set as:$LedgerAmount
+Set Always:Yes
+Width:15
+Align:Centre
+Format:"NoZero, Decimal:2"
+Style:Calibri Default Bold
+
+[Field:SRR Unsettled Balance]
+Use:Number Field
+Set By Condition:#SRRIsLastLineVoucher:$UnsettledAmount
+Set Always:Yes
+Width:20
+Style:Calibri Default Bold
+Align:Centre
+Format:"NoZero, Decimal:2"
+
+[Field:SRR Bank Ledger Name]
+Use:Name Field
+Set as:$BankLedgerName
+Width:20
+Style:Calibri Default Bold
+Align:Centre
+
+[Line:SRR Total]
+Use:SRR Body
+Local:Field:Default:Style:Calibri Default
+Local:Style:Default:Height:@@LargeSize -1
+Local:Field:Default:Delete:Background
+Local:Field:Default:Delete:Color
+;Local:Field:Default:Type:String
+Local:Field:SRR Voucher Date:Set As:""
+Local:Field:SRR Particulars:Set As:""
+Local:Field:SRR Amount:Set As:$$Total:SRRAmount
+Local:Field:SRR Invoice Number:Set as:""
+Local:Field:SRR Company Name:Set As:""
+Local:Field:SRR Invoice Amount:Set as:$$Total:SRRInvoiceAmount
+Local:Field:SRR Unsettled Balance:Set As:$$Total:SRRUnsettledBalance
+Border:Totals
+Delete:Remove if

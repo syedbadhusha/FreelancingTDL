@@ -1,0 +1,61 @@
+[Report:Filter Report]
+Form:Filter Report
+
+[Form:Filter Report]
+Part:FR FormTitle, FR Body
+On:Form Accept:Yes:Form Accept
+On:Form Accept:Yes:Display:Filtered Receipt Report
+Width:30% Page
+Horizontal Align:Centre
+Vertical Align:Centre
+
+[Part:FR FormTitle]
+Line:FR FormTitle
+
+[Line:FR FormTitle]
+Field:Name Field
+Local:Field:Name Field:Skip:Yes
+Local:Field:Name Field:Style:Calibri Default Bold
+Local:Field:Name Field:Set as:"Filter"
+Local:Field:Name Field:Local:Style:Default:Height:12
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+
+[Part:FR Body]
+Line:FR BParticulars, FR BPartyName
+
+[Line:FR BParticulars]
+Fields:Medium Prompt, Name Field
+Local:Field:Medium Prompt:Style:Calibri Default Bold
+Local:Field:Medium Prompt:Set as:"Particulars:"
+Local:Field:Name Field:Style:Calibri Default
+Local:Field:Name Field:Modifies:RR_Particulars:Yes
+Local:Style:Default:Height:11
+
+[Line:FR BPartyName]
+Fields:Medium Prompt, Name Field
+Local:Field:Medium Prompt:Style:Calibri Default Bold
+Local:Field:Medium Prompt:Set as:"Company Name:"
+Local:Field:Name Field:Style:Calibri Default
+Local:Field:Name Field:Modifies:RR_PartyName:Yes
+Local:Style:Default:Height:11
+
+[Variable:RR_PartyName]
+	Type:String
+	
+[Variable:RR_Particulars]
+	Type:String
+	
+[System:Variable]
+	RR_PartyName:""
+	RR_Particulars:""
+
+[Report:Filtered Receipt Report]
+Variable:SVFromDate:Date
+Variable:SVToDate:Date
+Form:Suspense Receipt Report
+Local:Collection:Receipt Summary Collection:Add:Filter:PartyNameFilter, ParticularsFilter
+
+[System:Formulae]
+	PartyNameFilter:If $$IsEmpty:##RR_PartyName OR $$IsSysName:##RR_PartyName Then Yes Else $LedgerName Contains ##RR_PartyName
+	ParticularsFilter:If $$IsEmpty:##RR_Particulars OR $$IsSysName:##RR_Particulars Then Yes Else $Particulars Contains ##RR_Particulars
