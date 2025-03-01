@@ -14,9 +14,15 @@
 	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_DelQtyOnly		:	@@EAT_IsEmptyLPO
 	Local		:	Line		:	EAT_Column				:	Option		:	EAT_DelQtyOnly		:	@@EAT_IsEmptyOwnerLPO
 	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_DelEquipment	:	@@EAT_IsEmptyEquipment
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_DelEquipment	:	@@EAT_IsEmptyOwnerEquipment
+	
 [!Line:EAT_DelQtyOnly]
 	Delete		:	Right Field
 	Add			:	Right Field	:	EAT_Qty
+	
+[!Line:EAT_DelEquipment]
+	Local		:	Field		:	EAT_Name				:	Invisible	:	Yes
 	
 [!Part:EAT_DelAdditionalDetails]
 	Local		:	Part		:	EAT_CMNAmountDetails	:	Invisible	:	@@EAT_IsEmptyLPO

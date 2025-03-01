@@ -71,5 +71,8 @@
 	EAT_IsEmptyLPO				:	$$IsEmpty:$EAT_LPONo
 	EAT_IsEmptyOwnerLPO			:	$$IsEmpty:$$Owner:$EAT_LPONo
 	
+	EAT_IsEmptyEquipment		:	$$IsEmpty:$JC_VCHEquipment
+	EAT_IsEmptyOwnerEquipment	:	$$IsEmpty:$$Owner:$JC_VCHEquipment
+	
 	EAT_IsNotEmptyDN			:	Not $$IsSysName:$BasicShipDeliveryNote and @@IsSales
 	EAT_IsNotEmptyOwnerDN		:	Not $$IsSysName:$$Owner:$BasicShipDeliveryNote and @@IsSales

@@ -34,3 +34,21 @@
 	Use			:	EAT_JobCardFields
 	
 	Local		:	Field		:	EAT_Description			:	Set as		:	$BasicUserDescription
+	
+	Explode		:	EAT_Description			:	$$NumFilledItems:BasicUserDescription > 1
+	
+[Part:EAT_Description]
+	Print BG	:	Red
+	Line		:	EAT_Description
+	Repeat		:	EAT_Description:BasicUserDescription
+	
+[Line:EAT_Description]
+	Use			:	EAT_Column
+	Use			:	EAT_JobCardFields
+	
+	Delete		:	Explode
+	
+	Empty if	:	$$IsFirstObj
+	
+	Local		:	Field		:	Default					:	Set as		:	""
+	Local		:	Field		:	EAT_Description			:	Set as		:	$BasicUserDescription
