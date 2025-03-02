@@ -354,7 +354,7 @@
 				Total	: VCHBilledQty
 				Border	:	thin Box
 				Vertical:	Yes
-				Local	:	Part	:	LA_CIAccInfo	:	Invisible	:	Yes
+;				Local	:	Part	:	LA_CIAccInfo	:	Invisible	:	Yes
 
 				[Part: LA_CIAccInfo]
 						

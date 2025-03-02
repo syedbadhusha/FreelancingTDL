@@ -1,0 +1,17 @@
+
+
+
+[#Form: Sales Color]										 
+	Add	:	Control  	: LA_PartyCreditDateLimit    :  $$LA_SetNotifyParty AND (($IsCreditDaysChkOn:Ledger:#EIConsignee AND $IsBillwiseOn:Company:##SVCurrentCompany AND (If $$IsEqual:($Parent:Ledger:#EiConsignee):$$GroupBranches +
+														Then $IsBillWiseOn:Ledger:#EIConsignee Else Yes) AND (@@IsSales OR @@IsDelNote OR @@IsSalesOrder) +
+														AND ((NOT $IsOptional) AND @@DueBillsOfParty > 0)))
+[Function	: LA_SetNotifyParty]
+		
+	00: Set		: NotifyPartyName		: #EIConsignee
+	01: Return	: Yes
+
+[System:Formula]
+
+	LA_PartyCreditDateLimit    			: 		$$SPrintf:@@PartyDateLimitMsgFormat:@@DueBillsOfParty:#EIConsignee
+
+
