@@ -47,14 +47,15 @@
 	520	:		Set Value	:	Amount	:	""
 	530	:	End If
 
-	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
-	700 : 		Set Value   : Amount : ##VarInvAmount
+	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType	
+	700 : 		Set Value   : 	Amount 			: 	##VarInvAmount
 	1000:		Set Value	:	POSCashReceived	:	##VarInvAmount
 	800 : 	End If
 
 	900 : End Walk
 
 	1200	:	Trigger Key	:	Ctrl + A
+
 
 ;;;;;;;;;;;;;;;;;;;;;;  Hold POS Function	;;;;;;;;;;;;;
 
@@ -83,11 +84,11 @@
 
 	600 : 	If: $LedgerName = $POSCashLedgerClass:VoucherType:##SVVoucherType
 	700 : 		Set Value   : Amount : $$AsAmount:##VarInvAmount
+	1000	:	Set Value	:	POSCashReceived	:	$$AsAmount:##VarInvAmount
 	800 : 	End If
 
 	900 : End Walk
 
-	1000	:	Set Value	:	POSCashReceived	:	$$AsAmount:##VarInvAmount
 	1200	:	Trigger Key	:	Ctrl + A
 
 ;;;;;;;;;;;;;;;;;;;;;;  Benefit Pay POS Function	;;;;;;;;;;;;;
@@ -139,7 +140,7 @@
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].
 	
-	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType ; and Not $$IsNotApplicable:##LA_POSMultiCardType  ; or $LedgerName = $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany)
+	300 : 	If: $LedgerName = $POSCardLedgerClass:VoucherType:##SVVoucherType 
 ;	350	:		Set Value	:	LedgerName		:	if ##LA_POSMultiCardType = "Card" then $$POS_LedgerName:($POS_CreditCardId:Company:$$CurrentCompany) else $LedgerName
 	400	:		Set Value	:	Amount			:	##LA_POSMultiCardAmount
 	450	:		Set Value	:	POSCardNumber	:	##LA_POSMultiCardNumber
@@ -164,18 +165,67 @@
 [Function:UpdateLedEntriss]
 	Parameter	:	LA_DiscountAmountPar	:	Amount
 	Parameter	:	LA_POSRoundOffPar		:	Amount
+	Variable	:	DiscUpdated				:	Logical
+	Variable	:	RndoffUpdated			:	Logical
 
+	001	:	Set	:	DiscUpdated		:	No
+	002	:	Set	:	RndoffUpdated	:	No
+;	lllll	:	Log:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
 	100 : Walk Collection: LedgerEntries
 	200 : Set Target  : LedgerEntries[$$LoopIndex].	
-	300 : 	If: $LedgerName = "POS Discount" 
+	300 : 	If: $LedgerName = "POS Discount"
 	400	:		Set Value	:	Amount				:	if @@isCreditNote then $$AsDrAmt:##LA_DiscountAmountPar else -##LA_DiscountAmountPar;if @@isCreditNote then ##LA_DiscountAmountPar else -##LA_DiscountAmountPar
+	450	:		Set			:	DiscUpdated			:	Yes
 	500	:	End If
-
+	
 	600 : 	If: $LedgerName = "RoundOff" 
-	700	:		Set Value	:	Amount				:	if @@isCreditNote then -$$AsDrAmt:##LA_POSRoundOffPar else ##LA_POSRoundOffPar
+	700	:		Set Value	:	Amount					:	if @@isCreditNote then -$$AsDrAmt:##LA_POSRoundOffPar else ##LA_POSRoundOffPar
+	750	:		Set			:	RndoffUpdated			:	Yes
 	800	:	End If
 
 	2000	: End Walk
+
+;;;;; Insert Discount And Round Off
+
+	2100	:	If	:	Not ##DiscUpdated
+	2500	:		Insert Collection Object	:	LedgerEntries
+	2600	:			Set Value	:	LedgerName	:	"POS Discount"
+	2700	:			Set Value	:	Amount		:	if @@isCreditNote then $$AsDrAmt:##LA_DiscountAmountPar else -##LA_DiscountAmountPar
+	2800	:	End If
+	
+	3100	:	If	:	Not ##RndoffUpdated
+	3500	:		Insert Collection Object	:	LedgerEntries
+	3600	:			Set Value	:	LedgerName	:	"RoundOff"
+	3700	:			Set Value	:	Amount		:	if @@isCreditNote then -$$AsDrAmt:##LA_POSRoundOffPar else ##LA_POSRoundOffPar
+	3800	:	End If
+
+;	10000		:	Set Value	:	LA_POS_InvVat	:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+
+;;;;;;;;;;;;;;;;  Additional Ledger Insertion 	;;;;;;;;;;;;;;
+
+[Function:PS_UpdateAddLedger]
+
+	Parameter	:	AdditionalLedgerName	:	String
+	Parameter	:	LedAmount				:	Amount
+	Variable	:	UpdateLedEntr			:	Logical	:	No
+
+	005			:	Set	:	UpdateLedEntr	:	No
+
+;	10000		:	Set Value	:	LA_POS_InvVat	:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+;	lllll	:	Log:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
+	100 		: 		Walk Collection: LedgerEntries
+	200			:			Set Target	:	LedgerEntries[$$loopIndex].
+	300			: 			If: $LedgerName = ##AdditionalLedgerName
+	400			:				Set Value	:	Amount		:	##LedAmount
+	420			:				Set	:	UpdateLedEntr	:	Yes
+	450			:			End If
+	490			:		End Walk	
+
+	495			:	If	:	Not ##UpdateLedEntr
+	500			:		Insert Collection Object	:	LedgerEntries
+	600			:			Set Value	:	LedgerName	:	##AdditionalLedgerName
+	700			:			Set Value	:	Amount		:	##LedAmount
+	800			:	End If
 
 
 ;;;;;;;;;;;;;;;;;;  Retake Function for Holded Transaction	;;;;;;;;;;;;;;;

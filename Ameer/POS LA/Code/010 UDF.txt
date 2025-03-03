@@ -14,9 +14,9 @@
 	LA_VCHSubTax				:	Amount			:	0400
 	LA_VCHSubTotal				:	Amount			:	0500
 	LA_POSInvDisc				:	Amount			:	0600
-	LA_POS_InvTotal				:	Amount			:	0700
+;	LA_POS_InvTotal				:	Amount			:	0700
 	LA_POSDiscTotal				:	Amount			:	0800
 	LA_POSRoundOff				:	Amount			:	0900
 	LA_POSPaymentMethod			:	String			:	1000
 	POS_VCHPOSCustomer			:	String			:	1100
-	
+	LA_POS_InvVat				:	Amount			:	1200

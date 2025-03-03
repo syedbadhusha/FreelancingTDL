@@ -1,7 +1,12 @@
 
 
 
-[#Form: Sales Color]										 
+[#Form: SalesColor]
+	
+	Option	:	Admin_SalesColor	:	Not $$IsCmpOwner
+	
+[!Form:Admin_SalesColor]
+	
 	Add	:	Control  	: LA_PartyCreditDateLimit    :  $$LA_SetNotifyParty AND (($IsCreditDaysChkOn:Ledger:#EIConsignee AND $IsBillwiseOn:Company:##SVCurrentCompany AND (If $$IsEqual:($Parent:Ledger:#EiConsignee):$$GroupBranches +
 														Then $IsBillWiseOn:Ledger:#EIConsignee Else Yes) AND (@@IsSales OR @@IsDelNote OR @@IsSalesOrder) +
 														AND ((NOT $IsOptional) AND @@DueBillsOfParty > 0)))
@@ -13,5 +18,4 @@
 [System:Formula]
 
 	LA_PartyCreditDateLimit    			: 		$$SPrintf:@@PartyDateLimitMsgFormat:@@DueBillsOfParty:#EIConsignee
-
 

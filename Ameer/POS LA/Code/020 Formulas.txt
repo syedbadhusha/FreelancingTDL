@@ -63,3 +63,5 @@
 	
 	POS_IsAddLedger1		:	$LedgerName = @@POS_AddLedger1Name
 	POS_IsAddLedger2		:	$LedgerName = @@POS_AddLedger2Name
+	
+	POS_ISVatLedger			:	$$IsSysNameEqual:VAT:$TaxType:Ledger:$LedgerName

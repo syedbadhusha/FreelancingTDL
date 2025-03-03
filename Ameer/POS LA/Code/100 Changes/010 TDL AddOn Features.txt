@@ -1,7 +1,11 @@
 [#Form: CMP TallyShop Features]
 	On			:	Form Accept	:	Yes							:	Form Accept
 	On			:	Form Accept	:	$POS_IsEnabled				:	Call			:	POS_InitialSetUp
-	
+
+[#Part: CMP TallyShop F11]
+		
+	Delete	:	Invisible
+
 [#Part: CMP TallyShopFeatures Left]
 	Add			:	Line		:	POS_IsEnabled
 	
@@ -61,6 +65,7 @@
 	Table		:	Ledger, NotApplicable
 	Set as		:	$$POS_LedgerName:$POS_AddLedger1Id
 	Control		:	DuplicateEntry		:	Not $$IsSysName:$$Value and $$Value = #POS_AddLedger2
+	Key			:	create Ledger
 	
 [Field:POS_AddLedger1Id]
 	Use			:	NameField
@@ -82,6 +87,7 @@
 	Table		:	Ledger, NotApplicable
 	Set as		:	$$POS_LedgerName:$POS_AddLedger2Id
 	Control		:	DuplicateEntry		:	Not $$IsSysName:$$Value and $$Value = #POS_AddLedger1
+	Key			:	Create Ledger
 	
 [Field:POS_AddLedger2Id]
 	Use			:	NameField
