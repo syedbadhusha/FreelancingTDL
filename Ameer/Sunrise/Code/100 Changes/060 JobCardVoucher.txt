@@ -1,45 +1,164 @@
 
 
 [#Form: SalesOrderColor]
-	
-	Option	:	JC_VCHBASICFormClr	:	@@EAT_IsJobCardVch ;or @@IsDelNote or @@Issales
+	Option		:	JC_VCHBASICFormClr	:	@@EAT_IsJobCardVch
 	
 [!Form:JC_VCHBASICFormClr]
+	Space Left	:	1 mms
+	Space Right	:	1 mms
+	Space Bottom:	1 mms
+	Space Top	:	1 mms
 	
 	Background	:	White
-	Local	:	Style	:	Default	:	Font	:	"Verdana"
-
-	Local	:	Part	:	Ei Consignee	:	Local	:	Field	:	EI Consignee	:	Border	:	Thin Box
-;;;;;;;;  Vch Number Field
-
-	Local	:	Field	:	Vch Number	:	Border			:	thin Box
-	Local	:	Field	:	Vch Number	:	Background		:	Dark Red
-	Local	:	Field	:	Vch Number	:	Color			:	White
-
-;;;;;;;;; Vch Date Field
-
-	Local	:	Field	:	Plain Vch Date	:	Border		:	thin Box
-	Local	:	Field	:	Plain Vch Date	:	Background	:	Dark Red
-	Local	:	Field	:	Plain Vch Date	:	Color		:	White
 	
-;;;;;;;;;;;;;;  Colunm Title	;;;;;;;
+	Local		:	Style	:	Default			:	Font		:	"Verdana"
 
-	Local	:	Part	:	EI Column	:	Background	:	@@SV_VCHTYPE
-	Local	:	Part	:	EI Column	:	Local	:	Field	:	Default	:	Color	:	White
+	Delete		:	Part
+	Delete		:	Bottom Part
 	
-;;;;;;;;;;;;  Total Fields ;;;;;
-
-	Local	:	Field	:	EI ValueTotal	:	Background	:	Dark Red
-	Local	:	Field	:	EI ValueTotal	:	Color		:	White
-
-
-	Local	:	Field	:	EIBilledQtyTotal	:	Background	:	Dark Red
-	Local	:	Field	:	EIBilledQtyTotal	:	Color		:	White
-
+	Add			:	Part	:	EW_Container
 	
-;;;;;;;;;  Details Part	;;;;;;;;;
+	Set			:	SVStripesForVouchers		:	Yes
+	
+[Part:EW_Container]
+	Border		:	ThinBox
+	
+	Space Left	:	1 mms
+	Space Right	:	1 mms
+	Space Bottom:	1 mms
+	Space Top	:	1 mms
+	
+	Top Part 	:	EW_VCHTitle, EW_HorParts, EW_VCHContainer, EI Details
+	Bottom Part	:	VoucherNarr, EW_VCHButtons
+	
+	Vertical	:	Yes
+	
+	Local		:	Part	:	EI Column		:	Option		:	EAE_EIColumn
+	
+	Local		:	Part	:	VoucherNarr		:	Border		:	ThinBox
+	Local		:	Line	:	VCH NarrPrompt	:	Option		:	EAW_Narration
+	
+[!Part:EAE_EIColumn]
+	Background	:	@@SV_VCHTYPE
+	
+	Local		:	Field	:	Default			:	Color		:	White
 
-	Local	:	Line	:	EI InvInfo	:	Border	:	thin Top bottom
+[!Line:EAW_Narration]
+	Local		:	Field	:	Default			:	Background	:	Dark Red
+	Local		:	Field	:	Default			:	Color		:	White
+		
+	Local		:	Field	:	SimplePrompt	:	Full Width	:	Yes
+	Local		:	Field	:	SimplePrompt	:	Align		:	Left
+	
+[Part:EW_VCHTitle]
+	Background	:	RoyalBlue
+	
+	Line		:	EW_VCHTitle, VCH Status, VCH Cancelled
+	
+	Local		:	Field	:	DEfault			:	Color		:	White
+	
+	Local		:	Line	:	VCH VoucherClass:	Invisible	:	$$IsEmpty:##SVClass OR $$IsEmpty:$$NumItems:ClassTable
+	
+[Line:EW_VCHTitle]
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Field		:	FormSubtitle
+
+	Local		:	Field	:	FormSubtitle	:	Set as		:	##SVVoucherType
+	Local		:	Field	:	FormSubtitle	:	Delete		:	Border
+	
+[Part:EW_HorParts]
+	Space Top	:	1 mms
+	Space Bottom:	1 mms
+	
+	Line		:	EW_HorParts
+	; VCH VoucherClass, VCH Optional, VCH CostClass, EI Price Level
+	
+[Line:EW_HorParts]
+	Field		:	VCH VoucherClassPrompt, VCH VoucherClass, VCH JOBConsumption, Simple Prompt, VCH Optional, VCH BlankCheque
+	Field		:	VCH IsExcise, VCH IsExiseSupplementary, VCH TypeofExciseVoucher, VCH ExciseTaxOverride            
+	 
+	Local       :	Field	:	VCH VoucherClassPrompt	:	Width	:	@@TitleCenterFieldPrompt % Page
+	Local       :	Field	:	VCH VoucherClass	:	Width	:	@@TitleCenterField % Page	
+	Local		:	Field	:	Simple Prompt	:	Set as		:	If NOT $$IsEmpty:#VCHOptional Then $$LocaleString:"Status" Else ""
+	Local		:	Field	:	Simple Prompt	:	Width		:	@@TitleCenterFieldPrompt % Page
+	
+	RightField	:	Short Prompt, EI PriceLevel, EI PrevPriceLevel
+
+	Local       :	Field 	:	Short Prompt	:	Set as		:	$$LocaleString:"Price Level:"
+	Local       :	Field 	:	Short Prompt	:	Invisible	:	@@PriceLeveldisable
+	Local       :	Field	:	Short Prompt	:	Width		:	@@VchLeftPromptWidth % Page
+	
+	Local       :	Field	:	EI PriceLevel	:	Width		:	@@VchRightDataFldWidth % Page
+
+	Option		:	EW_IsCostClass	:	@@IsAutoCostEnabled
+	
+[!Line:EW_IsCostClass]
+	Right Field	:	VCH CostClassPrompt, VCH CostClass, VCH ClassName, VCH CostCentreName, VCH IsCstCtr
+
+	Local       :	Field	:	VCH CostClass	:	Width		:	@@VchRightDataFldWidth % Page
+	
+	Local       :	Field	:	VCH CostClassPrompt	:	Width	:	@@VchLeftPromptWidth % Page
+	Local       :	Field	:	VCH CostClassPrompt	:	Style	:	Small
+	Local       :	Field	:	VCH CostClassPrompt	:	Set as	:	If ##CstClassFlag OR ##EmpExplodeFlag Then $$LocaleString:"Cost Centre/Classes:" Else $$LocaleString:"Cost Centre Class:"
+
+[Part:EW_VCHContainer]
+	Part		:	EW_VCHDefault, JC_VCHDetails
+		
+[Part:EW_VCHDefault]
+	Border		:	ThinBox
+	
+	Line		:	VCH Type, VCH WeekDay, EI Consignee, EI GetOrderNo, EICommonLed
+
+	Local		:	Line	:	VCH Type		:	Delete		:	Field		:	VCH Type
+	Local		:	Line	:	VCH Type		:	Add			:	Right Field	:	VCH Date
+	
+	Local		:	Line	:	EI GetOrderNo	:	Delete		:	Right Field
+	Local		:	Line	:	EI GetOrderNo	:	Add			:	Field		:	Medium Prompt, EI GetOrderNo
+	
+	Local		:	Line	:	EICommonLED		:	Invisible	:	NOT @@IsCommonSalesLed
+	Local		:	Line	:	EICommonLED		:	Local		:	Field		:	Default			:	Inactive	:	NOT @@IsCommonSalesLed
+	Local		:	Line	:	EICommonLED		:	Local		:	Field		:	Simple Prompt	:	Width		:	@@VchLeftPromptWidth % Page
+
+[Part:EW_VCHButtons]
+	Space Top	:	2 mms
+	
+	Part		:	EW_SaveBtn
+	Right Part	:	EW_PrintBtn
+
+[Part:EW_SaveBtn]
+	Button		:	EW_SaveBtn
+	
+[Button:EW_SaveBtn]
+	Title		:	"Save"
+	Key			:	Ctrl + A
+	Color		:	White
+	Key Color	:	White
+	Background	:	Blue
+	Width		:	15 % Page
+	Height		:	8 mms
+		
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	Skip Forward:	Yes
+	
+[Part:EW_PrintBtn]
+	Button		:	EW_PrintBtn
+	
+[Button:EW_PrintBtn]
+	Title		:	"Print"
+	Key			:	Ctrl + P
+	Color		:	White
+	Key Color	:	White
+	Background	:	Blue
+	Width		:	15 % Page
+	Height		:	8 mms
+	Action		:	Print Report	:	(.)
+	
+	Horizontal Align	:	Center
+	Vertical Align		:	Center
+	Skip Forward:	Yes
 	
 [#Form: VCHBasic InvoiceMode]	
 
