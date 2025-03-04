@@ -168,8 +168,6 @@
 	
 	Add	:	Parts	:	After:EI SalesCurrBalanceInfo	:	JC_VCHDetails
 	
-	Local	:	Part	:	Ei Consignee	:	Local	:	Field	:	EI Consignee
-	
 	[Part:JC_VCHDetails]
 		
 		Line	:	JC_VCHDetailsTit1,JC_VCHDetails1,+
