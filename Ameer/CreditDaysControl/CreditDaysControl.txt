@@ -7,9 +7,10 @@
 	
 [!Form:Admin_SalesColor]
 	
-	Add	:	Control  	: LA_PartyCreditDateLimit    :  $$LA_SetNotifyParty AND (($IsCreditDaysChkOn:Ledger:#EIConsignee AND $IsBillwiseOn:Company:##SVCurrentCompany AND (If $$IsEqual:($Parent:Ledger:#EiConsignee):$$GroupBranches +
+	Add	:	Control  	: LA_PartyCreditDateLimit    :  $$InCreateMode and $$LA_SetNotifyParty AND (($IsBillwiseOn:Company:##SVCurrentCompany AND (If $$IsEqual:($Parent:Ledger:#EiConsignee):$$GroupBranches +
 														Then $IsBillWiseOn:Ledger:#EIConsignee Else Yes) AND (@@IsSales OR @@IsDelNote OR @@IsSalesOrder) +
-														AND ((NOT $IsOptional) AND @@DueBillsOfParty > 0)))
+														AND ((NOT $IsOptional) AND ($$LA_BillsOfParty) > 0)))
+
 [Function	: LA_SetNotifyParty]
 		
 	00: Set		: NotifyPartyName		: #EIConsignee
@@ -17,5 +18,36 @@
 
 [System:Formula]
 
-	LA_PartyCreditDateLimit    			: 		$$SPrintf:@@PartyDateLimitMsgFormat:@@DueBillsOfParty:#EIConsignee
+	LA_PartyCreditDateLimit    			: 		$$SPrintf:@@PartyDateLimitMsgFormat:($$LA_BillsOfParty):#EIConsignee
 
+
+    LA_DueBillsOfParty         			: 		$$NumItems:LA_BillsOfParty
+
+	LA_ExceedDueDate           			: 		(##VARVchDate - $BillDate) >= $$Number:($BillCreditPeriod:Ledger:#EIConsignee)
+
+[Function:LA_BillsOfParty]
+	
+	Variable	:	RetCount	:	Number
+	
+	050	:	Set	:	RetCount	:	0
+
+	100	:	Walk Collection	:	LA_BillsOfParty
+	200	:		If	:	(##VARVchDate - $BillDate) >= $$Number:($BillCreditPeriod:Ledger:#EIConsignee)
+	300	:		Increment	:	RetCount
+	400	:		End If
+	500	:	End Walk
+	
+	600	:	Return	:	##RetCount
+	
+[Collection: LA_BillsOfParty]
+	
+    Type        : Bills
+	Child Of	: #EIConsignee
+    Fetch		: Name, BillDate, ClosingBalance, BillCreditPeriod
+	Option 		: Bill Filter Methods : @@FetchMasterMethods
+	
+	Option	:LA_BillsOfPartyEmpty:	##VARVchDate
+
+[!Collection:LA_BillsOfPartyEmpty]
+	
+;;;;;;;;;;;;;  Select $Name,$BillDate from LA_BillsOfParty
