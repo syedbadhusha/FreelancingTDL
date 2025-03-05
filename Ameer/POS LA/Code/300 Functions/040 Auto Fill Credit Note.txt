@@ -4,19 +4,22 @@
 	Variable	:	Party			:	String
 	Variable	:	DiscountTotal	:	Amount
 	Variable	:	LA_POSRoundOff	:	Amount
-	
+	Variable	:	DiscInvoiceVar	:	Amount
 	setPartyVar	:	Set				:	Party			:	$$CollectionFieldByKey:$PartyName:($$Number:##POS_MasterId):POS_SalesReturn
 	
-	setDiscVar	:	Set				:	DiscountTotal			:	$$CollectionFieldByKey:$LA_POSDiscTotal:($$Number:##POS_MasterId):POS_SalesReturn
-	setRndVar	:	Set				:	LA_POSRoundOff			:	$$CollectionFieldByKey:$LA_POSRoundOff:($$Number:##POS_MasterId):POS_SalesReturn
+	setDiscVar			:	Set				:	DiscountTotal			:	$$CollectionFieldByKey:$LA_POSDiscTotal:($$Number:##POS_MasterId):POS_SalesReturn
+	setDiscInvoiceVar	:	Set				:	DiscInvoiceVar			:	$$CollectionFieldByKey:$LA_POSInvDisc:($$Number:##POS_MasterId):POS_SalesReturn
+	setRndVar			:	Set				:	LA_POSRoundOff			:	$$CollectionFieldByKey:$LA_POSRoundOff:($$Number:##POS_MasterId):POS_SalesReturn
 ;	crLed		:	Call			:	POS_CreateLedger:##Party:$$GroupSundryDebtors
 
 	setAccount	:	Set Value		:	PartyLedgerName			:	"Cash"
 	setDiscTot	:	Set Value		:	LA_POSDiscTotal			:	##DiscountTotal
 	setParty	:	Set Value		:	POS_VCHPOSCustomer		:	##Party
-	
+	setRndOff	:	Set Value		:	LA_POSRoundOff			:	##LA_POSRoundOff
+	setInvDisc	:	Set Value		:	LA_POSInvDisc			:	##DiscInvoiceVar	
+
 	WlkCll		:	Walk Collection	:	POS_SalesReturnInventory
-	
+	WlkInv		:	Walk Collection	:	InventoryEntries
 	insInvEnty	:	Insert Collection Object	:	InventoryEntries
 	setTgt		:	Set Target		:	InventoryEntries[$$LoopIndex]
 	setItmName	:	Set Value		:	StockItemName
@@ -28,6 +31,8 @@
 	setItmDisc	:	Set Value		:	LA_VCHDisc
 	setItmSubTx	:	Set Value		:	LA_VCHSubTax
 	setitmSubTl	:	Set Value		:	LA_VCHSubTotal
+
+	setisItmDeemed	:	Set Value		:	IsDeemedPositive	:	Not $IsDeemedPositive
 	
 	insBtchAll	:	Set Target		:	BatchAllocations[1]
 	setBItmName	:	Set Value		:	StockItemName
@@ -38,6 +43,7 @@
 	setBItmGdn	:	Set Value		:	GodownName
 	setBtchName	:	Set Value		:	BatchName
 	
+
 	wlkAccAllo	:	Walk Collection	:	AccountingAllocations
 	InsAccAllo	:	Insert Collection Object	:	AccountingAllocations
 	setLgName	:	Set Value		:	LedgerName
@@ -45,4 +51,22 @@
 	setLAmnt	:	Set Value		:	Amount
 	endWlkAcc	:	End Walk
 	
+	endinv		:	End Walk
+	
+	WalkLed			:	Walk Collection:LedgerEntries
+	
+	InsLedAllo		:	Insert Collection Object	:	LedgerEntries
+	ChkWlk			:	If	:	Not $$IsLedOfGrp:$LedgerName:$$GroupCash and +
+								Not $$IsLedOfGrp:$LedgerName:$$GroupBank ;and +							
+;								Not $$IsLedOfGrp:$LedgerName:$$GroupDuties
+								
+	setLedName		:	Set Value		:	LedgerName
+	setisLedDeemed	:	Set Value		:	IsDeemedPositive	:	Not $IsDeemedPositive
+	setLedAmnt		:	Set Value		:	Amount
+
+	EndIfWalk		:	End If
+
+	EndWlkLed		:	End Walk
+
 	enWlk		:	End Walk
+	

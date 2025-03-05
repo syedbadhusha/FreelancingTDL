@@ -38,9 +38,11 @@
 		Local	:	Field		:	Name Field					:	Set as			:	$$LocaleString:"List of All POS Hold Vouchers"
 		
 	Local		:	Line		:	POSRegister Detail			:	Empty			:	(Not $IsOptional or @@ForexEmpty) or @@POS_PartyEmptyLineFilter
-
-	Local		:	Field		:	DSP VchDate					:	Delete			:	Alter		:	LA_POS_Voucher
 	
+
+	Local		:	Field		:	DSP VchDate				:	Delete			:	Alter		:	Voucher
+	Local		:	Field		:	DSP VchDate				:	Add				:	Alter		:	LA_POS_Voucher		:	($$IsVoucher AND NOT $IsDeleted AND (NOT @@IsAttendanceVch AND NOT @@IsPayrollVch))
+
 	Local		:	Field		:	DSP VchNumber				:   Set as      	:	(if NOT $$IsVoucher then "" else If $IsPostDated And $Date>@@EntryEndingat Then $$LocaleString:"(Post-Dated) " Else "") + @VchNo
 	
 ;[Report:POS_StockItemName]

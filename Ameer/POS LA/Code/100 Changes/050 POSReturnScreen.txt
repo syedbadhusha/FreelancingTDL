@@ -14,10 +14,23 @@
 	Space Left	:	3 MMS
 	Space Right	:	3 MMS
 	Width	:	100 MMS
+	Key	:	BackToInv
 	
+[Key:BackToInv]
+
+	Key	:	Esc
+	Action	:	Call	:	BackToInv	
+
+[Function:BackToInv]
+	
+	SetVchType		:	Set	:	SVVoucherType:@@POS_SalesLedName
+	SetBackTrig		:	Trigger Key	:	Ctrl + Q
+
 	[Part:POS_ReturnBillSelection]
+
 		Part	:	POS_ReturnBillSelectionMn;,LA_POSNum
 		Vertical	:	Yes
+
 		[Part:POS_ReturnBillSelectionMn]
 			Space Left	:	2 mms
 			Space Right	:	2 mms
@@ -51,43 +64,32 @@
 	
 [Form:POS_CreditNoteEntry]
 	
-	Control     			: DateBelowBooksFrom: $Date < $BooksFrom:Company:##SVCurrentCompany
-    Control     			: DateBelowFromDate : $Date < $$SystemPeriodFrom
-    Control     			: DateBeyondToDate  : $Date > $$SystemPeriodTo
-		
-    Control         		: STXNonServicePartyExistsMsg   : (@@IsIndianServiceTax AND @@IsSTTaxenabledDate_Vch) AND @@IsJournal AND $$IsEmpty:$TaxAdjustment AND $$IsSTXJrnlTaxObjValidate
-	Control					: BankAmountMisMatch			: (@@IsEbankingAlterReconTrans OR @@IsEbankingAlterExportedTrans) AND (IF ##SVSingleEntry Then #ACLSTotal != ##TotalBankAmount Else #VchDrAmtTotal != ##TotalBankAmount) AND $$InAlterMode
-	Control					: EBankingAllocationsError		: $$InDuplicateMode AND $$BankAllocationError	;; If the amount decreased from the Ledger amount is greater than or equal to the LAst Bank Alloc Amount
-		
-    Horizontal Align		: Left
-    Vertical Align  		: Top
-    Space Bottom    		: 0
-		
-	Bottom Buttons			: Voucher Configuration
-	Key		                : POS Print Key, POS Mail Key, POS Share Key,POS Export Key
-;	Button	:	POS_Print
-    ;; Variable has been set on pressing Ctrl+A along with Form accept. This is to identify whether form is getting accepted using Ctrl + A
-    ;; When form is accepted using Ctrl+A, in supplementary details form regeneration is not required. To stop the regeneration this approach is used.
-    Key                     : FormAcceptKey
-
-	Bottom Toolbar Buttons 	: BottomToolBarBtn1, BottomToolBarBtn2_Accept, BottomToolBarBtn3_Delete, BottomToolBarBtn4_Cancel
-	
-					
-
-	Volatile   	    		: If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then If ($IsDefaultAllocEnabled:VoucherType:##SVVoucherType AND (##SVVoucherType != ##PreviousVoucherType)) Then $$RegenerateVoucher Else No Else $$RegenerateVoucher
-    Keys            		: Change System Period
-
-    Default Value   		: ""
-
-	Control Ex				: Vch TaxDetailsModified Authorised	: NOT (@@IsMRPGoodsAllowStates OR @@RBVATTransferRightToUseControl) AND (@@IsVchTaxDetailsModified AND @@IsUserAuthorisedToOverride) 	: vVchSelectedIndex
-
-	Fetch Object			: Godown						: ($ExciseUnitName:VoucherType:##SVVoucherType)	: TaxUnitName
-	Fetch Object			: TaxUnit						: @@CMPExcisePrimaryGodown	: GSTApplicableDate, GSTRegistrationType, GSTRegNumber, IsEwayBillApplicable, EwayApplicableAmount, eWayBillApplicableDate, +
-                                                                StateName, IsStateCessApplicable, StateCessApplicableDate, IsOthTerritoryAssessee
-
+	Use	:	Voucher
 ;;;;;;;;;;;;;
-	Print after Save		: No
-	No Confirm 				: Yes
+
+	
+;;;;;;;Screen form
+
+;	Set				: VARVchDate				:	$$MachineDAte
+
+
+	Option			: LA_POS_CreateCreditNote	:	@@IsCreditNote
+
+	On			:	Form Accept	:	Yes		:	Form Accept
+	On			:	Form Accept	:	$$InCreateMode		:	Call		:	POS_ReturnBack
+	local	:	Part	:	Default	:	Background	:	White
+
+	Local	:	Part	:	VoucherNarr		:	Invisible	:	Yes
+	Local	:	Part	:	VCH Narration	:	Invisible	:	Yes
+	
+[Function:POS_ReturnBack]	
+	
+	gotSelectRet:	Trigger Key	:	Ctrl + Q
+	gotoPOS		:	Trigger Key	:	Ctrl + Q
+	gotoHome	:	Trigger Key	:	Ctrl + Q
+	gotoPosCre	:	Trigger Key	:	C
+	
+[!Form:LA_POS_CreateCreditNote]
 
 	Horizontal Align: Left
     Vertical Align  : Top
@@ -99,65 +101,47 @@
 	Set             : InvoicingModeFlag : Yes
 	SetAlways       : SVClass           : "POS"
 	
-	Set				: SVViewName 		: If @@AccountingView then $$SysName:AcctgVchView Else +
-										  If @@InventoryView then $$SysName:InvVchView Else +
-										  If @@PayrollView	then $$SysName:PaySlipVchView Else +
-										  If (@@MultiMfgrJrnlView OR @@IsJobMaterialVchs) then $$SysName:MulConsVchView Else +										  
-										  If @@StkJrnlView then $$SysName:ConsVchView Else $$ShowMessage:"SVViewName variable is not set properly : Error is triggered from voucher.500"	
-
-	SetAlways       : DSPTitleRefresh   : No
-	Set Always      : SVAccAllocOnOrder : ##ICFGAccAllocOnOrder
-
-	Volatile   	    : If NOT @@InvoiceInCreate Then No Else If @@IsSameClass Then No Else $$RegenerateVoucher
-
-    Keys            : Change System Period,Disburse Auto Fill
-    
-    Default Value   : ""
-             
-	Set             : SVAccounts         		: ##AccountsVch OR ##PayrollVch 
-    Set             : SVInventory          		: NOT ##AccountsVch AND NOT ##PayrollVch
-    Set             : SVStatutory          		: No
-	Set 			: SVTallyShop				: No
-    Set				: SVVoucherOfType	        : @@TypeOfVoucherPrint	
-	
-	Option 			: DummyOption 				: (##SVClass = "x" OR ##SVClass != "x") OR (##AutoFillDone OR NOT ##AutoFillDone)
-	Option			: VoucherAlterMode		    : $$InAlterMode
-   	Option			: DispModeForUser : $$InDisplayMode AND NOT $$IsCmpOwner
-	
-;;;;;;;Screen form
-
-	Set				: VARVchDate				:	$$MachineDAte
-
-
-	Option			: LA_POS_CreateCreditNote	:	Yes
-
-	On			:	Form Accept	:	Yes		:	Form Accept
-	On			:	Form Accept	:	$$InCreateMode		:	Call		:	POS_ReturnBack
-
-[Function:POS_ReturnBack]	
-	gotSelectRet:	Trigger Key	:	Ctrl + Q
-	gotoPOS		:	Trigger Key	:	Ctrl + Q
-	gotoHome	:	Trigger Key	:	Ctrl + Q
-	gotoPosCre	:	Trigger Key	:	C
-	
-[!Form:LA_POS_CreateCreditNote]
 
 	Option	: Small Size Form
-	
-	Part	:	VCH Registration, VCH Status, VCH Status,+
-				VCHTitle,VCHTitle2,VCHOptionalInfo,+
-				LA_POS_VCHTitle,POS_RtnPartyDetails, POS_RtnBody
+	Add	:	Part	:	At Beginning	:	LA_POS_VCHTitle,POS_RtnPartyDetails
+
+	Delete	:	Top Parts	:	EIDetails
+	Add		:	Top Parts	:	POS_RtnBody
 
 	Width	: 100 % page
 	Height	: 100 % Page		
 	Delete	: Bottom ToolBar Buttons		
 	Local	:	Style	:	Default	:	Font	:	"Verdana"
 	Background	:	White
-	
-	Local	:	Part	:	VCHTitle	:	Invisible	:	Yes
-	Local	:	Part	:	VCHTitle2	:	Invisible	:	Yes
 
+	Local	:	Part	:	VCHTitle				:	Invisible	:	Yes
+	Local	:	Part	:	VCHTitle2				:	Invisible	:	Yes
+	Local	:	Part	:	EIPartyInfo				:	Invisible	:	Yes
+	Local	:	Part	:	EICurrBalanceInfo		:	Invisible	:	Yes	
+	Local	:	Part	:	EITurnOverInfo			:	Invisible	:	Yes
+	Local	:	Part	:	EISalesLedInfo			:	Invisible	:	Yes
+	Local	:	Part	:	EISalesCurrBalanceInfo	:	Invisible	:	Yes
+
+	;;;;;;;;;;;;;  Colunm Title Changes 
+	
+	Local	:	Part	:	EIColumn :	Local	:	Line	:	EIColumnOne			:	Option	:	LA_EIColumnOne		:	Yes
+	Local	:	Part	:	EIColumn :	Local	:	Line	: 	EIColumnOneRate		:	Option	:	LA_EIColumnOneRate	:	Yes
+	Local	:	Part	:	EIColumn :	Local	:	Line	:	EIColumnTwo			:	Option	:	LA_EIColumnTwo		:	Yes
+
+	Local	:	Part	:	EIColumn :	Local		:	Field		:	Default :Color       : @@SV_VCHCOLOR
+	Local	:	Part	:	EIColumn :	Background  : 	@@SV_VCHTYPE
+
+;;;;;;;;;;;;;;  Ei Details Column Changes	;;;;;;;;
+
+	Local	:	Line	:	EI InvInfo	:	Option	:	LA_EIInvInfo	:	Yes
+	Local	:	Line	:	CI InvInfo	:	Option	:	LA_EIInvInfo	:	Yes
+
+
+	Delete	:	Bottom Part	:	VCH Narration
+
+	
 [Part:POS_RtnPartyDetails]
+	
 	Part		:	EIConsignee
 	Right Part	:	LA_POS_VCHTitleRight
 	
@@ -194,41 +178,22 @@
 	
 
 [Part:POS_RtnBody]
-
-	Part		:	LA_POSInvLeft
-	Right Part	:	LA_POSNum
+	Part	:	EIDetailsMN,LA_POSNum
+	Vertical	:	No
 	
-	Local		:	Part		:	LA_POSInvDetails					:	Replace		:	Part		:	LA_POSInvDetailsInv	:	LA_POSInvDetailsReturn
-	Local		:	Part		:	LA_POSInvLeft						:	Replace		:	Bottom Part	:	LA_POSInvTotal		:	Cust_VCHPOSModeOfReceipts
-	Local		:	Part		:	Cust_VCHPOSModeOfReceipts			:	Replace		:	Part		:	LA_POSInvDetailsLed	:	LA_POSInvDetailsLedReturn
-	
-;	local		:	part		:	la_posinvdetails	:	+
-;				local	:	part	:	la_ciaccinfo	:	invisible	:	no
-
-	Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : STKVCH BatchAllocations
-	Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
-	
-		
-		[Part:LA_POSInvDetailsReturn]
-
-				Lines   : CI InvDetails;, EI InvSubTotal
-				Repeat  : CI InvDetails : Inventory Entries
-				BreakOn : $$IsSysName:$StockItemName       
-				Vertical: Yes
-				Scroll  : Vertical
-
-				Local	:	Line	:	CI InvInfo	:	Explode	:	Default	:	No
-
-				Local	:	Line	:	CI InvInfo	:	Add	:	Right Field	:	At End	:	LA_VCHDisc,LA_VCHSubTax,LA_VCHSubTotal
-				Local	:	Field	:	Default	:	Border	:	Thin Box
+	[Part:EIDetailsMN]
+			add	:	Switch		: EI Details	: LA_EINrmlDetails    		: NOT @@UseClassFmt OR (($$IsSysNameEqual:DefaultVoucherClass:##SVClass) AND NOT $IsDefaultAllocEnabled:VoucherType:##SVVoucherType)
+			add	:	Switch		: EI Details	: LA_EIClassDetails   		: @@UseClassFmt AND NOT ($$IsSysNameEqual:DefaultVoucherClass:##SVClass)
 				
-				Local: Line: CI InvInfo : Add: Fields: After:VCHStockItem : VCHBATCH Godown
-
-				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Invisible: Yes
-				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Inactive: No
-				Local: Line: CI InvInfo : Local: Field: VCHStockItem 	  : Delete: Sub Form    : EI DescExplosion
-				Local: Line: CI InvInfo : Local: Field: VCHBATCH Godown   : Add: Set as: if $$IsEmpty:#LA_VCHPOSGodown then "MainLocation" else #LA_VCHPOSGodown
-				
+			Part        : EI Column
+			Vertical    : Yes
+			CommonBorder: Yes
+			Total       : VCHActualQty, VCHBilledQty
+			add	:	Bottom Part	:	Cust_VCHPOSModeOfReceipts
+			Delete	:	Common Border
+			
+			Local	:	Part	:	Cust_VCHPOSModeOfReceipts	:	Delete	:	Part	:	LA_POSInvDetailsLed
+			Local	:	Part	:	Cust_VCHPOSModeOfReceipts	:	Add	:	Part	:After	:	Cust_VCHTotalDiscAndRnd	:LA_POSInvDetailsLedReturn
 
 [Part:LA_POSInvDetailsLedReturn]
 	
@@ -251,5 +216,5 @@
 	Local	:	Field	:	EIValueTotal	:	Skip	:	No
 	Local	:	Field	:	EIValueTotal	:	Delete	:	Sub Form
 	
-	Local:	Field	:	EIValueTotal	:	Set as	:	$$Total:VchValue+$$Total:CIValue
+	Local:	Field	:	EIValueTotal	:	Set as	:	$$Total:VchValue-$$Total:CIValue
 	

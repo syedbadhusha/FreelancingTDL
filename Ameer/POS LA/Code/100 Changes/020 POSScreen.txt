@@ -53,7 +53,7 @@
 ;	Set				:	VARVchDate		:	$$MachineDAte
 ;
 ;
-	Option	:	LA_POS_CreateVch	:	Yes
+	Option	:	LA_POS_CreateVch	:	@@VchPOSInvoice
 
 	On	:	Form Accept		  :	yes					:	Call	 :	UpdatePaidMethod:##LA_PayTypeStr	
 	
@@ -196,8 +196,7 @@
 				Scroll  : Vertical
 				Invisible	:	Yes
 					
-				[Part:LA_CIAccInfoMN]
-					
+				[Part:LA_CIAccInfoMN]					
 					Part	:	CIAccInfo
 					
 	[Part:LA_POS_VCHTitle]
@@ -312,7 +311,7 @@
 
 					Right Field	:	MediumPrompt, VCH Number, VchNumber DispSeries
 					
-					Local	:	Field	:	MediumPrompt	:	Set as	:	"POS Number"
+					Local	:	Field	:	MediumPrompt	:	Set as	:	if Not @@IsCreditNote then "POS Number" else "POS Return No"
 					Local	:	Field	:	MediumPrompt	:	Width	:	30 MMS
 					Local	:	Field	:	VCH Number		:	Border	:	Thin Box
 					Local	:	Field	:	VCH Number		:	Width	:	70 MMS
@@ -414,7 +413,7 @@
 
 	Part	:	Cust_VCHTotalDiscAndRnd,LA_POSInvDetailsLed
 	Vertical	:	No
-
+	Border	:	Thin Top
 	[Part:Cust_VCHTotalDiscAndRnd]
 		Line	:	LA_POSInvTotalTitle,LA_POSInvTotal
 		
@@ -645,6 +644,8 @@
 	[Part:LA_POSInvRight]
 		Part	: LA_POSSettlements,LA_POSNum
 		Vertical	:	Yes
+		Border	:	Thin Left
+		Common Border	:	Yes
 		[Part:LA_POSSettlements]
 			
 			Part	:	LA_POSCashAndBenefit,LA_POSMultiMode,+

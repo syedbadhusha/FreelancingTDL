@@ -175,10 +175,12 @@
 	Search Key	:	$$Number:$MasterId
 	
 [Collection:POS_SalesReturnInventory]
-	Source Collection	:	POS_SalesReturn
+;	Source Collection	:	POS_SalesReturn
+;	
+;	Walk		:	InventoryEntries
 	
-	Walk		:	InventoryEntries
-	
+	Use	:	POS_SalesReturn
+
 	Fetch		:	*, MasterId
 	
 	Filter		:	POS_IsSameSalesReturn

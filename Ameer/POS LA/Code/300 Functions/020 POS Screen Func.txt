@@ -211,8 +211,6 @@
 
 	005			:	Set	:	UpdateLedEntr	:	No
 
-;	10000		:	Set Value	:	LA_POS_InvVat	:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
-;	lllll	:	Log:	$$FilterAmtTotal:AllLedgerEntries:InvoiceVATLedger:$Amount
 	100 		: 		Walk Collection: LedgerEntries
 	200			:			Set Target	:	LedgerEntries[$$loopIndex].
 	300			: 			If: $LedgerName = ##AdditionalLedgerName
@@ -223,8 +221,8 @@
 
 	495			:	If	:	Not ##UpdateLedEntr
 	500			:		Insert Collection Object	:	LedgerEntries
-	600			:			Set Value	:	LedgerName	:	##AdditionalLedgerName
-	700			:			Set Value	:	Amount		:	##LedAmount
+	600			:			Set Value	:	LedgerName			:	##AdditionalLedgerName
+	700			:			Set Value	:	Amount				:	##LedAmount
 	800			:	End If
 
 

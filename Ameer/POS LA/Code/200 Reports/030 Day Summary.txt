@@ -35,6 +35,9 @@
 	Local	:	Line	:	POSRegister Total	:	Add	:	Field	:	After	:	DSP VchType	:	POS_VCHParty
 	Local	:	Line	:	POSRegister Total	:	Local	:	Field	:	POS_VCHParty	:	Set as	:	""
 	
+
+	Local		:	Line		:	POSRegister Detail			:	Empty			:	$IsOptional
+
 ;	Local		:	Field		:	FormSubtitle			:	Set as			:	"Day Summary"
 ;	
 ;	Local		:	Line		:	POS_CommonColumnTitle	:	Option			:	POS_DaySummaryTitle
