@@ -1,0 +1,131 @@
+
+[Include: BijanSales.tdl]
+
+
+
+ [#Part: VTYP Behaviour]
+	 
+Add : Line : After : MSTSortPosition: MkFacEbl Cust
+
+[Line:MkFacEbl Cust]
+
+Space Top : 1 % page	
+Field     : Long Prompt,MkFacterCust
+Local     : Field : Long Prompt : Set as   : " Enable Customization?" 
+Local     : Field : Default     : Inactive : Not ($$Issales:$parent)  
+Local     : Field : Default     : Color    : DDGreen 
+Local     : Field : Default     : Style    : Normal Bold
+
+[Field:MkFacterCust]
+
+Use     : Logical Field
+Storage : CustVch
+
+;
+;[#Line: EI PreCarriage]
+;	
+;Option : OptEIABCO PreCarriage : @@CustVch  and @@ISsales
+;	
+;[!Line: OptEIABCO PreCarriage]
+;
+;Local : Field : Medium Prompt : Set as : "Inv.Prepared By"
+; 
+;[#Line: EI PortDestination]
+;	
+;Option : OptEIABCO PortDestination : @@CustVch and @@ISsales
+;	
+;[!Line: OptEIABCO PortDestination]
+;
+;Local       : Field : Medium Prompt : Info : $$LocaleString:"Inv.Received By"
+
+
+; [#Line: EI PreCarriageLoc]
+;	 
+;Option : OptEIPreCarriageLoc : @@CustVch and @@IsDelNote
+;	
+;[!Line: OptEIPreCarriageLoc]
+;
+;
+;Local  : Field : Medium Prompt : Info : $$LocaleString:"Goods Received By:"
+;
+;
+; [#Line: EI Vessel]
+;	 
+;Option : OptEIVessel : @@CustVch and @@IsDelNote
+;	
+;[!Line: OptEIVessel]
+;
+; Local       : Field : Medium Prompt : Info : $$LocaleString:"Vehicle No."
+;
+;
+;
+;
+; [#Line: EI PortLoading]
+;	 
+;Option : OptEI PortLoading : @@CustVch and @@IsDelNote
+;	
+;[!Line: OptEI PortLoading]
+;
+; Local       : Field : Medium Prompt : Info : $$LocaleString:"Gate Pass No"
+;
+; [#Line: EI PortDischarge]
+;	 
+;Option : OptEI PortDischarge : @@CustVch and @@IsDelNote
+;	
+;[!Line: OptEI PortDischarge]
+;
+; Local       : Field : Medium Prompt : Info : $$LocaleString:"Time In"
+; 
+;
+; [#Line: EI DestCountry]
+;	 
+;Option : OptEI DestCountry : @@CustVch and @@IsDelNote
+;	
+;[!Line: OptEI DestCountry]
+;
+; Local       : Field : Medium Prompt : Info : $$LocaleString:"Time Out"
+;
+;
+;[#Line: EI OrderRef]
+;
+;Option : OptEI OrderRef : @@CustVch and @@IsDelNote
+;	
+;[!Line: OptEI OrderRef]
+;
+;Local       : Field : Medium Prompt : Info : $$LocaleString:"Mob"
+;        
+;
+
+[Color: DDGreen]
+
+RGB   : 102, 0, 204
+
+[System: Formula]
+
+CustVch        : $CustVch:VoucherType:$VoucherTypeName   = "Yes"
+
+[System:UDF]
+	
+CustVch            : Logical: 101
+
+
+
+[System :Formula]
+	
+  ABCOcTelNo          :  ($LedgerPhone:Ledger:$PartyLedgerName) 
+  ABCOcFaxNo          :  ($LedgerFax:Ledger:$PartyLedgerName) 
+  ABCOcTelFax         :  if $$IsEmpty:$$String:@@ABCOcTelNo then  if $$IsEmpty:$$String:@@ABCOcFaxNo then "" else $$String:"Fax : "+@@ABCOcFaxNo else if $$IsEmpty:$$String:@@ABCOcFaxNo  then "Tel : "+@@ABCOcTelNo else "Tel : "+@@ABCOcTelNo +","+ "Fax : "+@@ABCOcFaxNo
+
+  ABCOCCony           :  $CountryofResidence
+  ABCOCEmi            :  $StateName
+  ABCOCConyEmi        :  if  $$IsEmpty:@@ABCOCEmi then if $$IsEmpty:@@ABCOCFAdd then @@ABCOCCony  else @@ABCOCFAdd+","+@@ABCOCCony else if $$IsEmpty:@@ABCOCFAdd then @@ABCOCEmi+","+@@ABCOCCony else @@ABCOCFAdd+","+@@ABCOCEmi+","+@@ABCOCCony
+ 
+  ABCOCConyPoEmi      :  if  $$IsEmpty:@@ABCOCEmi then  if $$IsEmpty:@@ABCOCFPoAdd then @@ABCOCCony else @@ABCOCFPoAdd+","+@@ABCOCCony else   if $$IsEmpty:@@ABCOCFPoAdd then @@ABCOCEmi+","+@@ABCOCCony  else @@ABCOCFPoAdd+","+@@ABCOCEmi+","+@@ABCOCCony 
+  ABCOCFPoAdd         :  $$FullList:Address:$Address
+  ABCOCFAdd           :  $$FullList:BasicBuyerAddress:$BasicBuyerAddress
+	
+
+
+   ABCOLtel           : $LedgerPhone:Ledger:$LedgerName
+   ABCOLfax           : $LedgerFax:Ledger:$LedgerName
+   ABCOLTelFax        : if $$IsEmpty:$$String:@@ABCOLtel then if $$IsEmpty:$$String:@@ABCOLfax then "" else  $$String:"Fax : "+@@ABCOLfax else if $$IsEmpty:$$String:@@ABCOLfax  then "Tel : "+@@ABCOLtel else "Tel : "+@@ABCOLtel +","+ "Fax : "+@@ABCOLfax

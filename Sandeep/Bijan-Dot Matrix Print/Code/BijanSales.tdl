@@ -1,0 +1,651 @@
+[#Form: Sales Color]
+	
+Option:OptionSales Color:@@CustVch
+
+
+[!Form: OptionSales Color]
+	
+	Delete		: Print
+	Add			: Print	: BIJANINV SALES
+	
+[Report: BIJANINV SALES]
+	
+	Use         : STDInvoice
+	Use			: VATGCC InvAnalysis Report_Variables
+	Form		: BIJANINV SALES
+
+	
+[Form: BIJANINV SALES]
+	
+	Use			: GCCVAT InvoiceTaxAnalysis
+	Part		: BIJANINV OppPageBrk, BIJANINV Body
+	Bottom Part	: BIJANINV BotAmount;,BIJANINV BottomPay
+	
+	Width  				: 216 mms 
+	Height 				: 280 mms 
+    Space Top   		: 53  mms    
+	Space Right 		: 6 mms
+    Space Left  		: 15 mms
+    Space Bottom		: 30 mms	
+	
+	Local       : Part      : Default   : Float             : No
+    Local       : Part      : Default   : PrePrintedBorder  : Yes
+    Local       : Line      : Default   : PrePrintedBorder  : Yes
+    Local       : Field     : Default   : PrePrintedBorder  : Yes
+    Empty       : $IsDeleted OR $IsCancelled
+	Page Break	: BIJANINV ClsPage, BIJANINV OppPageBrk
+	;Local		: Style	          : Default : Font	:  "Cambria"
+	;Option		: OPTsalPrintFont : $$InExportMode
+	
+;[!Form: OPTsalPrintFont]
+	
+;Local		: Style	: Default : Font	:  "Times New Roman"
+	
+ 
+[Part: BIJANINV ClsPage]
+	
+	Line		: BIJANINV ClsPage
+	
+[Line: BIJANINV ClsPage]
+	
+	Right Field	: Simple Field
+	Local		: Field	: Simple Field	: Info	: "Continued..."
+	Height	    : 51 mms
+	
+[Part: BIJANINV OppPageBrk]
+	
+	Part		:  STD InvoiceTop, BIJANINV Top
+	Vertical    :  Yes
+
+
+     
+[Field: BIJANINV InvNo]
+	
+	Use			: Name Field
+	Set as		: $VoucherNumber
+    Width       : 38 mms
+	Space Left  : 8 mms 
+    Style       : Large bold
+	
+[Field: BIJANINV Date]
+	
+	Use			: Name Field
+	Set as		: $Date
+    Width       : 26 mms
+	Style       : Normal bold
+
+[Part: BIJANINV Top]
+	
+	Part		: BIJANINV  BuyerInfo	
+	Right Part  : BIJANINV  Invoiceinfo
+	;Border      : Thin Box
+	Height      : 40 mms
+	
+[Part: BIJANINV  BuyerInfo]
+	
+	Width       : 130 mms 
+	Space Top   : 01 mms
+	
+	Line		: BIJANINV BuyNm,BIJANINV BuyAdd,BIJANINV Telno,BIJANINV Trnno
+	Local       : Line : Default : Space Top : 2 mms  
+	;Local       : Line : Default : 
+    ;Border      : Thin Box
+ 
+[Line: BIJANINV BuyNm]
+	
+	Field	     : BIJANINV BuyNm
+	Space Bottom : 1 mms
+
+[Field: BIJANINV BuyNm]
+	
+	Use			: Name Field
+	Set as		: $$NewLine+$BasicBuyerName
+	Style	    : normal bold
+    Width       : 130 mms
+	Line        : 0
+	;Space Left  : 12
+	
+[Line: BIJANINV BuyAdd]
+	
+	Field	     : BIJANINV BuyAdd
+		
+[Field: BIJANINV BuyAdd]
+	
+	Use			 : Name Field
+	Set as		 : $$FullList:BasicBuyerAddress:$BasicBuyerAddress 
+	Style		 : normal
+    Width        : 130 mms
+	Line         : 0
+	
+  
+[Line: BIJANINV Trnno]
+	
+	 Field	      : BIJANINV Trnno
+	 	
+[Field: BIJANINV Trnno]
+	
+	Use			: Name Field
+	Set as		: "Trn No : " +$$LocaleString:$BasicBuyersSalesTaxNo;@@SOFTCARETrnno
+	Style		: normal 
+    Width       : 130 mms
+	Invisible   : $$IsEmpty:$BasicBuyersSalesTaxNo 
+
+[Line: BIJANINV Telno]
+	
+	 Field	      : BIJANINV Telno
+	 	
+[Field: BIJANINV Telno]
+	
+	Use			: Name Field
+	Set as		: "";"Tel No:" +$$LocaleString:$LedgerPhone:Ledger:$PartyLedgerName+","+ "Mob No:" +$$LocaleString:$LedgerMobile:Ledger:$PartyLedgerName
+	Style		: normal 
+    Width       : 130 mms
+	Line        : 0 
+	
+
+[Part: BIJANINV Invoiceinfo]
+	
+	Space Top   : 1 mms 
+	Line		: BIJANINV InvoiceNo,BIJANINV invDate,BIJANINV Salesman,BIJANINV Refer;,BIJANINV Pocode
+   ; Border      : Thin Box
+	Width       : 72 mms
+
+
+
+
+[Line:BIJANINV InvoiceNo]
+  Space Top     : 2 mms 
+  Right Field   : BIJANINV InvoiceNo
+  Local : Field : Short Name Field : Set as : ""
+  Local : Field : Short Name Field : Width  : 25 mms
+ ; Border      : Thin Box
+	
+[Field : BIJANINV InvoiceNo]
+ 
+  Use    : Name Field
+  Set as : $VoucherNumber
+  Style  : Normal
+  Width  : 49 mms
+[Line:BIJANINV Salesman]
+ ; Border      : Thin Box	
+  Space Top     : 2 mms 
+  Right Field : BIJANINV Salesman
+  
+  Local : Field : Short Name Field : Set as : ""
+  Local : Field : Short Name Field : Width  : 25 mms
+	
+;[#Field:EI CheckPostname]
+
+[Field : BIJANINV Salesman]
+ 
+  Use    : Name Field
+  Set as : $EICheckPost;$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
+  Style  : Normal
+  Width  : 49 mms
+  
+[Line:BIJANINV Refer]
+	;Border      : Thin Box
+	Space Top     : 4 mms 
+	Right Field   : BIJANINV Refer
+	
+  Local : Field : Short Name Field : Set as : ""
+  Local : Field : Short Name Field : Width  : 25 mms
+	;Space Top     : 4 mms
+	
+[Field: BIJANINV Refer]
+	
+	Use			: Name Field
+	Set as		: $Reference;$FullList:InvoiceDelNotes:$BasicShipDeliveryNote
+	Width       : 72 mms
+    Style		: Normal
+	
+
+
+[Line:BIJANINV Pocode]
+	;Border      : Thin Box
+	Space Top     : 2 mms 
+	Right Field   : Short Prompt,BIJANINV Pocode
+	
+  Local : Field : Short Prompt : Set as : "PO NO"
+  Local : Field : Short Prompt : Width  : 23 mms
+	;Space Top     : 4 mms
+	
+[Field: BIJANINV Pocode]
+	
+	Use			: Name Field
+	Set as		: $$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
+	
+	Width       : 49 mms
+    Style		: Normal
+  
+[Line:BIJANINV invDate]
+	;Border      : Thin Box
+	Space Top     : 2 mms 
+	;Space Top     : 5 mms 
+	Right Field	  :BIJANINV invDate
+	Local : Field : Short Name Field : Set as : "Invoice Date"
+    Local : Field : Short Name Field : Width  : 25 mms
+	
+[Field: BIJANINV invDate]
+	
+	Use			: Name Field;Short Date Field;Full Uni Date Field;Name Field
+	Set as		: $$DDMMYYYYDateFormat:$date:"/";$$StringPart:$Date:0:"-" + "/";BasicShippingDate
+    Width       : 49 mms
+    Style       : Normal
+	Align       : Left
+;	
+;
+;[Function: DDMMYYYYDateFormat]
+;
+;	Parameter   : ParamInputDate        : Date
+;	Parameter   : ParamSeparator        : String
+;
+;	Variable    : TempVarYear           : String
+;	Variable    : TempVarMonth          : String
+;	Variable    : TempVarDate           : String
+;
+;	Returns     : String
+;
+;	01  : If        : NOT $$IsEmpty:##ParamInputDate
+;	02  :   Set     : TempVarYear       : $$Zerofill:($$YearofDate:##ParamInputDate):4
+;	03  :   Set     : TempVarMonth      : $$Zerofill:($$MonthofDate:##ParamInputDate):2
+;	04  :   Set     : TempVarDate       : $$Zerofill:($$DayofDate:##ParamInputDate):2
+;	05  :   Return  :  $$String:##TempVarDate  +$$String:##ParamSeparator + $$String:##TempVarMonth+$$String:##ParamSeparator  + $$String:##TempVarYear 
+;	06  : End If
+;	07  : Return    : ""
+;	
+[Line:BIJANINV Ref]
+	
+	Space Top     : 4 mms
+	Right Field   : BIJANINV Ref
+	
+[Field: BIJANINV Ref]
+	
+	Use			: Name Field
+	Set as		: $Reference
+	Width       : 52 mms
+    Style		: Normal
+
+
+[Part: BIJANINV Body]
+	
+	Part		   : BIJANINV Inventory,Empty,BIJANINV Ledger 
+	Scroll		   : Vertical
+	Vertical       : yes
+	Common Borders : yes
+	;Border         : Thin Left Right 
+    Total		   : BIJANINV Amt, BIJANINV Qty
+	Space Top	   : 17 mms
+	
+	
+[Part: BIJANINV Inventory]
+	
+	Line		   : BIJANINV Desc
+	Repeat		   : BIJANINV Desc	:  Inventory Entries
+	
+[Line: BIJANINV Desc]
+	
+
+Field		 	: BIJANINV Sno,BIJANINV ITemcode, BIJANINV Item
+Right Field     : BIJANINV Unit,BIJANINV Qty,BIJANINV UnitPrice, BIJANINV Vatper,BIJANINV VatAmt,BIJANINV Amt
+Space Bottom	: 3 MMS
+
+
+[Field: BIJANINV SNo]
+	
+	Use         : Short Name Field
+	Set as		: $$String:$$Line
+	Width		: 12 MMS	
+	Align       : center
+	;Border      : Thin Left Right 
+	Style		: Normal
+	
+[Field: BIJANINV ITemcode]
+	
+	Use         : Short Name Field
+	Set as		: $Partno:Stockitem:$StockItemName
+	Width		: 28 MMS	
+	Align       : Left
+	;Border      : Thin Right 
+	Style		: Normal
+	Invisible   : Yes
+		
+[Field: BIJANINV Item]
+	
+	Use			: Short Name Field
+	Set as		: if $$IsEmpty:@BIJANINVDs then $stockItemName else @BIJANINVDs
+	BIJANINVDs  : $$FullList:BasicUserDescription:$BasicUserDescription 
+	Full Width  : yes
+	Align       : Left
+	Line        : 0 
+	Style		: Normal
+	Indent      : 1
+	
+[Field: BIJANINV Qty]
+	
+	Use			: Qty Primary Field
+	Set as		: $BilledQty 
+	ItemMainUnt : if ($$StringWordEx:$BilledQty:" ":2)=($$StringWordEx:$Rate:"/":2) then yes else no
+	Format		: "NoSymbol"
+	Width		: 24 MMS	
+	Align		: Center
+	;Border      : Thin Left Right
+	Style		: Normal
+	Option		: OSPTBIJANINV Qty : Not @ItemMainUnt 
+	
+[!Field: OSPTBIJANINV Qty]
+	
+	Use			: Qty Secondary Field
+	Set as		: $BilledQty 
+    Format		: "NoSymbol"
+	Width		: 24 MMS	
+	;Border      : Thin Left Right
+	Align		: Center
+	Style		: Normal
+	
+	
+[Field: BIJANINV Unit]
+	
+	Use			: Rate Units Field
+	Set as		: $Rate
+	Width		: 15 MMS		
+	Align		: Center
+	;Border      : Thin Left Right
+	Format		: "Symbol,Primary"
+	Style		: Normal	
+
+[Field: BIJANINV  UnitPrice]
+
+    Use		    : Rate Price Field
+	Set as		: $Rate
+	Width		: 27 MMS
+	Align		: Center
+	;Border      : Thin Left Right
+	Style		: Normal
+	Format      : "No Symbol"
+	
+
+[Field			: BIJANINV Vatper]
+	
+    Use	    	: Number Field
+    Set as      : @MIDTECHVat
+	;Invisible   : $$IsEmpty:@MIDTECHVat
+	MIDTECHVat    : If $$IsEmpty:@transnature Then "" Else $$Sprintf:"%s%%":@taxrate
+    taxrate     : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TaxRate:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+    transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+    Format      : "NoZero,Percentage";Percentage
+    Align       : Center
+    Width       : 10 mms
+	Style		: Normal
+	Delete      : Border
+	Invisible   : Yes
+	;Border		: Thin Left 
+	
+[Field: BIJANINV VatAmt]
+	
+Use         : EXPINV VATGCC AmtTemp
+Set as      : @MIDTECHamt
+MIDTECHamt    : If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxamt Else $$AsCrAmt:@taxamt
+taxamt      : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+Width		: 12 mms
+Align       : Right
+Style		: Normal
+Delete      : Border
+;Border		: Thin Left Right 
+Invisible   : Yes	
+
+	
+
+[Field: BIJANINV Amt]
+
+    Use			: Amount Forex Field
+	Set as      : $amount
+	Width		: 36 MMS
+	Align		: Right
+    Style		: Normal
+	Format      : "No Symbol"
+	;Border      : thin left right 
+	
+
+
+[Part: BIJANINV UDesc]
+	
+	Line		: BIJANINV UDesc
+	Repeat		: BIJANINV UDesc	: BasicUserDescription
+	
+[Line: BIJANINV UDesc]
+	
+    Field		 	: BIJANINV Sno,BIJANINV ITemcode, BIJANINV Item
+    Right Field     : BIJANINV Unit,BIJANINV Qty,BIJANINV UnitPrice, BIJANINV Vatper,BIJANINV VatAmt,BIJANINV Amt
+	Local		    : Field	: BIJANINV  Sno	        : Set as	: ""
+	Local		    : Field	: BIJANINV  Item	    : Set as	: $BasicUserDescription
+	Local		    : Field	: BIJANINV  Item	    : Style		: Normal Italic
+	Local		    : Field	: BIJANINV  Qty	        : Set as	: ""
+	Local		    : Field	: BIJANINV  UnitPrice   : Set as	: ""
+	Local		    : Field	: BIJANINV Unit         : Set as	: ""
+	Local		    : Field	: BIJANINV  Amt	        : Set as	: ""
+	Local           : Field : BIJANINV ITemcode     : Set as    : ""     
+
+[Part: BIJANINV Ledger]
+	
+	Line			: BIJANINV Ledger
+	Repeat			: BIJANINV Ledger	:Ledger Entries
+	
+[Line: BIJANINV Ledger]
+	
+
+   Field		 	: BIJANINV Sno,BIJANINV ITemcode, BIJANINV Item
+   Right Field     : BIJANINV Unit,BIJANINV Qty,BIJANINV UnitPrice, BIJANINV Vatper,BIJANINV VatAmt,BIJANINV Amt
+   Space top        : 2 mms
+   Space Bottom     : 1 mms
+   Local		    : Field	: Default               : Style : Normal 
+   Local		    : Field	: BIJANINV Sno	        : Set as	: ""
+   Local		    : Field	: BIJANINV Item		    : Set as	: $LedgerName
+   Local		    : Field	: BIJANINV Item		    : Align		: Left
+   Local	        : Field	: BIJANINV Qty	        : Set as	: ""
+   Local		    : Field	: BIJANINV  UnitPrice		: Set as	: ""
+   Local		    : Field	: BIJANINV Unit	        : Set as	: ""
+   Local		    : Field	: BIJANINV Amt		    : Set as	: $Amount
+   Local		    : Field	: BIJANINV Amt		    : Align		: Right
+   Local           : Field : BIJANINV ITemcode     : Set as    : ""     
+   Empty		    : not @@OnlyOtherLedsal
+   Explode			:  BIJANINV UDesc	: NOT $$IsEmpty:$LedgerName AND ##PRNWithLedDesc AND NOT $$IsEmpty:$BasicUserDescription
+		
+   Empty    	: $Ledgername = $PartyLedgerNAme OR $$IsLedOfGrp:$LedgerName:$$GroupDuties  Or @@IsDiscLed
+;;====================== Bottom part
+
+[Part: BIJANINV BotAmount]
+	
+	Part       : BIJANINV Amountinwords
+	Right Part : BIJANINV AmountPart
+
+[Part: BIJANINV Amountinwords]
+	
+	 Space Top  : 04 mms
+	 ;Space Bottom:  mms
+	 Line       : BIJANINV TotalAmtinword
+	 Invisible  : Yes
+		
+	
+[Line:BIJANINV TotalAmtinword]
+	
+	 
+	  Field : Name field
+	  Local	: Field	:Name field : Set as      : $$InWords:$Amount:"No Symbol,Forex" + " Only"
+	  Local : Field	:Name field : Line        : 0
+	  Local	: Field	:Name field : Style       : Normal Bold
+	  Local	: Field	:Name field : Width       : 140 mms
+      Local	: Field	:Name field : Space Left  : 19 mms 
+	  
+[Part: BIJANINV AmountPart]
+	
+Part     : BIJANINV AmountPart1,BIJANINV AmountPart2 
+Vertical : Yes  
+
+[Part  :BIJANINV AmountPart1]
+	
+	    Width        : 35 mms
+		;Line        :
+		Common Borders:Yes
+		Bottom Line  :  BIJANINV TotalAmt,BIJANINV Discount,BIJANINV Vatamount,BIJANINV Netamount
+	    ;Space Bottom :  2 mms
+		
+[Line:BIJANINV TotalAmt]
+	
+	Right Field  : BIJANINV TotalAmt
+	Local	: Field	:Name field : Style       : Normal Bold
+    Local	: Field	:Name field : Width       : 21 mms
+    Local	: Field	:Name field : Set as      : "Total" 
+	;Border  : Thin Box
+	Space Top: 2 mms
+   
+[Field:BIJANINV TotalAmt]
+	
+   Use	     :  Amount Forex Field
+   Set as    :  if $$IsEmpty:@@OlyGrosstotal then 0 else @@OlyGrosstotal
+   Style     :  Normal Bold
+   Width     :  35 mms
+   Align     :  Right
+   Format    :  "Forex,ShowbaseSymbol,Showzero"
+   ;Border    : Thin left
+   
+
+[Line:BIJANINV Discount]
+	
+Space Top: 2 mms
+Right Field  : BIJANINV Discount
+Local	: Field	:Name field : Style       : Normal Bold
+Local	: Field	:Name field : Width       : 21 mms
+Local	: Field	:Name field : Set as      : "Discount" 
+;Border  : Thin Box
+;
+;Option : OptInDicamt1 : Not $$IsEmpty:@@BIJANINVDisAmt
+;
+;Option : OptInDicamt2 : $$IsEmpty:@@BIJANINVDisAmt
+   
+[Field:BIJANINV Discount]
+	
+
+	
+Option : OptInDicamt1 : Not $$IsEmpty:@@BIJANINVDisAmt
+
+Option : OptInDicamt2 : $$IsEmpty:@@BIJANINVDisAmt
+
+[!Field : OptInDicamt1]
+    Type        : Amount : Forex
+    Format      : "Symbol, Show Zero,ShowbaseSymbol" + ##ShowForex
+    Style       : Normal Bold
+    Set as      : if $$IsEmpty:@@BIJANINVDisAmt then 0 else @@BIJANINVDisAmt
+    Style       : Normal Bold
+    Width       :  35 mms
+    Align       :  Right
+    ;Format    :  "Decimal:2,Forex,ShowbaseSymbol,Showzero"
+   ;Border    : Thin left
+   
+
+[!Field:OptInDicamt2]
+	
+
+	
+Field : BIJANINV Discsymbol;,BIJANINV Discamt
+
+
+[Field : BIJANINV Discsymbol]
+	
+Use     : Name Field 
+Set as  : $$String:(@@BjCurrency) +$$String:" 0.00"
+Width   : 35 mms
+Align   : Right
+Style       : Normal Bold
+
+[System:Formula]
+	
+BjCurrency   :$$Currency:$amount
+	
+
+
+[Line:BIJANINV Vatamount]
+	
+	Space Top       : 2 mms
+	Right Field     : BIJANINV Vatamount
+	Local	: Field	: Name field : Style       : Normal Bold
+    Local	: Field	: Name field : Width       : 21 mms
+    Local	: Field	: Name field : Set as      : "Tax Amount" 
+    ;Border  : Thin Box
+   
+[Field:BIJANINV Vatamount]
+	
+   Use			:  Amount Forex Field
+   Set as       :  if $$IsEmpty:@@BIJANINVVATAMT then 0 else @@BIJANINVVATAMT
+   Style        :  Normal Bold
+   Width        :  35 mms
+   Align        :  Right
+   Format    :  "Forex,ShowbaseSymbol,Showzero"
+   ;Border    : Thin left
+
+[Line:BIJANINV Netamount]
+	
+	 Space Top: 2 mms
+	 Right Field  : BIJANINV Netamount
+	 Local	: Field	:Name field : Style       : Normal Bold
+    Local	: Field	:Name field : Width       : 21 mms
+    Local	: Field	:Name field : Set as      : "Grand Total"
+    ;Border  : Thin Box
+   
+[Field:BIJANINV Netamount]
+	
+   Use	     :  Amount Forex Field
+   Set as    :  if $$IsEmpty:$amount then 0 else $amount
+   Style     :  Normal Bold
+   Width     :  35 mms
+   Align     :  Right
+   Format    :  "Forex,ShowbaseSymbol,Showzero"
+   ;Border    : Thin left
+   
+
+[Part:BIJANINV AmountPart2]
+	
+Line : empty
+Space Bottom : 2 mms  
+ 
+[Part  : BIJANINV BottomPay]
+	
+	Space Top : 5 mms
+	Line      : empty;BIJANINV BottomPay
+	
+[Line : BIJANINV BottomPay]
+	
+	Field : Short Name Field,BIJANINV BottomPay 
+	Local : Field : Short Name Field : Width : 120 mms
+	Local : Field : Short Name Field : Set as: "Payment Terms : "
+	Local : Field : Short Name Field : Align : Right 
+	
+[Field : BIJANINV BottomPay]
+	
+    Use    : Name Field
+	Set as : $BasicDueDateOfPymt
+	Style  : Normal
+	Width  : 50 mms
+	
+[System: Formula]
+	
+
+ BIJANINVDisAmt     : $$FilterAmtTotal:LedgerEntries:IsDiscLed:$Amount 
+ IsDiscLed          : $Narration:Ledger:$LedgerName = "Discount"
+ 
+
+
+BIJANINVVATAMT     : $$FilterAmtTotal:LedgerEntries:IsTaxLed:$Amount  
+IsTaxLed 		   : $$IsLedOfGrp:$LedgerName:$$GroupDuties 
+
+
+OlyGrosstotal      : @@OlyIsinvenamt+@@Olyislegdermount
+OlyIsinvenamt      : $$CollAmtTotal:InventoryEntries:$amount
+Olyislegdermount   : $$FilterAmtTotal:LedgerEntries:OnlyOtherLedsal:$amount
+
+
+[System: Formulae]
+	
+OnlyOtherLedsal : NOT $Ledgername = $PartyLedgerNAme And  NOT $$IsLedOfGrp:$LedgerName:$$GroupDuties AND NOT @@IsDiscLed
+	
