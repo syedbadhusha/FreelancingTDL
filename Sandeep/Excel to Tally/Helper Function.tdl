@@ -1,0 +1,17 @@
+[Function: RefreshTableFunc]
+Parameter		: pTempVar	: String
+00	: RETURN	: True
+
+[Function:GetSheetName]
+Parameter:paSheetName:String
+001:Do If:(##paSheetName contains "Sales With Inventory"):Return:"Sales"
+010:Do If:(##paSheetName contains "Purchase With Inventory"):Return:"Purchase"
+020:Do If:(##paSheetName contains "Payment"):Return:"Payment"
+030:Do If:(##paSheetName contains "Receipt"):Return:"Receipt"
+040:Do If:(##paSheetName contains "Contra"):Return:"Contra"
+050:Do If:(##paSheetName contains "Journal"):Return:"Journal"
+060:Do If:(##paSheetName contains "Ledger"):Return:"Ledger"
+070:Do If:(##paSheetName contains "Sales Without Inventory"):Return:"Sales Without Inventory"
+080:Do If:(##paSheetName contains "Purchase Without Inventory"):Return:"Purchase Without Inventory"
+090:Do If:(##paSheetName contains "Bank Import"):Return:"Bank Import"
+100:Do If:(##paSheetName contains "Stock Item"):Return:"Stock Item"

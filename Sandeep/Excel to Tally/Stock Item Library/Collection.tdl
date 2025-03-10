@@ -1,0 +1,65 @@
+[Collection:Stock Item JSON Collection]
+Data Source:File JSON:##StockItemFilePath
+JSON Object Path:"Stock_Details:1"
+
+[Collection:Stock Item Collection]
+Data Source:Variable:StockItemsList
+
+;; Stock Category
+[Collection:Stock Category Collection]
+Data Source:Variable:StockItemsList
+
+[Collection: Stock Category Coll]
+Source Collection:Stock Category Collection
+By	: Category: $Category
+Filter:RemoveExistingCategory
+
+;; Stock Unit
+[Collection:Stock Unit Collection]
+Data Source:Variable:StockItemsList
+
+[Collection: Unit Coll]
+Source Collection:Stock Unit Collection
+By	: Unit: $UnitName
+
+[Collection: Alternate Unit Coll]
+Source Collection:Stock Unit Collection
+By	: Unit: $AlternateUnit
+
+[Collection: List Of Units Coll]
+Collection: Unit Coll, Alternate Unit Coll
+Filter:RemoveExistingUnit
+
+
+;; Stock Group
+[Collection:Stock Group Collection]
+Data Source:Variable:StockItemsList
+
+[Collection: Stock Group Coll]
+Source Collection:Stock Group Collection
+By	: StockGroup: $Group
+Filter	: RemoveExistingGroup
+
+
+[Collection: SI Selected Stock Items To Link]
+Data Source	: Report	: Selected
+
+[Collection:StockItemALiasColl]
+Type:Name:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemStandardCostColl]
+Type:Address:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemStandardSellingColl]
+Type:Address:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemBatchAllocationsColl]
+Type:BatchAllocations:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemMrpDetailsColl]
+Type:MRPDETAILS:StockItem
+Child Of:##CurrentStockItemName

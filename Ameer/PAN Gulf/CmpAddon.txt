@@ -1,0 +1,57 @@
+;[#Menu: Gateway of Tally]
+;Add     : Option : TDL_EnbAddOnFeatures  :   $$IsOwner
+;
+;[!Menu : TDL_EnbAddOnFeatures]
+;Button	: TDL_EnbAddOnFeatures
+;
+;[Button: TDL_EnbAddOnFeatures]
+;
+;Title	: "Add-On Features"
+;Key		: F4
+;Action	: Alter : TDL_FormEnableList
+;
+;[Report : TDL_FormEnableList]
+;Title             : "Enable Add-On Features For Customized"
+;Form              : TDL_FormEnableList
+;Object            : Company
+;
+;[Form : TDL_FormEnableList]
+;Part              : TDL_FormTit , TDL_AddOnEnable
+;Width             : 50% Screen
+;Height            : 30% Screen
+;
+;[Part : TDL_FormTit]
+;Line              : TDL_FormTit 
+;
+;[Line :  TDL_FormTit]
+;Field   : Medium Prompt
+;Local   :  Field  : Medium Prompt :Set as : "CUSTOMIZED TALLY ADD-ON FEATURES"
+;Local   :  Field  : Medium Prompt :Style  : Verdana Bold 
+;Local   :  Field  : Medium Prompt :Align  : Center
+;Local   :  Field  : Medium Prompt :Width  : 50% Screen
+;Border  : Thin Bottom
+;
+;[Part : TDL_AddOnEnable]
+;Line          : TDL_AddOnEnableForCustomized
+;Space Top     : 0.3
+;
+;
+;[Line : TDL_AddOnEnableForCustomized]
+;Field   : Long Prompt,TDL_AddOnEnableForCustomized
+;Local   :  Field  : Long Prompt :Set as : "Enable Add-On For Invoice Customized ?"
+;Local   :  Field  : Long Prompt :Style  : Verdana Normal 
+;Local   :  Field  : Long Prompt :Width  : 30% Screen
+;Local   :  Field  : Default : Color : Blue
+;Space Top : 0.3
+;
+;[Field : TDL_AddOnEnableForCustomized]
+;Use             : Logical Field
+;Style           : Verdana Normal
+;Storage         : TDL_AddOnEnableForCustomized
+;Table           : YesNoTable
+;Show Table      : Always
+;
+;[System:Formulae]
+;
+;IsEnbCmpLevel:$TDL_AddOnEnableForCustomized:Company:##SVCurrentCompany= "Yes"
+;

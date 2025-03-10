@@ -1,0 +1,194 @@
+[Collection: Directory Collection]
+Data Source : Directory	: ##ETFolderPath
+Filter		: ExcelFilter
+Format		: $Name, 25
+Format		: $FileSize, 15
+Format		: $IsReadOnly, 15
+Title       : "List of Files"
+Sub Title	: "File Name", "File Size", "Read Only"
+Full Height	: Yes
+Align		: Right
+
+[Collection: Tax Ledgers]
+Use         : VLedTable
+Type        : Ledger
+Include     : Group:$$GroupDuties
+
+[Collection:Additional Ledgers]
+Use         : VLedTable
+Type        : Ledger
+Include     : Group:$$GroupDuties, Group:$$GroupSundryDebtors, Group:$$GroupSundryCreditors, Group:$$GroupDirectExpenses, Group:$$GroupIndirectExpenses, Group:$$GroupSales, Group:$$GroupPurchase
+
+[Collection: Sales And Purchase Ledgers]
+Use         : VLedTable
+Type        : Ledger
+Include     : Group:$$GroupSales, Group:$$GroupPurchase
+
+[Collection:Excel Ledger Address]
+Parm Var:pLedName:String:$LedgerName
+Type:Address:Ledger
+Child Of:##pLedName
+Fetch:Address
+
+
+
+;; Sales and Purchase list variable collection
+
+[Collection:Sales Excel Data Collection]
+Data Source:Variable:InventoryExcelVariable
+Filter:SkipFirstRow
+Option:Sales Excel Temp Collection:##Refresh
+
+[!Collection:Sales Excel Temp Collection]
+Source Collection:Sales Excel Data Collection
+By:cInvNumber:$InvoiceNo
+Aggr Compute:StockAmount:Sum:$Amount
+Aggr Compute:AdditonalLedger1:Sum:$SpecialDisc
+Aggr Compute:AdditonalLedger2:Sum:$ExpenseAmt
+Compute:cInvDate:$InvoiceDate
+Compute:cVchType:$ETVchTypeName:Company:$$CurrentCompany
+Compute:cLedgerName:$PartyName
+Compute:cAdditionalLedger1:$EACAdditionalLedger1:Company:$$CurrentCompany
+Compute:cAdditionalLedger2:$EACAdditionalLedger2:Company:$$CurrentCompany
+Compute:cGSTNumber:$GSTNumber
+Compute:cAddress:$$FullList:ListAddress:$Address;$$FullList:ListAddress:$Address
+Compute:cSalesLedger:$ETInventoryAlloc:Company:$$CurrentCompany
+Compute:cVATLedger:$EACVATLedger:Company:$$CurrentCompany
+Aggr Compute:cVATAmt:Sum:$VATAmt
+Compute:cCreditLedger:$CreditLedger
+Aggr Compute:cCreditAmt:Sum:$Amount
+Compute:PartyIsDeemedPositive:If $$IsEqual:##vSheetName:"Sales" then Yes else if $$IsEqual:##vSheetName:"Purchase" then No else ""
+
+[Object:Inventory Excel Variable]
+[Object:Accounting List Variable]
+
+[Collection:Excel Inventory Collection]
+Source Collection:Sales Excel Data Collection
+Compute:cInvNumber:$InvoiceNo
+Compute:cItemName:$ItemName
+Compute:cActualQty:$ActualQty
+Compute:cBilledQty:$BilledQty
+Compute:cRate:$Rate
+Compute:cAmount:$Amount
+Compute:cLedgerName:$SalesLedger
+Compute:cTradeDisc:$TradeDisc
+Compute:cUnit:$Unit
+Compute:cCGSTRate:$VATRate
+Filter:InvoiceNoFilter
+
+
+
+;; Bank Transaction list variable collection
+[Collection:Bank Trans Excel Data Collection]
+Data Source:Variable:BankTransExcelVariable
+Filter:SkipFirstRow
+Option:Bank Trans Excel Temp Collection:##Refresh
+
+[!Collection:Bank Trans Excel Temp Collection]
+Source Collection:Bank Trans Excel Data Collection
+By:cInvNumber:$InvoiceNo
+Aggr Compute:StockAmount:Sum:$Amount
+Aggr Compute:AdditonalLedger1:Sum:0
+Aggr Compute:AdditonalLedger2:Sum:0
+Aggr Compute:cVATAmt:Sum:0
+Compute:cInvDate:$Date
+Compute:cLedgerName:If ##vSheetName contains "Contra" then $BankLedger else $LedgerName
+Compute:cAdditionalLedger1:If ##vSheetName contains "Contra" then $LedgerName else $BankLedger
+Compute:PartyIsDeemedPositive:If ##vSheetName contains "Payment" then "No" else "Yes"
+Compute:IsPartyLedger:No
+Compute:cVchType:$ETVchTypeName:Company:$$CurrentCompany
+Compute:cAddress:""
+
+
+;; Accounting Mode
+[Collection:Accounting List Variable Collection]
+Data Source:Variable:Accounting List Variable
+Filter:SkipFirstRow
+Option:Accounting List Variable Temp Collection:##Refresh
+
+[!Collection:Accounting List Variable Temp Collection]
+Source Collection:Accounting List Variable Collection
+By:cInvNumber:$InvoiceNo
+Aggr Compute:StockAmount:Sum:0
+Aggr Compute:AdditonalLedger1:Sum:$Amount
+Compute:cInvDate:$InvoiceDate
+Compute:cVchType:$ETVchTypeName:Company:$$CurrentCompany
+Compute:cLedgerName:$PartyName
+Compute:cAdditionalLedger1:$LedgerName
+
+Compute:cGSTNumber:$GSTNumber
+Compute:cAddress:$$FullList:ListAddress:$Address
+Compute:cCreditLedger:$CreditLedger
+Aggr Compute:cCreditAmt:Sum:$Amount
+Compute:cAddress:""
+
+
+;; Ledger List variable collection
+[Collection:Ledger Variable Collection]
+	Data Source:Variable:LedgerVariable
+	Filter:SkipFirstRow
+	Option:Ledger Variable Temp Collection:##Refresh
+
+[!Collection:Ledger Variable Temp Collection]
+	Source Collection:Ledger Variable Collection
+	Compute:LedgerName:$LedgerName
+	Compute:Group:$Group
+	Compute:StateName:$Emirate
+	Compute:CountryName:$Country
+	Compute:PinCode:$POBox
+	Compute:GSTIN_Number:$TRN
+	Compute:Address:$$FullList:ListAddress:$Address
+	Compute:cAddress:""
+	Compute:Mobile:$Mobile
+	Compute:ContactPerson:$Mobile
+	Compute:Telephone:$Telephone
+	Compute:Email:$Email
+	Compute:EmailCC:$EmailCC
+	Compute:Website:$Website
+	Compute:CreditPeriod:$CreditPeriod
+	Compute:CreditLimit:$CreditLimit
+	
+
+;; Banks Entry Collection
+[Collection:Banks Entry Variable Collection]
+	Data Source:Variable:BanksEntryExcelVariable
+	Filter:SkipFirstRow
+	Option:Banks Entry Temp Collection:##Refresh
+	
+[!Collection:Banks Entry Temp Collection]
+Source Collection:Banks Entry Variable Collection
+By:cInvNumber:$InvoiceNo
+Aggr Compute:StockAmount:Sum:$Amount
+Aggr Compute:AdditonalLedger1:Sum:0
+Aggr Compute:AdditonalLedger2:Sum:0
+Aggr Compute:cVATAmt:Sum:0
+Compute:cInvDate:$Date
+Compute:cLedgerName:If ##vSheetName contains "Contra" then $BankLedger else $LedgerName
+Compute:cAdditionalLedger1:If ##vSheetName contains "Contra" then $LedgerName else $BankLedger
+Compute:PartyIsDeemedPositive:If ##vSheetName contains "Payment" then "No" else "Yes"
+Compute:IsPartyLedger:No
+Compute:cVchType:$VoucherType
+Compute:cAddress:""
+
+
+
+[Collection:List StockItem Collection]
+Data Source:Variable:List StockItem
+Filter:SkipFirstRow
+
+[Collection:Stock Item Excel Collection]
+Source Collection:List StockItem Collection
+Compute:Item:$ProductName
+Compute:PartNos:$PartNo
+Compute:Group:$Group
+Compute:Category:$Category
+Compute:Unit:$Unit
+Compute:BaseConversion:$BaseConversion
+Compute:AltConversion:$AltConversion
+Compute:AltUnit:$AltUnit
+Compute:SalesPrice:$SalesPrice
+Compute:CurrentStock:$CurrentStock
+Compute:OpeningRate:$OpeningRate
+Compute:OpeningValue:$OpeningValue
+
+	

@@ -1,0 +1,622 @@
+[Report:Stock Item Preview]
+Set		: ShowAllBtn:No
+Form:Stock Item Preview
+
+[Form:Stock Item Preview]
+Part:SP Form Title, StockItem Preview Body
+Button:StockItems Import, ShowErrosBtn, Unit Import, Category Import, Group Import
+Height:100% page
+Width:100% page
+
+
+[Part:SP Form Title]
+Line:SP CompName, SP Address, SP Period
+Repeat:SP Address:Company Address
+Space Bottom:2% page
+
+[Line:SP CompName]
+Field:Name Field
+Local:Field:Name Field:Set as:$$CurrentCompany
+Local:Field:Name Field:Local:Style:Default:Height:15
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+
+[Line:SP Address]
+Field:Name Field
+Local:Field:Name Field:Set as:$Address
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+
+[Line:SP Period]
+Field:Name Field
+Local:Field:Name Field:Set as:@@DspDateStr
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+
+[Part:StockItem Preview Body]
+Line:SIP Column, SIP Body
+Repeat:SIP body:StockItem Collection
+Scroll:Vertical
+Common Borders:Yes
+
+[Line:SIP Column]
+Use:SIP Body
+Local:Field:Default:Style:Calibri Default
+Local:Style:Default:Height:@@LargeSize -1
+;Local:Field:Default:Border:Thin Left
+Local:Field:Default:Delete:Background
+Local:Field:Default:Delete:Color
+Local:Field:Default:Type:String
+Local:Field:Default:Line:0
+Local:Field:SIP StockItem Name :Set As:"Stock Item Name"
+Local:Field:SIP Group Name:Set As:"Group Name"
+Local:Field:SIP Category Name:Set As:"Category Name"
+Local:Field:SIP Unit:Set As:"Unit"
+Local:Field:SIP GST Applicable:Set As:"GST Applicable"
+Local:Field:SIP GST Rate:Set As:"GST Rate"
+Local:Field:SIP Action:Set as:"Action"
+Local:Field:SIP Error:Set As:"Error"
+Border:Column Titles
+Delete:Remove if
+
+[Line:SIP Body]
+Fields:SIP StockItem Name, SIP Group Name, SIP Category Name, SIP Unit, SIP GST Applicable, SIP GST Rate, +
+SIP Action, SIP Error
+Explode : SIP StockItem Name Change:NOT ($$IsEqual:$StockItemName:$OldStockItemName)
+Option	: SIP Body Option: @@ShowItemErrorList
+
+[!Line: SIP Body Option]
+Fields:SIP StockItem Name, SIP Group Name, SIP Category Name, SIP Unit, SIP GST Applicable, SIP GST Rate, +
+SIP Action, SIP Error
+Local:Field:Default:Border:Thin Left
+Remove if	: @@ShowItemErrorList
+
+[Field:SIP StockItem Name]
+Use:Name Field
+Set as:$OldStockItemName
+Width:25
+Style:Calibri Default Bold
+Full Width:Yes
+
+[Field:SIP Group Name]
+Use:Name Field
+Set as:$Group
+Width:20
+Style:Calibri Default
+
+[Field:SIP Category Name]
+Use:Name Field
+Set as:$Category
+Width:20
+Style:Calibri Default
+
+[Field:SIP Unit]
+Use:Name Field
+Set as:$UnitName
+Width:10
+Style:Calibri Default
+Align:Left
+
+[Field:SIP GST Applicable]
+Use:Name Field
+Set as:If NOT $$IsEmpty:$IGSTRate then $$SysName:Applicable else $$SysName:NotApplicable
+Width:20
+Style:Calibri Default
+Align:Left
+Invisible:Yes
+
+[Field:SIP GST Rate]
+Use:Number Field
+Set as:$IGSTRate
+Width:10
+Align:Left
+Format:"NoZero, Percentage"
+Style:Calibri Default
+Invisible:Yes
+
+[Field:SIP Action]
+Use:Name Field
+Set as:"NEW"
+Set By Condition:($$IsObjectExists:StockItem:$OldStockItemName):"ALTER"
+Width:10
+Background:@@SPActionBackground
+Style:Calibri Default Bold
+Color:White
+Align:Centre
+
+[Field:SIP Error]
+Use:Name Field
+Set as:$$GetStockItemReason
+Set Always:Yes
+Line:0
+Width:35
+Style:Calibri Default
+
+[Part:SIP StockItem Name Change]
+	Line:SIP StockItem Name Change
+
+[Line:SIP StockItem Name Change]
+	Fields:SIP StockItem Name, SIP Group Name, SIP Category Name, SIP Unit, SIP GST Applicable, SIP GST Rate, +
+	SIP Action, SIP Error
+	Local:Field:Default:Type:String
+	Local:Field:Default:Set as:""
+	Local:Field:Default:Delete:Background
+	Local:Field:Default:Delete:Set By Condition
+	Local:Field:SIP StockItem Name:Set as:$$Sprintf:"New Item Name: %s":$StockItemName
+	Local:Field:SIP StockItem Name:Local:Style:Default:Italics:Yes
+	Local:Field:SIP StockItem Name:Local:Style:Default:Bold:No
+	Fixed:Yes
+
+[Function:GetStockItemReason]
+000:If:NOT ($$IsObjectExists:Unit:$UnitName) AND NOT $$IsEmpty:$UnitName AND NOT $$IsSysName:$UnitName
+010:Return:($$Sprintf:"%s Unit Doesn't Exist":$UnitName)
+020:End If
+
+100:If:NOT($$IsObjectExists:StockGroup:$Group) AND NOT $$IsEmpty:$Group AND NOT ($$IsSysName:$Group)
+110:Return:($$Sprintf:"%s Group Doesn't Exist":$Group)
+120:End If
+
+230:If:NOT($$IsObjectExists:StockCategory:$Category) AND NOT $$IsEmpty:$Category AND NOT ($$IsSysName:$Category)
+240:Return:($$Sprintf:"%s Category Doesn't Exist":$Category)
+250:End If
+
+;350:Walk Collection:StockAlias
+;360:If:NOT($$IsObjectExists:StockItem:$StockAlias)
+;370:Return:($$Sprintf:"%s Alias Doesn't Exist":$StockAlias)
+;380:End If
+;390:End Walk
+;
+;450:Walk Collection:StockBatchAllocations
+;460:If:NOT($$IsObjectExists:Godown:$GodownName)
+;470:Return:($$Sprintf:"%s Godown Doesn't Exist":$GodownName)
+;480:End If
+;490:End Walk
+
+800:Return
+
+[Button:StockItems Import]
+Title:"Import Stock Items"
+Key:F2
+Action:Call:StockItems Import
+
+[Button: Unit Import]
+Title: "Import Unit"
+Key:F4
+Action: Call:Create Unit1
+
+[Button: Category Import]
+Title: "Import Category"
+Key:F5
+Action: Call: Create Category
+
+[Button: Group Import]
+Title: "Import Group"
+Key:F6
+Action: Call:Create Stock Group
+
+[Function: Create Unit1]
+Variable:vUnitName:String
+Variable:ProgressCounter:Number:$$NumItems:ListOfUnitsColl
+Variable:vCountUnit:Number:0
+Variable:vLastResult:Logical
+Local Formula:Unit:If $$IsEqual:$Unit:$$SysName:NotApplicable then "" else $Unit
+
+000 : Query Box:"Import Units?":Yes:No
+010 : If:$$LastResult
+
+011 : If:$$IsEqual:##ProgressCounter:0
+012 : 		Msg Box:"Status":"No Data to Process"
+013 : 		Return
+014 : End If
+
+020 : Start Batch Post:500
+030 : Start Progress:##ProgressCounter: "Unit Import":"Creation in Progress...."
+040 : 	Walk Collection:ListOfUnitsColl
+050 : 		Show Progress:$$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+060 : 		Set:vUnitName:@Unit
+061 :		If:@@RemoveExistingUnit
+070 : 		NEW OBJECT:Unit:##vUnitName:Yes
+080 : 		Set Value:NAME:##vUnitName
+085 : 		Set Value:Decimal Places:"0"
+086 : 		Set Value:IsSimpleUnit:Yes
+
+087:		Insert Collection Object:REPORTINGUQCDETAILS
+088:		Set Value:APPLICABLEFROM:$$Date:"20230401"
+089:		Set Value:REPORTINGUQCNAME:$$GetUnitUQC:##vUnitName
+090:		Set Target:..
+
+091 : 		Set Target:..
+100 : 		Alter Target
+101 :		Set:vLastResult:$$LastResult
+
+
+103 : 		If:##vLastResult
+203 :			Increment:vCountUnit
+204 :		Else
+205 : 			Log:($$Sprintf:"Unable to Create Stock Unit: %s":##vUnitName)
+206 :		End If
+
+207 : 		End If
+
+320 : 	End Walk
+330 : End Progress
+340 : End Batch Post
+350 : Msg Box:"Status":($$String:##vCountUnit) + " Unit" + $$Newline + "Created / Altered Successfully"
+
+360 : Else
+370 : Msg Box:"Info":"Import Cancelled"
+380 : End If
+390 : Return
+
+[Function:GetUnitUQC]
+Parameter:pUnitName:String
+Variable:vUQC:String
+Variable:UnitLowerCase:String
+000:Walk Collection:Unit UQC Collection
+010:Set:vUQC:$$CaseConvert:LowerCase:$Name
+020:Set:UnitLowerCase:$$CaseConvert:LowerCase:##pUnitName
+030:If:##vUQC Contains ##UnitLowerCase
+040:	Return:$Name
+050:End If
+060:End Walk
+070:Return:""
+
+[Collection:Unit UQC Collection]
+        List Name   : "BAG-BAGS", "BAL-BALE", "BDL-BUNDLES", "BKL-BUCKLES", "BOU-BILLION OF UNITS", "BOX-BOX", "BTL-BOTTLES", "BUN-BUNCHES", +
+                      "CAN-CANS", "CBM-CUBIC METERS", "CCM-CUBIC CENTIMETERS", "CMS-CENTIMETERS", "CTN-CARTONS", "DOZ-DOZENS", "DRM-DRUMS", +
+                      "GGK-GREAT GROSS", "GMS-GRAMMES", "GRS-GROSS", "GYD-GROSS YARDS", "KGS-KILOGRAMS", "KLR-KILOLITRE", "KME-KILOMETRE", +
+                      "LTR-LITRES", "MLT-MILILITRE", "MTR-METERS", "MTS-METRIC TON", "NOS-NUMBERS", "PAC-PACKS", "PCS-PIECES", "PRS-PAIRS", "QTL-QUINTAL", +
+                      "ROL-ROLLS", "SET-SETS", "SQF-SQUARE FEET", "SQM-SQUARE METERS", "SQY-SQUARE YARDS", "TBS-TABLETS", "TGM-TEN GROSS", +
+                      "THD-THOUSANDS", "TON-TONNES", "TUB-TUBES", "UGS-US GALLONS", "UNT-UNITS", "YDS-YARDS", "OTH-OTHERS"
+
+
+
+[Function: Create Category]
+Variable:vCategoryName:String:""
+Variable:ProgressCounter:Number:$$NumItems:StockCategoryColl
+Variable:vCountCategory:Number:0
+Variable:vLastResult:Logical
+Local Formula:Category:If $$IsEqual:$CategoryName:$$SysName:NotApplicable then "" else $CategoryName
+
+000 : Query Box:"Import Stock Category?":Yes:No
+010 : If:$$LastResult
+
+011 : If:$$IsEqual:##ProgressCounter:0
+012 : Msg Box:"Status":"No Data to Process"
+013 : Return
+014 : End If
+
+015 : Start Batch Post:500
+020 : Start Progress : ##ProgressCounter: "Stock Category Import":"Creation in Progress...."
+030 : 	Walk Collection:Stock Category Coll
+035 : 		Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+040 : 		Set:vCategoryName:$Category
+045 : 		If:@@RemoveExistingCategory
+050 : 		New Object:STOCKCATEGORY:##vCategoryName:Yes
+060 : 		Set Value:NAME:##vCategoryName
+070 : 		Set Value:Parent:$$SysName:Primary
+080 : 		Set Target:..
+090 : 		Alter Target
+091 :		Set:vLastResult:$$LastResult
+
+092 : 		If:##vLastResult
+093 :			Increment:vCountCategory
+094 :		Else
+095 : 			Log:($$Sprintf:"Unable to Create Stock Category: %s":##vCategoryName)
+096 :		End If
+
+097 :		End If
+
+100 : 	End Walk
+110 : 	End Progress
+111 : End Batch Post
+112 : Msg Box:"Status":($$String:##vCountCategory) + " Category" + $$Newline + "Created / Altered Successfully"
+130 : Else
+140 : Msg Box:"Info":"Import Cancelled"
+150 : End If
+160 : Return
+
+[Function: Create Stock Group]
+Variable:vStockGroup:String:""
+Variable:ProgressCounter:Number:$$NumItems:StockGroupColl
+Variable:vCountGroup:Number:0
+Variable:vLastResult:Logical
+
+000 : Query Box:"Import Stock Group?":Yes:No
+010 : If:$$LastResult
+
+011 : If:$$IsEqual:##ProgressCounter:0
+012 : Msg Box:"Status":"No Data to Process"
+013 : Return
+014 : End If
+
+015 : Start Batch Post:4000
+020 : Start Progress : ##ProgressCounter: "Stock Group Import":"Creation in Progress...."
+030 : 	Walk Collection:StockGroupColl
+035 : 		Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+040 : 		Set:vStockGroup:$StockGroup
+045 : 		If:@@RemoveExistingGroup
+050 : 		New Object:StockGroup:##vStockGroup:Yes
+060 : 		Set Value:NAME:##vStockGroup
+070 : 		Set Value:Parent:$$SysName:Primary
+075 : 		Set Value:ISADDABLE:Yes
+080 : 		Set Target:..
+090 : 		Alter Target
+091 :		Set:vLastResult:$$LastResult
+
+092 : 		If:##vLastResult
+093 :			Increment:vCountGroup
+094 :		Else
+095 : 			Log:($$Sprintf:"Unable to Create Stock Group: %s":##vStockGroup)
+096 :		End If
+
+097	: 		End if
+100 : 	End Walk
+110 : 	End Progress
+111 : End Batch Post
+112 : Msg Box:"Status":($$String:##vCountGroup) + " Stock Group" + $$Newline + "Created / Altered Successfully"
+130 : Else
+140 : Msg Box:"Info":"Import Cancelled"
+150 : End If
+160 : Return
+
+[Collection:StockItemPriceColl]
+Type:STANDARDPRICELIST:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemCostColl]
+Type:STANDARDCOSTLIST:StockItem
+Child Of:##CurrentStockItemName
+
+[Function:StockItems Import]
+Variable:ProgressCounter:Number
+Variable:vErrorMsg:String
+Variable:CollectionName:String
+Variable:vCountStockItems:Number:0
+Variable:CanBeDeleted:Logical:Yes
+;;;Starting and Showing Progress Bar
+
+0000 : Query Box:"Import Stock Item?":Yes:No
+0010 : If:$$LastResult
+
+0020 : If:($$NumItems:SISelectedStockItemsToLink)!=0
+0030 : Set:CollectionName:"SISelectedStockItemsToLink"
+0040 : Set:ProgressCounter:$$NumItems:SISelectedStockItemsToLink
+0050 : Else
+0060 : Set:CollectionName:"StockItemCollection"
+0070 : Set:ProgressCounter:$$NumItems:StockItemCollection
+0080 : End If
+
+0090 : If:($$IsEmpty:##ProgressCounter) OR ($$IsEqual:##ProgressCounter:0)
+0100 : 		Msg Box:"Status":"No StockItems Found to Import"
+0110 : 		Return
+0120 : End If
+
+0125 : Start Batch Post:800
+0130 : Start Progress : ##ProgressCounter: "StockItems Import":"Creation in Progress...."
+0140 : Walk Collection : ##CollectionName
+0150 : Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+0160 : Set:vErrorMsg:$$GetStockItemReason
+0170 : If:($$IsEmpty:##vErrorMsg)
+0171 : Set				: CurrentStockItemName	: $OldStockItemName
+0172 : Set:CanBeDeleted:If NOT $$IsObjectExists:StockItem:##CurrentStockItemName Then Yes Else ($CanDelete:StockItem:##CurrentStockItemName)
+0190 : NEW OBJECT		: StockItem				: ##CurrentStockItemName:Yes
+
+0208 : Walk Collection:StockItemMrpDetailsColl
+0209 : Delete Collection Object:MRPDETAILS
+0210 : End Walk
+
+0211 : Walk Collection:StockItemGSTDetailsColl
+0212 : Delete Collection Object:GSTDETAILS
+0213 : End Walk
+
+0214 : Walk Collection:StockItemALiasColl
+0215 : Delete Collection Object:Name
+0216 : End Walk
+
+/*
+0217 : Walk Collection:StockItemBatchAllocationsColl
+0218 : Delete Collection Object:BatchAllocations
+0219 : End Walk
+*/
+0219A: SET VALUE		: Name					: $StockItemName
+
+0219B : If:Not $$IsEmpty:$PartNo AND NOT ($$IsObjectExists:StockItem:$PartNo)
+0219C : Set Value	: PartNo		: $PartNo
+0219D : End If
+
+/*
+0219B: Reset Value:OpeningBalance
+0219C: Reset Value:OpeningRate
+0219D: Reset Value:OpeningValue
+*/
+0219AA:If:(NOT $$IsEmpty:$StockAlias[1].StockAlias)
+0220 : Walk Collection:StockAlias
+0221 : If:NOT ($$IsObjectExists:StockItem:$StockAlias)
+0222 : Insert Collection Object       		: Name
+0223 : SET VALUE		: Name				: $StockAlias
+0224 : Set Target:..
+0225 : End If
+0226 : End Walk
+0226AA:End If
+
+0227 : SET VALUE		: Parent					: $Group
+0228 : SET VALUE		: Category					: $Category
+
+0232 : Do If:##CanBeDeleted: SET VALUE			: BaseUnits			: $UnitName
+0233 : SET VALUE		: Description			: $Description
+;0230 : SET VALUE		: BaseUnits			: $UnitName
+;0240 : SET VALUE		: ISBATCHWISEON		: $MaintainInBatches
+
+;0280 : SET VALUE		: GSTTYPEOFSUPPLY	: $TypeOfSupply
+0290 : Do If:##CanBeDeleted:SET VALUE		: ADDITIONALUNITS	: If $$IsEmpty:$AlternateUnit Then $$SysName:NotApplicable Else $AlternateUnit
+0300 : SET VALUE		: CONVERSION		: $Where
+;0310 : SET VALUE		: StockItemID		: $Id
+0315 : SET VALUE		: GSTAPPLICABLE		: $GSTApplicable;$$SysName:Applicable;If NOT $$IsEmpty:$IGSTRate Then $$SysName:Applicable Else $$SysName:NotApplicable 
+
+0317 : Insert Collection Object					: MRPDETAILS
+0318 : SET VALUE		: FROMDATE				: $$Date:"20230401"
+0319 : Insert Collection Object					: MRPRATEDETAILS
+0320 : SET VALUE		: STATENAME				: $$SysName:Any
+0321 : SET VALUE		: MRPRATE				: $MRP
+0322 : Set Target:..
+0323 : Set Target:..
+
+0324 : If:@@IsVer_TallyPrime
+0325 : 	Insert Collection Object				: GSTDETAILS
+0330 : 	SET VALUE		: APPLICABLEFROM		: $$Date:"01-07-17"
+0340 : 	SET VALUE		: CalculationType		: "On Value"
+0350 : 	SET VALUE		: TAXABILITY			: $Taxablity
+0355 : 	SET VALUE		: HSNCode				: $HSNCode
+
+0360 : 	Insert Collection Object				: STATEWISEDETAILS
+0365 : 	Set Value		: STATENAME				: $$SysName:Any
+
+0370 : 	Insert Collection Object				: RATEDETAILS
+0380 : 	SET VALUE		: GSTRATEDUTYHEAD		: "Central Tax"
+0385 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0390 : 	SET VALUE		: GSTRATE				: $CGSTRate
+0400 : 	Set Target:.. 
+
+0410 : 	Insert Collection Object				: RATEDETAILS
+0420 : 	SET VALUE		: GSTRATEDUTYHEAD		: "State Tax"
+0425 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0430 : 	SET VALUE		: GSTRATE				: $SGSTRate
+0440 : 	Set Target:.. 
+
+0450 : 	Insert Collection Object				: RATEDETAILS
+0460 : 	SET VALUE		: GSTRATEDUTYHEAD		: "Integrated Tax"
+0465 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0470 : 	SET VALUE		: GSTRATE				: $IGSTRate
+0480 : 	Set Target:.. 
+
+0490 : 	Insert Collection Object				: RATEDETAILS
+0500 : 	SET VALUE		: GSTRATEDUTYHEAD		: "Cess"
+0506 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0510 : 	SET VALUE		: GSTRATE				: $CessRate
+0520 : 	Set Target:.. 
+
+0530 : 	Set Target:..
+0540 : 	Set Target:..
+0550 : End If
+
+0560 : If: @@IsVer_TallyPrime_3
+0570 : 	Call:InsertItem_v3
+0580 : End If
+
+2070 : Set Target:..
+
+2080 : Alter Target 
+2081 : Set:vLastResult:$$LastResult
+2082 : If:##vLastResult
+
+Variable:CostPrice:Number
+Variable:SellingPrice:Number
+
+2083 : 		Increment:vCountStockItems
+2084 :		Set:CostPrice:$StandardCostPrice[1].Rate
+2085 :		Set:SellingPrice:$StandardSellingPrice[1].Rate
+2086 :		Call:Update Standard Cost:$StockItemName:##CostPrice:##SellingPrice
+2087 : End If
+
+;sDo If:$$LastResult:Increment:vCountStockItems
+
+2091 : If:NOT $$IsEmpty:$OpeningBalance
+Variable:vLastResult:Logical
+Variable:vOpeningBalance:Number
+Variable:vOpeningRate:Number
+Variable:vOpeningValue:Number
+2092 : Set:vOpeningBalance:$OpeningBalance
+2093 : Set:vOpeningRate:$OpeningRate
+2094 : Set:vOpeningValue:$OpeningValue
+2095 : Log:$$Sprintf:"Opening Rate: %s":##vOpeningRate
+2096 : Call:Update Opening Balance:$StockItemName:##vOpeningBalance:##vOpeningRate:##vOpeningValue
+2097 : End If
+
+
+3000 : Else
+3010 : Log:##vErrorMsg
+3020 : End If
+3030 : End Walk
+3040 : End Progress
+3050 : End Batch Post
+
+Variable:CountFailedItems:Number
+Variable:vMsgBoxText:String
+3051 : Set:CountFailedItems: $$Number:##ProgressCounter - $$Number:##vCountStockItems 
+3052 : Set:vMsgBoxText:($$Sprintf:"Stock Item Import Summary:- \n \n Successfull Imports: %s \n Unsuccessfull Imports: %s \n":##vCountStockItems:##CountFailedItems)
+3054 : Msg Box:"Status":##vMsgBoxText
+;3060 : Msg Box:"Status":($$String:##vCountStockItems) + " StockItems" + $$Newline + "Created / Altered Successfully"
+3056 : Trigger Key:Esc
+3070 : Else
+3080 : Msg Box:"Status":"Import Cancelled"
+3090 : End If
+4000 : Return:True
+	
+
+[Function:Update Opening Balance]
+Parameter:StockItemName:String
+Parameter:OpeningBalance:Number
+Parameter:OpeningRate:Number
+Parameter:OpeningValue:Number
+Variable:Qty:Number
+Variable:Rate:Number
+Local Formula:BaseUOM:$BaseUnits:StockItem:##StockItemName
+000: New Object:StockItem:##StockItemName:Yes
+020: Do If:NOT ($$IsSysName:@BaseUOM OR $$IsEmpty:@BaseUOM ):Set Value:OpeningBalance:$$TgtObject:$$AsQty:##OpeningBalance
+
+021: Set Value:OPENINGBALANCE:$$TgtObject:$$AsQty:##OpeningBalance
+022: Set Value:OPENINGVALUE:$$Negative:($$AsAmount:##OpeningValue)
+023: Set Value:OPENINGRATE:$$TgtObject:$$AsRate:##OpeningRate
+
+030: Insert Collection Object:BATCHALLOCATIONS
+040: Set Value:GodownName:$$TgtObject:($$String:"Main Location")
+050: Set Value:BatchName:"Primary Batch"
+060: Do If:NOT ($$IsSysName:@BaseUOM OR $$IsEmpty:@BaseUOM ):Set Value:OpeningBalance:$$TgtObject:$$AsQty:##OpeningBalance
+070: Do If:NOT ($$IsSysName:@BaseUOM OR $$IsEmpty:@BaseUOM ):Set Value:OpeningRate:$$TgtObject:$$AsRate:##OpeningRate
+080: Set Value:OpeningValue:$$Negative:($$AsAmount:##OpeningValue)
+090: Set Target:..
+
+100: Set Target:..
+110: Alter Target
+120: Return
+
+[Function:Update Standard Cost]
+Parameter:ItemName:String
+Parameter:CostPrice:Number
+Parameter:SellingPrice:Number
+Variable:Date:Date
+Object:StockItem:##ItemName
+000 : Set Target
+010 : Set Object
+020 : Set:Date:$StartingFrom:Company:$$CurrentCompany
+
+030 : Walk Collection:StockItemPriceColl
+040 : Delete Collection Object:STANDARDPRICELIST
+050 : End Walk
+
+060 : Walk Collection:StockItemCostColl
+070 : Delete Collection Object:STANDARDCOSTLIST
+080 : End Walk
+
+081 : Log:($$Sprintf:"Item Name: %s, Selling Price: %s, Cost Price: %s":##ItemName:##SellingPrice:##CostPrice)
+
+090 : If:(##SellingPrice>0)  AND NOT $$IsSysName:$BaseUnits
+100 : Insert Collection Object:STANDARDPRICELIST
+110 : Set Value: DATE:$$Date:##Date
+120 : Set Value: RATE:$$AsRate:##SellingPrice
+130 : Set Target:..
+140 : End If
+
+150 : If:(##CostPrice>0) AND NOT $$IsSysName:$BaseUnits
+160 : Insert Collection Object:STANDARDCOSTLIST
+170 : Set Value: DATE:$$Date:##Date
+180 : Set Value: RATE:$$AsRate:##CostPrice
+190 : Set Target:..
+200 : End If
+
+210 : Set Target:..
+220 : Alter Target
+230 : Return:$$LastResult

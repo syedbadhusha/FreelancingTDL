@@ -1,0 +1,9 @@
+[System:Formulas]
+LPActionBackground:If NOT $$IsObjectExists:Ledger:$LedgerName Then "LPGreen" Else "LPRed"
+RemoveEmptyLedgers:NOT ($$IsEmpty:$LedgerName)
+
+[Color:LP Green]
+RGB:155,187,89,255
+
+[Color:LP Red]
+RGB:177,74,44

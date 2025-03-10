@@ -1,0 +1,105 @@
+[Function:Read Stock Items Data]
+Parameter:StockItemFilePath:String:""
+Variable:Mcounter:Number:1
+List Variable:StockItemsList
+Local Formula: GetTaxRate: ($$Number:$GST)/2
+Local Formula: StockItemGroup: If $$IsEmpty:$StockGroup then $$SysName:Primary else $StockGroup
+Local Formula: StockCategory:If $$IsEmpty:$StockCategory then $$SysName:NotApplicable else $StockCategory
+Local Formula: AlternateUnits: If $$IsEmpty:$AlternativeUnits then $$SysName:NotApplicable else $AlternativeUnits
+Local Formula: Where:If $$IsEmpty:$AlternativeUnits then "" else $Where
+Local Formula: IsBatch:If $$IsEqual:$HasBatch:"0" then "Yes" else "No"
+Local Formula: TallyItemName:If $$IsEmpty:$TallyName then $Name else $TallyName
+000 : Start Msg Box:"Status":"Reading Received Data\n From Server"
+005 : List Delete:StockItemsList
+010 : Walk Collection:Stock Item Excel Collection
+020 : List Add Ex:StockItemsList 
+
+025 : Set:StockItemsList[##Mcounter].Id						:""
+023 : Set:StockItemsList[##Mcounter].OldStockItemName	 	:$Item
+030 : Set:StockItemsList[##Mcounter].StockItemName			:$Item
+040 : Set:StockItemsList[##Mcounter].Group					:If $$IsEmpty:$Group Then $$SysName:Primary Else $Group
+080 : Set:StockItemsList[##Mcounter].Category				:$Category
+100 : Set:StockItemsList[##Mcounter].UnitName				:$Unit
+110 : Set:StockItemsList[##Mcounter].Description			:$ProductDetails
+130 : Set:StockItemsList[##Mcounter].MaintainInBatches		:No
+140 : Set:StockItemsList[##Mcounter].GSTApplicable			:$$SysName:NotApplicable
+150 : Set:StockItemsList[##Mcounter].HSNCode				:""
+160 : Set:StockItemsList[##Mcounter].Taxablity				:"Taxable"
+170 : Set:StockItemsList[##Mcounter].IGSTRate				:""
+180 : Set:StockItemsList[##Mcounter].SGSTRate				:$GSTSGSTRate:StockItem:$Item
+190 : Set:StockItemsList[##Mcounter].CGSTRate				:$GSTCGSTRate:StockItem:$Item
+200 : Set:StockItemsList[##Mcounter].CessRate				:$GSTIGSTRate:StockItem:$Item
+210 : Set:StockItemsList[##Mcounter].TypeOfSupply			:"Goods"
+220 : Set:StockItemsList[##Mcounter].OpeningBalance			:$CurrentStock
+230 : Set:StockItemsList[##Mcounter].OpeningRate			:$OpeningRate
+240 : Set:StockItemsList[##Mcounter].OpeningValue			:($$Number:$CurrentStock)*($$Number:$OpeningRate)
+250 : Set:StockItemsList[##Mcounter].AlternateUnit			:$AltUnit
+260 : Set:StockItemsList[##Mcounter].Where					:$AltConversion
+270 : Set:StockItemsList[##Mcounter].TallyName				:$Item
+275 : Set:StockItemsList[##Mcounter].MRP					:""
+276 : Set:StockItemsList[##Mcounter].PartNo					:$PartNos
+
+277 : Log:$$Sprintf:"Alt Unit: %s":$AltUnit
+280 : Call:Read Stock Alias:##Mcounter
+290 : Call:Read Stock Standard Cost Price:##Mcounter
+300 : Call:Read Stock Standard Selling Price:##Mcounter
+310 : Call:Read Stock Batch Allocations:##Mcounter
+350 : Increment:Mcounter  
+370 : End Walk
+375 : End Msg Box
+330 : Display:Stock Item Preview
+400 : Return
+
+[Function:Read Stock Alias]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+000 : Set:Mcounter:1
+005 : If:NOT ($$IsEmpty:$ProductCode)
+020 : List Add Ex:StockItemsList[##Counter].StockAlias
+030 : Set : StockItemsList[##Counter].StockAlias[##Mcounter].StockAlias		: $ProductCode
+040 : Increment:Mcounter   	
+055 : End If
+060 : Return
+
+[Function:Read Stock Standard Cost Price]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+000 : Set:Mcounter:1
+;010 : Walk Collection:StandardCostPrice
+020 : List Add Ex:StockItemsList[##Counter].StandardCostPrice
+030 : Set : StockItemsList[##Counter].StandardCostPrice[##Mcounter].Date		: $StartingFrom:Company:$$CurrentCompany
+035 : Set : StockItemsList[##Counter].StandardCostPrice[##Mcounter].Rate		: $CostPrice
+040 : Increment:Mcounter   
+;050 : End Walk    
+060 : Return	
+
+[Function:Read Stock Standard Selling Price]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+000 : Set:Mcounter:1
+;005 : If:NOT ($$IsEmpty:$StandardSellingPrice[1].Date)
+;010 : Walk Collection:StandardSellingPrice
+020 : List Add Ex:StockItemsList[##Counter].StandardSellingPrice
+030 : Set : StockItemsList[##Counter].StandardSellingPrice[##Mcounter].Date		: $StartingFrom:Company:$$CurrentCompany
+035 : Set : StockItemsList[##Counter].StandardSellingPrice[##Mcounter].Rate		: $SalesPrice
+040 : Increment:Mcounter   
+;050 : End Walk    
+;055 : End If	
+060 : Return
+
+[Function:Read Stock Batch Allocations]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+000 : Set:Mcounter:1
+;005 : If:NOT ($$IsEmpty:$StockBatchAllocations[1].GodownName)
+;010 : Walk Collection:StockBatchAllocations
+020 : List Add Ex:StockItemsList[##Counter].StockBatchAllocations
+030 : Set : StockItemsList[##Counter].StockBatchAllocations[##Mcounter].GodownName		: "Main Godown"
+040 : Set : StockItemsList[##Counter].StockBatchAllocations[##Mcounter].BatchName		: "Primary Batch"
+050 : Set : StockItemsList[##Counter].StockBatchAllocations[##Mcounter].OpeningBalance	: $OpeningBalance
+060 : Set : StockItemsList[##Counter].StockBatchAllocations[##Mcounter].OpeningRate		: $OpeningRate
+070 : Set : StockItemsList[##Counter].StockBatchAllocations[##Mcounter].OpeningValue	: $OpeningValue
+080 : Increment:Mcounter   
+;090 : End Walk    
+;100 : End If	
+110 : Return

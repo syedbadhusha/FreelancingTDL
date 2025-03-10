@@ -1,0 +1,514 @@
+[Report:Ledger Preview]
+Set		: ShowAllBtn:No
+Form	: Ledger Preview
+
+[Form:Ledger Preview]
+Part:LP Form Title, Ledger Preview Body
+Button:Ledgers Import, ;ShowErrosBtn
+Height:100% page
+Width:100% page
+
+[Part:LP Form Title]
+Line:LP CompName, LP Address, LP Period
+Repeat:LP Address:Company Address
+Space Bottom:2% page
+
+[Line:LP CompName]
+Field:Name Field
+Local:Field:Name Field:Set as:$$CurrentCompany
+Local:Field:Name Field:Local:Style:Default:Height:15
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+
+[Line:LP Address]
+Field:Name Field
+Local:Field:Name Field:Set as:$Address
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+
+[Line:LP Period]
+Field:Name Field
+Local:Field:Name Field:Set as:@@DspDateStr
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+
+[Part:Ledger Preview Body]
+Line:LP Column, LP Body
+Repeat:LP body:Ledger Collection
+Scroll:Vertical
+Common Borders:Yes
+Border:Thin Bottom
+
+[Line:LP Column]
+Use:LP Body
+Local:Field:Default:Style:Calibri Default
+Local:Style:Default:Height:@@LargeSize -1
+;Local:Field:Default:Border:Thin Left
+Local:Field:Default:Delete:Background
+Local:Field:Default:Delete:Color
+Local:Field:Default:Type:String
+Local:Field:Default:Line:0
+Local:Field:LP Ledger Name :Set As:"Ledger Name"
+Local:Field:LP Group Name:Set As:"Group Name"
+Local:Field:LP Address:Set As:"Address"
+Local:Field:LP Mobile Number:Set As:"Mobile No"
+Local:Field:LP Contact Person:Set As:"Contact Person"
+Local:Field:LP Phone Number:Set as:"Phone Number"
+Local:Field:LP GSTIN:Set As:"TRN"
+Local:Field:LP Action:Set as:"Action"
+Local:Field:LP Error:Set As:"Error"
+Border:Column Titles
+Delete:Remove if
+
+[Line:LP Body]
+Fields:LP Ledger Name, LP Group Name, LP Address, LP Mobile Number, LP Contact Person, LP Phone Number, LP GSTIN, +
+LP Action, LP Error
+Explode: LP Ledger Name Change:NOT ($$IsEqual:$LedgerName:$OldLedgerName)
+Option	: LP Body Option: @@ShowErrorList
+
+[!Line: LP Body Option]
+Fields:LP Ledger Name, LP Group Name, LP Address, LP Mobile Number, LP Contact Person, LP Phone Number, LP GSTIN, +
+LP Action, LP Error
+Local:Field:Default:Border:Thin Left
+Remove if	: @@ShowErrorList
+
+[Field:LP Ledger Name]
+Use:Name Field
+Set as:$OldLedgerName
+Width:25
+Style:Calibri Default Bold
+Line:0
+
+[Field:LP Group Name]
+Use:Name Field
+Set as:$Group
+Width:20
+Style:Calibri Default
+
+[Field:LP Address]
+Use:Name Field
+Set as:$$FullList:LedgerAddress:$LedgerAddress
+Width:30
+Style:Calibri Default
+Full Width:Yes
+Line:0
+Invisible:Yes
+
+[Field:LP Mobile Number]
+Use:Name Field
+Set as:$MobileNumber
+Width:20
+Style:Calibri Default
+Align:Left
+Invisible:Yes
+
+[Field:LP Contact Person]
+Use:Name Field
+Set as:$ContactPerson
+Width:20
+Format:"NoZero, Decimal:2"
+Style:Calibri Default
+Align:Left
+
+[Field:LP Phone Number]
+Use:Name Field
+Set as:$ContactPerson_Mobile
+Width:17
+Align:Left
+Format:"NoZero, Decimal:2"
+Style:Calibri Default
+
+[Field:LP GSTIN]
+Use:Name Field
+Set as:$GSTINNumber
+Width:23
+Align:Left
+Style:Calibri Default Bold
+
+[Field:LP Action]
+Use:Name Field
+Set as:"NEW"
+Set By Condition:($$IsObjectExists:Ledger:$OldLedgerName):"ALTER"
+Width:10
+Background:@@LPActionBackground
+Style:Calibri Default Bold
+Color:White
+Align:Centre
+
+[Field:LP Error]
+Use:Name Field
+Set as:$$GetLedgerReason
+Set Always:Yes
+Line:0
+Width:35
+Style:Calibri Default
+
+[Part:LP Ledger Name Change]
+	Line:LP Ledger Name Change
+	
+[Line:LP Ledger Name Change]
+	Fields:LP Ledger Name, LP Group Name, LP Address, LP Mobile Number, LP Contact Person, LP Phone Number, LP GSTIN, +
+	LP Action, LP Error
+	Local:Field:Default:Type:String
+	Local:Field:Default:Set as:""
+	Local:Field:Default:Delete:Background
+	Local:Field:Default:Delete:Set By Condition
+	Local:Field:LP Ledger Name:Set as:$$Sprintf:"New Ledger Name: %s":$LedgerName
+	Local:Field:LP Ledger Name:Local:Style:Default:Italics:Yes
+	Local:Field:LP Ledger Name:Local:Style:Default:Bold:No
+	Fixed:Yes
+
+[Function:GetLedgerReason]
+000:If:NOT($$IsObjectExists:Group:$Group)
+010:Return:($$Sprintf:"%s Group Doesn't Exist":$Group)
+020:End If
+
+;030:Walk Collection:LedgerAlias
+;040:If:NOT($$IsObjectExists:Ledger:$LedgerAlias)
+;050:Return:($$Sprintf:"%s Alias Doesn't Exist":$LedgerAlias)
+;060:End If
+;070:End Walk
+
+090:Return:""
+
+
+[Button:Ledgers Import]
+Title:"Import Ledgers"
+Key:F2
+Action:Call:Ledgers Import
+
+[Function:Ledgers Import]
+Variable:ProgressCounter:Number
+Variable:vLastResult:String
+Variable:vErrorMsg:String
+Variable:CollectionName:String
+Variable:vCountLedgers:Number:0
+Variable:GstDutyHead:String
+
+;;;Starting and Showing Progress Bar
+0000 : Query Box:"Import Ledgers?":Yes:No
+0010 : If:$$LastResult
+
+0020 : If:($$NumItems:LISelectedLedgersToLink)!=0
+0030 : 	Set:CollectionName:"LISelectedLedgersToLink"
+0040 : 	Set:ProgressCounter:$$NumItems:LISelectedLedgersToLink
+0050 : Else
+0060 : 	Set:CollectionName:"LedgerCollection"
+0070 : 	Set:ProgressCounter:$$NumItems:LedgerCollection
+0080 : End If
+
+0090 : If:($$IsEmpty:##ProgressCounter) OR ($$IsEqual:##ProgressCounter:0)
+0100 : 		Msg Box:"Status":"No Ledgers Found to Import"
+0110 : 		Return
+0120 : End If
+
+0130 : Start Batch Post:500
+0140 : Start Progress : ##ProgressCounter: "Ledgers Import":"Creation in Progress...."
+0150 : Walk Collection : ##CollectionName
+0160 : Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+0170 : Set:vErrorMsg:$$GetLedgerReason
+0180 : If:($$IsEmpty:##vErrorMsg)
+
+0190 : Set				: CurrentLedName	: $OldLedgerName
+0200 : NEW OBJECT		: Ledger			: ##CurrentLedName:Yes
+
+0210 : Walk Collection:LedgerAliasColl
+0220 : Delete Collection Object:Name
+0230 : End Walk
+
+0240 : Walk Collection:LedgerAddressColl
+0250 : Delete Collection Object:Address
+0260 : End Walk
+
+0270 : SET VALUE		: Name				: $LedgerName
+0271 : SET VALUE		: CREDITLIMIT		: $CreditLimit
+
+0280 : Walk Collection:LedgerAlias
+0290 : If:NOT ($$IsObjectExists:Ledger:$LedgerAlias) AND NOT($$IsEmpty:$LedgerAlias)
+0300 : Insert Collection Object       		: Name
+0310 : SET VALUE		: Name				: $LedgerAlias
+0320 : Set Target:..
+0330 : End If
+0340 : End Walk
+
+;0350 : SET VALUE		: LedgerID			: $Id
+0360 : SET VALUE		: Parent			: $Group
+0370 : SET VALUE		: Description		: $Description
+0380 : SET VALUE		: Narration			: $Notes
+0390 : SET VALUE		: IsBillWiseOn		: If $$IsEqual:$InventoryAffected:"Yes" then "No" else "Yes"
+
+0391 : If:##CurrentLedName contains "Round" or ##CurrentLedName contains "R/Off"
+0392 :	SET VALUE		: VATDEALERNATURE	: "Invoice Rounding"
+0393 :	SET VALUE		: ROUNDINGMETHOD	: "Normal Rounding"
+0394 : End If
+
+
+0395 : If:$$IsEqual:$Group:"Bank Accounts"
+0396 : 	Walk Collection:LedgerBankDetails
+0400 : 	SET VALUE		: BRANCHNAME		: $BankBranch
+0410 : 	SET VALUE		: IFSCODE			: $BankIFSCCode
+0420 : 	SET VALUE		: BANKDETAILS		: $BankAccountNumber
+0430 : 	SET VALUE		: BANKINGCONFIGBANK	: $BankName
+0440 : 	SET VALUE		: BANKACCHOLDERNAME	: $AccountHolderName
+0450 : 	SET VALUE		: SWIFTCODE			: $BankSWIFTCode
+0455 : 	End Walk
+0456 : End If
+
+0457 : If:@@IsVer_TallyPrime 
+0460 : If:$$IsEqual:$Group:"Duties & Taxes"
+0470 : Set:GstDutyHead:If ##CurrentLedName contains "cgst" then "Central Tax" else if ##CurrentLedName contains "sgst" then "State Tax" else if ##CurrentLedgerName contains "cess" then "Cess" else "Integrated Tax"
+0480 : 	If:##CurrentLedName contains "cgst" or ##CurrentLedName contains "sgst" or ##CurrentLedName contains "igst" or ##CurrentLedName contains "gst"
+0490 : 		Set Value:TAXTYPE:"GST"
+0500 :		Set Value:GSTDUTYHEAD:##GstDutyHead
+0501 :		If:##GstDutyHead contains "Cess"
+0502 :			Set Value:CESSVALUATIONMETHOD:$$SysInfo:Any
+0503:		End If
+0510 :  End If
+0520 : End If
+0521 : End If
+
+0525 : If:@@IsVer_TallyPrime 
+0530 : If:$$IsEqual:$Group:"Sales Accounts"
+0540 : 		Set Value:GSTAPPLICABLE:$$SysName:Applicable
+0550 :		Insert Collection Object:GSTDETAILS
+0560 : 		Set Value:APPLICABLEFROM:$BooksFrom:Company:$$CurrentCompany;"20100401"
+0561 : 		Set Value:HSNCODE:$HSNCode
+0570 : 		Set Value:TAXABILITY:"Taxable"
+
+0580 : 		Insert Collection Object:STATEWISEDETAILS
+0590 :		Set Value:STATENAME:$$SysName:Any
+
+0600 :		Insert Collection Object:RATEDETAILS
+0610 :		Set Value:GSTRATEDUTYHEAD:"Central Tax"
+0620 :		Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0630 :		Set Value:GSTRATE:$IGSTRate/2
+0640 : 		Set Target:..
+
+0650 :		Insert Collection Object:RATEDETAILS
+0660 :		Set Value:GSTRATEDUTYHEAD:"State Tax"
+0670 :		Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0680 :		Set Value:GSTRATE:$IGSTRate/2
+0690 : 		Set Target:..
+
+0700 :		Insert Collection Object:RATEDETAILS
+0710 :		Set Value:GSTRATEDUTYHEAD:"Integrated Tax"
+0720 :		Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0730 :		Set Value:GSTRATE:$IGSTRate
+0740 : 		Set Target:..
+
+0750:		Insert Collection Object:RATEDETAILS
+0760 :		Set Value:GSTRATEDUTYHEAD:"Cess"
+0770 :		Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0780 : 		Set Target:..
+
+0790 :		Insert Collection Object:RATEDETAILS
+0800 :		Set Value:GSTRATEDUTYHEAD:"Cess on Qty"
+0810 :		Set Value:GSTRATEVALUATIONTYPE:"Based on Quantity"
+0820 : 		Set Target:..
+
+0830 :		Insert Collection Object:RATEDETAILS
+0840 :		Set Value:GSTRATEDUTYHEAD:"State Cess"
+0850 :		Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0860 : 		Set Target:..
+
+0870 :  	Set Target:..
+0880 : 		Set Target:..
+
+0890 : End If
+0895 : End If
+
+
+Variable:vCreditDays:Number
+0900 : Set:vCreditDays:$CreditPeriod
+0910 : Do If:(NOT $$IsEmpty:##vCreditDays)		: SET VALUE		: BillCreditPeriod	: If $$IsEmpty:##vCreditDays then "" else $$DateRange:##vCreditDays:##SVCurrentDate:True
+0920 : SET VALUE		: AffectsStock		: $InventoryAffected ;Yes
+0930 : SET VALUE		: Mailing Name		: If $$IsEmpty:$MailingName Then ##CurrentLedName Else $MailingName
+
+0940 : If:@@IsVer_TallyPrime 
+0950 : 	Walk Collection:LedgerAddress
+0960 : 		If:NOT ($$IsEmpty:$LedgerAddress)
+0970 : 			Insert Collection Object       		: Address
+0980 : 			SET VALUE		: Address			: $LedgerAddress
+0990 : 			Set Target:..
+1000 : 		End If
+1010 : 	End Walk
+1020 : End if
+
+1030 : SET VALUE		: LedStateName      : $StateName 
+1040 : SET VALUE		: CountryName       : If $$IsEmpty:$CountryName then "UAE" else $CountryName
+1050 : SET VALUE		: PinCode         	: $PinCode
+1060 : SET VALUE		: LedgerMobile		: $MobileNumber
+
+1070 : SET VALUE		: LedgerContact		: $ContactPerson
+1080 : SET VALUE		: LedgerPhone		: $ContactPerson_Mobile
+1090 : SET VALUE		: LedgerFax			: $ContactPerson_Fax
+1100 : SET VALUE		: Email				: $ContactPerson_Email
+1110 : SET VALUE		: EMailCC			: $ContactPerson_EmailCC
+1120 : SET VALUE		: Website			: $ContactPerson_Website
+
+1130 : SET VALUE		: IncomeTaxNumber		: $PANNumber
+;1140 : SET VALUE		: GSTRegistrationType	: If $$IsEmpty:$GSTINNumber then "Unregistered" else "Registered"
+;1150 : SET VALUE		: PartyGSTIN			: $GSTINNumber
+1160 : SET VALUE		: Opening Balance		: $$AsAmount:$OpeningBalance
+
+1161 : SET VALUE		: VATDEALERTYPE			: $GSTType
+1162 : SET VALUE		: VATTINNUMBER			: $GSTINNumber
+
+1170 : If:NOT $$IsEmpty:$OpeningBalance
+1180 : 	Insert Collection Object:BILLALLOCATIONS
+1190 : 	SET VALUE		: BILLDATE				: If $$IsEmpty:$OpeningBalance_Date then (@@DSPFromDate) else $$Date:$OpeningBalance_Date
+1200 : 	SET VALUE		: Name					: $OpeningBalance_Name
+1210 : 	SET VALUE		: ISADVANCE				: "No"
+1220 : 	SET VALUE		: OPENINGBALANCE		: $$AsAmount:$OpeningBalance
+1230 : 	Set Target:.. 
+1240 : End If
+
+;; For tally version greater than 2.1
+1250 : If: @@IsVer_TallyPrime_3
+1260 : 	Call: InsertLedgerDetails_v3:##CurrentLedName
+1270 : End If
+
+1280 : Set Target:..
+
+1290 : Alter Target 
+1300 : Set:vLastResult:$$LastResult
+
+1310 : If:##vLastResult
+1320 : 		Increment:vCountLedgers
+1330 : Else
+1340 :		Log:$Id
+1350 : End If
+
+1360 : Else
+1370 : Log:##vErrorMsg
+1380 : End If
+1390 : End Walk
+1400 : End Batch Post
+
+1410 : End Progress
+
+Variable:CountFailedItems:Number
+Variable:vMsgBoxText:String
+1420 : Set:CountFailedItems: $$Number:##ProgressCounter - $$Number:##vCountLedgers 
+1430 : Set:vMsgBoxText:($$Sprintf:"Ledger Import Summary:- \n \n Successfull Imports: %s \n Unsuccessfull Imports: %s \n":##vCountLedgers:##CountFailedItems)
+1440 : Msg Box:"Status":##vMsgBoxText
+1450 : Trigger Key:Esc
+;1270 : Msg Box:"Status":($$String:##vCountLedgers) + " Ledgers" + $$Newline + "Created / Altered Successfully"
+1460 : Else
+1470 : Msg Box:"Status":"Import Cancelled"
+1480 : End If
+
+1490 : Return:True
+
+
+[Function: InsertLedgerDetails_v3]
+Parameter:pCurrentLedName:String
+Variable:LedgerGroup:String
+0000 : Walk Collection:LedgerMailingDetailsColl
+0010 : Delete Collection Object:LedMailingDetails
+0020 : End Walk
+
+0030 : Walk Collection:LedgerLedGSTDetailsColl
+0040 : Delete Collection Object:LedGSTRegDetails
+0050 : End Walk
+
+0051 : Walk Collection:LedgerHSNDetailsColl
+0052 : Delete Collection Object:HSNDETAILS
+0053 : End Walk
+
+0054 : Walk Collection:LedgerGSTDetailsColl
+0055 : Delete Collection Object:GSTDETAILS
+0056 : End Walk
+
+;0058 : If:($$NumItems:LedgerAddress!=0 AND NOT $$IsEmpty:$StateName AND NOT $$IsEmpty:$CountryName)
+0060 : 	Insert Collection Object       			: LedMailingDetails;LEDMAILINGDETAILS
+0070 : 	Walk Collection:LedgerAddress
+0080 : 		If:NOT ($$IsEmpty:$LedgerAddress)
+0090 : 			Insert Collection Object       	: ADDRESS
+0100 : 			SET VALUE		: Address		: $LedgerAddress
+0110 : 			Set Target:.. 
+0120 : 		End If
+0130 : 	End Walk
+;0131 :  Set Value:Led Mailing Name:"fjbdfjbggvbdsfgvkb"
+0140 : 	SET VALUE		: APPLICABLEFROM		: $$Date:"20100401"
+0150 : 	SET VALUE		: PINCODE				: $PinCode
+0160 : 	SET VALUE		: STATE					: $StateName
+0170 : 	SET VALUE		: COUNTRY				: If $$IsEmpty:$CountryName then "UAE" else $CountryName
+0180 : 	Set Target:..
+;0181 : End If
+
+;0190 : Insert Collection Object       			: LedGSTRegDetails
+;0200 : SET VALUE		: GSTREGISTRATIONTYPE	: If $GSTType contains "Unregistered" then "Unregistered/Consumer" else $GSTType ;If $$IsEqual:$GSTType:"Regular" Then "Regular" Else $GSTType
+;0210 : SET VALUE		: APPLICABLEFROM		: $$Date:"20100401"
+;0220 : SET VALUE		: GSTIN					: $GSTINNumber
+;0230 : Set Target:..
+
+0233 : If:$$IsEqual:$Group:"Duties & Taxes"
+0234 : Set:GstDutyHead:If ##pCurrentLedName contains "cgst" then "CGST" else if ##pCurrentLedName contains "sgst" then "SGST/UTGST" else "IGST"
+0235 : 	If:##pCurrentLedName contains "cgst" or ##pCurrentLedName contains "sgst" or ##pCurrentLedName contains "igst" or ##pCurrentLedName contains "gst"
+0236 : 		Set Value:TAXTYPE:"GST"
+0237 :		Set Value:GSTDUTYHEAD:##GstDutyHead
+0238 :  End If
+0239 : End If
+
+0240 : SET VALUE		: VATDEALERTYPE			: $GSTType
+0241 : SET VALUE		: VATTINNUMBER			: $GSTINNumber
+
+0242 : Set:LedgerGroup:$Group
+0250 : If: $$IsEqual:##LedgerGroup:"Sales Accounts"
+0260 : 	Set Value		: GSTAPPLICABLE			: $$SysName:Applicable
+
+0270 :	Insert Collection Object:GSTDETAILS
+0280 : 	Set Value:APPLICABLEFROM:"20100401"
+0290 : 	Set Value:TAXABILITY:"Taxable"
+0300 : 	Set Value:SRCOFGSTDETAILS:"Specify Details Here"
+
+0310 : 	Insert Collection Object:STATEWISEDETAILS
+0320 :	Set Value:STATENAME:$$SysName:Any
+
+0330 :	Insert Collection Object:RATEDETAILS
+0340 :	Set Value:GSTRATEDUTYHEAD:"CGST"
+0350 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0360 :	Set Value:GSTRATE:$IGSTRate/2
+0370 : 	Set Target:..
+
+0380 :	Insert Collection Object:RATEDETAILS
+0390 :	Set Value:GSTRATEDUTYHEAD:"SGST/UTGST"
+0400 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0410 :	Set Value:GSTRATE:$IGSTRate/2
+0420 : 	Set Target:..
+
+0430 :	Insert Collection Object:RATEDETAILS
+0440 :	Set Value:GSTRATEDUTYHEAD:"IGST"
+0450 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0460 :	Set Value:GSTRATE:$IGSTRate
+0470 : 	Set Target:..
+
+0480:	Insert Collection Object:RATEDETAILS
+0490 :	Set Value:GSTRATEDUTYHEAD:"Cess"
+0500 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0510 : 	Set Target:..
+
+
+0560 :	Insert Collection Object:RATEDETAILS
+0570 :	Set Value:GSTRATEDUTYHEAD:"State Cess"
+0580 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0590 : 	Set Target:..
+
+0600 :  Set Target:..
+0610 : 	Set Target:..
+
+0620 : Insert Collection Object:HSNDETAILS
+0630 : Set Value:APPLICABLEFROM:"20100401"
+0640 : Set Value:HSNCODE:$HSNCODE
+0650 : Set Value:SRCOFHSNDETAILS:"Specify Details Here"
+0660 : Set Target:..
+
+0670 : End If
+
+0680 : Return
+
+[Object: Ledger_Details]
+	

@@ -1,0 +1,14 @@
+[Button:Print StockItem Barcode]
+	Title	: "Print Barcode"
+	Key		: Alt + C
+	Action	: Call: Print StockItem Barcode:$Name
+	
+[Button:Print Voucher Barcode]
+	Title	: "Print Barcode"
+	Key		: Alt + B
+	Action	: Call: Print Voucher Barcode
+	
+[Button:Print Daybook Barcode]
+	Title	: "Print Barcode"
+	Key		: Alt + B
+	Action	: Call: Print Daybook Barcode

@@ -1,0 +1,61 @@
+[Variable:StockItemsList]
+Variable:Id:String
+Variable:OldStockItemName:String
+Variable:StockItemName:String
+List Variable:StockAlias
+Variable:Group:String
+Variable:GroupParent:String
+Variable:Category:String
+Variable:CategoryParent:String
+Variable:UnitName:String
+Variable:Description:String
+Variable:Notes:String
+Variable:MaintainInBatches:Logical
+List Variable:StandardCostPrice
+List Variable:StandardSellingPrice
+Variable:GSTApplicable:String
+Variable:HSNCode:String
+Variable:Taxablity:String
+Variable:IGSTRate:Number
+Variable:SGSTRate:Number
+Variable:CGSTRate:Number
+Variable:CessRate:Number
+Variable:TypeOfSupply:String
+Variable:OpeningBalance:Number
+Variable:OpeningRate:Number
+Variable:OpeningValue:String
+Variable:AlternateUnit:String
+Variable:Where:String
+List Variable:StockBatchAllocations
+Variable:TallyName:String
+Variable:MRP:Rate
+Variable:BrandName:String
+Variable:SAPItemCode:String
+Variable:PrintName:String
+Variable:NewBrandName:String
+Variable:PartNo:String
+
+[Variable:StockAlias]
+Variable:StockAlias:String
+
+[Variable:StandardCostPrice]
+Variable:Date:Date
+Variable:Rate:Number
+
+[Variable:StandardSellingPrice]
+Variable:Date:Date
+Variable:Rate:Number
+
+[Variable:StockBatchAllocations]
+Variable:GodownName:String
+Variable:BatchName:String
+Variable:OpeningBalance:Number
+Variable:OpeningRate:Number
+Variable:OpeningValue:String
+
+[Variable:CurrentStockItemName]
+Type:String
+
+[System:Variables]
+List Variable:StockItemsList
+CurrentStockItemName:""

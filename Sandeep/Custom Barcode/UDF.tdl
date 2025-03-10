@@ -1,0 +1,22 @@
+[System:UDF]
+	BC Barcode Aggr:Aggregate:2350
+	BC_ItemName:String:2351
+	BC_Barcode:String:2352
+	BC_Price:Number:2353
+	BC_NoOfBarcodes:Number:2354
+	BC_BatchName:String:2355
+	
+	BatchWisePriceAggr:Aggregate:2356
+	STKI Batch:String:2357
+	STKI PurcPrice:Number:2358
+	STKI SalePrice:Number:2359
+	DirectPrintToPrinter:Logical:2360
+	BarcodePrinterName:String:2361
+	PKD:String:2362
+	Barcode_SpaceTop:Number:2363
+	Barcode_SpaceBottom:Number:2364
+	Barcode_SpaceLeft:Number:2365
+	Barcode_SpaceRight:Number:2366
+	Barcode_SpaceBetween_Labels:Number:2367
+	
+	BC_Weight				:	String	:	2368

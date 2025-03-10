@@ -1,0 +1,17 @@
+[System:UDF]
+ET Folder Path			:String:4700
+ET File Path			:String:4701
+ET Vch Type Name		:String:4702
+ET Godown Name			:String:4703
+ET Inventory Alloc		:String:4704
+
+EAC SGST Ledger			:String:4705
+EAC CGST Ledger			:String:4706
+EAC IGST Ledger			:String:4707
+EAC VAT Ledger			:String:4708
+
+EAC Additional Ledger 1	:String:4709
+EAC Additional Ledger 2	:String:4710
+EAC Additional Ledger 3	:String:4711
+EAC CessValuationType	:String:4712
+ET Sheet Name			:String:4713

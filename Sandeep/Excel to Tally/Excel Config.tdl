@@ -1,0 +1,348 @@
+[Report:ET Configuration]
+Object:Company
+Form:ET Configuration
+
+[Form:ET Configuration]
+Part:ET Title, ET Configuration
+Width:50% Page
+Full Height:No
+Horizontal Align:Centre
+Vertical Align:Centre
+Delete:Space Top
+On:Form Accept:Yes:Form Accept
+On:Form Accept:Yes:Call:Read Data:#ETFolderPath:#ETFilePath:#ETSheetName
+
+[Part:ET Title]
+Line:ET Title
+Option:Dark Green:@@IsTallyERP_Tally
+Option:Cyan Blue:@@IsTallyPrime_Tally
+
+[Line:ET Title]
+Fields:Name Field
+Local:Field:Name Field:Style:Calibri Large Bold 
+Local:Field:Name Field:Local:Style:Default:Height:13
+Local:Field:Name Field:Set as:"Import Transaction"
+Local:Field:Name Field:Wide Spaced:Yes
+Local:Field:Name Field:Skip:Yes
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Color:White
+Local:Field:Name Field:Align:Centre
+Space Top:0.5
+Space Bottom:0.5
+
+[Part:ET Configuration]
+Lines:ET Folder Path, ET File Path, ET Sheet Name, ET Vch Type Name, ET Godown, ET Sales Ledgers, ET Advance Configuration
+Local:Style:Default:Height:11
+Local:Field:Medium Prompt: Width:@@LongWidth - 8
+
+[Line:ET Folder Path]
+Fields:Medium Prompt, ET Folder Path
+Local:Field:Medium Prompt: Info:"Folder Path:"
+Local:Field:Medium Prompt: Style: Calibri Default
+Space Bottom:0.5
+Space Top:0.5
+
+[Field:ET Folder Path]
+Use:Name Field
+Set as:If $$IsEmpty:$$Value Then $$ApplicationPath Else $$Value
+Modifies:ETFolderPath:Yes
+Full Width:Yes
+Background:White
+Border:Thin Box
+Validate: Not $$IsEmpty:$$Value
+Style: Calibri Small Bold
+Storage:ET Folder Path
+
+[Line: ET File Path]
+Fields:Medium Prompt,  ET File Path
+Local:Field:Medium Prompt: Info:"File Path:"
+Local:Field:Medium Prompt: Style: Calibri Default
+Space Bottom:0.5
+
+[Field: ET File Path]
+Use:Name Field
+Table:Directory Collection
+Show Table:Always
+Modifies:ETFilePath:Yes
+Full Width:Yes
+Background:White
+Border:Thin Box
+Validate: Not $$IsEmpty:$$Value
+Style: Calibri Small Bold
+Storage:ET File Path
+
+[Line   : ET Sheet Name]
+Fields	: Medium Prompt, ET Sheet Name
+Local	: Field: Medium Prompt	: Set as	: "Sheet Name" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Space Bottom:0.5
+
+[Field:ET Sheet Name]
+Use		: Name Field
+Storage	: ET Sheet Name
+Border	: Thin Box
+Validate: Not $$IsEmpty:$$Value
+Style	: Calibri Default Bold
+Table	: Sheet Table
+Show Table: Always
+Modifies	: vmSheetName
+Set Always	: Yes
+
+[Variable:vmSheetName]
+	Type:String
+	
+[System:Variable]
+	vmSheetName:""
+
+[Collection: Sheet Table]
+Title		: "List of Sheets"
+List Name	: "Sales With Inventory", "Purchase With Inventory", "Payment", "Ledger", "Receipt", "Contra", "Journal", +
+"Sales Without Inventory", "Purchase Without Inventory", "Bank Import", "Stock Item"
+
+[Line   : ET Vch Type Name]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Vch Type Name" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: ET Vch Type Name
+Local	: Field: Name Field		: Table		: Voucher Type, NotApplicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+Space Bottom:0.5
+
+[Line   : ET Godown]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Godown" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: ET Godown Name
+Local	: Field: Name Field		: Table		: List of Godowns, NotApplicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+;Local	: Field: Name Field		: Inactive	: $$IsEqual:#ETSheetName:"Journal" or $$IsEqual:#ETSheetName:"Receipt"
+Space Bottom:0.5
+;Invisible:NOT $$IsEqual:$ETSheetName:"Sales With Inventory" or NOT $$IsEqual:$ETSheetName:"Purchase With Inventory"
+
+
+[Line   : ET Sales Ledgers]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Sales/Purchase Account" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: ET Inventory Alloc
+Local	: Field: Name Field		: Table		: Sales And Purchase Ledgers, NotApplicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+;Local	: Field: Name Field		: Inactive	: $$IsEqual:#ETSheetName:"Journal" or $$IsEqual:#ETSheetName:"Receipt"
+Space Bottom:0.5
+
+[Line:ET Advance Configuration]
+Fields:Medium Prompt, Logical Field
+Local:Field:Medium Prompt: Info:"Set / Alter Configuration"
+Local:Field:Medium Prompt: Style: Calibri Default
+
+Local:Field:Logical Field:Type:Logical:Forced
+Local:Field:Logical Field:Set as:No
+Local:Field:Logical Field:Sub Form:Excel Advance Configuration:$$Value
+Local:Field:Logical Field:Background:White
+Local:Field:Logical Field:Border:Thin Box
+Local:Field:Logical Field:Style: Calibri Small Bold
+;Local:Field:Logical Field:Inactive:$$IsEqual:#ETSheetName:"Journal" or $$IsEqual:#ETSheetName:"Receipt"
+Space Bottom:0.5
+
+[!Part:Dark Green]
+Background:Dark Green
+
+[!Part:Cyan Blue]
+Background:Cyan Blue
+
+[Variable:ETFolderPath]
+Type:String
+
+[Variable:ETFilePath]
+Type:String
+
+[System:Variable]
+ETFolderPath:""
+ETFilePath:""
+
+
+
+
+
+;;  ============================================================== Advance Configuration
+
+[Report:Excel Advance Configuration]
+Form:Excel Advance Configuration
+Object	: Company
+
+[Form:Excel Advance Configuration]
+Part:EAC Title, Excel Advance Configuration, Additional Configuration
+Full Height		: No
+Full Width		: No
+Delete			: Space Top
+Background		: White
+
+[Part:EAC Title]
+Line:EAC Title
+Option:Dark Green:@@IsTallyERP_Tally
+Option:Cyan Blue:@@IsTallyPrime_Tally
+
+[Line:EAC Title]
+Fields:Name Field
+Local:Field:Name Field:Style:Calibri Large Bold 
+Local:Field:Name Field:Local:Style:Default:Height:13
+Local:Field:Name Field:Set as:"Advance Configuration"
+Local:Field:Name Field:Color:White
+Local:Field:Name Field:Wide Spaced:Yes
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Centre
+Local:Field:Name Field:Skip:Yes
+Space Top:0.5
+Space Bottom:0.5
+
+[Part: Excel Advance Configuration]
+Left Part	: EAC GST Ledger
+Right Part	: EAC Additional Ledgers
+Local:Line:Default:Space Bottom: 0.5
+Local:Style:Default:Height:11
+Space Top	: 1
+
+[Part: EAC GST Ledger]
+Line		: Form SubTitle, EAC SGST Ledger, EAC CGST Ledger, EAC IGST Ledger, EAC VAT Ledger
+Local		: Field	: Form SubTitle	: Info			: $$LocaleString:"Tax Ledgers" 
+Local		: Field	: Form SubTitle	: Align			: Left
+Local		: Field	: Form SubTitle	: Full Width	: No
+Local		: Field : Form SubTitle : Style			: Calibri Large Bold Italic
+Local		: Field : Form SubTitle : Local			: Style:Default:Height:11
+Space Top	: 0.5
+
+[Line:EAC SGST Ledger]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "SGST Ledger" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC SGST Ledger
+Local	: Field: Name Field		: Table		: Tax Ledgers, Not Applicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+Invisible:Yes
+	
+[Line:EAC CGST Ledger]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "CGST Ledger" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC CGST Ledger
+Local	: Field: Name Field		: Table		: Tax Ledgers, Not Applicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+Invisible:Yes
+
+[Line:EAC IGST Ledger]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "IGST Ledger" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC IGST Ledger
+Local	: Field: Name Field		: Table		: Tax Ledgers, Not Applicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+Invisible:Yes
+
+[Line:EAC VAT Ledger]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "VAT Ledger" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC VAT Ledger
+Local	: Field: Name Field		: Table		: Tax Ledgers, Not Applicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+
+[Part:EAC Additional Ledgers]
+Line		: Form SubTitle, EAC Additional Ledger 1, EAC Additional Ledger 2, EAC Additional Ledger 3
+Local		: Field	: Form SubTitle	: Info			: $$LocaleString:"Additional Ledgers" 
+Local		: Field	: Form SubTitle	: Align			: Left
+Local		: Field	: Form SubTitle	: Full Width	: No
+Local		: Field : Form SubTitle : Style			: Calibri Large Bold Italic
+Local		: Field : Form SubTitle : Local			: Style:Default:Height:11	
+Space Top	: 0.5
+
+[Line:EAC Additional Ledger 1]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Discount Ledger" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC Additional Ledger 1
+Local	: Field: Name Field		: Table		: Additional Ledgers,NotApplicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+
+[Line:EAC Additional Ledger 2]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Expense Ledger" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC Additional Ledger 2
+Local	: Field: Name Field		: Table		: Additional Ledgers,NotApplicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+
+[Line:EAC Additional Ledger 3]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Additional Ledger 3" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC Additional Ledger 3
+Local	: Field: Name Field		: Table		: Additional Ledgers,NotApplicable
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Keys		: Create Ledger, Alter Ledger
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+Invisible	: Yes
+
+[Part:Additional Configuration]
+Line		: Form SubTitle, AC Cess Valuation Type
+Local		: Field	: Form SubTitle	: Info			: $$LocaleString:"Tax Ledgers" 
+Local		: Field	: Form SubTitle	: Align			: Left
+Local		: Field	: Form SubTitle	: Full Width	: No
+Local		: Field : Form SubTitle : Style			: Calibri Large Bold Italic
+Local		: Field : Form SubTitle : Local			: Style:Default:Height:11
+
+Local:Line:Default:Space Bottom: 0.5
+Local:Style:Default:Height:11
+Space Top	: 1
+
+[Line:AC Cess Valuation Type]
+Fields	: Medium Prompt, Name Field
+Local	: Field: Medium Prompt	: Set as	: "Cess Valuation Type" + ":"
+Local	: Field: Medium Prompt	: Style		: Calibri Default
+Local	: Field: Name Field		: Storage	: EAC CessValuationType
+Local	: Field: Name Field		: Table		: Cess Valuation
+Local	: Field: Name Field		: Show Table: Always
+Local	: Field: Name Field		: Border	: Thin Box
+Local	: Field: Name Field		: Validate	: Not $$IsEmpty:$$Value
+Local	: Field: Name Field		: Style		: Calibri Default Bold
+
+[Collection:Cess Valuation]
+Use:Alias Collection
+List Name:"Based on Quantity", "Based on Value"

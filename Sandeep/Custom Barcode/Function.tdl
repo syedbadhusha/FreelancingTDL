@@ -1,0 +1,337 @@
+[Function:Print StockItem Barcode]
+Parameter:pItemName:String
+000:Call:EraseBarcodeData
+010:Call:AddBarcodeData:##pItemName
+020:Alter:Barcode Configuration
+030:Return:$$LastResult
+
+
+[Function:Print Voucher Barcode]
+Variable:vItemName:String
+000:Call:EraseBarcodeData
+010:Walk Collection:Inventory Entries
+011:	Set:vItemName:$StockItemName
+020:	Walk Collection:Batch Allocations
+030:		Call:AddBarcodeData:##vItemName:"":$Rate:$ActualQty:$BatchName
+040:	End Walk
+050:End Walk
+060:Alter:Barcode Configuration
+070:Return:$$LastResult
+
+[Function:Print Daybook Barcode]
+Variable:vItemName:String
+000:Call:EraseBarcodeData
+005:Walk Collection:Current Voucher To Link
+010:Walk Collection:Inventory Entries
+011:	Set:vItemName:$StockItemName
+020:	Walk Collection:Batch Allocations
+030:		Call:AddBarcodeData:##vItemName:"":$Rate:$ActualQty:$BatchName
+040:	End Walk
+050:End Walk
+055:End Walk
+060:Alter:Barcode Configuration
+070:Return:$$LastResult
+;select ($$IsCOMInterfaceInvokable:GenerateBarcodes) From Company
+
+[Function:GenerateBarcodes]
+Variable:ExportedFilePath:String
+Variable:vLastResult:String
+Local Formula:PrintToPrinter:$DirectPrintToPrinter:Company:$$CurrentCompany
+Local Formula:PrinterName:$BarcodePrinterName:Company:$$CurrentCompany
+000:Set:ExportedFilePath:$$ExportReportToJson:"Barcode Payload":"Barcode Payload"
+010:Display:Barcode Preview
+080:Return
+
+
+[Function:Read Batch]
+Parameter:pMstID:String:""
+Variable:Mcounter:Number:1
+Variable:vIsPrintConfirm:Logical
+Variable:vNoOfCopies:Number
+Variable:NoOfBarcodes:Number
+Object:Company:$$CurrentCompany
+000:Set Target
+005:Set Object
+010:List Delete:List Batch
+
+020:Walk Collection:BC Barcode Aggr
+040:FOR RANGE		: IteratorVar	: Number	: 1	:($$Number:$BC_NoOfBarcodes) : 1
+041:List Add Ex:List Batch
+042:Set:List Batch[##Mcounter].CmpName				:$BasicCompanyFormalName:Company:$$CurrentCompany
+050:Set:List Batch[##Mcounter].StockItemName		:$BC_ItemName
+060:Set:List Batch[##Mcounter].Quantity				:1
+061:Set:List Batch[##Mcounter].PartNumber			:(If $$IsEmpty:$BC_Barcode Then $$RandomNumber Else $BC_Barcode)
+080:Set:List Batch[##Mcounter].Rate					:$$Sprintf:"Our Price: %s %s":@@RupeeSymbol:$BC_Price
+100:Set:List Batch[##Mcounter].BatchName			:$BC_Price
+120:Set:List Batch[##Mcounter].Weight				:$BC_Weight		;;;;; Added By Syed
+132:Increment:Mcounter
+
+330:End For
+340:End Walk
+341:Set:PageCounter:0
+342:Print Report:Barcode Preview
+
+350:Return
+
+;select $$TNExtractWordFromBrackets From company
+[Function: TNExtractWordFromBrackets]
+
+	Parameter : InputString : String
+
+	Variable : Word     : String  : ""
+	Variable : StrCnt   : Number  : 0
+	Variable : StrLen   : Number
+	Variable : FoundOpn : Logical : FALSE
+	Variable : StrOpr   : String
+
+	Return   : String
+
+	01   : If   : NOT $$IsEmpty:##InputString
+	02   :    Set  : StrLen : $$StringLength:##InputString
+	03   :    Set  : StrCnt : 0
+	04   :    Set  : FoundOpn : FALSE
+	05   :    Set  : Word : ""
+	06   :    WHILE : $$Number:##StrCnt < ##StrLen
+	07   :         Set  : StrOpr : $$StringPart:##InputString:##StrCnt:1
+	08   :         If   : $$IsEqual:##StrOpr:"("
+	09   :              Set : FoundOpn : TRUE
+	10   :         Else
+	11   :              If   : ##FoundOpn
+	12   :                   If   : $$IsEqual:##StrOpr:")"
+	13   :                        Set : StrCnt : ##StrLen    ; Exit the loop by forcing end-of-loop condition
+	14   :                   Else
+	15   :                        Set : Word : $$String:##Word + $$String:##StrOpr
+	16   :                   EndIf
+	17   :              EndIf
+	18   :         EndIf
+	19   :         Set  : StrCnt : ##StrCnt + 1
+	20   :    ENDWHILE
+	21   : EndIf
+	22   : RETURN : ##Word
+
+
+
+[Collection:Purchase Batch Collection]
+	Object	: Voucher	: ##pMstID
+	
+[Collection:Purchase Batch Wise Collection]
+	Source Collection:.;Purchase Batch Collection
+	Walk	: ALLINVENTORYENTRIES, BATCHALLOCATIONS
+	Compute : BatchName : If $$IsEqual:$BatchName:"Primary Batch" Then $PartNo:StockItem:$StockItemName Else $BatchName
+	Compute : ItemName	: $$Owner:$StockItemName
+	Compute	: Qty		: $ActualQty
+	Compute	: Weight	: $$Owner:$VCHWeight
+	Compute	: ItemRate	: @@Barcode_MRPRate
+	Compute : Description:$$Owner:$$FullList:BasicUserDescription:$BasicUserDescription
+	Compute : BuyerAddress:@@Barcode_Address
+	Compute : PartyName	: @@Barcode_LedgerName
+	Compute : StateName : @@Barcode_StateName
+	Compute : PinCode	: @@Barcode_Pincode
+	Compute	: Country	: $$Owner:$$Owner:$CountryNameUDF
+	Compute : MfdOn:$$Owner:$$Owner:$Date
+	Compute : CountryName:$$Owner:$$Owner:$COUNTRYOFRESIDENCE
+	Compute : LedgerLabel:@@Barcode_LedgerName
+;; Select $ItemName from PurchaseBatchCollection
+	
+[System:Formulae]
+	Barcode_ItemName:$$Owner:$StockItemName
+	Barcode_Date:$$Owner:$$Owner:$Date
+	Barcode_MRPRate:If $$IsEmpty:($$Owner:$MRPRate) THen $$GetEIStkItemMRP:@@Barcode_ItemName:@@Barcode_Date Else ($$Owner:$MRPRate)
+	Barcode_LedgerName:$$Owner:$$Owner:$LedgerLabelUDF
+	Barcode_Address:$FullAddress:Ledger:@@Barcode_LedgerName
+	Barcode_StateName:$LedStateName:Ledger:@@Barcode_LedgerName
+	Barcode_Pincode:$Pincode:Ledger:@@Barcode_LedgerName
+	RupeeSymbol: $$StrByCharCode:8377
+	
+;select $Name, $FullAddress, $LedStateName, $Pincode From Ledger
+[Variable:vStockItemName]
+	Type:String
+	
+[Variable:vQuantity]
+	Type:String
+	
+[Variable:vWeight]
+	Type:String
+	
+[Variable:vRate]
+	Type:String
+	
+[Variable:vDescription]
+	Type:String
+	
+[Variable:vBatchName]
+	Type:String
+	
+[Variable:vBuyerAddress]
+	Type:String
+	
+[Variable:vMfdOn]
+	Type:Date
+	
+[Variable:vCountryName]
+	Type:String
+	
+[Variable:vLedgerLabel]
+	Type:String
+	
+[Variable:List Batch]
+	Variable:CmpName:String
+	Variable:StockItemName:String
+	Variable:Quantity:String
+	Variable:Weight:String
+	Variable:Rate:String
+	Variable:Description:String
+	Variable:BatchName:String
+	Variable:BuyerAddress:String
+	Variable:MfdOn:Date
+	Variable:CountryName:String
+	Variable:LedgerLabel:String
+	Variable:PartNumber:String
+	
+[System:Variable]
+	vBatchName:""
+	vStockItemName:""
+	vQuantity:""
+	vWeight:""
+	vRate:""
+	vDescription:""
+	vBuyerAddress:""
+	vMfdOn:""
+	vCountryName:""
+	vLedgerLabel:""
+	
+
+[System:Variable]
+	List Variable:List Batch
+	
+[Collection:List Batch Collection]
+	Data Source:Variable:ListBatch
+
+;select $ItemName From ListBatchCollection
+
+/*
+[Function:Read Batch]
+Parameter:pMstID:String
+Variable:Mcounter:Number:1
+Variable:vIsPrintConfirm:Logical
+Variable:vNoOfCopies:Number
+010:List Delete:List Batch
+
+020:Walk Collection:Purchase Batch Wise Collection
+
+040:FOR RANGE		: IteratorVar	: Number	: 1	: ($$Number:$Qty): 1
+041:List Add Ex:List Batch
+050:Set:List Batch[##Mcounter].StockItemName		:$ItemName
+060:Set:List Batch[##Mcounter].Quantity				:1
+070:Set:List Batch[##Mcounter].Weight				:$Weight
+080:Set:List Batch[##Mcounter].Rate					:$$Sprintf:"%s %s":@@RupeeSymbol:$ItemRate
+090:Set:List Batch[##Mcounter].Description			:$Description
+100:Set:List Batch[##Mcounter].BatchName			:$BatchName
+110:Set:List Batch[##Mcounter].BuyerAddress			:$$CommaList:$PartyName:$BuyerAddress:$StateName:$Country:$PinCode
+120:Set:List Batch[##Mcounter].MfdOn				:$MfdOn
+130:Set:List Batch[##Mcounter].CountryName			:$CountryName
+131:Set:List Batch[##Mcounter].LedgerLabel			:$LedgerLabel
+132:Increment:Mcounter
+
+330:End For
+340:End Walk
+341:Set:vNoOfCopies:$$NumItems:ListBatchCollection
+342:Print Report:Barcode Preview
+
+350:Return
+
+[Collection:Purchase Batch Collection]
+	Object	: Voucher	: ##pMstID
+	
+[Collection:Purchase Batch Wise Collection]
+	Source Collection:.;Purchase Batch Collection
+	Walk	: ALLINVENTORYENTRIES, BATCHALLOCATIONS
+	Compute : BatchName : If $$IsEqual:$BatchName:"Primary Batch" Then $PartNo:StockItem:$StockItemName Else $BatchName
+	Compute : ItemName	: $$Owner:$StockItemName
+	Compute	: Qty		: $ActualQty
+	Compute	: Weight	: $$Owner:$VCHWeight
+	Compute	: ItemRate	: @@Barcode_MRPRate
+	Compute : Description:$$Owner:$$FullList:BasicUserDescription:$BasicUserDescription
+	Compute : BuyerAddress:@@Barcode_Address
+	Compute : PartyName	: @@Barcode_LedgerName
+	Compute : StateName : @@Barcode_StateName
+	Compute : PinCode	: @@Barcode_Pincode
+	Compute	: Country	: $$Owner:$$Owner:$CountryNameUDF
+	Compute : MfdOn:$$Owner:$$Owner:$Date
+	Compute : CountryName:$$Owner:$$Owner:$COUNTRYOFRESIDENCE
+	Compute : LedgerLabel:@@Barcode_LedgerName
+;; Select $ItemName from PurchaseBatchCollection
+	
+[System:Formulae]
+	Barcode_ItemName:$$Owner:$StockItemName
+	Barcode_Date:$$Owner:$$Owner:$Date
+	Barcode_MRPRate:If $$IsEmpty:($$Owner:$MRPRate) THen $$GetEIStkItemMRP:@@Barcode_ItemName:@@Barcode_Date Else ($$Owner:$MRPRate)
+	Barcode_LedgerName:$$Owner:$$Owner:$LedgerLabelUDF
+	Barcode_Address:$FullAddress:Ledger:@@Barcode_LedgerName
+	Barcode_StateName:$LedStateName:Ledger:@@Barcode_LedgerName
+	Barcode_Pincode:$Pincode:Ledger:@@Barcode_LedgerName
+	RupeeSymbol: $$StrByCharCode:8377
+	
+;select $Name, $FullAddress, $LedStateName, $Pincode From Ledger
+[Variable:vStockItemName]
+	Type:String
+	
+[Variable:vQuantity]
+	Type:String
+	
+[Variable:vWeight]
+	Type:String
+	
+[Variable:vRate]
+	Type:String
+	
+[Variable:vDescription]
+	Type:String
+	
+[Variable:vBatchName]
+	Type:String
+	
+[Variable:vBuyerAddress]
+	Type:String
+	
+[Variable:vMfdOn]
+	Type:Date
+	
+[Variable:vCountryName]
+	Type:String
+	
+[Variable:vLedgerLabel]
+	Type:String
+	
+[Variable:List Batch]
+	Variable:StockItemName:String
+	Variable:Quantity:String
+	Variable:Weight:String
+	Variable:Rate:String
+	Variable:Description:String
+	Variable:BatchName:String
+	Variable:BuyerAddress:String
+	Variable:MfdOn:Date
+	Variable:CountryName:String
+	Variable:LedgerLabel:String
+	
+[System:Variable]
+	vBatchName:""
+	vStockItemName:""
+	vQuantity:""
+	vWeight:""
+	vRate:""
+	vDescription:""
+	vBuyerAddress:""
+	vMfdOn:""
+	vCountryName:""
+	vLedgerLabel:""
+	
+
+[System:Variable]
+	List Variable:List Batch
+	
+[Collection:List Batch Collection]
+	Data Source:Variable:ListBatch
+
+;select $ItemName From ListBatchCollection

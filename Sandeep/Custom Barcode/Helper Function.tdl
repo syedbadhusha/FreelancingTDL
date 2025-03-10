@@ -1,0 +1,59 @@
+
+[Function:EraseBarcodeAndLoadReport]
+	000:Call:EraseBarcodeData
+	010:Alter:Barcode Configuration
+	020:Return:$$LastResult
+	
+[Function:EraseBarcodeData]
+	Variable:Counter:Number:0
+	Object:Company:$$CurrentCompany
+	000:Set Target
+	010:Set Object
+	020:Walk Collection:BC Barcode Aggr
+	030:	Delete Collection Object:BC Barcode Aggr:($$LoopIndex - ##Counter)
+	035:	Increment:Counter
+	040:End Walk
+	050:Set Target:..
+	060:Alter Target
+	070:Return:$$LastResult
+	
+[Function:AddBarcodeData]
+	Parameter:pItemName:String
+	Parameter:pPartNo:String:""
+	Parameter:pLastSalePrice:Number:0
+	Parameter:pNoOfBarcode:Number:1
+	Parameter:pBatchName:String:"Primary Batch"
+	Object:Company:$$CurrentCompany
+	000:Set Target
+	010:Set Object
+	020:Insert Collection Object:BC Barcode Aggr
+	030:Set Value:BC_ItemName:##pItemName
+	040:Set Value:BC_Barcode:If $$IsEmpty:##pPartNo Then ($PartNo:StockItem:##pItemName) Else ##pPartNo
+	050:Set Value:BC_Price:$$CollectionFieldByKey:$STKISalePrice:##pBatchName:BatchWisePriceCollection;If $$IsEmpty:##pLastSalePrice Then $$Number:($LastSalePrice:StockItem:##pItemName) Else ##pLastSalePrice
+	060:Set Value:BC_NoOfBarcodes:If $$IsEmpty:##pNoOfBarcode Then 1 Else ##pNoOfBarcode
+	065:Set Value:BC_BatchName:If $$IsEmpty:##pBatchName Then "Primary Batch" Else ##pBatchName
+	070:Set Target:..
+	
+	080:Set Target:..
+	090:Alter Target
+	
+[Function: ExportReportToJSON]
+Parameter:ReportName:String
+Parameter:FileName:String:##ReportName
+Parameter:CompleteFilePath:String:""
+Variable:vFilePath:String
+000: Set   :vFilePath:If $$IsEmpty:##CompleteFilePath Then $$Sprintf:"%s\Export\%s.json":$$ApplicationPath:##FileName Else ##CompleteFilePath
+
+010: If:($$IsFileExists:##vFilePath)
+020: Delete File:##vFilePath
+030: End If
+
+040: Set   :SVOpenFileAfterExport:No
+050: Set   :SVExportFormat  : $$SysName:UTF8JSON
+060: Set   :SVExportLanguage: $$SysName:UTF8JSON
+070: Set   :SVPrintFileName : ##vFilePath
+100: Action:Export:##ReportName + ":True:True"
+
+120: Return:##vFilePath
+	
+	

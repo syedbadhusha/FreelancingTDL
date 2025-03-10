@@ -1,0 +1,82 @@
+[Report:Barcode Preview]
+	Variable:SVPrintCopies:Number
+	Variable:vNoOfCopies:Number
+	Delete	: Form
+	Add		: Form:Barcode Preview
+	Print Set:SVPrintCopies:$$GetPrintCopiesCount;
+
+[Variable:PageCounter]
+	Type:Number
+	
+[System:Variable]
+	PageCounter:0
+	
+[Function:GetPrintCopiesCount]
+	Variable:CopiesCount:Number
+	000:Set:CopiesCount:$$NumItems:ListBatchCollection
+	001:Log:##CopiesCount
+	010:Set:CopiesCount:($$Number:##CopiesCount) / 2
+	020:Return:($$RoundUp:##CopiesCount:1)
+	
+[Form:Barcode Preview]
+	Part	: BP BarcodePrint
+	
+	Space Top:($Barcode_SpaceTop:Company:$$CurrentCompany) Inch
+	Space Bottom:($Barcode_SpaceTop:Company:$$CurrentCompany)  Inch
+	Space Left:($Barcode_SpaceLeft:Company:$$CurrentCompany)  Inch
+	Space Right:($Barcode_SpaceRight:Company:$$CurrentCompany)  Inch
+	
+[Part:BP BarcodePrint]
+	Left Part:BP BarcodePrint 1, EMpty
+	Right Part:BP BarcodePrint 2
+	Local:Field:Default:Align:Centre
+	Local:Style:Default:Height:9
+	Local:Field:Default:Style:Calibri Default Bold
+	Local:Part:Empty:Width:($Barcode_SpaceBetween_Labels:Company:$$CurrentCompany)
+	
+[Part:BP BarcodePrint 1]
+	Lines		: BP CmpName, BP ItemName, BP Barcode, BP Price,BPWeight
+	Local	: Field:Default:Local Formula:BoxNoIndex:@@BoxNo1
+	Local	: Field:Name Field:Full Width:Yes
+	
+[Part:BP BarcodePrint 2]
+	Lines		: BP CmpName, BP ItemName, BP Barcode, BP Price,BPWeight
+	Local	: Field:Default:Local Formula:BoxNoIndex:@@BoxNo2
+	Local	: Field:Name Field:Full Width:Yes	
+	
+[Line:BP CmpName]
+	Field	: Name Field
+	Local	: Field:Default:Local Formula:CompanyName:$$CollectionField:$CmpName:@BoxNoIndex:ListBatchCollection
+	Local	: Field:Name Field:Set as:@CompanyName
+	Local	: Field:Name Field:Set Always:Yes
+	
+[Line:BP ItemName]
+	Fields	: Name Field
+	Local	: Field:Default:Local:Style:Default:Height:7
+	Local	: Field:Default:Local Formula:StockItemName:$$CollectionField:$StockItemName:@BoxNoIndex:ListBatchCollection
+	Local	: Field:Name Field:Set as:@StockItemName
+	
+[Line:BP Barcode]
+	Field	: Name Field
+	Local	: Field:Default:Local Formula:BatchName:$$CollectionField:$PartNumber:@BoxNoIndex:ListBatchCollection
+	Local	: Field:Name Field:Set as:$$Sprintf:"*%s*":@BatchName
+	Local	: Field:Name Field:Style:Barcode	
+	
+[Style:Barcode]
+	Font	: "IDAutomationHC39M Free Version"  
+	Height  : 10
+	
+[Line:BP Price]
+	Field	: Name Field
+	Local	: Field:Default:Local:Style:Default:Height:9
+	Local	: Field:Default:Local Formula:Rate:$$CollectionField:$Rate:@BoxNoIndex:ListBatchCollection
+	Local	: Field:Name Field:Set as:@Rate
+	Local	: Field:Name Field:Local:Style:Default:Bold:Yes
+	
+[Line:BPWeight]
+	
+	Field	: Name Field
+	Local	: Field:Default:Local:Style:Default:Height:9
+	Local	: Field:Default:Local Formula:Weight:$$CollectionField:$Weight:@BoxNoIndex:ListBatchCollection
+	Local	: Field:Name Field:Set as:@Weight
+	Local	: Field:Name Field:Local:Style:Default:Bold:Yes

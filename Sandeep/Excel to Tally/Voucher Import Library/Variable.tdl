@@ -1,0 +1,177 @@
+[Variable:VoucherList]
+Variable:MasterID:String
+Variable:Voucher Number:String
+Variable:Voucher Date:Date
+Variable:Voucher Type:String
+Variable:Reference:String
+Variable:ReferenceDate:Date
+Variable:Party Name:String
+Variable:Narration:String
+Variable:Amount:Number
+Variable:WebID:String
+Variable:IsDeleted:Logical
+Variable:IsInvoice:Logical
+Variable:VoucherCostCentre:String
+Variable:PlaceOfSupply:String
+Variable:IsImportable:Logical
+Variable:Error:String
+List Variable:EWayBillDetails
+List Variable:EInvoiceDetails
+List Variable:DispatchInfo
+List Variable:OrderInfo
+List Variable:ConsigneeInfo
+List Variable:BuyerInfo
+List Variable:InventoryEntriesList
+List Variable:LedgerEntriesList
+
+[Variable:EWayBillDetails]
+Variable:BillNo:String
+Variable:BillDate:Date
+Variable:Distance:String
+Variable:TransporterName:String
+Variable:TransporterID:String
+Variable:DocNo:String
+Variable:DocDate:Date
+Variable:VehicleNo:String
+Variable:VehicleType:String
+
+[Variable:EInvoiceDetails]
+Variable:AckNo:String
+Variable:AckDate:Date
+Variable:IRN:String
+Variable:BillToPlace:String
+Variable:ShipToPlace:String
+
+[Variable:DispatchInfo]
+Variable:DeliveryNoteNo:String
+Variable:DeliveryNoteDate:Date
+Variable:DispatchDocNo:String
+Variable:DispatchThrough:String
+Variable:Destination:String
+Variable:CarrierName:String
+Variable:BillOfLanding:String
+Variable:BillOfDate:Date
+Variable:MotorVehicleNo:String
+
+[Variable:OrderInfo]
+Variable:OrderNo:String
+Variable:OrderDate:Date
+Variable:TermsOfPayment:String
+Variable:OtherReferences:String
+Variable:TermsOfDelivery:String
+
+[Variable:ConsigneeInfo]
+Variable:LedgerName:String
+Variable:GSTIN:String
+Variable:StateName:String
+Variable:CountryName:String
+Variable:PinCode:String
+List Variable:Address
+
+[Variable:BuyerInfo]
+Variable:LedgerName:String
+Variable:GSTIN:String
+Variable:StateName:String
+Variable:CountryName:String
+Variable:PinCode:String
+
+Variable:Alias:String
+Variable:EmailID:String
+Variable:MobileNumber:String
+List Variable:Address
+
+[Variable:Address]
+Variable:Address:String
+
+
+[Variable:InventoryEntriesList]
+Variable:ItemCode:String
+Variable:IGSTRate:String
+Variable:CessRate:String
+Variable:HSNCode:String
+
+Variable:StockItemName:String
+Variable:GroupName:String
+Variable:UnitName:String
+Variable:IsDeemedPositive:Logical
+Variable:ActualQty:Number
+Variable:BilledQty:Number
+Variable:Discount:Number
+Variable:Rate:Number
+Variable:Amount:Number
+Variable:SalesLedger:String
+List Variable:BatchAllocationsList
+List Variable:AccountingAllocationList
+List Variable:StockDescriptionList
+
+[Variable:BatchAllocationsList]
+Variable:GodownName:String
+Variable:BatchName:String
+Variable:ActualQty:Number
+Variable:BilledQty:Number
+Variable:Discount:Number
+Variable:Rate:Number
+Variable:Amount:Number
+
+[Variable:AccountingAllocationList]
+Variable:LedgerName:String
+Variable:Amount:Number
+
+[Variable:StockDescriptionList]
+Variable:Description:String
+
+[Variable:LedgerEntriesList]
+Variable:IndexNumber:Number
+Variable:LedgerName:String
+Variable:GroupName:String
+Variable:IsDeemedPositive:Logical
+Variable:IsPartyLedger:Logical
+Variable:Amount:Number
+List Variable:CategoryAllocationList
+List Variable:BillsAllocationList
+List Variable:LedgerDescriptionList
+List Variable:InventoryAllocationsList
+
+[Variable:CategoryAllocationList]
+Variable:Category:String
+Variable:IsDeemedPositive:Logical
+List Variable:CostCentreAllocationList
+
+[Variable:CostCentreAllocationList]
+Variable:Name:String
+Variable:Amount:Number
+
+[Variable:BillsAllocationList]
+Variable:AgstType:String
+Variable:Reference:String
+Variable:CreditPeriod:Due Date
+Variable:Amount:Number
+
+[Variable:LedgerDescriptionList]
+Variable:Description:String
+
+[Variable:InventoryAllocationsList]
+Variable:ItemCode:String
+Variable:IGSTRate:String
+Variable:CessRate:String
+Variable:HSNCode:String
+
+Variable:StockItemName:String
+Variable:GroupName:String
+Variable:UnitName:String
+Variable:IsDeemedPositive:Logical
+Variable:ActualQty:Number
+Variable:BilledQty:Number
+Variable:Discount:Number
+Variable:Rate:Number
+Variable:Amount:Number
+Variable:SalesLedger:String
+List Variable:BatchAllocationsList
+List Variable:StockDescriptionList
+
+[Variable:ShowVouchers]
+Type:Number
+
+[System:Variable]
+List Variable:VoucherList
+ShowVouchers:0

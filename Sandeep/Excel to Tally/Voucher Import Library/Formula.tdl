@@ -1,0 +1,20 @@
+[System:Formulae]
+IsNotLedgerExist:NOT $$IsObjectExists:Ledger:$LedgerName
+IsNotStockItemExist:NOT $$IsObjectExists:StockItem:$StockItemName
+LatestMasterID:($CmpVchID:Company:##SvCurrentCompany)+1 ;(If $$IsEmpty:$MasterID then If $$IsEmpty:($CmpVchID:Company:##SvCurrentCompany) Then 1 Else ($CmpVchID:Company:##SvCurrentCompany)+1 Else $MasterID)
+VPMasterIDFilter:$$IsEqual:$MasterID:##MasterID
+ActionBackground:If ($$IsEmpty:$MasterID Or $$Number:$MasterID=0) AND NOT $IsDeleted Then "VPGreen" Else If $IsDeleted Then "Black" Else "VPRed"
+VPVoucherStatus:If NOT ($$IsEmpty:$MasterID Or $$Number:$MasterID=0) AND NOT $IsDeleted Then "EDIT" Else If $IsDeleted Then "DELETE" Else "NEW"
+SelectedVoucherFilter:If ##ShowVouchers = 1 Then $$IsEqual:@@VPVoucherStatus:"NEW" Else If ##ShowVouchers=2 Then $$IsEqual:@@VPVoucherStatus:"EDIT" Else Yes
+IsTaxLedger:$$IsLedOfGrp:$LedgerName:$$GroupDuties
+VIIsDeletedVoucher:$IsDeleted
+IsNotNewLedger:If NOT $$IsEmpty:$PartyName Then NOT $$IsObjectExists:Ledger:$PartyName Else If +
+NOT $$IsEmpty:$LedgerName Then NOT $$IsObjectExists:Ledger:$LedgerName Else No;NOT ($$IsObjectExists:Ledger:$PartyName OR $$IsObjectExists:Ledger:$LedgerName)
+IsStockItemNotExist:NOT $$IsObjectExists:StockItem:$StockItemName
+RemoveDebtorLedgers:NOT ($$IsEqual:$GroupName:$$GroupSundryDebtors OR $$IsEqual:$PartyParent:$$GroupSundryDebtors)
+
+[Color:VP Green]
+RGB:155,187,89,255
+
+[Color:VP Red]
+RGB:177,74,44

@@ -1,0 +1,55 @@
+[Report: Barcode Payload]
+	Object:Company:$$CurrentCompany
+	Form	: Barcode Payload
+	Export Empty Fields: Yes
+	
+[Form: Barcode Payload]
+	Part	: BP Body
+	Delete	: JSONTag
+	Height	: 100% page
+	Width	: 100% page
+	
+[Part: BP Body]
+	Line	: BP Body
+	Repeat:BP Body:BC Barcode Aggr
+	Scroll	: Vertical
+	
+[Line: BP Body]
+	Fields	: BP CompanyName, BP ProductName, BP Barcode, BP Price, BP NoOfBarcode, BP BatchName,  BP PKD
+	JSONTag:"Barcodes"
+	
+[Field: BP ProductName]
+	Use		: Name Field
+	Set as	: $BC_ItemName
+	JSONTag	: "ProductName"
+	
+[Field: BP CompanyName]
+	Use		: Name Field
+	Set as	: ($BasicCompanyFormalName:Company:$$CurrentCompany)
+	Set Always:Yes
+	JSONTag	: "CompanyName"
+
+[Field: BP Barcode]
+	Use		: Name Field
+	Set as	: If $$IsEmpty:$BC_Barcode Then $$RandomNumber Else $BC_Barcode
+	JSONTag	: "Barcode"
+	
+[Field: BP Price]
+	Use		: Number Field
+	Set as	: $BC_Price
+	JSONTag	: "Price"
+	
+[Field: BP NoOfBarcode]
+	Use		: Number Field
+	Set as	: $BC_NoOfBarcodes
+	JSONTag	: "NoOfBarcode"
+	
+[Field: BP BatchName]
+	Use		: Name Field
+	Set as	: $BC_Price
+	JSONTag	: "BatchName"
+	
+[Field: BP PKD]
+	Use		: Name Field
+	Set as	: $PKD:StockItem:$BC_ItemName
+	JSONTag	: "PKD"

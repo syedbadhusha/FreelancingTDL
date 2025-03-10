@@ -1,0 +1,11 @@
+[System:Formulas]
+SPActionBackground:If NOT $$IsObjectExists:StockItem:$StockItemName Then "SPGreen" Else "SPRed"
+RemoveExistingUnit:(NOT $$IsObjectExists:Unit:$Unit) AND (NOT $$IsEmpty:$Unit) AND (NOT $$IsSysName:$Unit)
+RemoveExistingCategory: NOT $$IsObjectExists:STOCKCATEGORY:$Category AND NOT $$IsEmpty:$Category AND NOT $$IsSysName:$Category
+RemoveExistingGroup: NOT $$IsObjectExists:STOCKGROUP:$StockGroup AND NOT $$IsEmpty:$StockGroup AND NOT $$IsSysName:$StockGroup
+
+[Color:SP Green]
+RGB:155,187,89,255
+
+[Color:SP Red]
+RGB:177,74,44

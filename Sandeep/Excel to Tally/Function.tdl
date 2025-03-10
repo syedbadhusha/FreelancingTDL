@@ -1,0 +1,283 @@
+[Function:Read Data]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Parameter:pSheetName:String
+Variable:vSheetName:String
+
+000:Set:vSheetName:$$GetSheetName:##pSheetName
+010:Do If:($$IsEqual:##vSheetName:"Sales" or $$IsEqual:##vSheetName:"Purchase"):Call:Read Inventory Data:##pFolderPath:##pFileName:##vSheetName
+020:Do If:($$IsEqual:##vSheetName:"Payment" or $$IsEqual:##vSheetName:"Receipt" or $$IsEqual:##vSheetName:"Contra" or $$IsEqual:##vSheetName:"Journal"):Call:Read Transactions Data:##pFolderPath:##pFileName:##vSheetName
+030:Do If:($$IsEqual:##vSheetName:"Ledger"):Call:Read Ledger:##pFolderPath:##pFileName:##vSheetName
+050:Do If:($$IsEqual:##vSheetName:"Purchase Without Inventory"):Call:Read Accounting Mode Entries:##pFolderPath:##pFileName:##vSheetName
+060:Do If:($$IsEqual:##vSheetName:"Sales Without Inventory"):Call:Read Accounting Mode Entries:##pFolderPath:##pFileName:##vSheetName
+070:Do If:($$IsEqual:##vSheetName:"Bank Import"):Call:Read Bank Entries:##pFolderPath:##pFileName:##vSheetName
+080:Do If:($$IsEqual:##vSheetName:"Stock Item"):Call:Read Stock Items:##pFolderPath:##pFileName:##vSheetName
+090:Return
+
+
+;; =================================================== Sales and Purchase Inventory Function
+[Function:Read Inventory Data]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Parameter:pSheetName1:String
+Variable:Mcounter:Number
+Local Formula: FolderPath		: ##pFolderPath
+Local Formula: FileName			: ##pFileName
+Local Formula: AccessExcelFile1	: $$Sprintf:"%s\%s":@FolderPath:@FileName
+
+000 : Open File:@AccessExcelFile1:Excel:Read:UTF-8
+001 : Set Active Sheet:##pSheetName
+010 : Start Msg Box:"Status":"Reading Data.."
+020 : Set:Mcounter:1
+030 : List Delete:Inventory Excel Variable
+040 : While:NOT ($$IsEmpty:($$FileReadCell:##Mcounter:1))
+050 : List Add Ex:Inventory Excel Variable
+060 : Set:Inventory Excel Variable[##Mcounter].SNo					:$$LoopIndex
+070 : Set:Inventory Excel Variable[##Mcounter].Invoice Date			:$$FileReadCell:##Mcounter:1
+080 : Set:Inventory Excel Variable[##Mcounter].Invoice No			:$$FileReadCell:##Mcounter:2
+090 : Set:Inventory Excel Variable[##Mcounter].Party Name			:$$FileReadCell:##Mcounter:3
+100 : Set:Inventory Excel Variable[##Mcounter].GST Number			:$$FileReadCell:##Mcounter:4
+110 : Set:Inventory Excel Variable[##Mcounter].Item Name			:$$FileReadCell:##Mcounter:6
+120 : Set:Inventory Excel Variable[##Mcounter].Actual Qty			:$$FileReadCell:##Mcounter:7
+130 : Set:Inventory Excel Variable[##Mcounter].Billed Qty			:$$FileReadCell:##Mcounter:7
+140 : Set:Inventory Excel Variable[##Mcounter].Unit					:$$FileReadCell:##Mcounter:8
+150 : Set:Inventory Excel Variable[##Mcounter].Rate					:$$FileReadCell:##Mcounter:9
+160 : Set:Inventory Excel Variable[##Mcounter].Amount				:$$FileReadCell:##Mcounter:10
+170 : Set:Inventory Excel Variable[##Mcounter].TradeDisc			:$$FileReadCell:##Mcounter:11
+180 : Set:Inventory Excel Variable[##Mcounter].VATRate				:$$FileReadCell:##Mcounter:13
+190 : Set:Inventory Excel Variable[##Mcounter].VATAmt				:$$FileReadCell:##Mcounter:14
+200 : Set:Inventory Excel Variable[##Mcounter].SpecialDisc			:$$FileReadCell:##Mcounter:15
+210 : Set:Inventory Excel Variable[##Mcounter].ExpenseAmt			:$$FileReadCell:##Mcounter:16
+
+220 : Call:Read Ledger Address1:##Mcounter
+230 : Increment:Mcounter
+240 : End While
+250 : Close File
+260 : Call:Read Vouchers:##pSheetName1
+270 : End Msg Box
+280 : Return
+
+[Function:Read Ledger Address1]
+Parameter:Counter:Number
+Variable:MCounter:Number
+Variable:vAddress:String
+000:Set:vAddress:$$FileReadCell:##Counter:5
+010:For Token:Addr:##vAddress:","
+020:List Add Ex:Inventory Excel Variable[##Counter].ListAddress
+030:Set:Inventory Excel Variable[##Counter].ListAddress[##Mcounter].Address:##Addr
+040:Increment:Mcounter
+050:End For
+
+
+;; ==================================================== Read Payment, Receipt and Contra Function
+[Function:Read Transactions Data]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Parameter:pSheetName1:String
+Variable:Mcounter:Number
+Local Formula: FolderPath		: ##pFolderPath
+Local Formula: FileName			: ##pFileName
+Local Formula: AccessExcelFile1	: $$Sprintf:"%s\%s":@FolderPath:@FileName
+
+000 : Open File:@AccessExcelFile1:Excel:Read:UTF-8
+001 : Set Active Sheet:##pSheetName1
+010 : Start Msg Box:"Status":"Reading Data.."
+020 : Set:Mcounter:1
+030 : List Delete:Bank Trans Excel Variable
+040 : While:NOT ($$IsEmpty:($$FileReadCell:##Mcounter:1))
+050 : List Add Ex:Bank Trans Excel Variable
+060 : Set:Bank Trans Excel Variable[##Mcounter].SNo					:$$LoopIndex
+070 : Set:Bank Trans Excel Variable[##Mcounter].Date				:$$FileReadCell:##Mcounter:1
+080 : Set:Bank Trans Excel Variable[##Mcounter].Invoice No			:$$FileReadCell:##Mcounter:2
+090 : Set:Bank Trans Excel Variable[##Mcounter].Bank Ledger			:$$FileReadCell:##Mcounter:3
+100 : Set:Bank Trans Excel Variable[##Mcounter].Ledger Name			:$$FileReadCell:##Mcounter:4
+110 : Set:Bank Trans Excel Variable[##Mcounter].Amount				:$$FileReadCell:##Mcounter:5
+
+230 : Increment:Mcounter
+240 : End While
+250 : Close File
+260 : Call:Read Vouchers:##pSheetName1
+270 : End Msg Box
+280 : Return
+
+
+;; ============================================== Read Accounting Mode Entries
+[Function:Read Accounting Mode Entries]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Parameter:pSheetName1:String
+Variable:vVchType1:String
+Variable:Mcounter:Number
+Local Formula: FolderPath		: ##pFolderPath
+Local Formula: FileName			: ##pFileName
+Local Formula: AccessExcelFile1	: $$Sprintf:"%s\%s":@FolderPath:@FileName
+
+000 : Open File:@AccessExcelFile1:Excel:Read:UTF-8
+001 : Set Active Sheet:##pSheetName
+010 : Start Msg Box:"Status":"Reading Data.."
+020 : Set:Mcounter:1
+030 : List Delete:Accounting List Variable
+040 : While:NOT ($$IsEmpty:($$FileReadCell:##Mcounter:1))
+050 : List Add Ex:Accounting List Variable
+060 : Set:Accounting List Variable[##Mcounter].SNo					:$$LoopIndex
+070 : Set:Accounting List Variable[##Mcounter].Invoice Date			:$$FileReadCell:##Mcounter:1
+080 : Set:Accounting List Variable[##Mcounter].Invoice No			:$$FileReadCell:##Mcounter:2
+090 : Set:Accounting List Variable[##Mcounter].Party Name			:$$FileReadCell:##Mcounter:3
+110 : Set:Accounting List Variable[##Mcounter].GST Number			:$$FileReadCell:##Mcounter:4
+120 : Set:Accounting List Variable[##Mcounter].LedgerName			:$$FileReadCell:##Mcounter:6
+130 : Set:Accounting List Variable[##Mcounter].Amount				:$$FileReadCell:##Mcounter:7
+
+140 : Call:Read Buyer Address:##Mcounter
+230 : Increment:Mcounter
+240 : End While
+250 : Close File
+252 : Set:vVchType1:If $$IsEqual:##pSheetName1:"Sales Without Inventory" then "Sales" else "Purchase"
+260 : Call:Read Vouchers:##vVchType1:"Yes"
+270 : End Msg Box
+280 : Return
+
+[Function:Read Buyer Address]
+Parameter:Counter:Number
+Variable:MCounter:Number
+Variable:vAddress:String
+000:Set:vAddress:$$FileReadCell:##Counter:5
+010:For Token:Addr:##vAddress:","
+020:List Add Ex:Accounting List Variable[##Counter].ListAddress
+030:Set:Accounting List Variable[##Counter].ListAddress[##Mcounter].Address:##Addr
+040:Increment:Mcounter
+050:End For
+
+
+
+
+
+;; ========================================= Read Ledgers
+[Function:Read Ledger]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Parameter:pSheetName1:String
+Variable:Mcounter:Number
+Local Formula: FolderPath		: ##pFolderPath
+Local Formula: FileName			: ##pFileName
+Local Formula: AccessExcelFile1	: $$Sprintf:"%s\%s":@FolderPath:@FileName
+
+000 : Open File:@AccessExcelFile1:Excel:Read:UTF-8
+010 : Set Active Sheet:##pSheetName
+020 : Start Msg Box:"Status":"Reading Data.."
+030 : Set:Mcounter:1
+040 : List Delete:Ledger Variable
+050 : While:NOT ($$IsEmpty:($$FileReadCell:##Mcounter:1))
+060 : List Add Ex:Ledger Variable
+070 : Set:Ledger Variable[##Mcounter].SNo					:$$LoopIndex
+080 : Set:Ledger Variable[##Mcounter].LedgerName			:$$FileReadCell:##Mcounter:1
+090 : Set:Ledger Variable[##Mcounter].Group					:$$FileReadCell:##Mcounter:2
+100 : Set:Ledger Variable[##Mcounter].Ledger Code			:$$FileReadCell:##Mcounter:3
+110 : Set:Ledger Variable[##Mcounter].Country				:$$FileReadCell:##Mcounter:5
+120 : Set:Ledger Variable[##Mcounter].Emirate				:$$FileReadCell:##Mcounter:6
+130 : Set:Ledger Variable[##Mcounter].TRN					:$$FileReadCell:##Mcounter:7
+140 : Set:Ledger Variable[##Mcounter].Contact Person		:$$FileReadCell:##Mcounter:8
+150 : Set:Ledger Variable[##Mcounter].Telephone				:$$FileReadCell:##Mcounter:9
+160 : Set:Ledger Variable[##Mcounter].Fax					:$$FileReadCell:##Mcounter:10
+170 : Set:Ledger Variable[##Mcounter].Mobile				:$$FileReadCell:##Mcounter:11
+180 : Set:Ledger Variable[##Mcounter].Email					:$$FileReadCell:##Mcounter:12
+190 : Set:Ledger Variable[##Mcounter].EmailCC				:$$FileReadCell:##Mcounter:13
+200 : Set:Ledger Variable[##Mcounter].Website				:$$FileReadCell:##Mcounter:14
+210 : Set:Ledger Variable[##Mcounter].Credit Period			:$$FileReadCell:##Mcounter:15
+220 : Set:Ledger Variable[##Mcounter].Credit Limit			:$$FileReadCell:##Mcounter:16
+230 : Set:Ledger Variable[##Mcounter].Price Level			:$$FileReadCell:##Mcounter:17
+240 : Set:Ledger Variable[##Mcounter].DebitOpeningBalance	:$$FileReadCell:##Mcounter:18
+250 : Set:Ledger Variable[##Mcounter].CreditOpeningBalance	:$$FileReadCell:##Mcounter:19
+
+260 : Call:Read Ledger Address2:##Mcounter
+270 : Increment:Mcounter
+280 : End While
+290 : Close File
+300 : Call:Read Ledgers Data:##pSheetName1
+310 : End Msg Box
+320 : Return
+
+[Function:Read Ledger Address2]
+Parameter:Counter:Number
+Variable:MCounter:Number
+Variable:vAddress:String
+000:Set:vAddress:$$FileReadCell:##Counter:4
+001:Set:MCounter:1
+010:For Token:Addr:##vAddress:","
+020:List Add Ex:Ledger Variable[##Counter].List Address
+030:Set:Ledger Variable[##Counter].List Address[##Mcounter].Address:##Addr
+040:Increment:Mcounter
+050:End For
+
+
+;;; ==================================================== Import Bank Entries
+[Function:Read Bank Entries]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Parameter:pSheetName1:String
+Variable:Mcounter:Number
+Variable:vVchTypeName:String
+Local Formula: FolderPath		: ##pFolderPath
+Local Formula: FileName			: ##pFileName
+Local Formula: AccessExcelFile1	: $$Sprintf:"%s\%s":@FolderPath:@FileName
+
+000 : Open File:@AccessExcelFile1:Excel:Read:UTF-8
+010 : Set Active Sheet:##pSheetName1
+020 : Start Msg Box:"Status":"Reading Data.."
+030 : Set:Mcounter:1
+040 : List Delete:Banks Entry Excel Variable
+050 : While:NOT ($$IsEmpty:($$FileReadCell:##Mcounter:1))
+060 : List Add Ex:Banks Entry Excel Variable
+065 : Set: vVchTypeName: $$FileReadCell:##Mcounter:3
+070 : Set:Banks Entry Excel Variable[##Mcounter].SNo					:$$LoopIndex
+080 : Set:Banks Entry Excel Variable[##Mcounter].Date					:$$FileReadCell:##Mcounter:1
+090 : Set:Banks Entry Excel Variable[##Mcounter].Invoice No				:$$FileReadCell:##Mcounter:2
+100 : Set:Banks Entry Excel Variable[##Mcounter].VoucherType			:$$FileReadCell:##Mcounter:3
+110 : Set:Banks Entry Excel Variable[##Mcounter].BankLedger				:$$FileReadCell:##Mcounter:4
+120 : Set:Banks Entry Excel Variable[##Mcounter].Ledger Name			:$$FileReadCell:##Mcounter:5
+130 : Set:Banks Entry Excel Variable[##Mcounter].Amount					:$$FileReadCell:##Mcounter:6
+
+;131 : Log:$$Sprintf:"Voucher Type:%s":##vVchTypeName
+140 : Increment:Mcounter
+150 : End While
+160 : Close File
+170 : Call:Read Vouchers:##vVchTypeName:"No":"Yes"
+180 : End Msg Box
+190 : Return
+
+
+
+
+
+[Function:Read Stock Items]
+Parameter:pFolderPath:String
+Parameter:pFileName:String
+Variable:Mcounter:Number
+Local Formula: FolderPath		: ##pFolderPath
+Local Formula: FileName			: ##pFileName
+Local Formula: AccessExcelFile1	: $$Sprintf:"%s\%s":@FolderPath:@FileName	
+
+000 : Open File:@AccessExcelFile1:Excel:Read:UTF-8
+010 : Start Msg Box:"Status":"Reading Data.."
+020 : Set:Mcounter:1
+030 : List Delete:List StockItem
+040 : While:NOT ($$IsEmpty:($$FileReadCell:##Mcounter:6))
+050 : List Add Ex:List StockItem
+060 : Set:List StockItem[##Mcounter].SNo				:$$LoopIndex
+070 : Set:List StockItem[##Mcounter].ProductName		:$$FileReadCell:##Mcounter:1
+080 : Set:List StockItem[##Mcounter].PartNo				:$$FileReadCell:##Mcounter:2
+090 : Set:List StockItem[##Mcounter].Group				:$$FileReadCell:##Mcounter:3
+100 : Set:List StockItem[##Mcounter].Category			:$$FileReadCell:##Mcounter:4
+110 : Set:List StockItem[##Mcounter].Unit				:$$FileReadCell:##Mcounter:5
+120 : Set:List StockItem[##Mcounter].BaseConversion		:$$FileReadCell:##Mcounter:6
+130 : Set:List StockItem[##Mcounter].AltConversion		:$$FileReadCell:##Mcounter:7
+140 : Set:List StockItem[##Mcounter].AltUnit			:$$FileReadCell:##Mcounter:8
+150 : Set:List StockItem[##Mcounter].SalesPrice			:$$FileReadCell:##Mcounter:9
+160 : Set:List StockItem[##Mcounter].CurrentStock		:$$FileReadCell:##Mcounter:10
+170 : Set:List StockItem[##Mcounter].OpeningRate		:$$FileReadCell:##Mcounter:11
+180 : Set:List StockItem[##Mcounter].OpeningValue		:$$FileReadCell:##Mcounter:12
+190 : Increment:Mcounter
+200 : End While
+210 : Close File
+220 : End Msg Box
+230 : Call:Read Stock Items Data
+240 : Return

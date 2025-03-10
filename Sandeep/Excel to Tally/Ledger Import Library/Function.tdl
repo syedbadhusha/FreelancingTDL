@@ -1,0 +1,104 @@
+[Function:Read Ledgers Data]
+Parameter:LedgersFilePath:String:""
+Variable:Mcounter:Number:1
+List Variable:LedgersList
+000 : Start Msg Box:"Status":"Reading Data From Server"
+010 : List Delete:LedgersList
+020 : Walk Collection:Ledger Variable Temp Collection
+030 : List Add Ex:LedgersList 
+
+040 : If:NOT ($$IsEmpty:$LedgerName)
+050 : Set:LedgersList[##Mcounter].Id						:$ID
+060 : Set:LedgersList[##Mcounter].OldLedgerName			 	:$LedgerName
+070 : Set:LedgersList[##Mcounter].LedgerName				:$LedgerName
+080 : Set:LedgersList[##Mcounter].Group						:If $$IsEmpty:$Group Then $$GroupSuspense Else $Group
+090 : Set:LedgersList[##Mcounter].IsBillWiseOn				:Yes
+100 : Set:LedgersList[##Mcounter].Inventory Affected		:If $$IsEqual:$Group:"Sales Accounts" then "Yes" else "No"
+110 : Set:LedgersList[##Mcounter].MailingName				:$MailingName
+120 : Set:LedgersList[##Mcounter].StateName					:$StateName
+130 : Set:LedgersList[##Mcounter].CountryName				:If $$IsEmpty:$CountryName Then ($CountryName:Company:##SVCurrentCompany) Else $CountryName
+140 : Set:LedgersList[##Mcounter].PinCode					:$PinCode
+150 : Set:LedgersList[##Mcounter].MobileNumber				:$Mobile
+160 : Set:LedgersList[##Mcounter].ContactPerson				:$ContactPerson
+170 : Set:LedgersList[##Mcounter].ContactPerson_Mobile		:$Telephone
+180 : Set:LedgersList[##Mcounter].ContactPerson_Email		:$Email
+190 : Set:LedgersList[##Mcounter].ContactPerson_EmailCC		:$EmailCC
+200 : Set:LedgersList[##Mcounter].ContactPerson_Website		:$Website
+210 : Set:LedgersList[##Mcounter].CreditPeriod				:$CreditPeriod
+220 : Set:LedgersList[##Mcounter].CreditLimit				:$CreditLimit
+;230 : Set:LedgersList[##Mcounter].PriceLevel				:$PriceLevel
+240 : Set:LedgersList[##Mcounter].PAN Number				:$PAN
+250 : Set:LedgersList[##Mcounter].GST Type					:If $$IsEmpty:$GSTIN_Number then "Unregistered" else "Regular"
+260 : Set:LedgersList[##Mcounter].GSTIN Number				:$GSTIN_Number
+270 : Set:LedgersList[##Mcounter].Opening Balance			:If $$IsEmpty:$DebitOpeningBalance then $CreditOpeningBalance else $DebitOpeningBalance
+280 : Set:LedgersList[##Mcounter].Opening Balance_Date		:"";$ShopOpeningOutstandingDate
+290 : Set:LedgersList[##Mcounter].Opening Balance_Name		:"1"
+300 : Set:LedgersList[##Mcounter].HSNCode					:$HSNCode
+310 : Set:LedgersList[##Mcounter].IGSTRate					:$IGST_Rate
+
+;320 : Call:Read Bank Details:##Mcounter
+;330 : Call:Read Ledger Alias:##Mcounter
+340 : Call:Read Ledger Address:##Mcounter
+350 : Increment:Mcounter  
+360 : End If
+370 : End Walk
+380 : End Msg Box
+
+390 : Display:Ledger Preview
+400 : Return
+
+[Function:Read Bank Details]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+Variable:vAccountHolderName:String
+Variable:vBankAccountNumber:String
+Variable:vBankBRSCode:String
+Variable:vBankBranch:String
+Variable:vBankIFSCCode:String
+Variable:vBankName:String
+Variable:vBankSWIFTCode:String
+000 : Set:Mcounter:1
+010 : Set:vAccountHolderName	: $BankAccountDetails[1].AccountHolderName
+020 : Set:vBankAccountNumber	: $BankAccountDetails[1].BankAccountNumber
+030 : Set:vBankBRSCode			: $BankAccountDetails[1].BankBRSCode
+040 : Set:vBankBranch			: $BankAccountDetails[1].BankBranch
+050 : Set:vBankIFSCCode			: $BankAccountDetails[1].BankIFSCCode
+060 : Set:vBankName				: $BankAccountDetails[1].BankName
+070 : Set:vBankSWIFTCode		: $BankAccountDetails[1].BankSWIFTCode
+
+075 : If:$$IsEqual:$ledGroup:"Bank Accounts"
+080 : 	List Add Ex:LedgersList[##Counter].LedgerBankDetails
+090 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].AccountHolderName	: ##vAccountHolderName
+100 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].BankAccountNumber	: ##vBankAccountNumber
+110 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].BankBRSCode			: ##vBankBRSCode
+120 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].BankBranch			: ##vBankBranch
+130 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].BankIFSCCode			: ##vBankIFSCCode
+140 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].BankName				: ##vBankName
+150 : 	Set : LedgersList[##Counter].LedgerBankDetails[##Mcounter].BankSWIFTCode		: ##vBankSWIFTCode
+160 : 	Increment:Mcounter   
+165 : End If
+170 : Return
+
+[Function:Read Ledger Alias]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+000 : Set:Mcounter:1
+005 : Walk Collection:Aliases
+020 : List Add Ex:LedgersList[##Counter].LedgerAlias
+030 : Set : LedgersList[##Counter].LedgerAlias[##Mcounter].LedgerAlias		: $Alias
+040 : Increment:Mcounter   
+055 : End Walk
+060 : Return
+
+[Function:Read Ledger Address]
+Parameter:Counter:Number
+Variable:Mcounter:Number
+000 : Set:Mcounter:1
+;005 : Walk Collection:LedgerAddress
+006 : For Token:Addr:$Address:","
+020 : List Add Ex:LedgersList[##Counter].LedgerAddress
+030 : Set : LedgersList[##Counter].LedgerAddress[##Mcounter].LedgerAddress		: ##Addr
+040 : Increment:Mcounter   
+041 : End For
+;050 : End Walk
+060 : Return

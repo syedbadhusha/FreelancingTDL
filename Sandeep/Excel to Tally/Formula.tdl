@@ -1,0 +1,20 @@
+[System: Formulae]
+	IsTallyERP_Tally	: $$ProdInfo:ProdMajorVersion = 1 and $$ProdInfo:ProdMinorVersion = 0
+	IsTallyPrime_Tally	: $$ProdInfo:ProdMajorVersion = 1 and $$ProdInfo:ProdMinorVersion > 0
+	ExcelFilter	        : $$RefreshTableFunc:##ETFolderPath AND NOT $$IsDirectory:$Name AND (($Name CONTAINS ".xlsx" OR $Name CONTAINS ".csv" or $Name CONTAINS ".xls") AND $Name NOT CONTAINS "tdlserver")
+	IsSalesSheet		: $$IsEqual:##TransactionType:"Sales"
+	IsReceiptSheet		: $$IsEqual:##TransactionType:"Receipts"
+	IsJournalSheet		: $$IsEqual:##TransactionType:"Journal"
+	
+	IsVer_TallyERP			: $$ProdInfo:ProdMajorVersion = 1 and $$ProdInfo:ProdMinorVersion = 0
+	IsVer_TallyPrime		: $$ProdInfo:ProdMajorVersion = 1 and $$ProdInfo:ProdMinorVersion > 0 and NOT $$Number:$$ProdInfo:ProdReleaseAsStr > 2.1
+	IsVer_TallyPrime_3		: $$ProdInfo:ProdMajorVersion = 1 and $$ProdInfo:ProdMinorVersion > 0 and $$Number:$$ProdInfo:ProdReleaseAsStr > 2.1
+	;; Select $$ProdInfo:ProdMajorVersion, $$ProdInfo:ProdMinorVersion, $$ProdInfo:ProdReleaseAsStr from company
+	
+	StateN:$StateName:Company:$$CurrentCompany
+	
+	SkipFirstRow: $SNo>1
+	InvoiceNoFilter:$$IsEqual:$cInvNumber:##CurrInvoiceNo
+	
+	ShowErrorList			: If ##ShowAllBtn then $$IsEmpty:#LPError else No
+	ShowItemErrorList		: If ##ShowAllBtn then $$IsEmpty:#SIPError else No

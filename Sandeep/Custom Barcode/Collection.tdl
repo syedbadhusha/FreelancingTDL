@@ -1,0 +1,17 @@
+[Collection:Stock Item Collection]
+	Type:StockItem
+	Fetch:Name,PartNo,LastSalePrice
+	Full Height:Yes
+	Align:Right
+	Format:$Name, 25
+	Format:$PartNo, 15
+	Format:$LastSalePrice, 15
+	Sub Title:"Name", "Part No", "Last Sale Price"
+	Title:"List of Stock Items"
+	
+[Collection:Barcode Aggr Collection]
+	Type:Barcode Aggr:Company
+	Child Of:$$CurrentCompany
+	Fetch:BC_ItemName, BC_Barcode, BC_Price, BC_NoOfBarcodes, *
+	
+;select $BC_ItemName From BarcodeAggrCollection

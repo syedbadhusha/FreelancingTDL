@@ -1,0 +1,605 @@
+[Function:Read Vouchers]
+Parameter:TransactionType:String
+Parameter:pIsAccountingMode:Logical:No
+Parameter:pIsBankEntries:Logical:No
+Variable:Mcounter:Number:1
+Variable:vMasterID:Number
+Variable:ListIndex:Number
+Variable:vRefNo:String
+List Variable:WC Vouchers Remote Guid:String
+List Variable:WC Vouchers Master ID:String
+
+Variable:vDeliveryNoteNo:String
+Variable:vDeliveryNoteDate:String
+Variable:vDispatchDocNo:String
+Variable:vDispatchThrough:String
+Variable:vDestination:String
+Variable:vCarrierName:String
+Variable:vBillOfLanding:String
+Variable:vBillOfDate:String
+Variable:vMotorVehicleNo:String
+
+Variable:vOrderNo:String
+Variable:vOrderDate:String
+Variable:vTermsOfPayment:String
+Variable:vOtherReferences:String
+Variable:vTermsOfDelivery:String
+
+Variable:vConsigneeName:String
+Variable:vConsigneeGSTIN:String
+Variable:vConsigneeState:String
+Variable:vConsigneeCountryName:String
+Variable:vConsigneePinCode:String
+Variable:vConsigneeAddress:String
+
+Variable:vBuyerName:String
+Variable:vBuyerGSTIN:String
+Variable:vBuyerState:String
+Variable:vBuyerCountryName:String
+Variable:vBuyerPinCode:String
+Variable:vBuyerAlias:String
+Variable:vBuyerEmail:String
+Variable:vBuyerMobile:String
+Variable:vBuyerEmail:String
+Variable:vBuyerAddress:String
+
+Local Formula:LedgersWhichDoesNotExist:$LedgerEntries[1, @@IsNotLedgerExist].LedgerName
+Local Formula:StockItemsWhichDoesNotExist:$InventoryEntries[1, @@IsNotStockItemExist].StockItemName
+Local Formula:VoucherTypeWhichDoesNotExist:If $$IsObjectExists:VoucherType:$VoucherType Then "" Else $VoucherType
+Local Formula:CostCentreWhichDoesNotExist:"";If $$IsObjectExists:CostCentre:$VoucherCostCentre Then "" Else $VoucherCostCentre
+0000 : Set:Mcounter:1
+0001 : List Delete:VoucherList
+
+Variable:vCollName:String
+Variable:vAccountingModeCollection:String
+0002 : Set:vCollName:If $$IsEqual:##TransactionType:"Sales" or $$IsEqual:##TransactionType:"Purchase" then "Sales Excel Temp Collection" else if ##pIsBankEntries then "Banks Entry Temp Collection" else "Bank Trans Excel Temp Collection"
+0003 : Set:vAccountingModeCollection:If ##pIsAccountingMode then "Accounting List Variable Temp Collection" else ##vCollName
+0006 : Walk Collection:##vAccountingModeCollection;Sales Excel Temp Collection
+
+0007 : Set:vMasterID:""
+
+0008 : If:($$ListFind:WCVouchersRemoteGuid:$MasterID)
+0009 : Set:ListIndex:($$ListIndex:WCVouchersRemoteGuid:$MasterID);*2
+0010 : Set:vMasterID:$$ListKey:WCVouchersMasterID:##ListIndex
+0011 : End If
+0012 : Set:vRefNo:$ReferenceNumber
+
+0040 : List Add Ex:VoucherList 
+0050 : Set:VoucherList[##Mcounter].MasterID			   		:"";##vMasterID
+0060 : Set:VoucherList[##Mcounter].Voucher Number  			:$cInvNumber
+0070 : Set:VoucherList[##Mcounter].Voucher Date  			:If $$IsEmpty:($$Date:$cInvDate) Then $StartingFrom:Company:$$CurrentCompany	 Else ($$Date:$cInvDate)
+0080 : Set:VoucherList[##Mcounter].Voucher Type  			:$cVchType;If $$IsEmpty:$VoucherType Then $$VchTypeSales Else $VoucherType
+0090 : Set:VoucherList[##Mcounter].Reference  				:""
+0100 : Set:VoucherList[##Mcounter].ReferenceDate  			:""
+0110 : Set:VoucherList[##Mcounter].Party Name  				:$cLedgerName
+0120 : Set:VoucherList[##Mcounter].Narration  				:$cNarration
+0130 : Set:VoucherList[##Mcounter].Amount  					:$StockAmount
+0131 : Set:VoucherList[##Mcounter].WebID  					:""
+0140 : Set:VoucherList[##Mcounter].PlaceOfSupply			:$cState
+0141 : Set:VoucherList[##Mcounter].IsInvoice				:Yes;$IsInvoice
+0142 : Set:VoucherList[##Mcounter].IsDeleted				:No;$IsDeleted
+0143 : Set:VoucherList[##Mcounter].VoucherCostCentre		:"";$VoucherCostCentre
+0150 : Set:VoucherList[##Mcounter].IsImportable				:"";$$IsEmpty:@LedgersWhichDoesNotExist AND $$IsEmpty:@StockItemsWhichDoesNotExist AND $$IsEmpty:@VoucherTypeWhichDoesNotExist AND $$IsEmpty:@CostCentreWhichDoesNotExist
+0160 : Set:VoucherList[##Mcounter].Error					:"";If NOT $$IsEmpty:@LedgersWhichDoesNotExist Then $$Sprintf:"%s Ledger Doesn't Exist":@LedgersWhichDoesNotExist Else If NOT $$IsEmpty:@StockItemsWhichDoesNotExist Then $$Sprintf:"%s Stock Item Doesn't Exist":@StockItemsWhichDoesNotExist Else If NOT $$IsEmpty:@VoucherTypeWhichDoesNotExist Then $$Sprintf:"%s Voucher Type Doesn't Exist":@VoucherTypeWhichDoesNotExist Else If NOT $$IsEmpty:@CostCentreWhichDoesNotExist Then $$Sprintf:"%s Cost Centre Doesn't Exist":@CostCentreWhichDoesNotExist Else ""
+
+0170: Set:vDeliveryNoteNo:"";$DeliveryNoteNo
+0180: Set:vDeliveryNoteDate:"";$DeliveryNoteDate
+0190: Set:vDispatchDocNo:"";$DispatchDocNo
+0200: Set:vDispatchThrough:"";$DispatchThrough
+0210: Set:vDestination:"";$Destination
+0220: Set:vCarrierName:"";$CarrierName
+0230: Set:vBillOfLanding:"";$LRNo
+0240: Set:vBillOfDate:"";$LRDate
+0250: Set:vMotorVehicleNo:"";$MotorVehicleNo
+
+0260: Set:vOrderNo:"";$OrderNo
+0270: Set:vOrderDate:"";$OrderDate
+0280: Set:vTermsOfPayment:"";$TermsOfPayment
+0290: Set:vOtherReferences:"";$OtherReferences
+0300: Set:vTermsOfDelivery:"";$TermsOfDelivery
+
+0310: Set:vConsigneeName:$cTradeName
+0320: Set:vConsigneeGSTIN:$cGSTNumber
+0330: Set:vConsigneeState:$cState
+0340: Set:vConsigneeCountryName:"India"
+0350: Set:vConsigneePinCode:$cCompanyPincode
+0351: Set:vConsigneeAddress:$cAddress
+
+0352: Log:$cAddress
+
+0360: Set:vBuyerName:$cTradeName
+0370: Set:vBuyerGSTIN:$cGSTNumber
+0380: Set:vBuyerState:$cState
+0390: Set:vBuyerCountryName:"UAE"
+0400: Set:vBuyerPinCode:$cCompanyPincode
+0410: Set:vBuyerAlias:$cAlias
+0420: Set:vBuyerEmail:""
+0430: Set:vBuyerMobile:$cMobileNumber
+0436: Set:vBuyerAddress:$cAddress
+
+;0440 : Call:Read Dispatch Info Data:##Mcounter:##vDeliveryNoteNo:##vDeliveryNoteDate:##vDispatchDocNo:##vDispatchThrough:##vDestination:##vCarrierName:##vBillOfLanding:##vBillOfDate:##vMotorVehicleNo
+;0450 : Call:Read Order Info Data:##Mcounter:##vOrderNo:##vOrderDate:##vTermsOfPayment:##vOtherReferences:##vTermsOfDelivery
+0460 : Call:Read Consignee Info Data:##Mcounter:##vConsigneeName:##vConsigneeGSTIN:##vConsigneeState:##vConsigneeCountryName:##vConsigneePinCode:##vConsigneeAddress;vBuyerEmail
+0470 : Call:Read Buyer Info Data:##Mcounter:##vBuyerName:##vBuyerGSTIN:##vBuyerState:##vBuyerCountryName:##vBuyerPinCode:##vBuyerAlias:##vBuyerMobile:##vBuyerEmail:##vBuyerAddress
+
+;0480 : Call:Read EWay Bill Data:##Mcounter
+;0490 : Call:Read EInvoice Data:##Mcounter
+
+0500 : Call:Read Inventory Entries Data:##Mcounter
+0510 : Call:Read Ledger Entries Data:##Mcounter:##vRefNo
+
+0520 : Increment:Mcounter  
+0530 : End Walk	
+0540 : Display:Voucher Preview
+0550 : Return
+
+[Function:Read EWay Bill Data]
+Parameter:Counter:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0005 : If:NOT ($$IsEmpty:$EWayBillDetails[1].EWayBillNo)
+0010 : Walk Collection:EWayBillDetails
+0020 : List Add Ex:VoucherList[##Counter].EWayBillDetails
+0030 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].BillNo			: $EWayBillNo
+0040 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].BillDate		: $EWayBillDate
+0050 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].Distance		: $Distance
+0060 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].TransporterName	: $TransporterName
+0070 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].TransporterID	: $TransporterID
+0080 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].DocNo			: $DocNo
+0090 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].DocDate			: $DocDate
+0100 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].VehicleNo		: $VehicleNo
+0105 : Set : VoucherList[##Counter].EWayBillDetails[##Mcounter].VehicleType		: $VehicleType
+0110 : Increment:Mcounter       	
+0120 : End Walk
+0121 : End If
+0130 : Return
+
+[Function:Read EInvoice Data]
+Parameter:Counter:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0005 : If:NOT ($$IsEmpty:$EInvoiceDetails[1].AckNo)
+0010 : Walk Collection:EInvoiceDetails
+0020 : List Add Ex:VoucherList[##Counter].EInvoiceDetails
+0030 : Set : VoucherList[##Counter].EInvoiceDetails[##Mcounter].AckNo			: $AckNo
+0040 : Set : VoucherList[##Counter].EInvoiceDetails[##Mcounter].AckDate			: $AckDate
+0060 : Set : VoucherList[##Counter].EInvoiceDetails[##Mcounter].IRN				: $IRN
+0070 : Set : VoucherList[##Counter].EInvoiceDetails[##Mcounter].BillToPlace		: $BillToPlace
+0080 : Set : VoucherList[##Counter].EInvoiceDetails[##Mcounter].ShipToPlace		: $ShipToPlace
+0110 : Increment:Mcounter       	
+0120 : End Walk
+0121 : End If
+0130 : Return
+
+[Function:Read Dispatch Info Data]
+Parameter:Counter:Number
+
+Parameter:DeliveryNoteNo:String:""
+Parameter:DeliveryNoteDate:Date:""
+Parameter:DispatchDocNo:String:""
+Parameter:DispatchThrough:String:""
+Parameter:Destination:String:""
+Parameter:CarrierName:String:""
+Parameter:BillOfLanding:String:""
+Parameter:BillOfDate:Date:""
+Parameter:VehicleNo:String:""
+Variable:Mcounter:Number
+0000 : Set:Mcounter:1
+0020 : List Add Ex:VoucherList[##Counter].DispatchInfo
+0030 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].DeliveryNoteNo		: ##DeliveryNoteNo
+0040 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].DeliveryNoteDate	: ##DeliveryNoteDate
+0050 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].DispatchDocNo		: ##DispatchDocNo
+0060 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].DispatchThrough	: ##DispatchThrough
+0070 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].Destination		: ##Destination
+0080 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].CarrierName		: ##CarrierName
+0090 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].BillOfLanding		: ##BillOfLanding
+0100 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].BillOfDate			: ##BillOfDate
+0105 : Set : VoucherList[##Counter].DispatchInfo[##Mcounter].MotorVehicleNo		: ##VehicleNo
+0110 : Increment:Mcounter       	
+0130 : Return
+
+[Function:Read Order Info Data]
+Parameter:Counter:Number 
+
+Parameter:OrderNo:String:""
+Parameter:OrderDate:Date:""
+Parameter:TermsOfPayment:String:""
+Parameter:OtherReferences:String:""
+Parameter:TermsOfDelivery:String:""
+Variable:Mcounter:Number
+0000 : Set:Mcounter:1
+0020 : List Add Ex:VoucherList[##Counter].OrderInfo
+0030 : Set : VoucherList[##Counter].OrderInfo[##Mcounter].OrderNo			: ##OrderNo
+0040 : Set : VoucherList[##Counter].OrderInfo[##Mcounter].OrderDate			: ##OrderDate
+0050 : Set : VoucherList[##Counter].OrderInfo[##Mcounter].TermsOfPayment	: ##TermsOfPayment
+0060 : Set : VoucherList[##Counter].OrderInfo[##Mcounter].OtherReferences	: ##OtherReferences
+0070 : Set : VoucherList[##Counter].OrderInfo[##Mcounter].TermsOfDelivery	: ##TermsOfDelivery
+0110 : Increment:Mcounter       	
+0130 : Return
+
+[Function:Read Consignee Info Data]
+Parameter:Counter:Number 
+Parameter:pName:String:""
+Parameter:pGSTIN:String:""
+Parameter:pStateName:String:""
+Parameter:pCountryName:String:""
+Parameter:pPinCode:String:""
+Parameter:pAddress:String:""
+Variable:Mcounter:Number
+Variable:vAddress:String
+0000 : Set:Mcounter:1
+0020 : List Add Ex:VoucherList[##Counter].ConsigneeInfo
+0030 : Set : VoucherList[##Counter].ConsigneeInfo[##Mcounter].LedgerName		: ##pName
+0040 : Set : VoucherList[##Counter].ConsigneeInfo[##Mcounter].GSTIN				: ##pGSTIN
+0050 : Set : VoucherList[##Counter].ConsigneeInfo[##Mcounter].StateName			: ##pStateName
+0060 : Set : VoucherList[##Counter].ConsigneeInfo[##Mcounter].CountryName		: ##pCountryName
+0070 : Set : VoucherList[##Counter].ConsigneeInfo[##Mcounter].PinCode			: ##pPinCode
+0105 : Call:Read Consignee Address Data:##Counter:##Mcounter:##pAddress
+0110 : Increment:Mcounter       	
+0130 : Return
+
+[Collection:ConsigneeAddress]
+Source Collection:.
+JSON Object Path:"ConsigneeAddress:1"
+
+[Collection:BuyerAddress]
+Source Collection:.
+JSON Object Path:"BuyerAddress:1"
+
+[Function:Read Consignee Address Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Parameter:Address:String
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0010 : For Token:Addr:##Address:","
+0020 : List Add Ex:VoucherList[##Counter].ConsigneeInfo[##Counter1].Address
+0040 : Set : VoucherList[##Counter].ConsigneeInfo[##Counter1].Address[##Mcounter].Address	: ##Addr
+0110 : Increment:Mcounter       	
+0120 : End For
+0130 : Return
+
+[Function:Read Buyer Info Data]
+Parameter:Counter:Number 
+Parameter:pName:String:""
+Parameter:pGSTIN:String:""
+Parameter:pStateName:String:""
+Parameter:pCountryName:String:""
+Parameter:pPinCode:String:""
+Parameter:pAlias:String:""
+Parameter:pMobileNumber:String:""
+Parameter:pEmailID:String:""
+Parameter:pBuyerAddress:String:""
+Variable:Mcounter:Number
+0000 : Set:Mcounter:1
+
+0020 : List Add Ex:VoucherList[##Counter].BuyerInfo
+0030 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].LedgerName		: ##pName
+0040 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].GSTIN				: ##pGSTIN
+0050 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].StateName			: ##pStateName
+0060 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].CountryName		: ##pCountryName
+0070 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].PinCode			: ##pPinCode
+
+0071 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].Alias				: ##pAlias
+0072 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].EmailID			: ##pEmailID
+0073 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].MobileNumber		: ##pMobileNumber
+
+0074 : Set : VoucherList[##Counter].BuyerInfo[##Mcounter].EmailID			: ##pEmailID
+
+0105 : Call:Read Buyer Address Data:##Counter:##Mcounter:##pBuyerAddress
+0110 : Increment:Mcounter       	
+0130 : Return
+
+[Function:Read Buyer Address Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Parameter:BuyerAddr:String
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0010 : For Token:Addr:##BuyerAddr:","
+0020 : List Add Ex:VoucherList[##Counter].BuyerInfo[##Counter1].Address
+0040 : Set : VoucherList[##Counter].BuyerInfo[##Counter1].Address[##Mcounter].Address	: ##Addr
+0110 : Increment:Mcounter       	
+0120 : End For
+0130 : Return
+
+[Function:Read Inventory Entries Data]
+Parameter:Counter:Number
+Variable:Mcounter:Number 
+
+Local Formula:SystemUnitName:If $$IsEmpty:($$CollectionField:$Symbol:1:Unit) Then "Nos" Else $$CollectionField:$Symbol:1:Unit
+0000 : Set:Mcounter:1
+0001 : Set:CurrInvoiceNo:$cInvNumber
+0010 : Walk Collection:Excel Inventory Collection
+0011 : Set:CurrCGSTRate:$cCGSTRate
+0020 : List Add Ex:VoucherList[##Counter].InventoryEntriesList
+0040 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].StockItemName		: $cItemName
+0050 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].IsDeemedPositive	: If $$IsSales:##TransactionType then No else Yes
+0060 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].ActualQty			: $cActualQty
+0070 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].BilledQty			: $cActualQty
+0075 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].Discount			: $cTradeDisc
+0080 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].Rate				: $cRate
+0090 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].Amount				: $cAmount
+0100 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].SalesLedger		: $ETInventoryAlloc:Company:$$CurrentCompany
+
+0101 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].GroupName			: ""
+0102 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].UnitName			: $cUnit
+0103 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].ItemCode			: $cItemAlias
+0104 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].HSNCode			: $cHSN
+0105 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].IGSTRate			: If $$IsEmpty:$cIGSTRate then $$Number:$cCGSTRate*2 else $cIGSTRate
+0106 : Set : VoucherList[##Counter].InventoryEntriesList[##Mcounter].CessRate			: $cCessRate
+
+0110 : Call:Read Batch Allocation Data:##Counter:##Mcounter
+0120 : Call:Read Accounting Allocation Data:##Counter:##Mcounter
+;0130 : Call:Read Stock Description Data:##Counter:##Mcounter
+0140 : Increment:Mcounter       	
+0150 : End Walk
+0170 : Return
+
+[Variable:CurrCGSTRate]
+	Type:String
+	
+[System:Variable]
+	CurrCGSTRate:""
+
+[Function:Read Batch Allocation Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+Local Formula:Godown:$ETGodownName:Company:$$CurrentCompany
+0000 : Set:Mcounter:1
+;0001 : If:NOT ($$IsEmptyCollection:BatchAllocations)
+;0010 : Walk Collection:Batch Allocations
+0020 : List Add Ex:VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList
+0040 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList[##Mcounter].GodownName	: @Godown
+0050 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList[##Mcounter].BatchName		: "Primary Batch"
+0060 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList[##Mcounter].ActualQty		: $cActualQty
+0070 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList[##Mcounter].BilledQty		: $cBilledQty
+0080 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList[##Mcounter].Rate			: $cRate
+0090 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].BatchAllocationsList[##Mcounter].Amount		: $cAmount
+0110 : Increment:Mcounter       	
+;0120 : End Walk
+;0121 : End If
+0130 : Return
+
+[Function:Read Accounting Allocation Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+;0001 : If:NOT ($$IsEmptyCollection:AccountingAllocations)
+;0010 : Walk Collection:Accounting Allocations
+0020 : List Add Ex:VoucherList[##Counter].InventoryEntriesList[##Counter1].AccountingAllocationList
+0040 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].AccountingAllocationList[##Mcounter].LedgerName	: $ETInventoryAlloc:Company:$$CurrentCompany
+0050 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].AccountingAllocationList[##Mcounter].Amount		: $cAmount
+0060 : Increment:Mcounter       	
+;0070 : End Walk
+;0071 : End If
+0080 : Return
+
+[Function:Read Stock Description Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0001 : If:NOT ($$IsEmpty:$StockDescriptions[1].Description)
+0010 : Walk Collection:Stock Descriptions
+0020 : List Add Ex:VoucherList[##Counter].InventoryEntriesList[##Counter1].StockDescriptionList
+0040 : Set : VoucherList[##Counter].InventoryEntriesList[##Counter1].StockDescriptionList[##Mcounter].Description	: $Description
+0050 : Increment:Mcounter       	
+0060 : End Walk
+0061 : End If
+0070 : Return
+
+[Function:Read Ledger Entries Data]
+Parameter:Counter:Number
+Parameter:ReferenceNo:String:""
+Variable:Mcounter:Number
+Variable:vIsDeemedPositive:Logical
+Variable:InvoiceAmount:Number
+Variable:vGrossAmt:Number
+Variable:vAdditionalLedAmt:Number
+Variable:vAdditionalLedAmt2:Number
+Variable:vVATAmt:Number
+0000 : Set:Mcounter:1
+0001 : Set:vGrossAmt:If $$IsEmpty:$StockAmount then 0 else $StockAmount
+0002 : Set:vAdditionalLedAmt:If $$IsEmpty:$AdditonalLedger1 then 0 else $AdditonalLedger1
+0003 : Set:vAdditionalLedAmt2:If $$IsEmpty:$AdditonalLedger2 then 0 else $AdditonalLedger2
+0004 : Set:vVATAmt:If $$IsEmpty:$cVATAmt then 0 else $cVATAmt
+
+0010 : List Add Ex:VoucherList[##Counter].LedgerEntriesList
+0020 : Set:vIsDeemedPositive:If $$IsSales:##TransactionType then Yes else if $$IsPurchase:##TransactionType then No else If $$IsPayment:##TransactionType then Yes else If $$IsReceipt:##TransactionType then No else If $$IsContra:##TransactionType then Yes else If $$IsJournal:##TransactionType then Yes else Yes
+0030 : Set:InvoiceAmount:##vGrossAmt + ##vAdditionalLedAmt + ##vAdditionalLedAmt2 + ##vVATAmt  ;$StockAmount + $AdditonalLedger1 + $AdditonalLedger2 + $cVATAmt
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IndexNumber		: 10
+0050 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].LedgerName		: $cLedgerName
+0060 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].GroupName			: If $$IsPayment:##TransactionType or $$IsReceipt:##TransactionType Then $$GroupBank Else If $$IsSales:##TransactionType Then $$GroupSundryDebtors  Else If $$IsPurchase:##TransactionType Then $$GroupSundryCreditors Else $$GroupSuspense
+0070 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsDeemedPositive 	: ##vIsDeemedPositive
+0080 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsPartyLedger 	: If $$IsJournal:##TransactionType then No else Yes
+0090 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].Amount			: ##InvoiceAmount
+0100 : Call:Read Bills Allocation Data:##Counter:##Mcounter
+0110 : Increment:Mcounter
+
+;0120 : If:NOT ($$IsEmpty:$AdditonalLedger1)
+0130 : List Add Ex:VoucherList[##Counter].LedgerEntriesList
+0140 : Set:vIsDeemedPositive:If $$IsSales:##TransactionType then No else if $$IsPurchase:##TransactionType then Yes else If $$IsPayment:##TransactionType then No else If $$IsReceipt:##TransactionType then Yes else If $$IsContra:##TransactionType then No else If $$IsJournal:##TransactionType then No else Yes
+0150 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IndexNumber		: 10
+0160 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].LedgerName		: If $$IsPayment:##TransactionType or $$IsReceipt:##TransactionType or $$IsContra:##TransactionType or $$IsJournal:##TransactionType or ##pIsAccountingMode then $cAdditionalLedger1 else $EACAdditionalLedger1:Company:$$CurrentCompany
+0170 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].GroupName			: $$GroupSuspense
+0180 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsDeemedPositive 	: ##vIsDeemedPositive
+0190 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsPartyLedger 	: If $$IsPayment:##TransactionType or $$IsReceipt:##TransactionType or $$IsContra:##TransactionType then Yes else No
+0200 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].Amount			: If $$IsPayment:##TransactionType or $$IsReceipt:##TransactionType or $$IsContra:##TransactionType or $$IsJournal:##TransactionType  then ##InvoiceAmount else $AdditonalLedger1
+0210 : Increment:Mcounter
+;0220 : End If 
+
+;0230 : If:NOT ($$IsEmpty:$AdditonalLedger2) AND NOT $$IsPayment:##TransactionType
+0240 : List Add Ex:VoucherList[##Counter].LedgerEntriesList
+0250 : Set:vIsDeemedPositive:If $$IsSales:##TransactionType then No else if $$IsPurchase:##TransactionType then Yes else Yes
+0260 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IndexNumber		: 10
+0270 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].LedgerName		: $EACAdditionalLedger2:Company:$$CurrentCompany
+0280 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].GroupName			: $$GroupSuspense
+0290 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsDeemedPositive 	: NOT $PartyIsDeemedPositive
+0300 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsPartyLedger 	: No
+0310 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].Amount			: $AdditonalLedger2
+0320 : Increment:Mcounter
+;0330 : End If 
+
+;0340 : If:NOT ($$IsEmpty:$cVATLedger)  AND NOT $$IsPayment:##TransactionType
+0350 : List Add Ex:VoucherList[##Counter].LedgerEntriesList
+0360 : Set:vIsDeemedPositive:If $$IsSales:##TransactionType then No else if $$IsPurchase:##TransactionType then Yes else Yes
+0370 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IndexNumber		: 10
+0380 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].LedgerName		: $cVATLedger
+0390 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].GroupName			: $$GroupDuties
+0400 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsDeemedPositive 	: NOT $PartyIsDeemedPositive
+0410 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].IsPartyLedger 	: No
+0420 : Set : VoucherList[##Counter].LedgerEntriesList[##Mcounter].Amount			: $cVATAmt
+0430 : Increment:Mcounter
+;0440 : End If 
+
+0500 : Return
+
+[Function:Read Category Allocation Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0005 : If:NOT ($$IsEmpty:$CategoryAllocation[1].Category)
+0010 : Walk Collection:Category Allocation
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].CategoryAllocationList
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].CategoryAllocationList[##Mcounter].Category				: $Category
+0050 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].CategoryAllocationList[##Mcounter].IsDeemedPositive		: $IsDeemedPositive
+0060 : Call:Read Cost Centre Allocation Data:##Counter:##Counter1:##Mcounter
+0110 : Increment:Mcounter       	
+0120 : End Walk
+0121 : End If
+0130 : Return
+
+[Function:Read Cost Centre Allocation Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Parameter:Counter2:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0005 : If:NOT ($$IsEmpty:$CostCentreAllocation[1].Name)
+0010 : Walk Collection:CostCentreAllocation
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].CategoryAllocationList[##Counter2].CostCentreAllocationList
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].CategoryAllocationList[##Counter2].CostCentreAllocationList[##MCounter].Name			: $Name
+0050 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].CategoryAllocationList[##Counter2].CostCentreAllocationList[##MCounter].Amount		: $$Number:$Amount
+0110 : Increment:Mcounter       	
+0120 : End Walk
+0121 : End If
+0130 : Return
+
+[Function:Read Bills Allocation Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0010 : If:NOT ($$IsEmpty:##ReferenceNo)
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].BillsAllocationList
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].BillsAllocationList[##Mcounter].AgstType		: "New Ref"
+0050 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].BillsAllocationList[##Mcounter].Reference		: ##ReferenceNo
+;0055 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].BillsAllocationList[##Mcounter].CreditPeriod	: $$DateRange:$CreditPeriod:##SVCurrentDate:True
+0060 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].BillsAllocationList[##Mcounter].Amount		: If ##vIsDeemedPositive Then $$Abs:##InvoiceAmount*-1 Else $$Abs:##InvoiceAmount
+0110 : Increment:Mcounter   
+0115 : End If    	
+0130 : Return
+
+[Function:Read Ledger Description Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0001 : If:NOT ($$IsEmpty:$LedgerDescription[1].Description)
+0010 : Walk Collection:Ledger Description
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].LedgerDescriptionList
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].LedgerDescriptionList[##Mcounter].Description	: $Description
+0050 : Increment:Mcounter       	
+0060 : End Walk
+0061 : End If
+0070 : Return
+
+[Function:Read Inventory Allocations Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0001 : If:NOT ($$IsEmptyCollection:InventoryEntries)
+0010 : Walk Collection:InventoryEntries
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList 
+
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].StockItemName		: $StockItemName
+0050 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].IsDeemedPositive	: $DeemedPositive
+0060 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].ActualQty			: $ActualQty
+0070 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].BilledQty			: $BilledQty
+0075 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].Discount			: $Discount
+0080 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].Rate				: $Rate
+0090 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].Amount				: $Amount
+0100 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].SalesLedger		: $SalesLedger
+
+0101 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].GroupName			: If $$IsEmpty:$GroupName OR $GroupName Contains "Primary" Then $$SysName:Primary Else $GroupName
+0102 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].UnitName			: If $$IsEmpty:$Unit Then @SystemUnitName Else $Unit
+0103 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].ItemCode			: $ItemCode
+0104 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].HSNCode			: $HSNCode
+0105 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].IGSTRate			: $GSTRate
+0106 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Mcounter].CessRate			: $CessRate
+
+
+0110 : Call:Read Ledger Batch Allocation Data:##Counter:##Counter1:##Mcounter
+0130 : Call:Read Ledger Stock Description Data:##Counter:##Counter1:##Mcounter
+0140 : Increment:Mcounter      
+  	
+0200 : End Walk
+0210 : End If
+0220 : Return
+
+[Function:Read Ledger Batch Allocation Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Parameter:Counter2:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0001 : If:NOT ($$IsEmptyCollection:BatchAllocations)
+0010 : Walk Collection:Batch Allocations
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList[##Mcounter].GodownName		: $GodownName
+0050 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList[##Mcounter].BatchName		: $BatchName
+0060 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList[##Mcounter].ActualQty		: $ActualQty
+0070 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList[##Mcounter].BilledQty		: $BilledQty
+0080 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList[##Mcounter].Rate			: $Rate
+0090 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].BatchAllocationsList[##Mcounter].Amount			: $Amount
+0110 : Increment:Mcounter       	
+0120 : End Walk
+0121 : End If
+0130 : Return
+
+[Function:Read Ledger Stock Description Data]
+Parameter:Counter:Number
+Parameter:Counter1:Number
+Parameter:Counter2:Number
+Variable:Mcounter:Number 
+0000 : Set:Mcounter:1
+0001 : If:NOT ($$IsEmpty:$StockDescriptions[1].Description)
+0010 : Walk Collection:Stock Descriptions
+0020 : List Add Ex:VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].StockDescriptionList
+0040 : Set : VoucherList[##Counter].LedgerEntriesList[##Counter1].InventoryAllocationsList[##Counter2].StockDescriptionList[##Mcounter].Description	: $Description
+0050 : Increment:Mcounter       	
+0060 : End Walk
+0061 : End If
+0070 : Return
+
+
+
+[Function: YYYYMMDDDateFormat1]
+Parameter   : ParamInputDate        : Date
+Parameter   : ParamSeparator        : String
+Variable    : TempVarYear           : String
+Variable    : TempVarMonth          : String
+Variable    : TempVarDate           : String
+Returns     : String
+01  : If        : NOT $$IsEmpty:##ParamInputDate
+02  :   Set     : TempVarYear       : $$Zerofill:($$YearofDate:##ParamInputDate):4
+03  :   Set     : TempVarMonth      : $$Zerofill:($$MonthofDate:##ParamInputDate):2
+04  :   Set     : TempVarDate       : $$Zerofill:($$DayofDate:##ParamInputDate):2
+05  :   Return  : $$String:##TempVarYear + $$String:##ParamSeparator + $$String:##TempVarMonth + $$String:##ParamSeparator + $$String:##TempVarDate
+06  : End If
+07  : Return    : ""

@@ -1,0 +1,36 @@
+[Collection:Ledger JSON Collection]
+Data Source:File JSON:##LedgersFilePath
+JSON Object Path:"data:1"
+
+;; Select $OriginalObjectName from LedgerJSONCollection
+
+[Collection:Ledger Collection]
+Data Source:Variable:LedgersList
+Filter:RemoveEmptyLedgers
+
+[Collection: LI Selected Ledgers To Link]
+Data Source	: Report	: Selected
+
+[Collection:LedgerAliasColl]
+Type:Name:Ledger
+Child Of:##CurrentLedName
+
+[Collection:LedgerAddressColl]
+Type:Address:Ledger
+Child Of:##CurrentLedName
+
+;[Collection:LedgerMailingDetailsColl]
+;Type:LedMailingDetails:Ledger
+;Child Of:##CurrentLedName
+;
+;[Collection:LedgerLedGSTDetailsColl]
+;Type:LedGSTRegDetails:Ledger
+;Child Of:##CurrentLedName
+;
+;[Collection:LedgerHSNDetailsColl]
+;Type:HSNDETAILS:Ledger
+;Child Of:##CurrentLedName
+;
+;[Collection:LedgerGSTDetailsColl]
+;Type:GSTDETAILS:Ledger
+;Child Of:##CurrentLedName

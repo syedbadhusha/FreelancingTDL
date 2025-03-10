@@ -1,0 +1,32 @@
+[Object:LedgersList]
+Storage:LedgerName:String
+Storage:Group:String
+Storage:GroupParent:String
+Storage:Description:String
+Storage:Notes:String
+Storage:IsBillWiseOn:Logical
+Storage:Credit Period:String
+Storage:Inventory Affected:Logical
+Storage:MailingName:String
+Storage:StateName:String
+Storage:CountryName:String
+Storage:PinCode:String
+Storage:Mobile Number:String
+Storage:ContactPerson:String
+Storage:ContactPerson_Mobile:String
+Storage:ContactPerson_Fax:String
+Storage:ContactPerson_Email:String
+Storage:ContactPerson_EmailCC:String
+Storage:ContactPerson_Website:String
+Storage:PAN Number:String
+Storage:GST Type:String
+Storage:GSTIN Number:String
+Storage:Opening Balance:Number
+Collection:LedgerAddress:LedgerAddress
+Collection:LedgerAlias:LedgerAlias
+
+[Object:LedgerAddress]
+Storage:Address:String
+
+[Object:LedgerAlias]
+Storage:Alias:String

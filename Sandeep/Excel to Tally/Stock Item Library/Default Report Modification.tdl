@@ -1,0 +1,2 @@
+;[#Menu:Gateway of Tally]
+;Add:Key Item:Before:@@LocQuit:"Import Stock Items":L:Call:Read Stock Items Data

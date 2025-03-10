@@ -1,0 +1,70 @@
+[Variable:LedgersList]
+Variable:Id:String
+Variable:OldLedgerName:String
+Variable:LedgerName:String
+List Variable:LedgerAlias
+List Variable:LedgerBankDetails
+Variable:Group:String
+Variable:GroupParent:String
+Variable:Description:String
+Variable:Notes:String
+Variable:IsBillWiseOn:Logical
+Variable:Credit Period:String
+Variable:Inventory Affected:Logical 
+Variable:MailingName:String
+List Variable:LedgerAddress
+Variable:StateName:String
+Variable:CountryName:String
+Variable:PinCode:String
+Variable:MobileNumber:String
+Variable:ContactPerson:String
+Variable:ContactPerson_Mobile:String
+Variable:ContactPerson_Fax:String
+Variable:ContactPerson_Email:String
+Variable:ContactPerson_EmailCC:String
+Variable:ContactPerson_Website:String
+Variable:PANNumber:String
+Variable:GSTType:String
+Variable:GSTINNumber:String
+Variable:Opening Balance:Number
+Variable:Opening Balance_Date:Date
+Variable:Opening Balance_Name:String
+Variable:HSNCode:String
+Variable:IGSTRate:Number
+Variable:CreditLimit:Number
+
+[Variable:LedgerAlias]
+Variable:LedgerAlias:String
+
+[Variable:LedgerBankDetails]
+Variable:AccountHolderName:String
+Variable:BankAccountNumber:String
+Variable:BankBRSCode:String
+Variable:BankBranch:String
+Variable:BankIFSCCode:String
+Variable:BankName:String
+Variable:BankSWIFTCode:String
+
+[Variable:LedgerAddress]
+Variable:LedgerAddress:String
+
+
+[Variable:CurrentLedName]
+Type:String
+
+[System:Variables]
+List Variable:LedgersList
+CurrentLedName:""
+
+
+
+[Variable: ShowAllBtn]
+	Type	: Logical
+	
+[System: Variable]
+	ShowAllBtn	: No
+	
+[Button: ShowErrosBtn]
+	Title	: if ##ShowAllBtn then "Show All" else "Show Error List"
+	Key		: F3
+	Action	: Set:ShowAllBtn:Not ##ShowAllBtn

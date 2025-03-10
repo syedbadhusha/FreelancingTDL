@@ -1,0 +1,25 @@
+;[#Part: VTYP BehaviourMain]
+;Add      : Option   : VTYP_BehaviourMain_Optn :  @@IsEnbCmpLevel
+;
+;[!Part : VTYP_BehaviourMain_Optn]	
+; Add: Lines		:At End :GATE_EnbVchTypeAddOn
+;
+; 
+;[Line : GATE_EnbVchTypeAddOn]
+;Field           : Medium Prompt , GATE_EnbVchTypeAddOn 
+;Local : Field  : Medium Prompt  : Set as : $$LocaleString:"Enable Options For Invoice Customized ?"
+;Local : Field  : Medium Prompt  : Width :35
+;Local : Field  : Default  : Color : Blue
+;Local: Field: Default: Invisible: Not ( $$IsSales:$Parent) 
+;Space Top      : 0.5
+; 
+;[Field : GATE_EnbVchTypeAddOn]
+;Use              : Logical Field
+;Storage          : GATE_EnbVchTypeAddOn
+;Table            : yesNoTable
+;Background       : White
+;Show Table       : Always 
+;Border           : Thin Box
+;
+;[System:Formula]
+;IsEnbVoucherType:$GATE_EnbVchTypeAddOn:voucherType:$VoucherTypeName="Yes"

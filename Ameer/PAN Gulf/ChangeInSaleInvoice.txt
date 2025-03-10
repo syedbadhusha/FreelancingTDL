@@ -1,0 +1,381 @@
+[#Form: Simple Printed Invoice]
+;Add   : Option  : PrintedInvoice_Opt : @@IsSales
+;;
+;[!Form:PrintedInvoice_Opt]	
+ Delete : Parts:  DSP VoucherTime, EXPINV Jurisdiction, EXPSMP Copy,+
+				  EXPSMP Company, DSP EXPSMP PurcContactDet,+
+				  EXPSMP InvTitle, +
+				  EXPSMP Party, +
+				  EXPSMP PartyContact,+
+				  EXPSMP Terms
+ 				 
+Add  : Part : At Beginning : Cmp_Empty,Cmp_StampPartMain,PG__InvoicePart,PG_CmpDetails,PG_TaxInvTitle
+Delete :BottomParts : EXPSMP Totals, EXPSMP EOE, EXPSMP OtherDetails, EXPSMP SignOff, EXPSMP Customer, EXPINV InvoiceCompGen
+Add:BottomParts : EXPSMP Totals, EXPSMP EOE, EXPSMP OtherDetails,EXPSMP_SigPartMain,EXPSMP_Signature, EXPINV_InvoiceCompGen;EXPSMP_AmountChargable
+
+
+[#Part	: EXPSMP Customer] 
+Delete:Right Part : EXPSMP Signature
+
+[Part:EXPSMP_SigPartMain] 
+Part:EXPINV Declaration
+
+[Part: EXPSMP_Signature] 
+Line        : EXPSMP_Signature
+Bottom Lines: EXPSMP_Authourity
+;[#Part: EXPSMP Signature]
+;Delete : Bottom Line:EXPSMP Authourity
+;
+;;[Part : EXPSMP_Authourity]
+;Bottom Lines: EXPSMP_Authourity
+
+[Line: EXPSMP_Signature]
+Field           : Medium Prompt  
+Right Fields    : Simple Field
+Space Bottom    : 3
+Local			: Field : Simple Field : Set as : If NOT ($$IsSysNameEqual:Primary:##SVAddressToPrint OR $$IsEmpty:##SVAddressToPrint) Then +
+													If NOT $$IsEmpty:@@InvoiceCmpNameAddrType Then +
+														$$Sprintf:@@CompanyMailFormat:@@InvoiceCmpNameAddrType +
+													Else +
+														"" +
+												  Else +
+													If NOT $$IsEmpty:@@InvoiceCmpName Then +
+														$$Sprintf:@@CompanyMailFormat:@@InvoiceCmpName +
+													Else +
+														""
+Local           : Field : Simple Field : Style  : Normal Bold
+Local           : Field : Simple Field : Cell   : @@ExcelCellColumn - 6 * ($$Quotient:@@ExcelCellColumn:8)
+Local           : Field : Simple Field : Align  : Left
+
+Local		    : Field : Medium Prompt : Set as : $$LocaleString:"Customer's Seal and Signature"
+Local           : Field : Medium Prompt : Style  : Normal Bold
+Local           : Field : Medium Prompt : Align  : Left
+Local           : Field : Medium Prompt : Width  : 30% Page
+
+;; Option introduced for Quick Draft mode Printing
+;; In Order to Print Signatatory Promptly, Alignment made as Centre.
+
+Option : EXPSMP DMSignature  : $$InDraftMode AND ##IsDMPartyNameLeftAlign
+Option : ForCompnyNameDmpMode: $$InDMPMode
+Option : GST Print ItemTaxDetStyleTinyBold : @@IsGSTOnAppl AND @@IsGSTTaxAnalysisWithItems
+Option : GVAT EXPSMP Arabic Signature	   : @@IsVchGVATApplicable AND ##vIsPrintedInvoiceArabic
+
+
+		
+[Line: EXPSMP_Authourity]
+Left Fields	    : Name Field,Short Name Field
+Right Fields    : Simple Field
+
+Local           : Field : Name Field : Set as 		: $$LocaleString:"Prepared by"
+Local           : Field : Name Field : Width  		: 45% Page
+Local           : Field : Name Field : Style          : Small
+Local           : Field : Name Field : Invisible	: ((@@IsSales Or @@IsCreditNote) And Not ##SASpaceForInitial) Or +
+														  ((@@IsPurchase Or @@IsDebitNote) And Not ##PUSpaceForInitial) Or +
+														  ((@@IsSalesOrder Or @@IsJobOrderIn) And Not ##SOSpaceForInitial) Or +
+														  ((@@IsPurcOrder Or @@IsJobOrderOut) And Not ##POSpaceForInitial) Or +
+														  (@@IsRcptNote And Not ##RNSpaceForInitial) Or (@@IsDelNote And Not ##DNSpaceForInitial) Or +
+														  ($IsMaterialIn And Not ##RNSpaceForInitial) Or ($IsMaterialOut And Not ##DNSpaceForInitial) OR +
+														  (@@RejInvoice AND NOT ##RJInOutSpaceForInitial)
+
+Local           : Field : Short Name Field : Set as : $$LocaleString:"Verified by"
+Local           : Field : Short Name Field : Style  : Small
+Local           : Field : Short Name Field : Width	: 15% Page
+Local           : Field : Short Name Field : Invisible : ((@@IsSales Or @@IsCreditNote) And Not ##SASpaceForInitial) Or +
+														((@@IsPurchase Or @@IsDebitNote) And Not ##PUSpaceForInitial) Or +
+															((@@IsSalesOrder Or @@IsJobOrderIn) And Not ##SOSpaceForInitial) Or +
+															((@@IsPurcOrder Or @@IsJobOrderOut) And Not ##POSpaceForInitial) Or +
+															(@@IsRcptNote And Not ##RNSpaceForInitial) Or (@@IsDelNote And Not ##DNSpaceForInitial) Or +
+															($IsMaterialIn And Not ##RNSpaceForInitial) Or ($IsMaterialOut And Not ##DNSpaceForInitial) OR +
+															(@@RejInvoice AND NOT ##RJInOutSpaceForInitial)
+	
+Local           : Field : Simple Field : Set as : $$LocaleString:"Driver Signatory"
+Local           : Field : Simple Field : Style  : Small
+Local           : Field : Simple Field : Cells  : If ((@@IsSales OR @@IsCreditNote) AND ##SASpaceForInitial) OR +
+														 ((@@IsPurchase OR @@IsDebitNote) AND ##PUSpaceForInitial) OR +
+														 ((@@IsSalesOrder OR @@IsJobOrderIn) AND ##SOSpaceForInitial) OR +
+														 ((@@IsPurcOrder OR @@IsJobOrderOut) AND ##POSpaceForInitial) OR +
+														  (@@IsRcptNote AND ##RNSpaceForInitial) OR (@@IsDelNote AND ##DNSpaceForInitial) OR +
+														  ($IsMaterialIn AND ##RNSpaceForInitial) OR ($IsMaterialOut AND ##DNSpaceForInitial) OR +
+														  (@@RejInvoice AND ##RJInOutSpaceForInitial) Then 4 Else +
+													         @@ExcelCellColumn - 6 * ($$Quotient:@@ExcelCellColumn:8)
+Local           : Field : Simple Field : Align  : Right
+Skip Rows       : 1
+
+		
+[Part:EXPSMP_AmountChargable]
+Line            : EXPSMP_AmountChargable,EXPSMP_AmountChargableVal,EXPSMP_AmountVat,EXPSMP_AmountVatVal
+Space Top:0.2
+
+[Line:EXPSMP_AmountChargable]
+Field           : EXPSMP_AmountChargable
+
+[Field:EXPSMP_AmountChargable]
+Use             : Name Field	
+Full Width      : Yes
+Set as          : " Amount Chargeable(In Words)"
+Align           : Left
+Style           : small
+
+[Line:EXPSMP_AmountChargableVal]
+Field           : EXPSMP_AmountChargableVal
+Space Top:0.2
+
+[Field:EXPSMP_AmountChargableVal]
+Use             : Name Field	
+Full Width      : Yes
+Set as          : $$InWords:$Amount 
+Set Always      : Yes
+Align           : Left
+Style           : Normal
+
+[Line:EXPSMP_AmountVat]
+Field           : EXPSMP_AmountVat
+Space Top:0.3
+[Field:EXPSMP_AmountVat]
+Use             : Name Field	
+Full Width      : Yes
+Set as          : "VAT Amount(In Words)"
+Set Always      : Yes
+Align           : Left
+Style           : small
+
+[Line:EXPSMP_AmountVatVal]
+Field           : EXPSMP_AmountVatVal
+Space Top:0.2
+
+[Field:EXPSMP_AmountVatVal]
+Use             : Name Field	
+Full Width      : Yes
+Set as          : $$InWords:$Amount 
+Set Always      : Yes
+Align           : Left
+Style           : Normal
+
+
+[Part:Cmp_Empty]
+Line            : Cmp_Empty
+
+[Line:Cmp_Empty]
+Field           : Cmp_Empty
+
+[Field:Cmp_Empty]
+Use             : Name Field	
+Full Width      : Yes
+Set as          : "1"
+Invisible       : Yes
+
+[Part : Cmp_StampPartMain]
+Line        : Cmp_StampPart
+Space Top   : 8  
+ 
+[Line:Cmp_StampPart]
+Field         : Cmp_StampPart
+ 
+[Field:Cmp_StampPart]
+Use            : Name Field
+Set as         : ""
+Style          : Normal	
+Width       : 100% Page
+;Invisible   : Yes
+
+  
+ 
+;----------------------------------------------------------------------------------Invocepart
+[Part:PG__InvoicePart]
+Line                : PG__InvoiceNo
+Space Top           : 1
+[Line:PG__InvoiceNo]
+Field               :  Medium Prompt ,PG__InvoiceNo,Short Prompt,PG__Date
+Local : Field  : Medium Prompt  : Set as :"Invoice No. : "
+Local : Field  : Medium Prompt  : Width :15% page
+Local : Field  : Medium Prompt  : Style : Normal
+Local : Field  : Medium Prompt  : Align : Left
+
+Local : Field  : Short Prompt  : Set as :"Dated :"
+Local : Field  : Short Prompt  : Width :35% page
+Local : Field  : Short Prompt  : Style : Normal
+Local : Field  : Short Prompt  : Align : Right
+
+
+[Field:PG__InvoiceNo]
+Use                 : Name Field
+Set as              : $VoucherNumber
+Set Always          : Yes	
+Style               : Normal
+;Align               : Left
+Width               : 35% page
+Full Width          : Yes
+
+ 
+[Field:PG__Date]
+Use                 : Short date Field
+Set as              : $Date
+Set Always          : Yes	
+Style               : Normal
+Align               : Right
+Width               : 15% page
+ 
+	
+;=====================================================================CompanyDetails
+ [Part:PG_CmpDetails]
+Part            : PG_CompanyName,PG_PartyName
+;Border          : thin top left right
+Space Top:1  
+;======================================================================	   
+[Part   :PG_CompanyName]
+Line             : PG_CompanyName,PG_CompanyAddress,PG_CompanyContact,PG_CrNo,PG_TrnNo
+ 
+[Line:PG_CompanyName]	
+Field      :  PG_Companyname
+
+[Field  :PG_Companyname]
+Use             : name field	
+Set as          : $CMPMailName
+Align           : Left
+Width           : 60% page
+Style           : Extra Large Bold
+ 
+[Line   :PG_CompanyAddress]	
+Field      :  PG_CompanyAddress
+Space Top:0.2 
+[Field  :PG_CompanyAddress]
+Use             : name field	
+Set as          : $$FullList:CompanyAddress_1:$address
+Align           : Left
+Width           : 60% page
+Style           : small
+Line            : 0
+ 
+ 
+[Collection : CompanyAddress_1]
+Type           : Address : Company
+Child Of       : ##SvCurrentCompany
+Compute        : Isnumber     : No
+Compute        : FixDirection : No
+
+;=======================================================================
+
+[Line:PG_CompanyContact]
+Field          :  PG_CompanyContact  
+Space Top:0.2 
+Invisible : Yes
+
+[Field:PG_CompanyContact]
+Use             : Name field	
+Set as          : "AContact"+"  "+$PhoneNumber:Company:##SvCurrentCompany+" ,"+$CountryName:Company:##SvCurrentCompany
+Align           : Left
+Width           : 60% page
+Style           : small	
+ 
+[Line:PG_CrNo]
+Field          : PG_CrNo
+Space Top:0.2
+Invisible      : Yes
+
+[Field:PG_CrNo]
+Use            : Name field
+Set as         : "CR No."+"  "+ ""
+Align          : Left
+Style          : small	
+Width          : 60% page
+
+[Line:PG_TrnNo]
+Field          : PG_TrnNo
+Space Top:0.2
+
+[Field:PG_TrnNo]
+Use            : Name field
+Set as         : "TRN : "+ @@VATTinNumber ;"TRN"+"  "+$VATTINNumber:Ledger:$PartyLedgerName 
+Align          : Left
+Style          : small	
+Width          : 60% page
+;-----------------------------------------------------------------------------------------Party Details
+[Part:PG_PartyName]
+Line           : PG_PartyName,PG_PartyAddress,PG_PartyCountry,PG_PartyTRN
+ 
+[Line:PG_PartyName]
+Field           :PG_PartyName
+ 
+
+[Field:PG_PartyName]
+Use             : name field	
+Set as          : $PartyLedgerName
+Align           : Left
+Width           : 40% Page
+Style           : Normal Bold	
+
+[Line:PG_PartyAddress]
+Field           : PG_PartyAddress 
+Space Top       : 0.2
+	
+[Field  : PG_PartyAddress]
+Use             : name field	
+Set as          : $$FullList:PartyAdd:$Address
+Align           : Left
+Width           : 40% Page
+Style           : small 
+Line            : 0
+ 
+[Collection : PartyAdd]
+Type           : Address :Voucher
+Child Of       : ##SVVoucherType
+Compute        : Isnumber     : No
+Compute        : FixDirection : No
+
+[Line:PG_PartyCountry]
+Field          : PG_PartyCountry
+Space Top:0.2
+
+[Field:PG_PartyCountry]
+Use            : Name field
+Set as         : $CountryofResidence:Ledger:$PartyLedgerName 
+Align          : Left
+Style          : small	
+Width           : 40% Page
+
+[Line:PG_PartyTRN]
+Field          : PG_PartyTRN
+Space Top:0.2
+
+[Field:PG_PartyTRN]
+Use            : Name field
+Set as         : "TRN : "+$VATTINNumber:Ledger:$PartyLedgerName 
+Align          : Left
+Style          : small	
+Width          : 60% page
+
+;------------------------------------------------------------------
+[Part:PG_TaxInvTitle]
+Line            : PG_TaxInvTitle
+Space Top       : 0.2
+Space Bottom    : 0.2 
+ 
+[Line:PG_TaxInvTitle]
+Field           : PG_TaxInvTitle
+ 
+[Field:PG_TaxInvTitle]
+Use             : name field
+Set as          : ##ReportTitle
+Align           : Center
+Full Width      : Yes
+Set Always      : Yes  
+ 
+
+;============================================================================
+
+[Part: EXPINV_InvoiceCompGen]
+Line		 : EXPINV_InvoiceCompGen
+Border 	 : Thin Bottom	: NOT ##SVExport AND NOT @@PurcAsVoucher AND (NOT $$InPixelMode OR @@InvSimple)
+	
+[Line: EXPINV_InvoiceCompGen] 
+Field	       : EXPINV_InvoiceCompGen
+Space Top    : 0.5
+Space Bottom : 0.3
+
+Option       : GST Print ItemTaxDetailsStyleTiny : @@IsGSTOnAppl AND @@IsGSTTaxAnalysisWithItems
+
+[Field: EXPINV_InvoiceCompGen]
+Set as     	: If (##SvPreprinted  OR $$IsEmpty:@@ComputerGen) Then " " Else @@ComputerGen
+Style      	: Small
+Full Width 	: Yes
+Align      	: Right

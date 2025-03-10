@@ -1,0 +1,13 @@
+[Variable:List Inventory Details]
+	Variable:ItemName:String
+	Variable:Size:String
+	Variable:Winding:String
+	Variable:PartNo:String
+	Variable:Qty:Number
+	Variable:BatchName:String
+	
+[Collection:List Inventory Collection]
+	Data Source:Variable:ListInventoryDetails
+	
+[System:Variable]
+	List Variable:ListInventoryDetails

@@ -1,0 +1,1136 @@
+[Report:Voucher Preview]
+Variable:ExplodeFlag:Logical:No
+Variable:Refresh:Logical:Yes
+Set:Refresh:Yes
+Set:ShowVouchers:0
+Form:Voucher Preview
+
+[Form:Voucher Preview]
+Height:100% page
+Width:100% page
+Part:VP Form Title, Voucher Preview Body
+Button:ExplodeFlag, Import Voucher, Show Vouchers, Import New StockItems, Import New Ledgers
+Option:Delete Voucher Button:($$NumItems:DeleteVoucherCollection)>0
+
+[!Form:Delete Voucher Button]
+Add:Button:Delete Voucher
+
+[Button:Delete Voucher]
+Title:"Delete Vouchers"
+Key:Alt + F5
+Action:Call:Delete Voucher
+
+[Button:Import Voucher]
+Title:"Import"
+Key:Alt + F2
+Action:Call:Create Voucher
+
+[Button:Show Vouchers]
+Title:If ##ShowVouchers=1 Then "Showing New Vouchers" Else If ##ShowVouchers=2 Then "Showing Old Vouchers" Else "Showing All Vouchers"
+Key:Alt + F3
+Action:Call:Increment Counter
+
+[Button:Import New Ledgers]
+Title:"Import New Ledgers"
+Key:Alt + F4
+Action:Call:Import New Ledgers
+
+[Button:Import New StockItems]
+Title:"Import New Stock Items"
+Key:Alt + F5
+Action:Call:Import New StockItems
+
+[Function:Increment Counter]
+000:Set:Refresh:No
+005:If:(##ShowVouchers=0)
+010:Increment:ShowVouchers
+015:Set:Refresh:Yes
+020:Return
+030:End If
+
+040:If:(##ShowVouchers=1)
+050:Increment:ShowVouchers
+055:Set:Refresh:Yes
+060:Return
+070:End If
+
+080:If:(##ShowVouchers=2)
+090:Increment:ShowVouchers
+095:Set:Refresh:Yes
+100:Return
+110:End If
+
+120:If:(##ShowVouchers>2)
+130:Set:ShowVouchers:1
+135:Set:Refresh:Yes
+140:Return
+150:End If
+
+[Part:VP Form Title]
+Line:VP CompName, VP Address, VP Period
+Repeat:VP Address:Company Address
+Space Bottom:2% page
+
+[Line:VP CompName]
+Field:Name Field
+Local:Field:Name Field:Set as:$$CurrentCompany
+Local:Field:Name Field:Local:Style:Default:Height:15
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+
+[Line:VP Address]
+Field:Name Field
+Local:Field:Name Field:Set as:$Address
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+Remove if:$$Line>2
+
+[Line:VP Period]
+Field:Name Field
+Local:Field:Name Field:Set as:@@DspDateStr
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Local:Style:Default:Bold:No
+
+;----------------------BODY-------------------------------
+
+[Part:Voucher Preview Body]
+Line:VP Column, VP Body
+Repeat:VP body:Voucher Collection
+Bottom Lines:VP Total
+Scroll:Vertical
+Common Borders:Yes
+Totals:VP Voucher TaxAmount, VPAmount
+
+[Line:VP Column]
+Use:VP Body
+Local:Field:Default:Style:Calibri Default
+Local:Style:Default:Height:@@LargeSize -1
+;Local:Field:Default:Border:Thin Left
+Local:Field:Default:Delete:Background
+Local:Field:Default:Delete:Color
+Local:Field:Default:Type:String
+Local:Field:VP Invoice Number :Set As:"Vch No."
+Local:Field:VP Voucher Date:Set As:"Date"
+Local:Field:VP Party Name:Set As:"Particulars"
+Local:Field:VP Voucher Type:Set As:"Vch Type"
+Local:Field:VP Voucher TaxAmount:Set as:"Tax Amount"
+Local:Field:VP Amount:Set As:"Amount"
+Local:Field:VP Action:Set as:"Action"
+Local:Field:VP Error:Set As:"Error"
+Border:Column Titles
+Delete:Remove if
+;Local:Field:Default:Border:Thin Left
+
+[Line:VP Body]
+Fields:VP Voucher Date, VP Party Name, VP Voucher Type, VP Invoice Number, VP Voucher TaxAmount, VP Amount, VP Action, VP Error
+Explode:VP Body Ledger Explode:(##ExplodeFlag and Not $$IsEmptyCollection:LedgerEntriesList) OR $$KeyExplode
+Explode:VP Body Inventory Explode:(##ExplodeFlag and Not $$IsEmptyCollection:InventoryEntriesList) OR $$KeyExplode
+
+[Field:VP Voucher Date]
+Use:Name Field
+Set as:$VoucherDate
+Width:15
+Style:Calibri Default
+
+[Field:VP Party Name]
+Use:Name Field
+Set as:$PartyName
+Width:30
+Full Width:Yes
+Style:Calibri Default Bold
+
+[Field:VP Voucher Type]
+Use:Name Field
+Set as:$VoucherType
+Width:10
+Style:Calibri Default
+
+[Field:VP Invoice Number]
+Use:Name Field
+Set as:$VoucherNumber
+Width:10
+Style:Calibri Default
+Align:Centre
+
+[Field:VP Voucher TaxAmount]
+Use:Number Field
+Set as:$$FilterNumTotal:LedgerEntriesList:IsTaxLedger:$Amount
+Width:10
+Format:"NoZero, Decimal:2"
+Style:Calibri Default Bold
+Align:Centre
+
+[Field:VP Amount]
+Use:Number Field
+Set as:$$Abs:$LedgerEntriesList[1].Amount
+Width:15
+Align:Centre
+Format:"NoZero, Decimal:2"
+Style:Calibri Default Bold
+
+[Field:VP Action]
+Use:Name Field
+Set as:"NEW"
+Set By Condition:NOT ($$IsEmpty:$MasterID Or $$Number:$MasterID=0) AND NOT $IsDeleted:"ALTER"
+Set By Condition:$IsDeleted:"DELETE"
+Width:10
+Background:@@ActionBackground
+Style:Calibri Default Bold
+Color:White
+Align:Centre
+
+[Field:VP Error]
+Use:Name Field
+Set as:$$GetReason
+Set Always:Yes
+Line:0
+Width:35
+Style:Calibri Default
+
+[Function:GetReason]
+Variable:ItemName:String
+Variable:AcctgLedger:String
+Variable:VchType:String
+000:Walk Collection:InventoryEntriesList
+001:If:NOT($$IsObjectExists:StockGroup:$GroupName) and NOT $$IsEmpty:$GroupName and NOT $$IsSysName:$GroupName
+002:	Return:($$Sprintf:"%s Stock Group Doesn't Exist":$GroupName)
+003:End If
+
+010:If:NOT($$IsObjectExists:StockItem:$StockItemName) and NOT $$IsEmpty:$StockItemName
+020:Set:ItemName:If $$StringLength:$StockItemName>20 Then $$StringPart:$StockItemName:0:20 + "..." Else $StockItemName
+030:	Return:($$Sprintf:"%s Stock Item Doesn't Exist":##ItemName)
+040:End If
+
+050:If:NOT($$IsObjectExists:Ledger:$AccountingAllocationList[1].LedgerName) and NOT $$IsEmpty:$AccountingAllocationList[1].LedgerName
+060:Set:AcctgLedger:$AccountingAllocationList[1].LedgerName
+070:	Return:($$Sprintf:"%s Ledger Doesn't Exist":##AcctgLedger)
+080:End If
+
+090:End Walk
+
+100:Walk Collection:LedgerEntriesList
+110:If:NOT($$IsObjectExists:Ledger:$LedgerName) and NOT $$IsEmpty:$LedgerName
+120:	Return:($$Sprintf:"%s Ledger Doesn't Exist":$LedgerName)
+130:End If
+
+131:Walk Collection:InventoryAllocationsList
+
+132:If:NOT($$IsObjectExists:StockGroup:$GroupName) and NOT $$IsEmpty:$GroupName and NOT $$IsSysName:$GroupName
+133:	Return:($$Sprintf:"%s Stock Group Doesn't Exist":$GroupName)
+134:End If
+
+136:If:NOT($$IsObjectExists:StockItem:$StockItemName) and NOT $$IsEmpty:$StockItemName
+137:Set:ItemName:If $$StringLength:$StockItemName>20 Then $$StringPart:$StockItemName:0:20 + "..." Else $StockItemName
+138:	Return:($$Sprintf:"%s Stock Item Doesn't Exist":##ItemName)
+139:End If
+
+140:End Walk
+
+145:Walk Collection:CategoryAllocationList
+150:If:NOT($$IsObjectExists:CostCategory:$Category) and NOT $$IsEmpty:$Category
+160:	Return:($$Sprintf:"%s Cost Category Doesn't Exist":$Category)
+170:End If
+
+180:Walk Collection:CostCentreAllocationList
+190:If:NOT($$IsObjectExists:CostCentre:$Name) and NOT $$IsEmpty:$Name
+200:	Return:($$Sprintf:"%s Cost Centre Doesn't Exist":$Name)
+210:End If
+220:End Walk
+
+230:End Walk
+
+240:End Walk
+
+250:Set:VchType:$VoucherType
+260:If:NOT ($$IsObjectExists:VoucherType:##VchType)
+270:	Return:($$Sprintf:"%s Voucher Type Doesn't Exist":##VchType)
+280:End If
+
+
+[Part:VP Body Ledger Explode]
+Line:VP Body Explode Ledger Title, VP Body Ledger Explode
+Repeat:VP Body Ledger Explode:LedgerEntriesList
+Scroll:Vertical
+
+[Line:VP Body Explode Ledger Title]
+Fields:VP Voucher Date, VP Party Name, VP Voucher Type, VP Invoice Number, +
+VP Voucher TaxAmount,VP Amount, VP Action, VP Error
+Local:Field:Default:Style:Calibri Default
+Local:Field:VP Invoice Number :Set As:""
+Local:Field:VP Voucher Date:Set As:""
+Local:Field:VP Voucher Type:Set As:""
+Local:Field:VP Party Name:Set As:"Ledger Entries Data:-"
+Local:Field:VP Party Name:Style:Calibri Default
+Local:Field:VP Party Name:Local:Style:Default:Bold:Yes
+Local:Field:VP Party Name:Local:Style:Default:Italics:Yes
+Local:Field:VP Voucher TaxAmount:Set as:""
+Local:Field:VP Amount:Set as:""
+Local:Field:VP Action:Delete:Background
+Local:Field:VP Action:Delete:Set as
+Local:Field:VP Action:Delete:Set By Condition
+Local:Field:VP Error:Set As:""
+Delete:Remove if
+Space Top:0.5
+Space Bottom:0.5
+Indent:5
+
+[Line:VP Body Ledger Explode]
+Fields:VP Voucher Date, VP Party Name, VP Voucher Type, VP Invoice Number, +
+VP Voucher TaxAmount,VP Amount, VP Action, VP Error
+Local:Field:Default:Style:Calibri Default
+Local:Field:VP Invoice Number :Set As:""
+Local:Field:VP Voucher Date:Set As:""
+Local:Field:VP Voucher Type:Set As:""
+Local:Field:VP Party Name:Set As:$LedgerName
+Local:Field:VP Amount:Type:String
+Local:Field:VP Amount:Set as:If $IsDeemedPositive Then $$Sprintf:"%s Dr":$Amount Else $$Sprintf:"%s Cr":$Amount;If $$IsNegative:$Amount Then $$Number:$Amount*-1 Else $Amount
+Local:Field:VP Action:Delete:Background
+Local:Field:VP Action:Delete:Set as
+Local:Field:VP Action:Delete:Set By Condition
+Local:Field:VP Error:Set As:""
+Delete:Remove if
+Add:Remove if:$$IsEmpty:$Amount
+Indent:10
+
+[Part:VP Body Inventory Explode]
+Line:VP Body Explode Inventory Title, VP Body Inventory Explode
+Repeat:VP Body Inventory Explode:InventoryEntriesList
+Scroll:Vertical
+
+[Line:VP Body Explode Inventory Title]
+Fields:VP Voucher Date, VP Party Name, VP Voucher Type, VP Invoice Number, +
+VP Voucher TaxAmount,VP Amount, VP Action, VP Error
+Local:Field:Default:Style:Calibri Default
+Local:Field:VP Invoice Number :Set As:""
+Local:Field:VP Voucher Date:Set As:""
+Local:Field:VP Voucher Type:Set As:""
+Local:Field:VP Party Name:Set As:"Inventory Entries Data:-"
+Local:Field:VP Party Name:Style:Calibri Default
+Local:Field:VP Party Name:Local:Style:Default:Bold:Yes
+Local:Field:VP Party Name:Local:Style:Default:Italics:Yes
+Local:Field:VP Voucher TaxAmount:Set as:""
+Local:Field:VP Amount:Set as:""
+Local:Field:VP Action:Delete:Background
+Local:Field:VP Action:Delete:Set as
+Local:Field:VP Action:Delete:Set By Condition
+Local:Field:VP Error:Set As:""
+Delete:Remove if
+Space Top:0.5
+Space Bottom:0.5
+Indent:5
+
+[Line:VP Body Inventory Explode]
+Fields:VP Voucher Date, VP Party Name, VP Voucher Type, VP Invoice Number, +
+VP Voucher TaxAmount,VP Amount, VP Action, VP Error
+Local:Field:Default:Style:Calibri Default
+Local:Field:VP Invoice Number :Set As:""
+Local:Field:VP Voucher Date:Set As:""
+Local:Field:VP Voucher Type:Set As:""
+Local:Field:VP Party Name:Set As:$$Sprintf:"%s ; Qty: %s ; Rate: %s":$StockItemName:$ActualQty:$Rate
+Local:Field:VP Party Name:Line:0
+Local:Field:VP Amount:Set as:$$AsPositive:$Amount
+Local:Field:VP Action:Delete:Background
+Local:Field:VP Action:Delete:Set as
+Local:Field:VP Action:Delete:Set By Condition
+Local:Field:VP Error:Set As:""
+Delete:Remove if
+Indent:10
+
+[Line:VP Total]
+Use:VP Body
+Local:Field:Default:Style:Calibri Default
+Local:Style:Default:Height:@@LargeSize -1
+;Local:Field:Default:Border:Thin Left
+Local:Field:Default:Delete:Background
+Local:Field:Default:Delete:Color
+;Local:Field:Default:Type:String
+Local:Field:VP Invoice Number :Set As:""
+Local:Field:VP Voucher Date:Set As:""
+Local:Field:VP Party Name:Set As:"Total"
+Local:Field:VP Voucher Type:Set As:""
+Local:Field:VP Voucher TaxAmount:Set as:$$Total:VPVoucherTaxAmount
+Local:Field:VP Amount:Set As:$$Total:VPAmount
+Local:Field:VP Action:Set as:""
+Local:Field:VP Error:Set As:""
+Border:Column Titles
+Delete:Remove if
+
+;;;---Function to Import Purchase Data
+[Function: Create Voucher]
+Variable  : ProgressCounter		  : Number
+Variable  : PartyName             : String
+Variable  : VoucherType			  : String
+Variable  : LedgerAddress		  : String
+Variable  : Date				  : Date
+Variable  : ErrorReason			  : String
+Variable  : CreatedVouchers		  : Number:0
+Variable  : ItemName			  : String
+Variable  : ActualQty			  : String
+Variable  : BilledQty			  : String
+Variable  : Rate				  : String
+Variable  : Amount				  : String
+Variable  : LedgerName			  : String 
+Variable  : MasterID			  : Number
+Variable  : VoucherID			  : String
+Variable  : CollectionName		  : String
+Local Formula:NumItems:$$NumItems:VPAllVouchersToLink
+Local Formula:NumberingMethod:($NumberingMethod:VoucherType:##VoucherType)
+;;;Starting and Showing Progress Bar
+
+0000 : Query Box:"Import Vouchers?":Yes:No
+0010 : If:$$LastResult
+
+0015 : If:($$NumItems:VPSelectedVouchersToLink)!=0
+0016 : Set:CollectionName:"VPSelectedVouchersToLink"
+0017 : Set:ProgressCounter:$$NumItems:VPSelectedVouchersToLink
+0018 : Else
+0019 : Set:CollectionName:"VoucherCollection"
+0020 : Set:ProgressCounter:$$NumItems:VoucherCollection
+0021 : End If
+
+0030 : If:($$IsEmpty:##ProgressCounter) OR ($$IsEqual:##ProgressCounter:0)
+0040 : 		Msg Box:"Status":"No Vouchers Found to Import"
+0050 : 		Return
+0060 : End If
+
+0070 : Start Batch Post:500
+0080 : Start Progress : ##ProgressCounter: ("Voucher Import":"Creation in Progress....")
+0090 : Walk Collection : ##CollectionName
+0100 : Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+0110 : Set:ErrorReason:$$GetReason
+0120 : If:($$IsEmpty:##ErrorReason and NOT $IsDeleted)
+
+0130 : If:Yes;;($$IsEmpty:$_InvoiceNo:"IMP/PUR0019/2122");$$LoopIndex=1
+0140 : SET            :SVViewName      		: $$SysName:InvVchView
+0150 : Set			  :Date	   				: $$Date:$VoucherDate
+0170 : SET			  :PartyName			: $Name:Ledger:$PartyName
+0180 : SET			  :VoucherType			: $VoucherType
+
+0181 : SET			  :MasterID			    : If $$Number:$MasterID=0 OR $$IsEmpty:$MasterID Then @@LatestMasterID Else $MasterID
+0182 : SET			  :VoucherID			: $$Sprintf:"ID:%s":##MasterID
+
+0190 : NEW OBJECT     :Voucher:##VoucherID:Yes
+
+0191 : If:@@IsVer_TallyPrime_3
+0192 : 	SET VALUE      :GSTREGISTRATIONTYPE  	 : If $$IsEmpty:$GSTIN Then "Unregistered/Consumer" Else "Regular"
+0193 : 	SET VALUE      :VCHGSTSTATUSISINCLUDED   : "Yes"
+0194 : 	SET VALUE      :VCHGSTSTATUSISUNCERTAIN  : "No"
+0195 : End If
+
+0196 : If:@@IsVer_TallyPrime_3
+0197 : 	Insert Collection Object:GST
+0198 : 	Set Value:PURPOSETYPE:"GST"
+0199 : 	Insert Collection Object:STAT
+0200 : 	Set Value:PURPOSETYPE:"GST" 
+;0200A : Set Value:STATKEY:"" 
+0211 : 	Set Value:ISFETCHEDONLY:"No" 
+0212 : 	Set Value:ISDELETED:"No"
+0213 : 	Set Target:..
+0214 : 	Set Target:.. 
+0215 : End If
+
+0220 : SET VALUE      :Date            		: ##Date
+0221 : SET VALUE      :VoucherTypeName 		: ##VoucherType
+0222 : SET VALUE      :PartyLedgerName 		: ##PartyName
+0230 : SET VALUE      :PartyName       		: ##PartyName
+0240 : SET VALUE      :PartyMailingName 	: ##PartyName
+0250 : SET VALUE      :Narration		 	: $Narration
+0255 : SET VALUE      :IsInvoice       		: $IsInvoice
+0256 : SET VALUE      :RemoteGUID      		: $WebID
+0257 : SET VALUE      :PlaceOfSupply   		: $PlaceOfSupply
+0257A: SET VALUE      :VchEntryMode   		: "Accounting Invoice"
+0258 : Do If:NOT ($$IsEmpty:$VoucherCostCentre):Set Value:CostCentreName:$VoucherCostCentre
+0259 : Do If:NOT ($$IsEmpty:$VoucherCostCentre):Set Value:IsCostCentre:Yes
+
+0260A: If:NOT ($$IsEmpty:$MasterID)
+0261 : Walk Collection:OLD Inventory Entries Data
+0262 : Delete Collection Object:Inventory Entries
+0263 : End Walk
+
+0264 : Walk Collection:OLD Ledger Entries Data
+0265 : Delete Collection Object:Ledger Entries
+0266 : End Walk
+
+0267 : Walk Collection:OLD Delivery Note Data
+0268 : Delete Collection Object:InvoiceDelNotes
+0269 : End Walk
+
+0270 : Walk Collection:OLD Order No Data
+0271 : Delete Collection Object:InvoiceOrderList
+0272 : End Walk
+
+0273 : Walk Collection:OLD Terms of Delivery Data
+0274 : Delete Collection Object:BASICORDERTERMS
+0275 : End Walk
+0275A: End If
+
+0276 : SET VALUE      :Reference      		: $Reference
+0277 : SET VALUE      :ReferenceDate      	: $ReferenceDate
+
+
+0278 : Walk Collection:DispatchInfo
+
+0280 : If:NOT ($$IsEmpty:$DeliveryNoteNo)
+0290 : Insert Collection Object:InvoiceDelNotes
+0300 : SET VALUE      :BasicShipDeliveryNote    : $DeliveryNoteNo
+0310 : SET VALUE      :BasicShippingDate      	: $DeliveryNoteDate
+0315 : Set Target:..
+0320 : End If
+
+0350 : SET VALUE      :BasicShipDocumentNo	: $DispatchDocNo
+0360 : SET VALUE      :BasicShippedBy       : $DispatchThrough
+0370 : SET VALUE      :BasicFinalDestination: $Destination
+0380 : SET VALUE      :EICheckPost      	: $CarrierName
+0390 : SET VALUE      :BillOfLadingNo     	: $BillOfLanding
+0400 : SET VALUE      :BillOfLadingDate	    : $BillOfDate
+0405 : SET VALUE      :BasicShipVesselNo    : $MotorVehicleNo
+0410 : End Walk
+
+0411 : If:@@IsVer_TallyPrime_3
+0412 : 	SET VALUE      :BASICBASEPARTYNAME  	 : ##PartyName
+0415 : End If
+
+0420 : Walk Collection:OrderInfo
+0430 : If:NOT ($$IsEmpty:$OrderNo)
+0440 : Insert Collection Object:InvoiceOrderList
+0450 : SET VALUE      :BasicPurchaseOrderNo : $OrderNo
+0460 : SET VALUE      :BasicOrderDate      	: $OrderDate
+0465 : Set Target:..
+0470 : End If
+
+0480 : If:NOT ($$IsEmpty:$TermsOfDelivery)
+0490 : Insert Collection Object:BASICORDERTERMS
+0500 : SET VALUE      :BASICORDERTERMS : $TermsOfDelivery
+0505 : Set Target:..
+0510 : End If
+
+0520 : SET VALUE      :BASICDUEDATEOFPYMT      	: $TermsOfPayment
+0530 : SET VALUE      :BASICORDERREF      		: $OtherReferences
+0540 : End Walk
+
+;0550 : If:NOT  ($$IsEqual:@NumberingMethod:"Automatic")
+0560 : 		SET VALUE      :VoucherNumber       : $VoucherNumber
+;0570 : End If
+
+0580 : Walk Collection:BuyerInfo
+0590 : Walk Collection:Address
+0610 : Insert Collection Object:BasicBuyerAddress
+0620 : Set Value	: BasicBuyerAddress		: $Address
+0630 : Set Target:..
+0640 : End Walk
+0650 : Set Value		:StateName:$StateName
+0660 : Set Value		:CountryofResidence:$CountryName
+0670 : Set Value		:PartyGSTIN:$GSTIN
+0680 : Set Value		:PartyPinCode:$PinCode
+0681 : SET VALUE      	:BasicBuyerName       	: $LedgerName
+0682 : SET VALUE      	:PartyName      		: $LedgerName
+0683 : SET VALUE      	:PartyMailingName     	: $LedgerName
+
+0690 : End Walk
+
+
+
+
+0720 : Walk Collection:ConsigneeInfo
+0730 : Walk Collection:Address
+0750 : Insert Collection Object:Address
+0760 : Set Value	: Address		: $Address
+0770 : Set Target:..
+0780 : End Walk
+0790 : Set Value:ConsigneeStateName:$StateName
+0800 : Set Value:ConsigneeCountryName:$CountryName
+0810 : Set Value:ConsigneeGSTIN:$GSTIN
+0820 : Set Value:Consigneepincode:$PinCode
+0821 : SET VALUE:ConsigneeMailingName : $LedgerName
+0830 : End Walk
+
+0831 : If:NOT ($$IsEmpty:$EWayBillDetails[1].BillNo)
+0832 : Walk Collection:EWayBillDetails
+0833 : Insert Collection Object:EWayBillDetails
+0834 : Set Value	: BillNumber		: $BillNo
+0835 : Set Value	: BillDate			: $BillDate
+
+0836 : Insert Collection Object:TransportDetails
+0837 : Set Value	: DocumentNumber	: $DocNo
+0838 : Set Value	: DocumentDate		: $DocDate
+0839 : Set Value	: Distance			: $Distance
+0840 : Set Value	: TransporterName	: $TransporterName
+0841 : Set Value	: TransporterID		: $TransporterID
+0842 : Set Value	: VehicleNumber		: $VehicleNo
+0843 : Set Value	: VehicleType		: $VehicleType
+0844 : Set Target:..
+0845 : Set Target:..
+0846 : End Walk
+0847 : End If
+
+
+
+0848 : If:NOT ($$IsEmpty:$EInvoiceDetails[1].AckNo)
+0849 : Walk Collection:EInvoiceDetails
+0850 : Set Value	: IRNAckNo			: $AckNo
+0851 : Set Value	: IRNAckDate		: $AckDate
+0852 : Set Value	: IRN				: $IRN
+0853 : Set Value	: BillToPlace		: $BillToPlace
+0854 : Set Value	: ShipToPlace		: $ShipToPlace
+0855 : End Walk
+0856 : End If
+
+Variable:vIsDeemedPositive:Logical
+0857 : Walk Collection:InventoryEntriesList
+0858 : INSERT COLLECTION OBJECT : INVENTORYENTRIES
+0860 : Set            : ItemName         :$StockItemName
+0865 : Set            : ActualQty        :$ActualQty
+0870 : Set            : BilledQty        :$BilledQty
+0890 : Set            : Rate             :$Rate
+0900 : Set            : Amount           :$Amount
+0901 : Set:vIsDeemedPositive:$IsDeemedPositive
+0910 : SET VALUE      : StockItemName    :##ItemName
+0920 : SET VALUE      : IsDeemedPositive : $IsDeemedPositive
+0930 : SET VALUE      : ActualQty        : ($$TgtObject:($$AsQty:##ActualQty))*-1
+0940 : SET VALUE      : BilledQty        : ($$TgtObject:($$AsQty:##BilledQty))*-1
+0945 : SET VALUE      : Discount         : $Discount
+0950 : SET VALUE      : Rate             : ($$TgtObject:$$AsRate:##Rate)
+0960 : SET VALUE      : Amount           : If ##vIsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
+
+0970 : Walk Collection:BatchAllocationsList
+0980 : INSERT COLLECTION OBJECT : BATCHALLOCATIONS
+0990 : Set            : ActualQty        : $ActualQty
+1010 : Set            : BilledQty        : $BilledQty
+1020 : Set            : Rate             : $Rate
+1030 : Set            : Amount           : $Amount
+1040 : SET VALUE      : GodownName       : $GodownName
+1050 : SET VALUE      : BatchName        : $BatchName
+;1060 : SET VALUE      : ActualQty        : ($$TgtObject:($$AsQty:##ActualQty))*-1
+;1070 : SET VALUE      : BilledQty        : ($$TgtObject:($$AsQty:##ActualQty))*-1
+1075 : SET VALUE      : BatchDiscount    : $Discount
+1080 : SET VALUE      : Amount           : $$AsAmount:##Amount
+1090 : SET TARGET     : ..
+1100 : End Walk
+
+1110 : Walk Collection:AccountingAllocationList
+1120 : INSERT COLLECTION OBJECT : ACCOUNTING ALLOCATIONS
+1121 : Set            : LedgerName       : $LedgerName
+1130 : Set            : Amount           : $Amount
+1140 : SET VALUE      : LedgerName       : ##LedgerName
+1150 : SET VALUE      : IsDeemedPositive : Yes;No;If $$IsSales:##VoucherType then No else Yes
+1160 : SET VALUE      : Amount           : If ##vIsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
+1170 : SET TARGET     : ..
+1180 : End Walk
+
+1190 : Walk Collection:StockDescriptionList
+1200 : INSERT COLLECTION OBJECT : Basic User Description
+1210 : SET VALUE      : Basic User Description       : $Description
+1220 : SET TARGET     : ..
+1230 : End Walk
+1240 : End Walk
+
+
+1250 : Walk Collection:LedgerEntriesList
+1260 : INSERT COLLECTION OBJECT : LedgerEntries
+1270 : Set            : LedgerName       : $LedgerName
+1280 : Set            : Amount           : $Amount
+1281 : Set			  : vIsDeemedPositive: $IsDeemedPositive
+1290 : SET VALUE 	  : LedgerName 		 : ##LedgerName
+1300 : SET VALUE 	  : IsDeemedPositive : $IsDeemedPositive
+1320 : SET VALUE 	  : IsPartyLedger 	 : $IsPartyLedger
+1330 : SET VALUE 	  : Amount 			 : If ##vIsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
+
+1331 : If:@@IsVer_TallyPrime_3
+1332 : 	SET VALUE      :APPROPRIATEFOR  	 : $$SysName:NotApplicable
+1333 : 	SET VALUE      :VATEXPAMOUNT  	 	 : $Amount
+1334 : End If
+
+1340 : Walk Collection:CategoryAllocationList
+1350 : Insert Collection Object:CategoryAllocations
+1360 : SET VALUE 	  : Category 		 : $Category
+1370 : SET VALUE 	  : IsDeemedPositive : $IsDeemedPositive
+
+1380 : Walk Collection:CostCentreAllocationList
+1390 : Insert Collection Object:CostCentreAllocations
+1400 : Set            : Amount           : $$String:$Amount
+1410 : SET VALUE 	  : Name	 		 : $Name
+1420 : SET VALUE 	  : Amount 			 : $$AsAmount:$Amount
+1430 : SET TARGET : ..
+1440 : End Walk
+
+1450 : SET TARGET : ..
+1460 : End Walk
+
+1470 : Walk Collection:BillsAllocationList
+1480 : Insert Collection Object:BillAllocations
+1490 : Set            : Amount           : $Amount
+1500 : SET VALUE 	  : Name  			 : $Reference
+1510 : SET VALUE 	  : BillType 		 : $AgstType
+1515 : Set Value	  : BillCreditPeriod : $CreditPeriod
+1520 : SET VALUE 	  : Amount 			 : $$AsAmount:##Amount
+1530 : SET TARGET : ..
+1540 : End Walk
+
+1550 : Walk Collection:LedgerDescriptionList
+1560 : INSERT COLLECTION OBJECT : Basic User Description
+1570 : SET VALUE      : Basic User Description       : $Description
+1580 : SET TARGET     : ..
+1590 : End Walk
+
+;;;;;;;;;;;;;;;;;;;;
+1600 : Walk Collection:InventoryAllocationsList
+1610 : INSERT COLLECTION OBJECT : InventoryAllocations
+1620 : Set            : ItemName         :$StockItemName
+1630 : Set            : ActualQty        :$ActualQty
+1640 : Set            : BilledQty        :$BilledQty
+1650 : Set            : Rate             :$Rate
+1660 : Set            : Amount           :$Amount
+1670 : SET VALUE      : StockItemName    :##ItemName
+1680 : SET VALUE      : IsDeemedPositive : $IsDeemedPositive
+;1690 : SET VALUE      : ActualQty        :($$TgtObject:($$AsQty:##ActualQty))*-1
+;1700 : SET VALUE      : BilledQty        :($$TgtObject:($$AsQty:##BilledQty))*-1
+;1710 : SET VALUE      : Discount         : $Discount
+;1720 : SET VALUE      : Rate             :($$TgtObject:$$AsRate:##Rate)
+1730 : SET VALUE      : Amount           : $$AsAmount:##Amount
+
+1740 : Walk Collection:BatchAllocationsList
+1750 : INSERT COLLECTION OBJECT : BATCHALLOCATIONS
+1760 : Set            : ActualQty        : $ActualQty
+1770 : Set            : BilledQty        : $BilledQty
+1780 : Set            : Rate             : $Rate
+1790 : Set            : Amount           : $Amount
+1800 : SET VALUE      : GodownName       : $GodownName
+1810 : SET VALUE      : BatchName        : $BatchName
+;1820 : SET VALUE      : ActualQty        : ($$TgtObject:($$AsQty:##ActualQty))*-1
+;1830 : SET VALUE      : BilledQty        : ($$TgtObject:($$AsQty:##ActualQty))*-1
+;1840 : SET VALUE      : Discount         : $Discount
+1850 : SET VALUE      : Amount           : $$AsAmount:##Amount
+1860 : SET TARGET     : ..
+1870 : End Walk
+
+1900 : Walk Collection:StockDescriptionList
+1910 : INSERT COLLECTION OBJECT : Basic User Description
+1920 : SET VALUE      : Basic User Description       : $Description
+1930 : SET TARGET     : ..
+1940 : End Walk
+1950 : End Walk
+
+;;;;;;;;;;;;;;;;;;;;
+2000 : SET TARGET : ..
+2010 : End Walk
+
+3000 : SET VALUE : PersistedView : ##SVViewName
+3001 : Set Target:..
+
+Variable:vLastResult:Logical
+3010 : Alter Target
+
+3011 : Set:vLastResult:$$LastResult
+3012 : If:NOT ##vLastResult
+3013 : Log:$WebID
+3014 : End If
+
+3020 : Do If:##vLastResult:Increment:CreatedVouchers
+3030 : End If
+3040 : Else
+3050 : Log:##ErrorReason
+3060 : End If
+3070 : End Walk
+3080 : End Batch Post
+3090 : End Progress
+3100 : MSGBOX : "Status" :($$String:##CreatedVouchers) + " " + "Voucher" +  $$NewLine +" Created Successfully!!! "
+3110 : End If
+3120 : Return
+
+[Function:Delete Voucher]
+Variable:DeletedVouchers:Number
+Variable:CollectionName:String
+Variable:ProgressCounter:Number
+Variable:MasterID:Number
+Variable:VoucherID:String
+0000 : Query Box:"Delete Vouchers?":Yes:No
+0010 : If:$$LastResult
+
+0016 : Set:CollectionName:"Delete Voucher Collection"
+0017 : Set:ProgressCounter:$$NumItems:DeleteVoucherCollection
+
+
+0030 : If:($$IsEmpty:##ProgressCounter) OR ($$IsEqual:##ProgressCounter:0)
+0040 : 		Msg Box:"Status":"No Vouchers Found to Import"
+0050 : 		Return
+0060 : End If
+
+0070 : Start Batch Post:500
+0080 : Start Progress : ##ProgressCounter: ("Voucher Delete":"Deletion in Progress....")
+0090 : Walk Collection : ##CollectionName
+0100 : Show Progress : $$LoopIndex:($$Sprintf:"Deleting %s of %s":$$LoopIndex:##ProgressCounter)
+
+
+
+0181 : SET			  :MasterID			    : $MasterID
+0182 : SET			  :VoucherID			: $$Sprintf:"ID:%s":##MasterID
+
+0185 : If:($$VIIsVoucherExist:##MasterID)
+0190 : NEW OBJECT     :Voucher:##VoucherID:Yes
+3010 : Delete Target
+3020 : Do If:$$LastResult:Increment:DeletedVouchers
+3021 : End If
+
+3070 : End Walk
+3080 : End Batch Post
+3090 : End Progress
+3100 : MSGBOX : "Status" :($$String:##DeletedVouchers) + " " + "Voucher" +  $$NewLine +" Deleted Successfully!!! "
+3110 : End If
+3120 : Return
+
+[Function:Import New Ledgers]
+Variable:ProgressCounter:Number
+Variable:CurrentLedgerName:String
+Local Formula:MsgBoxBody:$$Sprintf:"%s Ledgers Imported":##ProgressCounter
+0000 : Set:ProgressCounter:($$NumItems:NewLedgersCollection)
+0001 : If:$$IsEmpty:##ProgressCounter
+0002 : Msg Box:"Error":"Ledgers Already Exist"
+0003 : Return
+0004 : End If
+
+0010 : Start Progress : ##ProgressCounter: ("Ledger Import":"Creation in Progress....")
+0011 : Start Batch Post:500
+0020 : Walk Collection : New Ledgers Collection
+0030 : Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+0040 : Set:CurrentLedgerName:$PartyName
+
+0041 : If: NOT ($$IsObjectExists:Ledger:##CurrentLedgerName)
+0050 : New Object:Ledger:##CurrentLedgerName:Yes
+0060 : Set Value:Name:##CurrentLedgerName
+0070 : Set Value:Parent:$PartyParent
+
+0075 : Set Value:PartyGSTIN:$PartyGSTIN
+
+0076 : If:NOT ($$IsObjectExists:Ledger:$PartyAlias) AND NOT ($$IsEmpty:$PartyAlias)
+0077 : Insert Collection Object:Name
+0078 : Set Value:Name:$PartyAlias
+0079 : Set Target:..
+0080 : End If
+
+0082 : For Token:Address:$PartyAddress:";;"
+0090 : If:NOT $$IsEmpty:##Address
+0100 : Insert Collection Object:Address
+0110 : Set Value:Address:##Address
+0120 : Set Target:..
+0130 : End If
+0140 : End For
+
+0150 : Set Value:PinCode:$PartyPinCode
+0160 : Set Value:LedStateName:$PartyState
+0170 : Set Value:CountryName:$PartyCountryName
+
+0171 : Set Value:EMail:$PartyEmail
+0172 : Set Value:LedgerMobile:$PartyMobile
+0173 : Set Value:Mailing Name:$PartyMailingName
+0174 : Set Value:IsCostCentresOn:No
+
+;; For tally version greater than 2.1
+0175 : If: @@IsVer_TallyPrime_3
+0176 : 	Call: InsertVoucherLedgerDetails_v3:##CurrentLedgerName
+0177 : End If
+
+0180 : Set Target:..
+0190 : Alter Target
+0191 : End If
+0200 : End Walk
+0210 : End Batch Post
+0220 : End Progress
+0230 : Msg Box:"Success":@MsgBoxBody
+
+[Function: InsertVoucherLedgerDetails_v3]
+Parameter:pCurrentLedName:String
+Variable:LedgerGroup:String
+Variable:GstDutyHead:String
+;0000 : Walk Collection:LedgerMailingDetailsColl
+;0010 : Delete Collection Object:LedMailingDetails
+;0020 : End Walk
+
+0030 : Walk Collection:LedgerLedGSTDetailsColl
+0040 : Delete Collection Object:LedGSTRegDetails
+0050 : End Walk
+
+0051 : Walk Collection:LedgerHSNDetailsColl
+0052 : Delete Collection Object:HSNDETAILS
+0053 : End Walk
+
+0054 : Walk Collection:LedgerGSTDetailsColl
+0055 : Delete Collection Object:GSTDETAILS
+0056 : End Walk
+
+0058 : If:(NOT $$IsEmpty:$PartyAddress)
+0060 : 	Insert Collection Object       			: LedMailingDetails;LEDMAILINGDETAILS
+
+0070 : 	For Token:Addr:$PartyAddress:";;"
+0080 : 		If:NOT ($$IsEmpty:##Addr)
+0090 : 			Insert Collection Object       	: ADDRESS
+0100 : 			SET VALUE		: Address		: ##Addr
+0110 : 			Set Target:.. 
+0120 : 		End If
+0130 : 	End For
+;0131 :  Set Value:Led Mailing Name:"fjbdfjbggvbdsfgvkb"
+0140 : 	SET VALUE		: APPLICABLEFROM		: $$Date:"20100401"
+0150 : 	SET VALUE		: PINCODE				: $PartyPinCode
+0160 : 	SET VALUE		: STATE					: $PartyState
+0170 : 	SET VALUE		: COUNTRY				: If $$IsEmpty:$PartyCountryName then "UAE" else $PartyCountryName
+0180 : 	Set Target:..
+0181 : End If
+
+
+0185 : If:Yes;NOT ($$IsEmpty:$PartyGSTIN) AND NOT ($$IsEmpty:$GSTINType)
+0190 : Insert Collection Object       			: LedGSTRegDetails
+0200 : SET VALUE		: GSTREGISTRATIONTYPE	: If $$IsEmpty:$PartyGSTIN Then "Unregistered/Consumer" Else "Regular"
+0210 : SET VALUE		: APPLICABLEFROM		: $BooksFrom:Company:$$CurrentCompany
+0220 : SET VALUE		: GSTIN					: $PartyGSTIN
+0230 : Set Target:..
+0231 : End If
+
+0233 : If:$$IsEqual:$PartyParent:"Duties & Taxes"
+0234 : Set:GstDutyHead:If ##pCurrentLedName contains "cgst" then "CGST" else if ##pCurrentLedName contains "sgst" then "SGST/UTGST" else "IGST"
+0235 : 	If:##pCurrentLedName contains "cgst" or ##pCurrentLedName contains "sgst" or ##pCurrentLedName contains "igst" or ##pCurrentLedName contains "gst"
+0236 : 		Set Value:TAXTYPE:"GST"
+0237 :		Set Value:GSTDUTYHEAD:##GstDutyHead
+0238 :  End If
+0239 : End If
+
+0240 : Set:LedgerGroup:$PartyParent
+0250 : If: $$IsEqual:##LedgerGroup:"Sales Accounts"
+0260 : 	Set Value		: GSTAPPLICABLE			: $$SysName:Applicable
+
+0270 :	Insert Collection Object:GSTDETAILS
+0280 : 	Set Value:APPLICABLEFROM:"20100401"
+0290 : 	Set Value:TAXABILITY:"Taxable"
+0300 : 	Set Value:SRCOFGSTDETAILS:"Specify Details Here"
+
+0310 : 	Insert Collection Object:STATEWISEDETAILS
+0320 :	Set Value:STATENAME:$$SysName:Any
+
+0330 :	Insert Collection Object:RATEDETAILS
+0340 :	Set Value:GSTRATEDUTYHEAD:"CGST"
+0350 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0360 :	Set Value:GSTRATE:$IGSTRate/2
+0370 : 	Set Target:..
+
+0380 :	Insert Collection Object:RATEDETAILS
+0390 :	Set Value:GSTRATEDUTYHEAD:"SGST/UTGST"
+0400 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0410 :	Set Value:GSTRATE:$IGSTRate/2
+0420 : 	Set Target:..
+
+0430 :	Insert Collection Object:RATEDETAILS
+0440 :	Set Value:GSTRATEDUTYHEAD:"IGST"
+0450 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0460 :	Set Value:GSTRATE:$IGSTRate
+0470 : 	Set Target:..
+
+0480:	Insert Collection Object:RATEDETAILS
+0490 :	Set Value:GSTRATEDUTYHEAD:"Cess"
+0500 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0510 : 	Set Target:..
+
+
+0560 :	Insert Collection Object:RATEDETAILS
+0570 :	Set Value:GSTRATEDUTYHEAD:"State Cess"
+0580 :	Set Value:GSTRATEVALUATIONTYPE:"Based on Value"
+0590 : 	Set Target:..
+
+0600 :  Set Target:..
+0610 : 	Set Target:..
+
+0620 : Insert Collection Object:HSNDETAILS
+0630 : Set Value:APPLICABLEFROM:"20100401"
+0640 : Set Value:HSNCODE:$HSNCODE
+0650 : Set Value:SRCOFHSNDETAILS:"Specify Details Here"
+0660 : Set Target:..
+
+0670 : End If
+
+0680 : Return
+
+
+[Function:Import New StockItems]
+Variable:ProgressCounter:Number
+Variable:CurrentStockItemName:String
+Variable:vCount:Number:0
+Local Formula:MsgBoxBody:$$Sprintf:"%s Stock Items Imported":##vCount
+0000 : Set:ProgressCounter:($$NumItems:NewStockItemCollection)
+0010 : If:$$IsEmpty:##ProgressCounter
+0020 : Msg Box:"Error":"StockItems Already Exist"
+0030 : Return
+0040 : End If
+
+0050 : Start Batch Post:500
+0060 : Start Progress : ##ProgressCounter: ("Stock Item Import":"Creation in Progress....")
+
+0090 : Walk Collection : New StockItem Collection
+0130 : Show Progress : $$LoopIndex:($$Sprintf:"Importing %s of %s":$$LoopIndex:##ProgressCounter)
+0140 : Set:CurrentStockItemName:$StockItemName
+
+0141 : Do If:NOT ($$IsObjectExists:Unit:$UnitName):Call:Create Unit:$UnitName
+
+0142 : If:NOT($$IsObjectExists:StockItem:##CurrentStockItemName)
+0150 : New Object:StockItem:##CurrentStockItemName:Yes
+0160 : Set Value:Name:##CurrentStockItemName
+0170 : Set Value:Parent:$GroupName
+0180 : Set Value:BaseUnits:$UnitName
+
+0190 : Set Value	: GSTApplicable		: If NOT $$IsEmpty:$IGSTRate Then $$SysName:Applicable Else $$SysName:NotApplicable 
+0200 : Set Value	: GSTTypeofSupply	: "Goods"
+
+0210 : If:Not ($$IsEmpty:$ItemCode Or $$IsObjectExists:StockItem:$ItemCode)
+0220 : Insert Collection Object         : Name
+0230 : Set Value	: Name	: $ItemCode
+0240 : Set Target:..
+0250 : End If
+
+0260 : If:NOT ($$IsEmpty:$IGSTRate)
+0270 : Walk Collection:StockItemGSTColl
+0280 : Delete Collection Object:GSTDETAILS
+0300 : End Walk
+
+0310 : Insert Collection Object         : GSTDETAILS
+0320 : Set Value	: APPLICABLEFROM	: $$Date:"01-07-17"
+0330 : Set Value    : HSNCode           : $HSNCode
+0340 : Set Value	: CalculationType	: "On Value"
+0350 : Set Value	: TAXABILITY		: "Taxable"
+
+0360 : INSERT COLLECTION OBJECT			: STATEWISEDETAILS
+0370 : Set Value	: STATENAME			: $$SysName:Any
+	
+0380 : INSERT COLLECTION OBJECT		    : RATEDETAILS	
+0390 : Set Value	: 	GSTRATEDUTYHEAD	 		 : "State Tax"
+0400 : Set Value	: 	GSTRATEVALUATIONTYPE	 : "Based on Value"
+0410 : Set Value	: 	GSTRATE					 : ($$Number:$IGSTRate)/2
+0420 : Set Target	: ..
+
+0430 : INSERT COLLECTION OBJECT		    : RATEDETAILS	
+0440 : Set Value	: 	GSTRATEDUTYHEAD	 		 : "Central Tax"
+0450 : Set Value	: 	GSTRATEVALUATIONTYPE	 : "Based on Value"
+0460 : Set Value	: 	GSTRATE					 : ($$Number:$IGSTRate)/2
+0470 : Set Target	: ..
+
+0480 : INSERT COLLECTION OBJECT		    : RATEDETAILS	
+0500 : Set Value	: 	GSTRATEDUTYHEAD	 		 : "Integrated Tax"
+0510 : Set Value	: 	GSTRATEVALUATIONTYPE	 : "Based on Value"
+0520 : Set Value	: 	GSTRATE					 : ($$Number:$IGSTRate)
+0530 : Set Target	: ..
+
+0531 : INSERT COLLECTION OBJECT		    : RATEDETAILS	
+0532 : Set Value	: 	GSTRATEDUTYHEAD	 		 : "Cess"
+0533 : Set Value	: 	GSTRATEVALUATIONTYPE	 : "Based on Value"
+0534 : Set Value	: 	GSTRATE					 : ($$Number:$CessRate)
+0535 : Set Target	: ..
+
+0540 : Set Target	: ..
+0550 : Set Target	: ..
+0551 : End If
+
+
+;; For tally version greater than 2.1
+0552 : If: @@IsVer_TallyPrime_3
+0553 : 	Call: InsertItem_v3
+0554 : End If
+
+0600 : Set Target:..
+0610 : Alter Target
+0611 : Do If:$$LastResult:Increment:vCount
+0615 : End If
+0620 : End Walk
+
+0650 : End Progress
+0660 : End Batch Post
+0700 : Msg Box:"Success":@MsgBoxBody
+
+[Function: InsertItem_v3]
+0214 : Walk Collection:StockItemHSNDetailsColl
+0215 : Delete Collection Object:HSNDETAILS
+0216 : End Walk
+
+;0217 : Walk Collection:StockItemGSTDetailsColl
+;0218 : Delete Collection Object:GSTDETAILS
+;0219 : End Walk
+
+0770 : 	Insert Collection Object				: GSTDETAILS
+0780 : 	SET VALUE		: APPLICABLEFROM		: $$Date:"01-04-22"
+0790 : 	Set Value		: TAXABILITY			: "Taxable"
+0800 : 	SET VALUE		: SRCOFGSTDETAILS		: "Specify Details Here"
+
+0810 : 	Insert Collection Object				: STATEWISEDETAILS
+0820 : 	SET VALUE		: STATENAME				: $$SysName:Any
+
+0830 : 	Insert Collection Object				: RATEDETAILS
+0840 : 	SET VALUE		: GSTRATEDUTYHEAD		: "CGST"
+0850 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0860 : 	SET VALUE		: GSTRATE				: $$Number:$IGSTRate/2
+0870 : 	Set Target:.. 
+
+0880 : 	Insert Collection Object				: RATEDETAILS
+0890 : 	SET VALUE		: GSTRATEDUTYHEAD		: "SGST/UTGST"
+0900 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0910 : 	SET VALUE		: GSTRATE				: $$Number:$IGSTRate/2
+0920 : 	Set Target:.. 
+
+0930 : 	Insert Collection Object				: RATEDETAILS
+0940 : 	SET VALUE		: GSTRATEDUTYHEAD		: "IGST"
+0950 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+0960 : 	SET VALUE		: GSTRATE				: $$Number:$IGSTRate
+0970 : 	Set Target:.. 
+
+0980 : 	Insert Collection Object				: RATEDETAILS
+0990 : 	SET VALUE		: GSTRATEDUTYHEAD		: "Cess"
+1000 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+1010 : 	SET VALUE		: GSTRATE				: $CessRate
+1020 : 	Set Target:.. 
+
+1030 : 	Insert Collection Object				: RATEDETAILS
+1040 : 	SET VALUE		: GSTRATEDUTYHEAD		: "State Cess"
+1050 : 	Set Value		: GSTRATEVALUATIONTYPE	: "Based on Value"
+1060 : 	Set Target:.. 
+
+1070 : 	Set Target:..
+1080 : 	Set Target:.. 
+
+2010 : 	Insert Collection Object				: HSNDETAILS
+2020 : 	SET VALUE		: APPLICABLEFROM		: $$Date:"20230401"
+2030 : 	Set Value		: HSNCODE				: $HSNCode
+2040 : 	SET VALUE		: SRCOFHSNDETAILS		: "Specify Details Here"
+2050 : 	Set Target:.. 
+
+
+[Function:Create Unit]
+Parameter:UnitName:String
+000:New Object:Unit:##UnitName:Yes
+010:Set Value:Name:##UnitName
+020:Set Value:Symbol:##UnitName
+030:Set Value:Decimal Places:0
+031:Set Value:IsSimpleUnit:Yes
+040:Set Target:..
+050:Alter Target
+
+[Function:VI IsVoucherExist]
+Parameter:MasterID:Number
+Variable:NumItems:Number
+000:Set:NumItems:$$NumItems:OLDVoucherData
+005:Log:##MasterID
+010:Return:NOT ($$IsEqual:##NumItems:0)
+
+[Function:IsCostCentreExist]
+Parameter:pName:String
+Variable:vNameInLowerCase:String
+Variable:vCostCentreInLowerCase:String
+000:Walk Collection:AutoCostList1
+001:Set:vNameInLowerCase:$$CaseConvert:LowerCase:##pName
+002:Set:vCostCentreInLowerCase:$$CaseConvert:LowerCase:$AutoCostLevel
+
+010:If:($$IsEqual:##vNameInLowerCase:##vCostCentreInLowerCase)
+020:Return:True
+030:End If
+040:End Walk
+
+041:If:($$IsObjectExists:CostCentre:##vCostCentreInLowerCase)
+042:Return:True
+043:End If
+050:Return:False
+
+;select $$IsCostCentreExist:"Akash" From Company

@@ -1,0 +1,103 @@
+[Variable:Inventory Excel Variable]
+Variable:SNo:Number
+Variable:Invoice Date:String
+Variable:Invoice No:String
+Variable:Party Name:String
+Variable:GST Number:String
+List Variable:LedgerAddress1
+Variable:Item Name:String
+Variable:Actual Qty:Number
+Variable:Billed Qty:Number
+Variable:Unit:String
+Variable:Rate:Number
+Variable:Amount:Number
+Variable:TradeDisc:Number
+Variable:VATRate:Number
+Variable:VATAmt:Number
+Variable:SpecialDisc:Number
+Variable:ExpenseAmt:Number
+
+[Variable:LedgerAddress1]
+Variable:Address:String
+
+[Variable:CurrInvoiceNo]
+Type:String
+
+;;; Bank Voucher Variables
+[Variable:Bank Trans Excel Variable]
+Variable:SNo:Number
+Variable:Date:String
+Variable:Invoice No:String
+Variable:Bank Ledger:String
+Variable:Ledger Name:String
+Variable:Amount:String
+
+
+;; Ledger List Variables
+[Variable:Ledger Variable]
+Variable:SNo:Number
+Variable:Ledger Name:String
+Variable:Group:String
+Variable:Ledger Code:String
+Variable:Country:String
+Variable:Emirate:String
+Variable:TRN:String
+Variable:Contact Person:String
+Variable:Telephone:String
+Variable:Fax:String
+Variable:Mobile:String
+Variable:Email:String
+Variable:EmailCC:String
+Variable:Website:String
+Variable:Credit Period:String
+Variable:Credit Limit:String
+Variable:Price Level:String
+Variable:DebitOpeningBalance:String
+Variable:CreditOpeningBalance:String
+List Variable:List Address
+
+[Variable:List Address]
+Variable:Address:String
+
+[Variable:Accounting List Variable]
+Variable:SNo:Number
+Variable:Invoice Date:String
+Variable:Invoice No:String
+Variable:Party Name:String
+Variable:GST Number:String
+List Variable:List Address
+Variable:LedgerName:String
+Variable:Amount:Number
+
+[Variable:Banks Entry Excel Variable]
+Variable:SNo:Number
+Variable:Date:String
+Variable:Invoice No:String
+Variable:VoucherType:String
+Variable:Bank Ledger:String
+Variable:Ledger Name:String
+Variable:Amount:String	
+
+[Variable:List StockItem]
+Variable:SNo:Number
+Variable:ProductName:String
+Variable:PartNo:String
+Variable:Group:String
+Variable:Category:String
+Variable:Unit:String
+Variable:BaseConversion:Number
+Variable:AltConversion:Number
+Variable:AltUnit:String
+Variable:SalesPrice:Number
+Variable:CurrentStock:Number
+Variable:OpeningRate:Number
+Variable:OpeningValue:Number
+
+[System:Variables]
+List Variable:Inventory Excel Variable
+List Variable:Bank Trans Excel Variable
+CurrInvoiceNo:""
+List Variable:Ledger Variable
+List Variable:Accounting List Variable
+List Variable:Banks Entry Excel Variable
+List Variable:List StockItem

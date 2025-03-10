@@ -1,0 +1,200 @@
+[Collection:JSON Collection]
+Data Source:HTTP JSON:##APIUrl
+Export Header:@@TokenHeader
+JSON Object Path:"data:1"
+
+
+[Collection:Voucher Collection]
+Data Source:Variable:VoucherList
+Fetch:*,*.*
+Option:VP Refresh Data:##Refresh
+Sort:@@Default:$VoucherDate
+
+[!Collection:VP Refresh Data]
+Add:Filter:SelectedVoucherFilter
+
+[Collection:Delete Voucher Collection]
+Use:Voucher Collection
+Filter:VIIsDeletedVoucher
+
+[Collection: VP Selected Vouchers To Link]
+Data Source	: Report	: Selected
+
+
+[Collection:New Ledgers Collection 1]
+Data Source:Variable:VoucherList
+
+[Collection:New Ledgers Party Collection]
+Source Collection:New Ledgers Collection 1
+Walk:LedgerEntriesList
+By:PartyName:$LedgerName
+Compute:PartyMailingName:$LedgerName
+Compute:PartyAlias:""
+Compute:PartyParent:$GroupName
+Compute:PartyGSTIN:""
+Compute:PartyAddress:""
+Compute:PartyPinCode:""
+Compute:PartyState:""
+Compute:PartyCountryName:""
+
+Compute:PartyEmail:""
+Compute:PartyMobile:""
+;Filter:RemoveDebtorLedgers
+
+[Collection:New Ledgers Buyer Collection]
+Source Collection:New Ledgers Collection 1
+Walk:BuyerInfo
+By:PartyName:($$Owner:$PartyName)
+Compute:PartyMailingName:$LedgerName
+Compute:PartyAlias:$Alias
+Compute:PartyParent:$$GroupSundryDebtors
+Compute:PartyGSTIN:$GSTIN
+Compute:PartyAddress:$$FullListEx:";;":Address:$Address
+Compute:PartyPinCode:$PinCode
+Compute:PartyState:$StateName
+Compute:PartyCountryName:$CountryName
+
+Compute:PartyEmail:$EmailID
+Compute:PartyMobile:$MobileNumber
+
+[Collection:New Ledgers Consignee Collection]
+Source Collection:New Ledgers Collection 1
+Walk:ConsigneeInfo
+By:PartyName:$LedgerName
+Compute:PartyParent:$$GroupSundryDebtors
+Compute:PartyGSTIN:$GSTIN
+Compute:PartyAddress:$$FullListEx:";;":Address:$Address
+Compute:PartyPinCode:$PinCode
+Compute:PartyState:$StateName
+Compute:PartyCountryName:$CountryName
+
+Compute:PartyEmail:""
+Compute:PartyMobile:""
+
+[Collection:New Ledgers SalesLedger Collection]
+Source Collection:New Ledgers Collection 1
+Walk:InventoryEntriesList, AccountingAllocationList
+By:PartyName:$LedgerName
+Compute:PartyMailingName:$LedgerName
+Compute:PartyAlias:""
+Compute:PartyParent:$$GroupSales
+Compute:PartyGSTIN:""
+Compute:PartyAddress:""
+Compute:PartyPinCode:""
+Compute:PartyState:""
+Compute:PartyCountryName:""
+
+Compute:PartyEmail:""
+Compute:PartyMobile:""
+
+;select $PartyName From NewLedgersSalesLedgerCollection
+
+[Collection:New Ledgers Collection]
+Collections:New Ledgers Buyer Collection,New Ledgers Party Collection,  New Ledgers SalesLedger Collection
+;New Ledgers Consignee Collection
+Filter:IsNotNewLedger
+
+;select $PartyName, $PartyParent  From NewLedgersCollection
+
+[Collection:New StockItem Collection 1]
+Data Source:Variable:VoucherList
+
+[Collection:New StockItem Collection]
+Collections:New Inventory Entries Collection, New Inventory Allocations Collection
+
+[Collection:New Inventory Entries Collection]
+Source Collection:New StockItem Collection 1
+Walk:InventoryEntriesList
+By:StockItemName:$StockItemName
+Compute:GroupName:$GroupName
+Compute:UnitName:$UnitName
+Compute:IGSTRate:$IGSTRate
+Compute:ItemCode:$ItemCode
+Compute:HSNCode:$HSNCode
+Compute:CessRate:$CessRate
+Sort:@@Default:$CompanyName
+Filter:IsStockItemNotExist
+
+[Collection:New Inventory Allocations Collection]
+Source Collection:New StockItem Collection 1
+Walk:LedgerEntriesList, InventoryAllocationsList
+By:StockItemName:$StockItemName
+Compute:GroupName:$GroupName
+Compute:UnitName:$UnitName
+Compute:IGSTRate:$IGSTRate
+Compute:ItemCode:$ItemCode
+Compute:HSNCode:$HSNCode
+Compute:CessRate:$CessRate
+Sort:@@Default:$CompanyName
+Filter:IsStockItemNotExist
+
+[Collection:OLD Voucher Data]
+Object:Voucher:##VoucherID
+;Parm Var:SVFromDate:Date:($$Date:"01-01-10")
+;Parm Var:SVToDate:Date:($$Date:"01-01-30")
+;Type:Voucher
+;Fetch:MasterID, LedgerEntries.*, InventoryEntries.*
+;Filter:VPMasterIDFilter
+;select $MasterID From OldVoucherData
+
+[Collection:OLD Inventory Entries Data]
+Source Collection:OLD Voucher Data
+Walk:Inventory Entries
+Compute:Stock Item Name:$StockItemName
+Compute:ActualQty:$ActualQty
+Compute:BilledQty:$BilledQty
+Compute:Rate:$Rate
+Compute:Amount:$Amount
+
+[Collection:OLD Ledger Entries Data]
+Source Collection:OLD Voucher Data
+Walk:Ledger Entries
+Compute:Ledger Name:$LedgerName
+Compute:Amount:$Amount
+
+[Collection:OLD Delivery Note Data]
+Source Collection:OLD Voucher Data
+Walk:InvoiceDelNotes
+Compute:BasicShipDeliveryNote:$BasicShipDeliveryNote
+Compute:BasicShippingDate:$BasicShippingDate
+
+[Collection:OLD Order No Data]
+Source Collection:OLD Voucher Data
+Walk:InvoiceOrderList
+Compute:BasicPurchaseOrderNo:$BasicPurchaseOrderNo
+Compute:BasicOrderDate:$BasicOrderDate
+
+[Collection:OLD Terms of Delivery Data]
+Source Collection:OLD Voucher Data
+Walk:BASICORDERTERMS
+Compute:BASICORDERTERMS:$BASICORDERTERMS
+
+[Collection:StockItemGSTColl]
+Type:GstDetails:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemHSNDetailsColl]
+Type:HSNDETAILS:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:StockItemGSTDetailsColl]
+Type:GSTDETAILS:StockItem
+Child Of:##CurrentStockItemName
+
+[Collection:LedgerMailingDetailsColl]
+Type:LedMailingDetails:Ledger
+Child Of:##CurrentLedName
+
+[Collection:LedgerLedGSTDetailsColl]
+Type:LedGSTRegDetails:Ledger
+Child Of:##CurrentLedName
+
+[Collection:LedgerHSNDetailsColl]
+Type:HSNDETAILS:Ledger
+Child Of:##CurrentLedName
+
+[Collection:LedgerGSTDetailsColl]
+Type:GSTDETAILS:Ledger
+Child Of:##CurrentLedName
+
+;Select $StockItemName From OLDInventoryEntriesData

@@ -1,0 +1,216 @@
+
+[Include:Barcode Payload.tdl]
+[Include:Barcode Preview.tdl]
+[Include:Button.tdl]
+[Include:Collection.tdl]
+[Include:Default Report Modification.tdl]
+[Include:Formulas.tdl]
+[Include:Function.tdl]
+[Include:Helper Function.tdl]
+[Include:UDF.tdl]
+[Include:Variable.tdl]
+
+[#Menu:Gateway of Tally]
+Add:Key Item:Before:@@LocQuit:"1 : Print Barcode":1:Call:EraseBarcodeAndLoadReport
+
+[Report:Barcode Configuration]
+Form:Barcode Configuration
+Object:Company
+
+[Form:Barcode Configuration]
+Parts:BC FormTitle, BC Print Configuration, BC Body
+Width:80% Page
+Height:80% Page
+Horizontal Align:Centre
+Vertical Align:Centre
+Delete:Space Top
+Delete:Space Bottom
+Delete:Space Left
+Delete:Space Right
+Background:White
+No Confirmation:Yes
+On:Form Accept:Yes:Form Accept
+On:Form Accept:Yes:Call:Read Batch
+
+[Part:BC FormTitle]
+Line:BC FormTitle
+Space Top:0.5
+Space Bottom:0.5
+Background:Cyan Blue
+
+[Line:BC FormTitle]
+Field:Name Field
+Local:Field:Default:Full Width:Yes
+Local:Field:Default:Color:White
+Local:Field:Default:Style:Calibri Large Bold
+Local:Field:Default:Skip:Yes
+Local:Field:Name Field:Set as:"Generate Barcode"
+Local:Field:Name Field:Align:Center
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Wide Spaced:Yes
+
+[Part:BC Print Configuration]
+Line:BC Print Configuration 1, BC Print Configuration 2, BC Print Configuration 3, BC Print Configuration 4, +
+BC Print Configuration 5
+Local:Field:Long Prompt:Style:Calibri Default
+Local:Field:Medium Prompt:Style:Calibri Default
+Local:Field:Number Field:Style:Calibri Default Bold
+Local:Field:Name Field:Style:Calibri Default Bold
+Local:Field:Name Field:Skip:Yes
+Local:Field:Medium Prompt:Width:15
+Local:Field:Number Field:Width:6
+;Local:Field:Number Field:Set as:If $$IsEmpty:$$Value Then 0.02 Else $$Value
+Local:Field:Name Field:Width:5
+
+[Line:BC Print Configuration 1]
+Fields:Medium Prompt, Number Field, Name Field
+Local:Style:Default:Height:11
+Local:Field:Medium Prompt:Set as:"Space Top"
+Local:Field:Number Field:Format:"NoZero"
+Local:Field:Number Field:Storage:Barcode_SpaceTop
+Local:Field:Name Field:Set as:"Inch"
+Space Top:0.1
+
+[Line:BC Print Configuration 2]
+Fields:Medium Prompt, Number Field, Name Field
+Local:Style:Default:Height:11
+Local:Field:Medium Prompt:Set as:"Space Bottom"
+Local:Field:Number Field:Format:"NoZero"
+Local:Field:Number Field:Storage:Barcode_SpaceBottom
+Local:Field:Name Field:Set as:"Inch"
+Space Top:0.1
+
+[Line:BC Print Configuration 3]
+Fields:Medium Prompt, Number Field, Name Field
+Local:Style:Default:Height:11
+Local:Field:Medium Prompt:Set as:"Space Left"
+Local:Field:Number Field:Format:"NoZero"
+Local:Field:Number Field:Storage:Barcode_SpaceLeft
+Local:Field:Name Field:Set as:"Inch"
+Space Top:0.1
+
+[Line:BC Print Configuration 4]
+Fields:Medium Prompt, Number Field, Name Field
+Local:Style:Default:Height:11
+Local:Field:Medium Prompt:Set as:"Space Right"
+Local:Field:Number Field:Format:"NoZero"
+Local:Field:Number Field:Storage:Barcode_SpaceRight
+Local:Field:Name Field:Set as:"Inch"
+Space Top:0.1
+
+[Line:BC Print Configuration 5]
+Fields:Long Prompt, Number Field
+Local:Style:Default:Height:11
+Local:Field:Long Prompt:Set as:"Space between the labels"
+Local:Field:Number Field:Format:"NoZero"
+Local:Field:Number Field:Storage:Barcode_SpaceBetween_Labels
+Space Top:0.1
+
+[Part:BC Body]
+Line:BC BTitle, BC Body
+Repeat:BC Body:BC Barcode Aggr
+Bottom Lines:BC Totals
+Break On:$$IsSysName:$BC_ItemName
+Scroll:Vertical
+Common Borders:Yes
+Totals:BCNoOfBarcodes
+
+[Line:BC BTitle]
+Use:BC Body
+Local:Style:Default:Bold:Yes
+Local:Field:Default:Skip:Yes
+Local:Field:Default:Delete:Inactive
+Local:Field:Default:Delete:Storage
+Local:Field:Default:Line:0
+Local:Field:BC SerialNo:Info:"SL No."
+Local:Field:BC ProductName:Info:"ProductName"
+Local:Field:BCWeight:Info:"Weight"
+Local:Field:BC Barcode:Info:"Barcode / Part No"
+
+Local:Field:BC BatchName:Info:"Batch Name"
+Local:Field:BC Price:Info:"Price"
+Local:Field:BC NoOfBarcodes:Info:"No Of Barcodes"
+Border:Column Titles
+
+[Line:BC Body]
+Fields:BC SerialNo, BC ProductName, BCWeight,BC Barcode,BC BatchName, BC Price, BC NoOfBarcodes
+Local:Field:Default:Border:Thin Left
+Local:Style:Default:Height:11
+Local:Field:Default:Style:Calibri Default Bold
+
+[Field:BC SerialNo]
+Use:Name Field
+Set as:$$Line
+Skip:Yes
+Width:5
+
+[Field:BC ProductName]
+Use:Name Field
+Table:Stock Item Collection, EndOfList
+Keys:Create StockItem, Alter StockItem
+Variable:SV StockItem
+Show Table:Always
+Full Width:Yes
+Storage:BC_ItemName
+Dynamic:""
+[Field:BCWeight]
+
+Use:Name Field
+Show Table:Always
+Storage:BC_Weight
+Width	:	15
+Inactive:($$IsSysName:$BC_ItemName)
+
+[Field:BC Barcode]
+Use:Name Field
+;Set as:If $$IsEmpty:$$Value Then $$TNExtractWordFromBrackets:$BC_ItemName Else $$Value
+Set as:If $$IsEmpty:$$Value Then $$Table:BCProductName:$PartNo else $$Value;If $$IsEmpty:$$Value Then $$TNExtractWordFromBrackets:$BC_ItemName Else $$Value
+Set Always:Yes
+Width:15
+Storage:BC_Barcode
+Inactive:($$IsSysName:$BC_ItemName)
+
+[Field:BC Price]
+Use:Number Field
+Set as:If $$IsEmpty:$$Value Then $$Number:@SalePrice Else $$Value
+Local Formula:SalePrice:$$Table:BCBatchName:$SalePrice;$$CollectionFieldByKey:$STKISalePrice:#BCBatchName:BatchWisePriceCollection1;$LastSalePrice:StockItem:$BC_ItemName 
+Set Always:Yes
+Width:15
+Storage:BC_Price
+Format:"NoZero, Decimal:2"
+Inactive:($$IsSysName:$BC_ItemName)
+
+[Field:BC BatchName]
+Use:Name Field
+Set as:If $$IsEmpty:$$Value Then "Primary Batch" Else $$Value
+Set Always:Yes
+Width:15
+Storage:BC_BatchName
+Table:BatchWisePrice
+Dynamic:""
+Show Table:Always
+Inactive:($$IsSysName:$BC_ItemName)
+	
+[Field:BC NoOfBarcodes]
+Use:Number Field
+Set as:If $$IsEmpty:$$Value Then 1 Else $$Value
+Set Always:Yes
+Width:15
+Storage:BC_NoOfBarcodes
+Format:"NoZero, Decimal:0"
+Inactive:($$IsSysName:$BC_ItemName)
+
+[Line:BC Totals]
+Use:BC Body
+Local:Style:Default:Bold:Yes
+Local:Field:Default:Skip:Yes
+Local:Field:Default:Delete:Inactive
+Local:Field:Default:Delete:Storage
+Local:Field:Default:Line:0
+Local:Field:BC SerialNo:Info:""
+Local:Field:BC ProductName:Info:"Total"
+Local:Field:BC Barcode:Info:""
+Local:Field:BC Price:Info:""
+Local:Field:BC BatchName:Info:""
+Local:Field:BC NoOfBarcodes:Set as:$$Total:BCNoOfBarcodes
+Border:Totals

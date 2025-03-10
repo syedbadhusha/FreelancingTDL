@@ -1,0 +1,265 @@
+[#Form:StockItem]
+	Add:Button:Print StockItem Barcode
+	
+[#Form:Voucher]
+	Add:Button:Print Voucher Barcode
+	
+[#Form:Daybook]
+	Local:Collection:Default:Fetch:*,*, InventoryEntries, BatchName
+	Add:Button:Print Daybook Barcode
+	
+
+[#Part:STKI Units]
+	Add:Line:At End:STKI Package, STKI IsBatchWisePrice
+	
+[Line:STKI Package]
+	Field:Medium Prompt, Name Field
+	Local:Field:Medium Prompt:Set as:"Package:"
+	Local:Field:Name Field:Storage:PKD
+	Invisible:Yes
+	
+[Line:STKI IsBatchWisePrice]
+	Field:Medium Prompt, Logical Field
+	Local:Field:Medium Prompt:Set as:"Set Batch Wise Price?"
+	Local:Field:Logical Field:Sub Form:Batch Wise Price Report:$$Value
+	Local:Field:Logical Field:Show Table:Always
+	Local:Field:Logical Field:Set as:"No"
+	
+[Report:Batch Wise Price Report]
+	Form:Batch Wise Price Report
+	Object:StockItem
+	
+[Form:Batch Wise Price Report]
+	Part:BWPR Title, BWPR Body
+	Height:70% page
+	Width:40% page
+	
+[Part:BWPR Title]
+	Line:BWPR Title, BWPR ItemName
+	Space Bottom:0.5
+	Horizontal Align:Centre
+	
+[Line:BWPR Title]
+	Field:Name Field
+	Local:Field:Name Field:Info:"Batch Wise Price"
+	Local:Field:Name Field:Local:Style:Default:Bold:Yes
+	Local:Field:Name Field:Full Width:Yes
+	Local:Field:Name Field:Align:Centre
+	Local:Field:Name Field:Skip:Yes
+	Local:Field:Name Field:Border:Thin Bottom
+	
+[Line:BWPR ItemName]
+	Field:Name Field
+	Local:Field:Name Field:Set as:$$Sprintf:"For: %s":$Name
+	Local:Field:Name Field:Full Width:Yes
+	Local:Field:Name Field:Align:Centre
+	Local:Field:Name Field:Skip:Yes
+	Local:Field:Name Field:Local:Style:Default:Bold:No
+	Space Top:1
+	Space Bottom:0.5
+
+[Part: BWPR Body]
+	Line:BWPR Column, BWPR Body
+	Repeat:BWPR Body:BatchWisePriceAggr
+	Scroll:Vertical
+	Common Border:Yes
+	Break On:$$IsEmpty:$STKIBatch
+	
+[Line:BWPR Column]
+	Use:BWPR Body
+	Local:Field:Default:Type:String
+	Local:Field:Default:Delete:Storage
+	Local:Field:Default:Delete:Inactive
+	Local:Field:Default:Local:Style:Default:Bold:Yes
+	Local:Field:BWPR Sno:Set as:"S.No"
+	Local:Field:BWPR Batch:Set as:"Batch"
+	Local:Field:BWPR PurcPrice:Set as:"Wholesale Price"
+	Local:Field:BWPR SalePrice:Set as:"Retail Price"
+	Border:Column Titles
+	
+[Line:BWPR Body]
+	Fields:BWPR Sno, BWPR Batch, BWPR PurcPrice, BWPR SalePrice
+	Local:Field:Default:Border:Thin Left
+	Local:Field:Default:Local:Style:Default:Bold:No
+	
+[Field:BWPR Sno]
+	Use:Name Field
+	Set as:$$Line
+	Width:7
+	Skip:Yes
+	
+[Field:BWPR Batch]
+	Use:Name Field
+	Storage:STKI Batch
+	Full Width:Yes
+	
+[Field:BWPR PurcPrice]
+	Use:Number Field
+	Storage:STKI PurcPrice
+	Full Width:Yes
+	Format:"Decimal:2, NoComma"
+	Inactive:$$IsEmpty:$STKIBatch
+	
+[Field:BWPR SalePrice]
+	Use:Number Field
+	Storage:STKI SalePrice
+	Full Width:Yes
+	Format:"Decimal:2, NoComma"
+	Inactive:$$IsEmpty:$STKIPurcPrice
+	
+[Collection:BatchWisePriceCollection]
+	Parm Var:vStockItemName:String:##pItemName
+	Type:BatchWisePriceAggr:StockItem
+	Child Of:##vStockItemName
+	Fetch:STKI SalePrice, STKI Batch
+	Search Key:$STKIBatch
+	
+[Collection:BatchWisePriceCollection1]
+	Parm Var:vStockItemName:String:#BCProductName
+
+	Object:StockItem:##vStockItemName
+	Fetch:*,*.*
+		
+[Collection:BatchWisePrice]
+	Source Collection:BatchWisePriceCollection1
+	Title:"Batch Wise Price"
+	Sub Title:"Batch Name", "Retail Price", "Wholesale Price"
+	Walk:BatchWisePriceAggr
+	Compute:Batch:$STKIBatch
+	Compute:SalePrice:$STKISalePrice
+	Compute:PurcPrice:$STKIPurcPrice
+	Add:Format:$Batch, 15
+	Add:Format:$SalePrice, 15
+	Add:Format:$PurcPrice, 15
+	
+;select $Batch, $SalePrice, $PurcPrice From BatchWisePrice
+
+
+/*;; Voucher Type
+[#Part: VTYP BehaviourMain]
+	Add:Line:After:Form SubTitle:VTYP Custom Invoice
+
+[Line:VTYP Custom Invoice]
+	Fields	: Long Prompt, Logical Field
+	Local 	: Field : Long  Prompt : Set as    	: "Enable Barcode:"
+	Local 	: Field : Logical Field: Type		: Logical:Forced
+	Local 	: Field : Logical Field: Set as		: No
+	Local 	: Field : Logical Field: Storage	: IsBarcodeEnable
+
+[System:UDF]
+	IsBarcodeEnable	: Logical	: 4561
+	STKI Color		: String	: 4562
+	VCH Weight		: String	: 4563
+	STKI Model		: String	: 4564
+	LedgerLabelUDF	: String	: 4565 
+	CountryNameUDF	: String	: 4666
+	
+[System:Formulae]
+	IsBarcodeEnabled	: $IsBarcodeEnable:VoucherType:##SVVoucherType
+
+[#Form:Daybook]
+;	Add:Button:Print Bulk Barcode
+	
+[Button:Print Bulk Barcode]
+	Title:"Print Bulk Barcode"
+	Key:Alt + 2
+	Action:Call:Print Bulk Barcode
+	
+[Function:Print Bulk Barcode]
+	Variable:vMasterId:String
+	000:Query Box:"Are you sure?":Yes:No
+	010:If:$$LastResult
+	020:	Walk Collection:Current Voucher To Link
+	030:		Set:vMasterId:$$Sprintf:"ID:%s":$MasterId
+	040:		Call:Read Batch:##vMasterId
+	050:	End Walk
+	060:End If
+	070:Return
+	
+[#Form:Voucher]
+	Option	: SC Purchase Color:@@IsBarcodeEnabled
+
+[!Form:SC Purchase Color]
+	Add:Button:Print Barcode
+	
+[Button:Print Barcode]
+	Title	: "Print Barcode"
+	Key		: Alt + B
+	Action	: Call:Read Batch:@@VoucherIdString
+	
+
+;; Adding UDFs in Stock Item
+[#Part:STKI Units]
+	Add:Line:At End:STKI Color, STKI Model
+	
+[Line:STKI Color]
+	Field:Medium Prompt, Name Field
+	Local:Field:Medium Prompt:Set as:"Color:"
+	Local:Field:Name Field:Storage:STKI Color
+	Invisible:Yes
+	
+[Line:STKI Model]
+	Field:Medium Prompt, Name Field
+	Local:Field:Medium Prompt:Set as:"Model Name:"
+	Local:Field:Name Field:Storage:STKI Model
+	
+;; Adding UDFs in Voucher
+[#Line: EI ColumnOne]
+Option	: VCH AdditionalColumnOne: @@IsBarcodeEnabled ;AND @@IsSalesVch
+
+[!Line: VCH AdditionalColumnOne]
+Add		: Right Field: At Beginning: VCH Weight
+Local   : Field : VCH Weight        : Align         : Center
+Local   : Field : VCH Weight    	: Info			: "Weight"
+
+
+[#Line: EI ColumnTwo]
+Option	: VCH AdditionalColumnTwo: @@IsBarcodeEnabled ;AND @@IsSalesVch
+
+[!Line: VCH AdditionalColumnTwo]
+Add		: Right Field: At Beginning: VCH Weight
+Local   : Field : VCH Weight        : Align         : Center
+Local   : Field : VCH Weight    	: Info			: ""
+
+[#Line: EI InvInfo]
+Option	: STKVCH Additional Details: @@IsBarcodeEnabled ;AND @@IsSalesVch
+
+[#Line: CI InvInfo]
+Option	: STKVCH Additional Details: @@IsBarcodeEnabled ;AND @@IsSalesVch
+
+[!Line: STKVCH Additional Details]
+Add		: Right Fields: At Beginning: VCH Weight
+Local	: Field:VCH Weight:Inactive	: $$IsEndOfList:$StockItemName
+
+[Field: VCH Weight]
+Use         : Name Field
+Width       : @@VCHQtyWidth
+Storage     : VCH Weight
+Align		: Center
+Set Always	: Yes
+
+[#Part:VCH Narration]
+	Option:VCH Narration Barcode:@@IsBarcodeEnabled
+	
+[!Part:VCH Narration Barcode]
+	Add:Line:At Beginning:VCH ImporterOrManufacturer, VCH Country Barcode
+	
+[Line:VCH ImporterOrManufacturer]
+	Fields:Medium Prompt, Name Field
+	Local:Field:Medium Prompt:Set as:"Importer/Manufacturer:"
+	Local:Field:Name Field:Set as:If $$IsEmpty:$$Value Then "Manufactured" Else $$Value
+	Local:Field:Name Field:Show Table:Always
+	Local:Field:Name Field:Storage:LedgerLabelUDF
+	Local:Field:Name Field:Table:Ledger;ImporterOrManufacturer
+
+[Line:VCH Country Barcode]
+	Fields:Medium Prompt, Name Field
+	Local:Field:Medium Prompt:Set as:"Country Name?"
+	Local:Field:Name Field:Show Table:Always
+	Local:Field:Name Field:Set as:If $$IsEmpty:$$Value Then "India" Else $$Value
+	Local:Field:Name Field:Storage:CountryNameUDF
+	Local:Field:Name Field:Table:List Of Countries
+	
+[Table:ImporterOrManufacturer]
+	Title:"Importer Or Manufacturer"
+	List Name:"Imported", "Manufactured"

@@ -1,0 +1,7 @@
+[System:Formulae]
+CurrVchId1	: (If $$IsEmpty:$MasterID then If $$IsEmpty:($CmpVchID:Company:##SvCurrentCompany) Then 1 Else ($CmpVchID:Company:##SvCurrentCompany)+1 Else $MasterID)
+VoucherIdString:$$Sprintf:"ID:%s":@@CurrVchId1
+BarcodeFilePath:$$Sprintf:"%s\Export\Barcode.pdf":$$ApplicationPath
+BoxNo1:(@@PageNoIndex - 1) * 2 + 1
+BoxNo2:(@@PageNoIndex - 1) * 2 + 2
+PageNoIndex:$$Number:$$SetNo
