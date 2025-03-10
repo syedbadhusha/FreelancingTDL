@@ -26,7 +26,7 @@ Option:OptionSales Color:@@CustVch
     Space Top   		: 49  mms    
 	Space Right 		: 6 mms
     Space Left  		: 8 mms
-    Space Bottom		: 40 mms	
+    Space Bottom		: 41 mms	
 	
 	Local       : Part      : Default   : Float             : No
     Local       : Part      : Default   : PrePrintedBorder  : Yes
@@ -84,20 +84,19 @@ Option:OptionSales Color:@@CustVch
 [Part: BIJANINV  BuyerInfo]
 	
 	Width       : 130 mms 
-;	Space Top   : 01 mms
+	Space Top   : 5 mms
 	
-	Line		: BIJANINV BuyNm,BIJANINV BuyAdd,BIJANINV Telno,BIJANINV Trnno
+	Line		: BIJANINV BuyNm,BIJANINVTrnno,BIJANINVCntry,BIJANINV BuyAdd,BIJANINVTelno
 	Local       : Line : Default : Space Top : 1 mms  
 	Repeat	:BIJANINV BuyAdd	:BasicBuyerAddress
 	;Local       : Line : Default : 
-    ;Border      : Thin Box
-	
+    ;Border      : Thin Box	
 	
 [Line: BIJANINV BuyNm]
 	
 	Field	     : BIJANINVBuyNm
 	Space Bottom : 1 mms
-	Local	:	Field	:	BIJANINVBuyNm	:	Space Left	:	22 MMS
+	Local	:	Field	:	BIJANINVBuyNm	:	Space Left	:	16 MMS
 
 [Field: BIJANINV BuyNm]
 	
@@ -105,7 +104,7 @@ Option:OptionSales Color:@@CustVch
 	Set as		: $$NewLine+$BasicBuyerName
 	Style	    : normal bold
     Width       : 130 mms
-	Line        : 0
+;	Line        : 0
 	;Space Left  : 12
 	
 [Line: BIJANINV BuyAdd]
@@ -128,10 +127,23 @@ Option:OptionSales Color:@@CustVch
 [Field: BIJANINV Trnno]
 	
 	Use			: Name Field
-	Set as		: "Trn No : " +$$LocaleString:$BasicBuyersSalesTaxNo;@@SOFTCARETrnno
+	Set as		: "TRN# " +$$LocaleString:$BasicBuyersSalesTaxNo;@@SOFTCARETrnno
 	Style		: normal 
     Width       : 130 mms
 	Invisible   : $$IsEmpty:$BasicBuyersSalesTaxNo 
+
+[Line:BIJANINVCntry]
+	
+	 Field	      : BIJANINVCntry
+	 	
+[Field: BIJANINVCntry]
+	
+	Use			: Name Field
+	Set as		: $StateName + ", " +$CountryofResidence
+	Style		: normal 
+    Width       : 130 mms
+	Invisible   : $$IsEmpty:$BasicBuyersSalesTaxNo 
+	
 
 [Line: BIJANINV Telno]
 	
@@ -155,7 +167,7 @@ Option:OptionSales Color:@@CustVch
 
 
 [Line:BIJANINV InvoiceNo]
-  Space Top     : 2 mms 
+  Space Top     : 1.5 mms 
   Right Field   : BIJANINV InvoiceNo
   Local : Field : Short Name Field : Set as : ""
   Local : Field : Short Name Field : Width  : 23 mms
@@ -166,10 +178,11 @@ Option:OptionSales Color:@@CustVch
   Use    : Name Field
   Set as : $VoucherNumber
   Style  : Normal
-  Width  : 45 mms
+  Width  : 42 mms
+  
 [Line:BIJANINV Salesman]
  ; Border      : Thin Box	
-  Space Top     : 2 mms 
+  Space Top     : 2.5 mms 
   Right Field : BIJANINV Salesman
   
   Local : Field : Short Name Field : Set as : ""
@@ -182,7 +195,7 @@ Option:OptionSales Color:@@CustVch
   Use    : Name Field
   Set as : $Reference;$EICheckPost;$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
   Style  : Normal
-  Width  : 45 mms
+  Width  : 42 mms
   
 [Line:BIJANINV Refer]
 	;Border      : Thin Box
@@ -359,12 +372,22 @@ Space Bottom	: 3 MMS
 
     Use		    : Rate Price Field
 	Set as		: $Rate
-	Width		: 27 MMS
+	Width		: 20 MMS
 	Align		: Center
 	;Border      : Thin Left Right
 	Style		: Normal
 	Format      : "No Symbol"
 	
+
+[Field: BIJANINVAmt]
+
+    Use			: Amount Forex Field
+	Set as      : $amount
+	Width		: 17 MMS
+	Align		: Right
+    Style		: Normal
+	Format      : "No Symbol"
+	;Border      : thin left right 
 
 [Field			: BIJANINV Vatper]
 	
@@ -376,7 +399,7 @@ Space Bottom	: 3 MMS
     transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
     Format      : "NoZero,Percentage";Percentage
     Align       : Center
-    Width       : 10 mms
+    Width       : 13 mms
 	Style		: Normal
 	Delete      : Border
 ;	Invisible   : Yes
@@ -389,7 +412,7 @@ Set as      : @MIDTECHamt
 MIDTECHamt    : If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxamt Else $$AsCrAmt:@taxamt
 taxamt      : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
 transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
-Width		: 12 mms
+Width		: 17 mms
 Align       : Right
 Style		: Normal
 Delete      : Border
@@ -397,22 +420,12 @@ Delete      : Border
 ;Invisible   : Yes	
 
 	
-
-[Field: BIJANINVAmt]
-
-    Use			: Amount Forex Field
-	Set as      : $amount
-	Width		: 20 MMS
-	Align		: Right
-    Style		: Normal
-	Format      : "No Symbol"
-	;Border      : thin left right 
 	
 [Field:BIJANINVIncAmt]
 	
     Use			: Amount Forex Field
 	Set as      : #BIJANINVAmt+#BIJANINVVatAmt
-	Width		: 30 MMS
+	Width		: 25 MMS
 	Align		: Right
     Style		: Normal
 	Format      : "No Symbol"
@@ -492,6 +505,7 @@ Delete      : Border
 	
 Part     : BIJANINV AmountPart1,BIJANINV AmountPart2 
 Vertical : Yes  
+Space Right	:	12 MMS
 
 [Part  :BIJANINV AmountPart1]
 	
