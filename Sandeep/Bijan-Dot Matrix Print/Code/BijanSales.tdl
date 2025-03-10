@@ -23,10 +23,10 @@ Option:OptionSales Color:@@CustVch
 	
 	Width  				: 216 mms 
 	Height 				: 280 mms 
-    Space Top   		: 53  mms    
+    Space Top   		: 49  mms    
 	Space Right 		: 6 mms
-    Space Left  		: 15 mms
-    Space Bottom		: 30 mms	
+    Space Left  		: 8 mms
+    Space Bottom		: 40 mms	
 	
 	Local       : Part      : Default   : Float             : No
     Local       : Part      : Default   : PrePrintedBorder  : Yes
@@ -84,17 +84,20 @@ Option:OptionSales Color:@@CustVch
 [Part: BIJANINV  BuyerInfo]
 	
 	Width       : 130 mms 
-	Space Top   : 01 mms
+;	Space Top   : 01 mms
 	
 	Line		: BIJANINV BuyNm,BIJANINV BuyAdd,BIJANINV Telno,BIJANINV Trnno
-	Local       : Line : Default : Space Top : 2 mms  
+	Local       : Line : Default : Space Top : 1 mms  
+	Repeat	:BIJANINV BuyAdd	:BasicBuyerAddress
 	;Local       : Line : Default : 
     ;Border      : Thin Box
- 
+	
+	
 [Line: BIJANINV BuyNm]
 	
-	Field	     : BIJANINV BuyNm
+	Field	     : BIJANINVBuyNm
 	Space Bottom : 1 mms
+	Local	:	Field	:	BIJANINVBuyNm	:	Space Left	:	22 MMS
 
 [Field: BIJANINV BuyNm]
 	
@@ -112,7 +115,7 @@ Option:OptionSales Color:@@CustVch
 [Field: BIJANINV BuyAdd]
 	
 	Use			 : Name Field
-	Set as		 : $$FullList:BasicBuyerAddress:$BasicBuyerAddress 
+	Set as		 : $BasicBuyerAddress;$$FullList:BasicBuyerAddress:$BasicBuyerAddress 
 	Style		 : normal
     Width        : 130 mms
 	Line         : 0
@@ -145,19 +148,17 @@ Option:OptionSales Color:@@CustVch
 
 [Part: BIJANINV Invoiceinfo]
 	
-	Space Top   : 1 mms 
-	Line		: BIJANINV InvoiceNo,BIJANINV invDate,BIJANINV Salesman,BIJANINV Refer;,BIJANINV Pocode
+	Space Top   : 5 mms 
+	Line		: BIJANINV InvoiceNo,BIJANINV invDate,BIJANINV Salesman;,BIJANINV Refer;,BIJANINV Pocode
    ; Border      : Thin Box
 	Width       : 72 mms
-
-
 
 
 [Line:BIJANINV InvoiceNo]
   Space Top     : 2 mms 
   Right Field   : BIJANINV InvoiceNo
   Local : Field : Short Name Field : Set as : ""
-  Local : Field : Short Name Field : Width  : 25 mms
+  Local : Field : Short Name Field : Width  : 23 mms
  ; Border      : Thin Box
 	
 [Field : BIJANINV InvoiceNo]
@@ -165,23 +166,23 @@ Option:OptionSales Color:@@CustVch
   Use    : Name Field
   Set as : $VoucherNumber
   Style  : Normal
-  Width  : 49 mms
+  Width  : 45 mms
 [Line:BIJANINV Salesman]
  ; Border      : Thin Box	
   Space Top     : 2 mms 
   Right Field : BIJANINV Salesman
   
   Local : Field : Short Name Field : Set as : ""
-  Local : Field : Short Name Field : Width  : 25 mms
+  Local : Field : Short Name Field : Width  : 22 mms
 	
 ;[#Field:EI CheckPostname]
 
 [Field : BIJANINV Salesman]
  
   Use    : Name Field
-  Set as : $EICheckPost;$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
+  Set as : $Reference;$EICheckPost;$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
   Style  : Normal
-  Width  : 49 mms
+  Width  : 45 mms
   
 [Line:BIJANINV Refer]
 	;Border      : Thin Box
@@ -189,7 +190,7 @@ Option:OptionSales Color:@@CustVch
 	Right Field   : BIJANINV Refer
 	
   Local : Field : Short Name Field : Set as : ""
-  Local : Field : Short Name Field : Width  : 25 mms
+  Local : Field : Short Name Field : Width  : 22 mms
 	;Space Top     : 4 mms
 	
 [Field: BIJANINV Refer]
@@ -215,7 +216,7 @@ Option:OptionSales Color:@@CustVch
 	Use			: Name Field
 	Set as		: $$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
 	
-	Width       : 49 mms
+	Width       : 45 mms
     Style		: Normal
   
 [Line:BIJANINV invDate]
@@ -230,7 +231,7 @@ Option:OptionSales Color:@@CustVch
 	
 	Use			: Name Field;Short Date Field;Full Uni Date Field;Name Field
 	Set as		: $$DDMMYYYYDateFormat:$date:"/";$$StringPart:$Date:0:"-" + "/";BasicShippingDate
-    Width       : 49 mms
+    Width       : 42 mms
     Style       : Normal
 	Align       : Left
 ;	
@@ -275,7 +276,7 @@ Option:OptionSales Color:@@CustVch
 	Common Borders : yes
 	;Border         : Thin Left Right 
     Total		   : BIJANINV Amt, BIJANINV Qty
-	Space Top	   : 17 mms
+	Space Top	   : 19 mms
 	
 	
 [Part: BIJANINV Inventory]
@@ -287,7 +288,7 @@ Option:OptionSales Color:@@CustVch
 	
 
 Field		 	: BIJANINV Sno,BIJANINV ITemcode, BIJANINV Item
-Right Field     : BIJANINV Unit,BIJANINV Qty,BIJANINV UnitPrice, BIJANINV Vatper,BIJANINV VatAmt,BIJANINV Amt
+Right Field     : BIJANINV Unit,BIJANINV Qty,BIJANINV UnitPrice, BIJANINV Amt,BIJANINV Vatper,BIJANINV VatAmt,BIJANINVIncAmt
 Space Bottom	: 3 MMS
 
 
@@ -378,10 +379,10 @@ Space Bottom	: 3 MMS
     Width       : 10 mms
 	Style		: Normal
 	Delete      : Border
-	Invisible   : Yes
+;	Invisible   : Yes
 	;Border		: Thin Left 
 	
-[Field: BIJANINV VatAmt]
+[Field: BIJANINVVatAmt]
 	
 Use         : EXPINV VATGCC AmtTemp
 Set as      : @MIDTECHamt
@@ -393,19 +394,28 @@ Align       : Right
 Style		: Normal
 Delete      : Border
 ;Border		: Thin Left Right 
-Invisible   : Yes	
+;Invisible   : Yes	
 
 	
 
-[Field: BIJANINV Amt]
+[Field: BIJANINVAmt]
 
     Use			: Amount Forex Field
 	Set as      : $amount
-	Width		: 36 MMS
+	Width		: 20 MMS
 	Align		: Right
     Style		: Normal
 	Format      : "No Symbol"
 	;Border      : thin left right 
+	
+[Field:BIJANINVIncAmt]
+	
+    Use			: Amount Forex Field
+	Set as      : #BIJANINVAmt+#BIJANINVVatAmt
+	Width		: 30 MMS
+	Align		: Right
+    Style		: Normal
+	Format      : "No Symbol"
 	
 
 
@@ -465,7 +475,7 @@ Invisible   : Yes
 	 Space Top  : 04 mms
 	 ;Space Bottom:  mms
 	 Line       : BIJANINV TotalAmtinword
-	 Invisible  : Yes
+;	 Invisible  : Yes
 		
 	
 [Line:BIJANINV TotalAmtinword]
