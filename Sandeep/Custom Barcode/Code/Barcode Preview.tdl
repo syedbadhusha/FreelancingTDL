@@ -78,5 +78,5 @@
 	Field	: Name Field
 	Local	: Field:Default:Local:Style:Default:Height:9
 	Local	: Field:Default:Local Formula:Weight:$$CollectionField:$Weight:@BoxNoIndex:ListBatchCollection
-	Local	: Field:Name Field:Set as:@Weight
+	Local	: Field:Name Field:Set as:$$LocaleString:"Weight : "+$$LocaleString:@Weight
 	Local	: Field:Name Field:Local:Style:Default:Bold:Yes
