@@ -210,14 +210,15 @@
 				Title	: ""
 				Key		: 0
 				Border	: Thin Box
-				
+				Width	:	7% page
 			[Button: POS_NUMPoint]
 				
 				Use		: NumberBadDesign
 				Title	: ""
 				Key		: .
 				Border	: Thin Box
-
+				Width	:	7% page
+				
 			[Button: POS_NUMBS]
 				
 				Use		: NumberBadDesign
@@ -225,6 +226,7 @@
 				Key     : BackSpace
 				KeyStyle: Small Bold
 				Border	: Thin Box
+				Width	:	10 % page
 				
 			[Button: LA_POS_NumEnt]
 				

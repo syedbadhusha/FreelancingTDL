@@ -149,8 +149,14 @@
 
 [Part:LA_EIPOSDetails]
 	
-	Part	:	LA_EIPOSDetailsMn,LA_POSInvRight	
-	Vertical	:	No
+;	Part	:	LA_EIPOSDetailsTop
+;	Bottom Part	:	Cust_VCHPOSModeOfReceipts
+;	Vertical	:	Yes
+;	[Part:LA_EIPOSDetailsTop]
+		
+		Part	:	LA_EIPOSDetailsMn,LA_POSInvRight
+	
+		Vertical	:	No
 
 
 		[Part: LA_EIPOSDetailsMn]
@@ -646,6 +652,7 @@
 		Vertical	:	Yes
 		Border	:	Thin Left
 		Common Border	:	Yes
+		
 		[Part:LA_POSSettlements]
 			
 			Part	:	LA_POSCashAndBenefit,LA_POSMultiMode,+
@@ -681,7 +688,7 @@
 					  
 			Vertical: Yes
 			Background: Pattens Blue
-			Height	: 50 % Page
+			Height	: 48 % Page
 			Width	: 24 % Page
 			Border	: Thin Box
 			Horizontal Align: Center
