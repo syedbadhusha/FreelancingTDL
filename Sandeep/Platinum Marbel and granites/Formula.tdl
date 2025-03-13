@@ -1,0 +1,10 @@
+[System:Formulae]
+MIsProType:IF $$LicenseInfo:IsSilver Then "Silver" Else IF $$LicenseInfo:IsGold Then "Gold" Else ""
+
+MisTssExpDate:$$Date:$$TNSubscValidTillInDateFormat
+
+MIsTssExpri:IF ($$Date:$$MachineDate > @@MisTssExpDate) Then ($$String:@@MisTssExpDate + " - Expired") Else ($$String:@@MisTssExpDate + " - Active")
+
+MIsTssExpriColr:IF ($$Date:$$MachineDate > @@MisTssExpDate) Then "Red" Else "Blue"
+
+MisEnabVCh:$$IsSales:$VoucherTypeName OR $$IsDelNote:$VoucherTypeName OR $$IsPurchase:$VoucherTypeName OR $$IsRcptNote:$VoucherTypeName OR $$IsCreditNote:$VoucherTypeName OR $$IsDebitNote:$VoucherTypeName

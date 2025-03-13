@@ -1,0 +1,4 @@
+[Key:MisHlpSuport]
+Title:"Help / Support"
+Keys:Ctrl+S
+Action:Display : MisHlpSuport

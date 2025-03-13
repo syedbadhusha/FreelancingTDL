@@ -1,0 +1,123 @@
+[Report:MisUnitRpt]
+Title:"Quantity Calculation"
+Forms:MisUnitRpt
+
+[Form:MisUnitRpt]
+Height:60% Screen
+Width:70% Screen
+Top Parts:MisUnitRptHd, MisUnitRptTTl, MisUnitRpt, MisUnitRptTot
+On:Form Accept:Yes:Call:MisUnitRptSetQty
+On:Form Accept:Yes:Form Accept
+
+[Function:MisUnitRptSetQty]
+	
+	1000	:	Set Value	:	BilledQty	:	$$AsQty:$MisUnitSqmTot
+	2000	:	Set Value	:	ActualQty	:	$$AsQty:$MisUnitSqmTot
+
+[Part:MisUnitRptHd]
+Top Lines:MisUnitRptHd
+
+[Line:MisUnitRptHd]
+Left Fields:Name Field
+Local:Field: Name Field : Info: "Quantity Calculation"
+Local:Field: Name Field : Full width : Yes
+Local:Field: Name Field : Align: Centre
+Local:Field: Name Field : Border: Thin Bottom
+Space Bottom:1
+
+[Part:MisUnitRptTTl]
+Top Lines:MisUnitRptTTl
+Common Borders:Yes
+
+[Line:MisUnitRptTTl]
+Left Fields:MisUnitSl, MisStkiPrintName, MisUnitLth, MisUnitWth, MisUnitPcs, MisUnitSqm
+Local:Field: Default : Delete: Storage
+Local:Field: Default : Type:String
+Local:Field: Default : Style: Small Bold
+Local:Field: Default : Align: Center
+Local:Field: Default : Inactive: No
+Local:Field: MisUnitSl : Info: "Sl.No."
+Local:Field: MisStkiPrintName: Info: "Item Name to Print"
+Local:Field: MisUnitLth : Info: "Length(cm)"
+Local:Field: MisUnitWth : Info: "Width(cm)"
+Local:Field: MisUnitPcs : Info: "Pcs"
+Local:Field: MisUnitSqm : Info: $BaseUnits:StockItem:$StockItemName
+Space Top:0.25
+Space Bottom:0.25
+Border:Thin Top Bottom
+
+[Part:MisUnitRpt]
+Top Lines:MisUnitRpt
+Repeat:MisUnitRpt : MisUnitColl
+Background:White
+Scrolled:Vertical
+Break On:$$IsEmpty:$MisUnitLth
+Totals:MisUnitLth, MisUnitWth, MisUnitPcs, MisUnitSqm
+Common Borders:Yes
+
+[Line:MisUnitRpt]
+Left Fields:MisUnitSl, MisStkiPrintName, MisUnitLth, MisUnitWth, MisUnitPcs, MisUnitSqm
+Local:Field: Default : Style: Small
+
+[Field:MisUnitSl]
+Use:Name Field
+Set:$$Line
+Storage:MisUnitSl
+Width:6
+Skip on:Yes
+Border:Thin Right
+Alignment:Center
+
+
+
+[Field:MisStkiPrintName]
+Use:Name Field
+Set as:#VchStockItem
+Storage:MisPrintStkiName
+;Skip on:Yes
+Border:Thin Right
+Full Width: Yes
+		
+		Table       : Vch Stock Item Extract, EndofList, Create Master	    : NOT ##VCHStkCommonTable AND NOT @@IsPOSInvoice
+		Table       : List of ExtractStockItems, EndOfList, Create Master   : ##VCHStkCommonTable AND NOT @@IsPOSInvoice
+        Table       : List of POSStockItems, EndOfList, Create Master       : @@IsPOSInvoice
+    Use         : Item Name Field
+    Use			: Create StockItem 
+
+
+[Field:MisUnitLth]
+Use:Number Field
+Storage:MisUnitLth
+Width:10
+Alignment:Center
+Format:"NoZero,Decimal:2"
+Border:Thin Right
+
+[Field:MisUnitWth]
+Use:Number Field
+Storage:MisUnitWth
+Width:10
+Alignment:Center
+Format:"NoZero,Decimal:2"
+Inactive:$$IsEmpty:$MisUnitLth
+Border:Thin Right
+
+[Field:MisUnitPcs]
+Use:Number Field
+Storage:MisUnitPcs
+Width:6
+Alignment:Center
+Format:"NoZero"
+Inactive:$$IsEmpty:$MisUnitLth
+Border:Thin Right
+
+[Field:MisUnitSqm]
+Use:Number Field
+Set:If ($BaseUnits:StockItem:$StockItemName = "RM") Then (#MisUnitLth * #MisUnitPcs /100) Else (#MisUnitLth * #MisUnitWth * #MisUnitPcs /10000)
+Set Always:Yes
+Storage:MisUnitSqm
+Width:10
+Alignment:Right
+Format:"NoZero,Decimal:2"
+Inactive:$$IsEmpty:$MisUnitLth
+Skip on:Yes

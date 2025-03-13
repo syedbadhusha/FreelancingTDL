@@ -1,0 +1,883 @@
+
+
+
+
+[Report:MisSLInv]
+Objects:Voucher
+Forms:MisSLInv
+Print Set:Report Title   :  "TAX INVOICE"
+Title:"TAX INVOICE"
+
+[Report:MisSLDO]
+Objects:Voucher
+Forms:MisSLDO
+Print Set:Report Title   :  "DELIVERY NOTE"
+Title:"DELIVERY NOTE"
+
+[#Form:Default]
+Add:Top Button : At Beginning : MisHlpSuport
+
+[#Form:Delivery Note Color]
+Delete:Print
+Add:Print : MisSLDO
+
+[#Form:VOUCHER]
+Add:Top Button : At Beginning : MisHlpSuport
+
+[#Form:Sales Color]
+Delete:Print
+Add:Print : MisSLInv
+
+
+
+
+[Form:MisSLInv]
+Width:100% Page
+Height:100% Page
+Space Top:20 mms
+Space Left:15 mms
+Space Right:15 mms
+Space Bottom:20 mms
+Top Parts:MisSLInvHedpart, MisSLInvToppart, MisSLInvbodypart
+Bottom Parts:MisSLInvBottom
+Page Break:MisSLInvCLBk, MisSLInvOPBk
+
+[Form:MisSLDO]
+Width:100% Page
+Height:100% Page
+Space Top:20 mms
+Space Left:15 mms
+Space Right:15 mms
+Space Bottom:20 mms
+Top Parts:MisSLDOHedpart, MisSLDOToppart, MisSLDObodypart
+Bottom Parts:MisSLDOBottom
+Page Break:MisSLDOCLBk, MisSLDOOPBk
+
+
+
+
+
+
+
+
+[Part:MisUnitRptTot]
+Top Lines:MisUnitRptTot
+Common Borders:Yes
+
+[Part:MisSLInvCLBk]
+Top Lines:MisSLInvCLBk
+
+[Part:MisSLInvOPBk]
+Top Parts:MisSLInvHedpart, MisSLInvToppart
+
+[Part:MisSLInvHedpart]
+Top Lines:MisSLInvHed, MisSLInvHedTrn
+
+[Part:MisSLInvToppart]
+Top Parts:MisSLInvToppartL, MisSLInvToppartR
+Border:Thin Box
+
+[Part:MisSLInvToppartL]
+Top Parts:MisSLInvToppartL1, MisSLInvToppartL2, MisSLInvToppartL3
+Vertical:Yes
+Border:Thin Right
+Common Borders:Yes
+
+[Part:MisSLInvToppartL1]
+Top Lines:MisSLInvNo, MisSLInvDt, MisSLInvname
+Common Borders:Yes
+
+[Part:MisSLInvToppartL2]
+Top Lines:MisSLInvAddr
+Common Borders:Yes
+Repeat:MisSLInvAddr : BasicBuyerAddress
+
+[Part:MisSLInvToppartL3]
+Top Lines:MisSLInvCustTrn
+Border:Thin Right
+Common Borders:Yes
+
+[Part:MisSLInvToppartR]
+Top Lines:MisSLInvDottl, MisSLInvDo, MisSLInvDoDtttl, MisSLInvDoDt, MisSLInvRefttl, MisSLInvRef
+
+[Part:MisSLInvbodypart]
+Top Parts:MisSLInvbodypartInv, MisSLInvbodypartAcc
+Vertical:Yes
+Scrolled:Vertical
+Totals:MisSLInvAmt
+Border:Thin Left Right
+Common Borders:Yes
+Floating Bottom:No
+
+[Part:MisSLInvbodypartInv]
+Top Lines:MisSLInvbodypartInvTTl, MisSLInvbodypartInv
+Repeat:MisSLInvbodypartInv: Inventory Entries
+
+[Part:MisSLInvbodypartAcc]
+Top Lines:MisSLInvbodypartAcc
+Repeat:MisSLInvbodypartAcc : Ledger Entries
+
+[Part:MisSLInvBottom]
+Top Parts:MisSLInvTot, MisSLInvTotBtm1, MisSLInvTotBtm2
+Vertical:Yes
+Border:Thin Box
+
+[Part:MisSLInvTot]
+Top Lines:MisSLInvTot
+Common Borders:Yes
+
+[Part:MisSLInvTotBtm1]
+Top Lines:MisSLInvTotWrds
+
+[Part:MisSLInvTotBtm2]
+Top Parts:MisSLInvTotBtm2L, MisSLInvTotBtm2R
+Vertical:No
+
+[Part:MisSLInvTotBtm2L]
+Top Lines:MisSLInvPayttl, MisSLInvPaytrm, MisSLInvrecvSig, MisSLInvRecv, MisSLInvNarr
+Border:Thin Right
+
+[Part:MisSLInvTotBtm2R]
+Top Lines:MisSLInvCmp, MisSLInvCmpSig, MisSLInvTrms
+
+[Part:MisSLDOCLBk]
+Top Lines:MisSLDOCLBk
+
+[Part:MisSLDOOPBk]
+Top Parts:MisSLDOHedpart, MisSLDOToppart
+
+[Part:MisSLDOHedpart]
+Top Lines:MisSLDOHed, MisSLDOHedTrn
+
+[Part:MisSLDOToppart]
+Top Parts:MisSLDOToppartL, MisSLDOToppartR
+
+[Part:MisSLDOToppartL]
+Top Parts:MisSLDOToppartL1, MisSLDOToppartL2, MisSLDOToppartL3
+Vertical:Yes
+
+[Part:MisSLDOToppartL1]
+Top Lines:MisSLDONo, MisSLDOname
+Common Borders:Yes
+
+[Part:MisSLDOToppartL2]
+Top Lines:MisSLDoAddr
+Common Borders:Yes
+Repeat:MisSLDoAddr : BasicBuyerAddress
+
+[Part:MisSLDOToppartL3]
+Top Lines:MisSLDOCustTrn
+Common Borders:Yes
+
+[Part:MisSLDOToppartR]
+Top Lines:MisSLDODoDt
+
+[Part:MisSLDObodypart]
+Top Lines:MisSLDObodypartTTl, MisSLDObodypart
+Repeat:MisSLDObodypart: test;InventoryEntries
+Scrolled:Vertical
+Border:Thin Left Right
+Common Borders:Yes
+Floating Bottom:No
+Totals:MisSLDoNos
+
+[Part:MisSLDoTot]
+Top Lines:MisSLDOTot
+Common Borders:Yes
+
+[Part:MisSLDObodypartExp]
+Top Lines:MisSLDObodypartExp
+Repeat:MisSLDObodypartExp : MisUnitColl
+
+[Part:MisSLDOBottom]
+Top Parts:MisSLDOTot, MisSLDOTotBtm1, MisSLDOTotBtm2, MisSLDOTotBtm3
+Vertical:Yes
+Border:Thin Box
+
+[Part:MisSLDOTotBtm1]
+Top Lines:MisSLDOTotBtm1
+Border:Thin Bottom
+
+[Part:MisSLDOTotBtm2]
+Top Parts:MisSLDOTotBtm21, MisSLDOTotBtm22, MisSLDOTotBtm23
+Vertical:NO
+
+[Part:MisSLDOTotBtm21]
+Top Lines:MisSLDOTotBtm211, MisSLDOTotBtm212
+Border:Thin Right
+
+[Part:MisSLDOTotBtm22]
+Top Lines:MisSLDOTotBtm221, MisSLDOTotBtm212
+Border:Thin Right
+
+[Part:MisSLDOTotBtm23]
+Top Lines:MisSLDOTotBtm231, MisSLDOTotBtm212
+Border:Thin Right
+
+[Part:MisSLDOTotBtm3]
+Top Parts:MisSLDOTotBtm3L , MisSLDOTotBtm3R
+Vertical:No
+
+[Part:MisSLDOTotBtm3L]
+Top Lines:MisSLDOCmp
+Border:Thin Right
+
+[Part:MisSLDOTotBtm3R]
+Top Lines:MisSLDOTotBtm3R
+
+
+
+
+
+
+
+[Line:MisUnitRptTot]
+Left Fields:MisUnitSl, MisStkiPrintName, MisUnitLth, MisUnitWth, MisUnitPcs, MisUnitSqm
+Local:Field: Default : Delete: Storage
+Local:Field: Default : Delete: Set as
+Local:Field: Default : Style: Small Bold
+Local:Field: Default : Inactive: No
+Local:Field: Default : Skip: Yes
+Local:Field: Default : Set Always: Yes
+Local:Field: MisUnitSl : Setas: ""
+Local: Field: MisStkiPrintName: Set as: "Total"
+Local:Field: MisUnitLth : Setas: $$Total:MisUnitLth
+Local:Field: MisUnitLth : Add  : Storage:MisUnitLthTot
+Local:Field: MisUnitWth : Setas: $$Total:MisUnitWth
+Local:Field: MisUnitWth : Add  : Storage:MisUnitWthTot
+Local:Field: MisUnitPcs : Setas: $$Total:MisUnitPcs
+Local:Field: MisUnitPcs : Add  : Storage:MisUnitPcsTot
+Local:Field: MisUnitSqm : Setas: $$Total:MisUnitSqm
+Local:Field: MisUnitSqm : Add  : Storage : MisUnitSqmTot
+Border:Totals
+Space Top:0.25
+Space Bottom:0.25
+
+[Line:MisSLInvCLBk]
+Left Fields:MisSLInvCLBk
+
+[Line:MisSLInvHed]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "TAX INVOICE"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Local:Field: Name Field : Style: Large Bold
+
+[Line:MisSLInvHedTrn]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "TRN : " + $VATTINNumber:Company:##SVCurrentCompany
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Space Bottom:1
+
+[Line:MisSLInvNo]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: "Invoice No."
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Short Name Field : Border: Thin Right
+Local:Field: Name Field : Set as: $VoucherNumber
+Local:Field: Name Field : Width: 100 mms
+Border:thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvDt]
+Left Fields:Short Name Field, Short Date Field
+Local:Field: Short Name Field : Set as: "Date "
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Short Name Field : Border: Thin Right
+Local:Field: Short Date Field  : Set as: $Date
+Local:Field: Short Date Field  : Width: 100 mms
+Local:Field: Short Date Field  : Align: Left
+Border:thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvname]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: "Customer Name "
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Short Name Field : Border: Thin Right
+Local:Field: Name Field  : Set as: $BasicBuyerName
+Local:Field: Name Field  : Width: 100 mms
+Local:Field: Name Field  : Align: Left
+Border:thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvAddr]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: IF $$Line=1 Then "Address" Else ""
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Short Name Field : Border: Thin Right
+Local:Field: Name Field  : Set as: $BasicBuyerAddress
+Local:Field: Name Field  : Width: 100 mms
+Local:Field: Name Field  : Align: Left
+
+[Line:MisSLInvCustTrn]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: "TRN"
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: ShortName Field  : Border: Thin Right
+Local:Field: Name Field  : Set as: $BasicBuyersSalesTaxNo
+Local:Field: Name Field  : Width: 100 mms
+Local:Field: Name Field  : Align: Left
+Border:Thin Top
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvDottl]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "Delivery Order No."
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Space Top:1 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvDo]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: $$FullList:InvoiceDelNotes:$BasicShipDeliveryNote
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Local:Field: Name Field : Style: Normal
+Space Top:1 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvDoDtttl]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "Delivery Order Date"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Space Top:1 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvDoDt]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: $$FullList:InvoiceDelNotes:$BasicShippingDate
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Local:Field: Name Field : Style: Normal
+Space Top:1 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvRefttl]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "Order Reference"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Space Top:1 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvRef]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: $Reference
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Local:Field: Name Field : Style: Normal
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvbodypartInv]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLInvUnit, MisSLInvQty, MisSLInvRate, MisSLInvAmt
+Space Top:1 mms
+
+Local: Field: MisSLInvItem: Set as: $VCHSTKIPrintName
+
+[Line:MisSLInvbodypartInvTTl]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLInvUnit, MisSLInvQty, MisSLInvRate, MisSLInvAmt
+Local:Field : Default   : Style : Small Bold
+Local:Field : Default   : Align : Centre
+Local:Field : Default   : Type : String
+Local:Field : MisSLInvSlno : Set As : "Sl.No."
+Local:Field : MisSLInvItem : Set as  : "Particulars"
+Local:Field : MisSLInvUnit : Set As : "UOM"
+Local:Field : MisSLInvQty  : Set As : "Quantity"
+Local:Field : MisSLInvRate : Set As : "Unit Price"
+Local:Field : MisSLInvAmt  : Set As : "Amount"
+Space Top:2 mms
+Space Bottom:2 mms
+Border:Thin Bottom
+
+[Line:MisSLInvbodypartAcc]
+Empty on:($LedgerName = $PartyLedgerName) OR ($LedgerName Contains "End of List")
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLInvUnit, MisSLInvQty, MisSLInvRate, MisSLInvAmt
+Local:Field : Default   : Style : Normal Bold
+Local:Field : MisSLInvSlno : Set As : ""
+Local:Field : MisSLInvItem : Align  :   Right
+Local:Field : MisSLInvItem : Style  :   Normal Bold
+Local:Field : MisSLInvItem : Set as  :  $LedgerName
+Local:Field : MisSLInvQty  : Set As : ""
+Local:Field : MisSLInvUnit : Set As : ""
+Local:Field : MisSLInvRate : Set As : $RateofInvoiceTax
+Local:Field : MisSLInvRate : Type    :   Number
+Local:Field : MisSLInvRate : Format  :  "No Zero,Percentage"
+Local:Field : MisSLInvAmt  : Set As : $Amount
+
+[Line:MisSLInvTot]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLInvUnit, MisSLInvQty, MisSLInvRate, MisSLInvAmt
+Local:Field : Default   : Style : Normal Bold
+Local:Field : MisSLInvSlno : Set As : ""
+Local:Field : MisSLInvItem : Set as  : "Total"
+Local:Field : MisSLInvUnit : Set As : ""
+Local:Field : MisSLInvQty  : Set As : ""
+Local:Field : MisSLInvRate : Set As : ""
+Local:Field : MisSLInvAmt  : Set As : $Amount
+Space Top:2 mms
+Space Bottom:2 mms
+Border:Thin Top Bottom
+
+[Line:MisSLInvTotWrds]
+Left Fields:MisSLInvItem
+Local:Field : MisSLInvItem : Set as: "Total in words : " + $$InWords:$Amount + " only"
+Local:Field : MisSLInvItem  :  Full Width: Yes
+Space Top:2 mms
+Space Bottom:2 mms
+Border:Thin Bottom
+
+[Line:MisSLInvPayttl]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Payment Terms"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Border:Thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvPaytrm]
+Left Fields:NameField
+Local:Field: Name Field : Set as: $BasicDueDateOfPymt
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Normal
+Border:Thin Bottom
+Space Top:3 mms
+Space Bottom:3 mms
+
+[Line:MisSLInvrecvSig]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Receiver's Signature"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Border:Thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLInvRecv]
+Left Fields:NameField
+Local:Field: Name Field : Set as: ""
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Border:Thin Bottom
+Space Top:4 mms
+Space Bottom:4 mms
+
+[Line:MisSLInvNarr]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Marble and Granite are products of nature and subject to variations in colour, texture and veins. Samples where provided are to be considered as representative only and we cannot gaurantee an exact match."
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Normal
+Local:Field: Name Field : Line : 0
+Space Top:1 mms
+
+[Line:MisSLInvCmp]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "For " + @@CMpMailName
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Align: Centre
+Space Top:1 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvCmpSig]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Signature"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Align: Centre
+Space Top:15 mms
+Space Bottom:1 mms
+Border:Thin Bottom
+
+[Line:MisSLInvTrms]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Goods once sold will not be taken back subject to UAE Law & Regulation"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Line: 0
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDOCLBk]
+Left Fields:MisSLDOCLBk
+
+[Line:MisSLDOHed]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "DELIVERY NOTE"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Local:Field: Name Field : Style: Large Bold
+
+[Line:MisSLDOHedTrn]
+Left Fields:Name Field
+Local:Field: Name Field : Set as: "TRN : " + $VATTINNumber:Company:##SVCurrentCompany
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Align: Centre
+Space Bottom:1
+
+[Line:MisSLDONo]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: "D.O. No. :"
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Name Field : Set as: $VoucherNumber
+Local:Field: Name Field : Width: 100 mms
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDOname]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: "Customer Name :"
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Name Field  : Set as: $BasicBuyerName
+Local:Field: Name Field  : Width: 100 mms
+Local:Field: Name Field  : Align: Left
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDoAddr]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: IF $$Line=1 Then "Address :" Else ""
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Name Field  : Set as: $BasicBuyerAddress
+Local:Field: Name Field  : Width: 100 mms
+Local:Field: Name Field  : Align: Left
+
+[Line:MisSLDOCustTrn]
+Left Fields:Short Name Field, Name Field
+Local:Field: Short Name Field : Set as: "TRN :"
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Name Field  : Set as: $BasicBuyersSalesTaxNo
+Local:Field: Name Field  : Width: 100 mms
+Local:Field: Name Field  : Align: Left
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDODoDt]
+Right Fields:Short Name Field, Short Date Field
+Local:Field: Short Name Field : Set as: "Date"
+Local:Field: Short Name Field : Width: 30 mms
+Local:Field: Short Date Field : Set as: $Date
+Local:Field: Short Date Field : Width: 50 mms
+Local:Field: Short Date Field : Align: Left
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDObodypart]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLDoLth, MisSLDoWdth, MisSLDoNos, MisSLDoTot1
+Local:Field: MisSLInvItem : Set as: $StkPrntName
+Local:Field : MisSLDoLth  : Set As : $DLLength
+Local:Field : MisSLDoWdth  : Set As : $DLWidth
+Local:Field : MisSLDoNos  : Set As : $DLPcs
+;Local:Field : MisSLDoTot  : Set As : $$Number:$MisUnitSqm
+
+Space Top:1 mms
+
+[Field:MisSLDoTot1]
+Use:NumberField
+Set:$DLSqm
+Width:30 mms
+Alignment:Right
+Style:Normal Bold
+
+[Collection: testsource]
+    
+    Type: vouchers: vouchertype
+    Child Of: $$VchTypeSales
+    Belongs To: Yes
+    Fetch: *.*
+
+
+[Collection: test]
+   
+   Source Collection: .;testsource
+   
+   Walk: InventoryEntries, MisUnitColl
+   Compute: stkName: $StockItemName
+   Compute: StkPrntName: $MisPrintStkiName
+   Compute: DLLength: $MisUnitLth
+   Compute: DLWidth: $MisUnitWth
+   Compute: DLPcs: $MisUnitPcs
+   Compute: DLSqm: $MisUnitSqm
+   Compute: DLBqty: $BilledQty
+   
+; select $stkname, $stkprntname, $dllength from test
+   
+  
+
+[Line:MisSLDObodypartTTl]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLDoLth, MisSLDoWdth, MisSLDoNos, MisSLDoTot
+Local:Field : Default   : Style : Small Bold
+Local:Field : Default   : Align : Centre
+Local:Field : Default   : Type : String
+Local:Field : Default   : Line : 0
+Local:Field : MisSLInvSlno : Set As : "Sl.No."
+Local:Field : MisSLInvItem : Set as  : "Particulars"
+Local:Field : MisSLDoLth  : Set As : "Size Length"
+Local:Field : MisSLDoWdth  : Set As : "Size Width"
+Local:Field : MisSLDoNos  : Set As : "Nos"
+Local:Field : MisSLDoTot  : Set As : "Total Qty"
+Space Top:2 mms
+Space Bottom:2 mms
+Border:Thin TOp Bottom
+
+[Line:MisSLDoTot]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLDoLth, MisSLDoWdth, MisSLDoNos, MisSLDoTot
+Local:Field : Default   : Style : Normal Bold
+Local:Field : MisSLInvSlno : Set As : ""
+Local:Field : MisSLInvItem : Set as  : "Total"
+Local:Field : MisSLDoLth  : Set As : ""
+Local:Field : MisSLDoWdth  : Set As : ""
+Local:Field : MisSLDoNos  : Set As : $$Total:MisSLDoNos
+Local:Field : MisSLDoTot  : Set As : $$CollQtyTotal:InventoryEntries:$BilledQty
+Space Top:2 mms
+Space Bottom:2 mms
+Border:Thin Top Bottom
+
+[Line:MisSLDObodypartExp]
+Left Fields:MisSLInvSlno, MisSLInvItem
+Right Fields:MisSLDoLth, MisSLDoWdth, MisSLDoNos, MisSLDoTot
+Local:Field : Default   : Style : Normal
+Local:Field : MisSLInvSlno : Set As : ""
+Local:Field : MisSLInvItem : Set as  :  ""
+Local:Field : MisSLDoLth  : Set As : $MisUnitLth
+Local:Field : MisSLDoWdth  : Set As : $MisUnitWth
+Local:Field : MisSLDoNos  : Set As : $MisUnitPcs
+Local:Field : MisSLDoTot  : Set As : $MisUnitSqm
+
+[Line:MisSLDOTotBtm1]
+Left Fields:MisDoOrdRefttl, MisDoOrdRef, MisDoTrmsDelttl, MisDoTrmsDel, MisDoTrickNottl, MisDoTrickNo
+
+[Line:MisSLDOTotBtm211]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Received the above material at our site/yard in good condition"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Line: 2
+Border:Thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDOTotBtm212]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Signature"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Align : Centre
+Border:Thin Bottom
+Space Top:20 mms
+Space Bottom:2 mms
+
+[Line:MisSLDOTotBtm221]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Driver's Signature"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Line: 2
+Border:Thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDOTotBtm231]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "For " + @@CMpMailName
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Line: 2
+Border:Thin Bottom
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDOCmp]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Marble and Granite are products of nature and subject to variations in colour, texture and veins. Samples where provided are to be considered as representative only and we cannot gaurantee an exact match."
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Line: 0
+Space Top:1 mms
+Space Bottom:1 mms
+
+[Line:MisSLDOTotBtm3R]
+Left Fields:NameField
+Local:Field: Name Field : Set as: "Goods once sold will not be taken back subject to UAE Law & Regulation"
+Local:Field: Name Field : Full Width: Yes
+Local:Field: Name Field : Style: Small Bold
+Local:Field: Name Field : Line: 5
+Space Top:1 mms
+Space Bottom:1 mms
+
+[#Field:VCH StockItem]
+	Add:Sub Form: MisUnitRpt : @@MisEnabVCh AND (($BaseUnits:StockItem:$StockItemName = "RM") OR ($BaseUnits:StockItem:$StockItemName = "SQM"))
+
+;[#Field:VCH NrmlActualQty]
+;Options:MisSqmQty : @@MisEnabVCh AND (($BaseUnits:StockItem:$StockItemName = "RM") OR ($BaseUnits:StockItem:$StockItemName = "SQM"))
+;
+;[#Field:VCH NrmlBilledQty]
+;Options:MisSqmQty : @@MisEnabVCh AND (($BaseUnits:StockItem:$StockItemName = "RM") OR ($BaseUnits:StockItem:$StockItemName = "SQM"))
+;
+;[#Field:VCHBATCH NrmlAQty]
+;Options:MisSqmQty : @@MisEnabVCh AND (($BaseUnits:StockItem:$StockItemName = "RM") OR ($BaseUnits:StockItem:$StockItemName = "SQM"))
+;
+;[#Field:VCHBATCH NrmlBQty]
+;Options:MisSqmQty : @@MisEnabVCh AND (($BaseUnits:StockItem:$StockItemName = "RM") OR ($BaseUnits:StockItem:$StockItemName = "SQM"))
+
+
+[!Field:MisSqmQty]
+Set:$$AsQty:($$Owner:$MisUnitSqmTot)
+;Set Always:Yes
+
+[Field:MisSLInvCLBk]
+Set:"Continue ........."
+
+[Field:MisSLInvSlno]
+Use:Name Field
+Set:$$Line
+Width:15 mms
+Style:Normal
+Alignment:Left
+Border:Thin Right
+
+[Field:MisSLInvItem]
+Use:Name Field
+Set:$StockItemName
+Style:Normal
+Full Width:Yes
+Alignment:Left
+
+[Field:MisSLInvQty]
+Use:QtyPrimaryField
+Set:$BilledQty
+Width:20 mms
+Format:"NO SYMBOL"
+Alignment:Right
+Style:Normal
+Border:Thin Right
+
+[Field:MisSLInvUnit]
+Use:Rate Units Field
+Set:$Rate
+Width:15 mms
+Format:"NO SYMBOL"
+Alignment:Right
+Border:Thin Left Right
+Style:Normal
+
+[Field:MisSLInvRate]
+Use:RatePriceField
+Set:$Rate
+Width:26 mms
+Alignment:Right
+Style:Normal
+Border:Thin Right
+
+[Field:MisSLInvAmt]
+Use:Amount Field
+Set:$Amount
+Width:31 mms
+Alignment:Right
+Style:Normal
+
+[Field:MisSLDOCLBk]
+Set:"Continue ........."
+
+[Field:MisSLDoLth]
+Use:NumberField
+Set:$MisUnitLthTot
+Width:20 mms
+Format:"NoZero"
+Alignment:Centre
+Style:Normal
+Border:Thin Left Right
+
+[Field:MisSLDoWdth]
+Use:NumberField
+Set:$MisUnitWthTot
+Width:20 mms
+Format:"NoZero"
+Alignment:Centre
+Border:Thin Left Right
+Style:Normal
+
+[Field:MisSLDoNos]
+Use:Number Field
+Set:$MisUnitPcsTot
+Width:20 mms
+Alignment:Right
+Style:Normal Bold
+Border:Thin Right
+Format:"NoZero"
+
+[Field:MisSLDoTot]
+Use:QtyPrimaryField
+Set:$BilledQty
+Width:30 mms
+Alignment:Right
+Style:Normal Bold
+
+[Field:MisDoOrdRefttl]
+Use:Name Field
+Set:"Order Ref"
+Width:20 mms
+Style:Normal Bold
+Top Lines:0
+Border:Thin Right
+
+[Field:MisDoOrdRef]
+Use:Name Field
+Set:$Reference
+Full Width:Yes
+Style:Normal
+Top Lines:0
+Border:Thin Right
+
+[Field:MisDoTrmsDelttl]
+Use:Name Field
+Set:"Terms of Delivery"
+Width:30 mms
+Style:Normal Bold
+Top Lines:0
+Border:Thin Right
+
+[Field:MisDoTrmsDel]
+Use:Name Field
+Set:$$FullList:BasicOrderTerms:$BasicOrderTerms
+Full Width:Yes
+Style:Normal
+Top Lines:0
+Border:Thin Right
+
+[Field:MisDoTrickNottl]
+Use:Name Field
+Set:"Truck No."
+Width:20 mms
+Style:Normal Bold
+Top Lines:0
+Border:Thin Right
+
+[Field:MisDoTrickNo]
+Use:Name Field
+Set:$BasicShipVesselNo
+Full Width:Yes
+Style:Normal
+Top Lines:0
+

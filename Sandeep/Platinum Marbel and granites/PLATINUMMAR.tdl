@@ -1,0 +1,848 @@
+
+[Report:ELEAZAR Report]
+Use:Stdinvoice
+Use:VATGCC InvAnalysis Report_Variables
+Forms:ELEAZAR Report
+
+[#Form:Sales Color]
+Add:Option : OPTSales Color : @@CustVch
+
+[!Form:OptSales Color]
+Delete:Print
+Add:Print: ELEAZAR Report
+
+[Form:ELEAZAR Report]
+Use:GCCVAT InvoiceTaxAnalysis
+Space Top:@@InvSpace  inch
+Space Right:@@InvSmpSpaceLeft inch
+Space Left:@@InvSpaceLeft  inch
+Space Bottom:@@InvSmpSpace inch
+Top Parts:STD Invoice Top,ELEAZAR top,ELEAZAR Title,ELEAZAR Entry
+Bottom Parts:ELEAZAR TotAMT,ELEAZAR Bottomtot,ELEAZAR Terms
+Width:100 % page
+Height:100 % page
+Page Break:ELEAZAR CLPageBreak, ELEAZAR OPPageBreak
+Local:Style        : Default : Font :  "Times New Roman"
+
+[Part:ELEAZAR CLPageBreak]
+Top Lines:ELEAZAR CLPageBreak
+Border:Thin Top
+
+[Part:ELEAZAR OPPageBreak]
+Top Parts:STD Invoice Top,ELEAZAR top,ELEAZAR Title
+Vertical:Yes
+
+[Part:ELEAZAR top]
+Top Parts:PLATINUMMAR CMPDET,ELEAZAR PartDet
+Vertical:yes
+
+[Part:PLATINUMMAR CMPDET]
+Top Parts:Empty,ELEAZARvochertype
+Local:Part : Empty  : Width : 37 % Page
+Space Bottom:3 % Page
+
+[Part:ELEAZAR Logo]
+Top Lines:ELEAZAR CMPLogo
+Width:30 % Page
+Height:12 % page
+Graph Type:##SALogoPath
+
+[Part:ELEAZARvochertype]
+Top Lines:ELEAZARvochertype,ELEAZARCmpTrnno
+Space Bottom:5 % Page
+Width:23 % page
+
+[Part:ELEAZAR INVCMPDETS]
+Top Lines:ELEAZAR CMPName, ELEAZAR CMPAddress
+Repeat:ELEAZAR CMPAddress :ELEAZARCompany Address
+
+[Part:ELEAZAR INVNoDate]
+Top Lines:ELEAZAR INVNoDate
+
+[Part:ELEAZAR PartDet]
+Top Parts:ELEAZAR BillCust
+Bottom Parts:ELEAZAR BillRPart
+
+[Part:ELEAZAR BillCust]
+Top Lines:ELEAZAR VoucherNo,ELEAZAR VoucherDate,ELEAZAR BillCust,ELEAZAR BillAdd,ELEAZAR BillTRN
+Repeat:ELEAZAR BillAdd : BasicBuyerAddress
+Width:70 % Page
+Common Borders:Yes
+Border:thin Box
+
+[Part:ELEAZAR BillRPart]
+Top Lines:ELEAZAR DeliveryOrd,ELEAZAR DeliveryOrdans,ELEAZAR DeliveryOrdDate,ELEAZAR DeliveryOrdDateans,ELEAZAR OrdRef,ELEAZAR OrdRefans
+Width:30 % Page
+Border:thin box
+
+[Part:ELEAZAR Title]
+Top Lines:ELEAZAR Titlemid,ELEAZAR Titlemid1
+Border:Thin Left Right
+Common Borders:yes
+Options:OptELEAZAR Title : not $$InExportMode
+
+[!Part:OptELEAZAR Title]
+Print BG:Sky BlueAMH
+
+[Part:ELEAZAR Entry]
+Space Top:1.5 % page
+Top Parts:ELEAZAR Inventory,ELEAZAR Ledger
+Vertical:Yes
+Scrolled:Vertical
+Common Borders:Yes
+Border:Thin box
+Totals:ELEAZAR Qty, ELEAZAR TaxbleVal,ELEAZAR Taxamt
+Floating Bottom:No
+
+[Part:ELEAZAR Inventory]
+Top Lines:ELEAZARInventory
+Repeat:ELEAZARInventory   : inventory Entries
+
+[Part:ELEAZAR UDesc]
+Top Lines:ELEAZAR UDesc
+Repeat:ELEAZAR UDesc   : UserDescription
+
+[Part:ELEAZAR Ledger]
+Top Lines:Dummy Line,ELEAZAR Ledger
+Repeat:ELEAZAR Ledger : Ledger Entries
+
+[Part:ELEAZAR TotAMT]
+Top Lines:ELEAZAR TotAMT
+Border:Thin Box
+
+[Part:ELEAZAR Bottomtot]
+Top Parts:ELEAZAR InWord
+Border:thin box
+Vertical:yes
+
+[Part:ELEAZAR InWord]
+Top Lines:ELEAZAR TotalamountLine,ELEAZAR VatInword
+Width:100 % page
+
+[Part:BSUDANBankdatail]
+Top Lines:BSUDANAccountname,BSUDANBankname,BSUDANAccountno,BSUDANSwiftCode,BSUDANIban
+Width:55 % page
+Border:thin Box
+
+[Part:ELEAZAR Terms]
+Top Parts:ELEAZAR TermsLeft , ELEAZAR TermsRight
+Border:Thin Box
+
+[Part:ELEAZAR TermsLeft]
+Top Lines:ELEAZAR Termstit, ELEAZAR Terms,ELEAZAR Regivertit,ELEAZAR Regiver,ELEAZAR Notes
+Width:50 % Page
+
+[Part:ELEAZAR TermsRight]
+Top Lines:ELEAZAR For ComapayDet,ELEAZAR Signature,ELEAZAR Goodsnotes
+Border:Thin Left
+Width:50 % Page
+
+[Part:ELEAZAR Cmpnamepart]
+Top Lines:BinForCmnyname
+
+[Part:BSUDAN Autoeriaze]
+Space Top:0.5 % Page
+Top Parts:BinRightcmny
+
+[Part:SignLeftPart]
+Top Lines:BinReceivedacc
+Width:50 % page
+
+[Part:BinRightcmny]
+Top Lines:BinForCmnyname
+Repeat:BinForCmnyname  :  Company Address
+Width:100 % page
+
+[#Part:VTYP Behaviour]
+Add:Line :At End: VTYP EnbCust
+
+[Line:VTYP EnbCust]
+Left Fields:Long Prompt, VTYP EnbCust
+Local:Field : Long Prompt : Set as    : $$LocaleString:"Enable Customization?"
+Local:Field : Default     : Inactive  : NOT ($$IsSales:$Parent)
+Local:Field : Default     : Color     : Blue
+Space Top:0.20
+
+[Line:ELEAZAR CLPageBreak]
+Space Bottom:24 mms
+Right Fields:Info field
+Local:Field : Info Field: Info: $$LocaleString:"Contnd..."
+
+[Line:ELEAZAR CMPLogo]
+Left Fields:ELEAZAR CMPLogo
+
+[Line:ELEAZARvochertype]
+Left Fields:ELEAZARvochertype
+Space Top:5 % Page
+
+[Line:ELEAZARCmpTrnno]
+Space Top:0.4 % Page
+Left Fields:ELEAZARCmpTrnno
+
+[Line:ELEAZAR CMPName]
+Left Fields:ELEAZAR CMPName
+
+[Line:ELEAZAR CMPAddress]
+Left Fields:ELEAZAR CMPAddress
+
+[Line:ELEAZAR INVNoDate]
+Space Top:0.5 % page
+Left Fields:Short Name Field,ELEAZAR INVNO
+Local:Field : Short Name Field : Set as : "No ."
+Local:Field : Short Name Field : Width  : 5 % Page
+Local:Field : Short Name field : Style  : Large Bold
+Space Bottom:2.3 % page
+
+[Line:ELEAZAR BillCust]
+Space Top:0.5 % Page
+Space Bottom:1 % Page
+Left Fields:Short Name Field,ELEAZAR BillCust
+Local:Field : Short Name Field : Set as : "Company Name"
+Local:Field : Short Name Field : Width  : 15 % Page
+Local:Field : Short Name Field : Style  : Normal Bold
+Border:Thin Box
+
+[Line:ELEAZAR VoucherNo]
+Space Top:0.5 % Page
+Space Bottom:0.5 % Page
+Left Fields:Short Name Field,ELEAZAR VoucherNo
+Local:Field : Short Name Field : Set as : "Invoice No."
+Local:Field : Short Name Field : Width  : 15 % Page
+Local:Field : Short Name Field : Style  : Normal Bold
+Local:Field : Short Name Field : Border : Thin Right
+Border:Thin Box
+
+[Line:ELEAZAR VoucherDate]
+Space Top:0.5 % Page
+Space Bottom:0.5 % Page
+Left Fields:Short Name Field,ELEAZAR VoucherDate
+Local:Field : Short Name Field : Set as : "Date"
+Local:Field : Short Name Field : Width  : 15 % Page
+Local:Field : Short Name Field : Style  : Normal Bold
+Local:Field : Short Name Field : Border : Thin Right
+Border:Thin Box
+
+[Line:ELEAZAR Billadd]
+Space Top:0.3 % Page
+Space Bottom:0.1 % Page
+Left Fields:Short Name Field,ELEAZAR Billadd
+Local:Field : Short Name Field : Set as    : "Address"
+Local:Field : Short Name Field : Style     : Normal Bold
+Local:Field : Short Name Field : Width     : 15 % Page
+Local:Field : Short Name Field : Inactive  : $$Line > 1
+
+[Line:ELEAZAR BillTrn]
+Space Top:1 % Page
+Space Bottom:0.5 % Page
+Left Fields:Short Name Field, ELEAZAR BillTrn
+Local:Field : Short Name Field : Set as : "Customer TRN"
+Local:Field : Short Name Field : Style  : Normal Bold
+Local:Field : Short Name Field : Width  : 15 % Page
+Border:Thin Box
+
+[Line:ELEAZAR DeliveryOrd]
+Space Top:0.5 % Page
+Space Bottom:0.6 % Page
+Left Fields:Short Name Field
+Local:Field : Short Name Field  : Set as : "Delivery Order No."
+Local:Field : Short Name Field  : Width  : 30 % Page
+Local:Field : Short Name Field  : Style  : Normal Bold
+Local:Field : Short Name Field  : Align  : Center
+Border:Thin Bottom
+
+[Line:ELEAZAR DeliveryOrdans]
+Space Top:0.5 % Page
+Space Bottom:0.5 % Page
+Left Fields:Short Name Field
+Local:Field : Short Name Field  : Set as : $$FullList:InvoiceDelNotes:$BasicShipDeliveryNote
+Local:Field : Short Name Field  : Width  : 30 % Page
+Local:Field : Short Name Field  : Style  : Normal
+Local:Field : Short Name Field  : Align  : Center
+Border:Thin Bottom
+
+[Line:ELEAZAR DeliveryOrdDate]
+Space Top:0.5 % Page
+Space Bottom:0.5 % Page
+Left Fields:Short Name Field
+Local:Field : Short Name Field  : Set as : "Delivery Order Date"
+Local:Field : Short Name Field  : Width  : 30 % Page
+Local:Field : Short Name Field  : Style  : Normal Bold
+Local:Field : Short Name Field  : Align  : Center
+Border:Thin Bottom
+
+[Line:ELEAZAR DeliveryOrdDateans]
+Space Top:0.5 % Page
+Space Bottom:0.5 % Page
+Left Fields:Short Name Field
+Local:Field : Short Name Field  : Set as : $$FullList:InvoiceDelNotes:$BasicShippingDate
+Local:Field : Short Name Field  : Width  : 30 % Page
+Local:Field : Short Name Field  : Style  : Normal
+Local:Field : Short Name Field  : Align  : Center
+Border:Thin Bottom
+
+[Line:ELEAZAR OrdRef]
+Space Top:0.6 % Page
+Space Bottom:0.6 % Page
+Left Fields:Short Name Field
+Local:Field : Short Name Field  : Set as : "Order Reference"
+Local:Field : Short Name Field  : Width  : 30 % Page
+Local:Field : Short Name Field  : Style  : Normal Bold
+Local:Field : Short Name Field  : Align  : Center
+Border:Thin Bottom
+
+[Line:ELEAZAR OrdRefans]
+Space Top:0.6 % Page
+Space Bottom:0.6 % Page
+Left Fields:Short Name Field
+Local:Field : Short Name Field  : Set as : $$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
+Local:Field : Short Name Field  : Width  : 30 % Page
+Local:Field : Short Name Field  : Style  : Normal
+Local:Field : Short Name Field  : Align  : Center
+
+[Line:ELEAZAR BillLPODate]
+Space Top:0.5 % Page
+Left Fields:Short Prompt,ELEAZAR LPODate
+Local:Field : Short Prompt  : Set as : "LPO Date"
+Local:Field : Short Prompt  : Width  : 10 % Page
+Local:Field : Short Prompt  : Style  : Small
+
+[Line:ELEAZAR Titlemid]
+Left Fields:ELEAZAR Slno,ELEAZAR Desc
+Right Fields:ELEAZAR unit,ELEAZAR Qty, ELEAZAR NRate, ELEAZAR Rate,ELEAZAR Vatrate,ELEAZAR Taxamt,ELEAZAR TaxbleVal
+Local:Field : Default       : Style     : Normal Bold
+Local:Field : Default       : Align     : Center
+Local:Field : Default        : Type      : String
+Local:Field : Default        : Line      : 0
+Local:Field : ELEAZAR Slno           : Set as    : "Sl.No"
+Local:Field : ELEAZAR Desc           : Set as    : "Particulars"
+Local:Field : ELEAZAR Qty            : Set as    : "Quantity"
+Local:Field : ELEAZAR unit           : Set as    : "UOM"
+Local:Field : ELEAZAR Rate           : Set as    : "Unit Price"
+Local:Field : ELEAZAR NRate          : Set as    : "Unit Price"
+Local:Field : ELEAZARper             : Set as    : "Per"
+Local:Field : ELEAZAR Vatrate      : Set as  : "Tax"
+Local:Field : ELEAZAR TaxbleVal      : Set as  : "Total"
+Local:Field : ELEAZAR Taxamt         : Set as  : "Tax"
+
+[Line:ELEAZAR Titlemid1]
+Left Fields:ELEAZAR Slno,ELEAZAR Desc
+Right Fields:ELEAZAR unit,ELEAZAR Qty, ELEAZAR NRate, ELEAZAR Rate,ELEAZAR Vatrate,ELEAZAR Taxamt,ELEAZAR TaxbleVal
+Local:Field : Default       : Style     : Normal Bold
+Local:Field : Default       : Align     : Center
+Local:Field : Default        : Type      : String
+Local:Field : Default        : Line      : 0
+Local:Field : ELEAZAR Slno           : Set as    : ""
+Local:Field : ELEAZAR Desc           : Set as    : ""
+Local:Field : ELEAZAR Qty            : Set as    : ""
+Local:Field : ELEAZAR unit           : Set as    : ""
+Local:Field : ELEAZAR Rate           : Set as    : "Incl.VAT"
+Local:Field : ELEAZAR NRate          : Set as    : ""
+Local:Field : ELEAZARper             : Set as    : ""
+Local:Field : ELEAZAR Vatrate      : Set as  : "Rate"
+Local:Field : ELEAZAR TaxbleVal      : Set as  : "Incl.VAT (AED)"
+Local:Field : ELEAZAR Taxamt         : Set as  : "Amount"
+
+[Line:ELEAZAR Inventory]
+Space Top:0.3 % page
+Left Fields:ELEAZAR Slno, ELEAZAR Desc
+Right Fields:ELEAZAR unit,ELEAZAR Qty, ELEAZAR NRate, ELEAZAR Rate,ELEAZAR Vatrate,ELEAZAR Taxamt,ELEAZAR TaxbleVal
+Explode:ELEAZAR UDesc : NOT $$IsEmpty:$StockItemName AND NOT $$IsEmpty:$BasicUserDescription
+Remove on:$Ledgername = $PartyLedgerNAme
+
+[Line:ELEAZAR UDesc]
+Left Fields:ELEAZAR Slno, ELEAZAR Desc
+Right Fields:ELEAZAR unit,ELEAZAR Qty, ELEAZAR NRate, ELEAZAR Rate,ELEAZAR Vatrate,ELEAZAR Taxamt,ELEAZAR TaxbleVal
+Local:Field : default      : Type     : String
+Local:Field : default      : Set as   : ""
+Local:Field : ELEAZAR Desc : Set as   : " "+ $BasicUserDescription
+Local:Field : ELEAZAR Desc : Indent   : 2
+Local:Field : ELEAZAR Desc : Style   : Normal italic
+
+[Line:ELEAZAR Ledger]
+Left Fields:ELEAZAR Slno, ELEAZAR Desc
+Right Fields:ELEAZAR unit,ELEAZAR Qty, ELEAZAR NRate, ELEAZAR Rate,ELEAZAR Vatrate,ELEAZAR Taxamt,ELEAZAR TaxbleVal
+Explode:ELEAZAR UDesc : NOT $$IsEmpty:$LedgerName AND NOT $$IsEmpty:$BasicUserDescription
+Local:Field : Default       : Line     : 0
+Local:Field : ELEAZAR Slno          : Type      : String
+Local:Field : ELEAZAR Slno          : Set as    : ""
+Local:Field : ELEAZAR Qty           : Type      : String
+Local:Field : ELEAZAR Qty           : Set as    : ""
+Local:Field : ELEAZAR Rate          : Type      : String
+Local:Field : ELEAZAR Rate          : Set as    : ""
+Local:Field : ELEAZAR Desc          : Set as    : $LedgerName
+Local:Field : ELEAZAR Desc          : Align     : Left
+Local:Field : ELEAZAR Vatrate       : Align     : Center
+Local:Field : ELEAZAR Vatrate       : Align     : Center
+Local:Field : ELEAZARper         : Align     : Right
+Local:Field : ELEAZAR TaxbleVal     : Align     : Right
+Local:Field : ELEAZAR Taxamt       : Align     : Right
+Local:Field : ELEAZAR TaxbleVal     : Set as    : $Amount
+Empty on:$IsPartyLedger Or $$IsSysName:$LedgerName OR $LedgerName = $PartyLedgerName or @@ELEAZARIsTaxLed
+
+[Line:ELEAZAR TotAMT]
+Left Fields:ELEAZAR Slno, ELEAZAR Desc
+Right Fields:ELEAZAR unit,ELEAZAR Qty, ELEAZAR NRate, ELEAZAR Rate,ELEAZAR Vatrate,ELEAZAR Taxamt,ELEAZAR TaxbleVal
+Local:Field : ELEAZAR Slno      : Type   : String
+Local:Field : ELEAZAR Slno      : Set as : ""
+Local:Field : ELEAZAR Desc      : Set as : "Total"
+Local:Field : ELEAZAR unit      : Type   : String
+Local:Field : ELEAZAR unit      : Set as : ""
+Local:Field : ELEAZAR Qty      : Type   : String
+Local:Field : ELEAZAR Qty       : Set as : ""
+Local:Field : ELEAZAR Rate      : Type   : String
+Local:Field : ELEAZAR Rate     : Set as : ""
+Local:Field : ELEAZAR Vatrate   : Type   : String
+Local:Field : ELEAZAR Vatrate   : Set as : ""
+Local:Field : ELEAZAR TaxbleVal : Set as : $Amount
+Local:Field : ELEAZAR Taxamt    : Set as : @@ELEAZARSADJUMAVATAMT
+Local:Field : Default           : Style  : Normal Bold
+
+[Line:ELEAZAR TotalamountLine]
+Space Top:0.5 % Page
+Space Bottom:0.5 % page
+Left Fields:ELEAZAR Desc
+Local:Field : ELEAZAR Desc      : Set as : "Total in words: "+$$InWords:$Amount:"Forex" + " Only"
+Local:Field : Default           : Style  : Normal
+Border:thin top
+
+[Line:ELEAZAR VatInword]
+Space Top:0.5 % Page
+Space Bottom:0.5 % page
+Left Fields:ELEAZAR Desc
+Local:Field : ELEAZAR Desc      : Set as : "VAT in words: "+$$InWords:@@ELEAZARSADJUMAVATAMT:"Forex" + " Only"
+Local:Field : Default           : Style  : Normal
+Border:thin bottom
+
+[Line:BSUDANAccountname]
+Space Top:0.5 % page
+Left Fields:Short Prompt, ELEAZAR Desc
+Local:Field : Default        : Line   : 0
+Local:Field : Default        : Delete  : Border
+Local:Field : Short Prompt         : Set as  : "A/c Name"
+Local:Field : Short Prompt         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Set as  : @@BSUDANAccountname
+Local:Field : ELEAZAR Desc         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Align   : Left
+
+[Line:BSUDANBankname]
+Space Top:0.5 % page
+Left Fields:Short Prompt, ELEAZAR Desc
+Local:Field : Default        : Line   : 0
+Local:Field : Default        : Delete  : Border
+Local:Field : Short Prompt         : Set as  : "Bank"
+Local:Field : Short Prompt         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Set as  : $MailingName:Ledger:##SABankName
+Local:Field : ELEAZAR Desc         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Align   : Left
+
+[Line:BSUDANAccountno]
+Space Top:0.5 % page
+Left Fields:Short Prompt, ELEAZAR Desc
+Local:Field : Default        : Line   : 0
+Local:Field : Default        : Delete  : Border
+Local:Field : Short Prompt         : Set as  : "Account No"
+Local:Field : Short Prompt         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Set as  : @@BSUDANAccNo
+Local:Field : ELEAZAR Desc      : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Align   : Left
+
+[Line:BSUDANSwiftCode]
+Space Top:0.5 % page
+Left Fields:Short Prompt,ELEAZAR Desc
+Local:Field : Default        : Line   : 0
+Local:Field : Default        : Delete  : Border
+Local:Field : Short Prompt          : Set as  : "Swift Code"
+Local:Field : Short Prompt         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Set as  : @@BSUDANSwiftNo
+Local:Field : ELEAZAR Desc         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Align   : Left
+
+[Line:BSUDANIban]
+Space Top:0.5 % page
+Left Fields:Short Prompt, ELEAZAR Desc
+Local:Field : Default        : Line   : 0
+Local:Field : Default        : Delete  : Border
+Local:Field : Short Prompt         : Set as  : "IBAN"
+Local:Field : Short Prompt         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Set as  : @@BSUDANibanNo
+Local:Field : ELEAZAR Desc         : Style   : Small bold
+Local:Field : ELEAZAR Desc         : Align   : Left
+
+[Line:ELEAZAR Terms]
+Space Top:1. 5  % Page
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : $BasicDueDateOfPymt
+Local:Field : Name  Field : Width  : 50  %  Page
+Local:Field : Name  Field : Style  : Normal
+Local:Field : Name  Field : Line   : 0
+Border:thin  Bottom
+
+[Line:ELEAZAR Termstit]
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : "Payment terms"
+Local:Field : Name  Field : Width  : 50  %  Page
+Local:Field : Name  Field : Style  : Normal
+Border:thin Top Bottom
+
+[Line:ELEAZAR Regivertit]
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : "Receiver`s Signature"
+Local:Field : Name  Field : Width  : 50  %  Page
+Local:Field : Name  Field : Style  : Normal
+Border:thin Top Bottom
+
+[Line:ELEAZAR Regiver]
+Space Top:1.5  % Page
+Space Bottom:1.5 % Page
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : ""
+Local:Field : Name  Field : Width  : 50  %  Page
+Local:Field : Name  Field : Style  : Normal
+Local:Field : Name  Field : Line   : 0
+Border:thin  Bottom
+
+[Line:ELEAZAR Notes]
+Space Top:1.5  % Page
+Space Bottom:1.5 % Page
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : $VCHPrintDecl:VoucherType:##SVVoucherType
+Local:Field : Name  Field : Width  : 50  %  Page
+Local:Field : Name  Field : Style  : Normal
+Local:Field : Name  Field : Line   : 0
+
+[Line:ELEAZAR For ComapayDet]
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : "For " + @@CMPMailName
+Local:Field : Name  Field : Full Width : yes
+Local:Field : Name  Field : Style  : Normal Bold
+Border:thin Top Bottom
+
+[Line:ELEAZAR Signature]
+Space Top:7 % page
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : "Signature"
+Local:Field : Name  Field : Full Width : yes
+Local:Field : Name  Field : Style  : Normal Bold
+Local:Field : Name  Field : Align  : Center
+Border:thin  Bottom
+
+[Line:ELEAZAR Goodsnotes]
+Left Fields:Name Field
+Local:Field : Name  Field : Set as : "Goods once sold will not be taken back subject to UAE Law & Regulation"
+Local:Field : Name  Field : Full Width : yes
+Local:Field : Name  Field : Style  : small Bold
+Local:Field : Name  Field : Line   : 0
+Local:Field : Name  Field : Align  : Left
+
+[Line:BinReceivedacc]
+Left Fields:name field
+Local:Field : name field : Set as : "Receiver`s Sign / Stamp......................................."
+Local:Field : name field : Style  : small
+Local:Field : name field : Lines  : 4
+Local:Field : name field : Width  : 50 % Page
+
+[Line:BinCustsigndate]
+Left Fields:Name Title Field
+Local:Field : Name Title Field : Set as  : "Customer's Signature & Date"
+Local:Field : Name Title Field : Style   : small
+Local:Field : Name Title Field : Border  : thin top
+Local:Field : Name Title Field : Width   : 19
+
+[Line:BinForCmnyname]
+Right Fields:name field
+Local:Field : name field : Set as : $Address
+Local:Field : name field : Style  : Normal
+Local:Field : name field : Align  : Left
+Local:Field : name field : Width  : 100 % Page
+
+[Line:BinaccountDep]
+Right Fields:Name Title Field
+Local:Field : Name Title Field : Set as  : "Accounts Department"
+Local:Field : Name Title Field : Style   : small
+Local:Field : Name Title Field : Border  : thin top
+Local:Field : Name Title Field : Align   : Right
+Local:Field : Name Title Field : Width   : @@ShortNameWidth
+
+[Field:VTYP EnbCust]
+Use:Logical Field
+Storage:CustVch
+
+[Field:ELEAZAR CMPLogo]
+Use:Name Field
+Width:30 % Page
+
+[Field:ELEAZARvochertype]
+Use:Name Field
+Set:$VCHPrintTitle:VoucherType:$VoucherTypeName
+Alignment:Center
+Full Width:Yes
+Width:0
+Style:Large Bold
+
+[Field:ELEAZARCmpTrnno]
+Use:Name Field
+Set:"TRN : " + $VATTINNumber:Company:##SVCurrentCompany
+Style:Normal Bold
+Alignment:Left
+Width:0
+
+[Field:ELEAZAR CMPName]
+Use:Name Field
+Set:@@CmPMailName
+Style:Normal Bold
+Top Lines:0
+Width:50 % page
+Alignment:Right
+
+[Field:ELEAZAR CMPAddress]
+Use:Name Field
+Set:$Address
+Style:Normal
+Width:50 % page
+Top Lines:0
+Alignment:Right
+
+[Field:ELEAZAR INVNo]
+Use:Name Field
+Set:$VoucherNumber
+Style:Large Bold
+Alignment:Left
+Width:30 % page
+Print FG:Red
+
+[Field:ELEAZAR BillCust]
+Use:Name Field
+Set:$BasicBuyerName
+Style:Normal
+Top Lines:0
+Width:45 % page
+
+[Field:ELEAZAR VoucherNo]
+Use:Name Field
+Set:$VoucherNumber
+Style:Normal
+Top Lines:0
+Width:55 % page
+
+[Field:ELEAZAR VoucherDate]
+Use:Uni Date Field
+Set:$date
+Style:Normal
+Alignment:Left
+Width:45 % page
+
+[Field:ELEAZAR Billadd]
+Use:Name Field
+Set:$BasicBuyerAddress
+Style:Normal
+Top Lines:0
+Width:45 % page
+
+[Field:ELEAZAR BillTrn]
+Use:Name Field
+Set:@@BuyerVATGCCTINNumber
+Style:Normal
+Width:45 % page
+
+[Field:ELEAZAR LpoNo]
+Use:Short name Field
+Set:$$FullList:InvoiceOrderList:$BasicPurchaseOrderNo
+Style:Normal
+Alignment:Left
+Top Lines:0
+Width:20 % page
+
+[Field:ELEAZAR LPODate]
+Use:Uni Date Field
+Set:$$FullList:InvoiceOrderList:$BasicOrderDate
+Style:Normal
+Alignment:Left
+Top Lines:0
+Width:20 % page
+
+[Field:ELEAZAR Slno]
+Use:number Field
+Width:6 % page
+Style:Normal
+Set:$$Line
+Alignment:Center
+Border:Thin Right
+
+[Field:ELEAZAR Desc]
+Use:Short Name Field
+Full Width:Yes
+Style:Normal
+Set:$MisUnitColl.MisPrintStkiName;$StockItemName
+Top Lines:0
+
+[Field:ELEAZAR unit]
+Use:Rate Units Field
+Width:7 % page
+Border:Thin Left
+Alignment:Center
+Style:Normal
+Set:$Rate
+
+[Field:ELEAZAR Qty]
+Use:Qty Primary Field
+Format:"NoSymbol"
+Width:10 % page
+Border:Thin Left Right
+Alignment:Center
+Style:Normal
+Set:$BilledQty
+
+[Field:ELEAZAR Rate]
+Use:Rate Price Field
+Width:11.5 % page
+Style:Normal
+Alignment:Right
+Format:"Decimal:2, Symbol,Base,Forex"
+Set:$InclusiveTaxValue
+Border:Thin Right
+
+[Field:ELEAZARper]
+Use:Rate Units Field
+Width:6 % page
+Set:$Rate
+Border:Thin Right
+Style:Normal
+Alignment:Center
+
+[Field:ELEAZAR Vatrate]
+Use:Number Field
+Width:7 % page
+Format:"NoZero,Percentage"
+Alignment:Center
+Style:Normal
+Set:If $$IsEmpty:@transnature Then "" Else $$Sprintf:"%s%%":@taxrate
+Local Formula:taxrate     : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TaxRate:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+Local Formula:transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+Border:Thin Right
+Invisible:Yes
+
+[Field:ELEAZAR Taxamt]
+Use:EXPINV VATGCC AmtTemp
+Set:If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxamt Else $$AsCrAmt:@taxamt
+Local Formula:taxamt      : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+Local Formula:transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+Width:9 % page
+Alignment:Right
+Style:Normal
+Format:"Forex"
+Border:Thin Right
+
+[Field:ELEAZAR TaxbleVal]
+Use:Amount Forex Field
+Width:14 % page
+Style:Normal
+Alignment:Right
+Format:"No zero ,Symbol"
+Set:$amount + @taxamtEle
+Local Formula:taxamtEle :  If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxamt Else $$AsCrAmt:@taxamt
+Local Formula:taxamt      : $$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+Local Formula:transnature : $$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+
+[Field:ELEAZAR NRate]
+Use:Rate Price Field
+Width:10 % page
+Style:Normal
+Alignment:Right
+Format:"Decimal:2, Symbol,Base,Forex"
+Set:$Rate
+Border:Thin Right
+
+[Color:Sky BlueAMH]
+RGB:155, 194, 230
+
+[Style:ELEAZAR Tiny]
+Use:Normal
+Height:@@SmallSize - 1
+
+[Object:Company ELEAZARTRN TIN]
+Local Formula:Address     :  @@CMPVATGCCTIN + " : " + @@CMPVatGCCTaxNumber
+Local Formula:IsAddress   : No
+
+[Object:Company ELEAZARFaxNo]
+Local Formula:Address     :  @@CmpFaxNo
+
+[Object:Company ELEAZAREmail]
+Local Formula:Address     :  @@CmpEmail
+
+[Object:Company ELEAZARWebsite]
+Local Formula:Address     :  @@CmpWebsite
+
+[Object:Company ELEAZARContacts]
+Local Formula:Address     :  @@ELEAZARTel
+
+[Object:Company ELEAZARstateCount]
+Local Formula:Address     :   @@ELEAZARstateCount
+
+[Collection:ELEAZARCompany Address]
+Type:Address   : Company
+Child Of:##SVCurrentCompany
+Objects:Company ELEAZARstateCount
+Objects:Company ELEAZARContacts
+Objects:Company ELEAZARFaxNo
+Objects:Company ELEAZAREmail
+Filters:IsNotBlankAddr
+
+[Collection:ELEAZARCollAllDefVChVal]
+Source Collection:Default
+Walk:Ledger Entries
+Method:LedgerName : $LedgerName
+Method:Amount : $Amount
+
+[System:Formulae]
+DiscountAmt:$$FilterAmtTotal:LedgerEntries:IsDiscLed:$Amount
+
+IsDiscLed:$Narration:Ledger:$LedgerName = "Discount"
+
+CustVch:$CustVch:VoucherType:$VoucherTypeName   = "Yes"
+
+BSUDANAccountname:$BankAccHolderName:Ledger:##SABankName
+
+BSUDANBankname:$BankingConfigBank:Ledger:##SABankName
+
+BSUDANAccNo:$BankDetails:Ledger:##SABankName
+
+BSUDANibanNo:$BankIBAN:Ledger:##SABankName
+
+BSUDANSwiftNo:$BankBSRCode:Ledger:##SABankName
+
+ELEAZARTel:$$LocaleString:"Tel :" + " " + @@CmpTelNo
+
+ELEAZARstateCount:if $$IsEmpty:@@ELEAZARstate then $CountryName:Company:##SVCurrentCompany else @@ELEAZARstate+","+$CountryName:Company:##SVCurrentCompany
+
+ELEAZARstate:$LangStateName:Company:##SVCurrentCompany
+
+ELEAZARExrate:$$RateXValue:$amount
+
+ELEAZARIsTaxLed:$$IsLedOfGrp:$LedgerName:$$GroupDuties
+
+ELEAZARSADJUMAVATAMT:$$FilterAmtTotal:ELEAZARCollAllDefVChVal:ELEAZARIsTaxLed:$Amount
+
+ELEAZARSADJUMAVATnam:$$FilterValue:$Ledgername:LedgerEntries:First:ELEAZARIsTaxLed
+
+ELEAZARIsinvenamt:$$CollAmtTotal:InventoryEntries:$amount
+
+ELEAZARislegdermount:$$FilterAmtTotal:ELEAZARCollAllDefVChVal:ELEAZARremovevta:$Amount
+
+ELEAZARremovevta:NOT  @@ELEAZARpartyremove AND NOT    @@ELEAZARIsTaxLed
+
+ELEAZARGrosstotal:@@ELEAZARIsinvenamt+@@ELEAZARislegdermount
+
+ELEAZARpartyremove:$IsPartyLedger Or $$IsSysName:$LedgerName OR $LedgerName = $PartyLedgerName
+
+IsRoundLed:$Narration:Ledger:$LedgerName = "Round Off"
+
+RoundledOly:$$FilterValue:$Ledgername:LedgerEntries:First:IsRoundLed
+
+Roundamt:$$FilterAmtTotal:LedgerEntries:IsRoundLed:$Amount
+
+DicountledOly:$$FilterValue:$Ledgername:LedgerEntries:First:IsDiscLed
+
+PlanCountryadd:if $$IsEmpty:$StateName then ","+$CountryofResidence else ","+$StateName+","+$CountryofResidence
+[System:Udf]
+
+CustVch:Logical : 100

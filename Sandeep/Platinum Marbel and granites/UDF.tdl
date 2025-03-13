@@ -1,0 +1,31 @@
+
+[System:Udf]
+
+MisUnitSl:String : 21001
+
+
+MisUnitLth:Number : 21002
+
+
+MisUnitWth:Number : 21003
+
+
+MisUnitPcs:Number : 21004
+
+
+MisUnitSqm:Number : 21005
+
+
+MisUnitColl:Aggregate : 21006
+
+
+MisUnitPcsTot:Number : 21007
+
+
+MisUnitSqmTot:Number : 21008
+
+
+MisUnitLthTot:Number : 21009
+
+
+MisUnitWthTot:Number : 21010

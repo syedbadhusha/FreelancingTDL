@@ -1,0 +1,80 @@
+[#Menu:Default]
+Add:Top Button : At Beginning : MisHlpSuport
+
+[#Menu:Main Menu]
+Add:Top Button : At Beginning : MisHlpSuport
+
+[#Menu:Gateway of Tally]
+Add:Item: After : @@locIndentUtilities : Help / Support : Display :  MisHlpSuport
+
+[#Menu:Company Info.]
+Add:Top Button : At Beginning : MisHlpSuport
+
+
+
+;;; add Product print name
+
+[#Form: Stock Item]
+    
+    Add: Part: After: STKI Basic: STKI PrintName
+    
+[Part: STKI PrintName]
+    
+    Line: STKI PrintName
+    Option: SmallSizePart
+    
+[Line: STKI PrintName]
+    
+    Field: Medium Prompt, STKI PrintName
+    Local: Field: Medium Prompt: Info: "Name to Print"
+    Local: Field: Default: Color: Blue
+    
+[Field: STKI PrintName]
+    
+    Use: Name Field
+    Storage: STKIPrintName
+    Set Always: Yes
+    Full Width: Yes
+    
+
+
+;;; add in voucher
+
+[#Line: EI ColumnOne]
+    
+    ;Add: Right Fields: At Beginning: EI STKIPrintName
+    Add: Field: At End: EI STKIPrintName
+    Local: Field: EI STKIPrintName: Set as: "Name to Print"
+    Local: Field: EI STKIPrintName: Align: Center
+	 Local: Field: EI STKIPrintName:Skip:Yes
+
+[#Line: EI ColumnTwo]
+    
+    ;Add: Right Fields: At Beginning: EI STKIPrintName
+    Add: Field: At End: EI STKIPrintName
+    Local: Field: EI STKIPrintName: Set as: ""
+     Local: Field: EI STKIPrintName: Align: Center
+	  Local: Field: EI STKIPrintName: Skip:Yes
+
+[#Line: EI InvInfo]
+    
+    ;Add: Right Fields: At Beginning: EI STKIPrintName
+    Add: Field: At End: EI STKIPrintName
+    
+[Field: EI STKIPrintName]
+    
+    Use: Name Field
+    Set as: $STKIPrintName:StockItem:$StockItemName
+    Storage: VCHSTKIPrintName
+    Set Always: Yes
+    Full Width: Yes
+    Align: Center
+	Invisible:Yes
+
+
+    
+[System: UDF]
+    
+    STKIPrintName: String: 8005
+    VCHSTKIPrintName: String: 8006
+    MisPrintStkiName: String: 8007

@@ -1,0 +1,86 @@
+[Report:MisHlpSuport]
+Forms:MisHlpSuport
+Title:"Help / Support Information"
+
+[Form:MisHlpSuport]
+Top Parts:MisHlpSuport
+Width:40% Screen
+Background:Blue
+
+[Part:MisHlpSuport]
+Top Lines:MisHlpSuport1, MisHlpSuport2, MisHlpSuport2a, MisHlpSuport3, MisHlpSuport4, MisHlpSuport5, MisHlpSuport6, MisHlpSuport7, MisHlpSuport8
+Local:Field : Medium Prompt : Background : White
+Local:Field : Name Field    : Background : White
+Local:Field : Name Field    : Full Width  : Yes
+Local:Field : Medium Prompt : Width       : @@MediumWidth + 5
+Local:Field : Default       : Color       : Blue
+Background:White
+Space Left:1
+Space Right:0.5
+Space Top:0.5
+Space Bottom:0.5
+
+[Line:MisHlpSuport1]
+Left Fields:Name Field
+Local:Field : Name Field : Setas : "Tally Information"
+Local:Field : Name Field : Align : Centre
+Local:Field : Name Field : Style      : Large
+Local:Field : Name Field : Background : Stone Wash
+Space Bottom:1
+
+[Line:MisHlpSuport2]
+Left Fields:Medium Prompt, Name Field
+Local:Field : Medium Prompt : Setas : "Tally Serial No. : "
+Local:Field : Name Field    : Setas : $$String:$$SerialNumber + " - " + $$String:@@MIsProType
+Local:Field : Name Field    : Full Width: Yes
+Space Bottom:0.5
+
+[Line:MisHlpSuport2a]
+Left Fields:Medium Prompt, Name Field
+Local:Field : Medium Prompt : Setas : "Account ID : "
+Local:Field : Name Field    : Setas : $$LicenseInfo:AccountID
+Local:Field : Name Field    : Full Width: Yes
+Space Bottom:0.5
+
+[Line:MisHlpSuport3]
+Left Fields:Medium Prompt, Name Field
+Local:Field : Medium Prompt : Setas : "TSS Expiry Date & Status: "
+Local:Field : Name Field    : Setas : @@MIsTssExpri
+Local:Field : Name Field    : Full Width: Yes
+Local:Field : Name Field    : Color : @@MIsTssExpriColr
+Space Bottom:0.5
+
+[Line:MisHlpSuport4]
+Left Fields:Medium Prompt, Name Field
+Local:Field : Medium Prompt : Setas : "Tally Ver. & Rel. : "
+Local:Field : Name Field    : Setas : @@VersionGetProductSeries + "   Release " + @@VersionReleaseString
+Local:Field : Name Field    : Full Width: Yes
+Space Bottom:0.5
+
+[Line:MisHlpSuport5]
+Left Fields:Medium Prompt, Name Field
+Local:Field : Medium Prompt : Setas : "Tally Installation Path : "
+Local:Field : Name Field    : Setas : $$SysInfo:ApplicationPath
+Local:Field : Name Field    : Full Width: Yes
+Space Bottom:1
+
+[Line:MisHlpSuport6]
+Left Fields:Name Field
+Local:Field : Name Field    : Info    : "Service Partner : GITEX SOLUTIONS."
+Local:Field : Name Field    : Style  : small
+Local:Field : Name Field    : Align  : center
+Local:Field : Name Field    : Background :   Stone Wash
+
+[Line:MisHlpSuport7]
+Left Fields:Name Field
+Local:Field : Name Field    : Info  : "Contact No. : 0559318591, 0585900589"
+Local:Field : Name Field    : Style  : small
+Local:Field : Name Field    : Align  : center
+Local:Field : Name Field    : Background :   Stone Wash
+
+[Line:MisHlpSuport8]
+Left Fields:Name Field
+Local:Field : Name Field    : Info  : "E-mail : Info@gitexsolutions.com   :   Website : www.gitexsolutions.com"
+Local:Field : Name Field    : Style  : small
+Local:Field : Name Field    : Align  : center
+Local:Field : Name Field    : Background :   Stone Wash
