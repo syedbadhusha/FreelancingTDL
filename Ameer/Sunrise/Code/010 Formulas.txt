@@ -21,11 +21,11 @@
 	
 	EAT_LocPurchaseEnquiryName	:	"Purchase Enquiry"
 	EAT_LocPurchaseOrderName	:	"Purchase Order"
-	EAT_LocReceiptNoteName		:	"Receipt Note"
+	EAT_LocReceiptNoteName		:	"Material Receipt Note"
 	EAT_LocPurchaseName			:	"Purchase"
 	EAT_ForPurchaseEnquiryName	:	"Foreign Purchase Enquiry"
 	EAT_ForPurchaseOrderName	:	"Foreign Purchase Order"
-	EAT_ForReceiptNoteName		:	"Foreign Receipt Note"
+	EAT_ForReceiptNoteName		:	"Foreign Material Receipt Note"
 	EAT_ForPurchaseName			:	"Foreign Purchase"
 	EAT_JobOrderName			:	"Job Card"
 	EAT_DeliveryNoteName		:	"Delivery Note"
@@ -76,3 +76,5 @@
 	
 	EAT_IsNotEmptyDN			:	Not $$IsSysName:$BasicShipDeliveryNote and @@IsSales
 	EAT_IsNotEmptyOwnerDN		:	Not $$IsSysName:$$Owner:$BasicShipDeliveryNote and @@IsSales
+	
+	EAT_DeclVoucherTypes		:	@@DeclVoucherTypes or $$IsPurchase:$Parent OR $$IsRcptNote:$Parent

@@ -160,19 +160,19 @@
 [Part:EAT_VoucherDetails]
 	Line		:	EAT_VCHNo, EAT_VCHDate
 	
-	Local		:	Field		:	MediumPrompt			:	Width		:	25 mms
+	Local		:	Field		:	MediumPrompt			:	Width		:	30 mms
 	Local		:	Field		:	NameField				:	Width		:	35 mms
 
 [Line:EAT_VCHNo]
 	Field		:	MediumPrompt, NameField
 	
-	Local		:	Field		:	MediumPrompt			:	Set as		:	"Invoice No."
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Document No.";"Invoice No."
 	Local		:	Field		:	NameField				:	Set as		:	$VoucherNumber
 
 [Line:EAT_VCHDate]
 	Field		:	MediumPrompt, NameField
 	
-	Local		:	Field		:	MediumPrompt			:	Set as		:	"Invoice Date"
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"Document Date"
 	Local		:	Field		:	NameField				:	Set as		:	$Date
 
 [Part:EAT_ColumnTitle]
@@ -195,7 +195,7 @@
 	Local		:	Field		:	EAT_Name				:	Set as			:	"Name"
 	Local		:	Field		:	EAT_Description			:	Set as			:	"Description"
 	Local		:	Field		:	EAT_OrderNo				:	Set as			:	"J.C. No."
-	Local		:	Field		:	EAT_JobNo				:	Set as			:	"Job No."
+	Local		:	Field		:	EAT_JobNo				:	Set as			:	"Ref No.";"Job No."
 	Local		:	Field		:	EAT_TrackingNo			:	Set as			:	"MRN"
 	Local		:	Field		:	EAT_Qty					:	Set as			:	"Qty"
 	Local		:	Field		:	EAT_RateSymbol			:	Set as			:	"Unit"

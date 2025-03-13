@@ -9,7 +9,7 @@
 	
 	Add			:	Item		:	"Purchase Enquiry"			:	Call		:	EAT_LocPurchaseEnquiry
 	Add			:	Item		:	"Purchase Order"			:	Call		:	EAT_LocPurchaseOrder
-	Add			:	Item		:	"Receipt Note"				:	Call		:	EAT_LocReceiptNote
+	Add			:	Item		:	"Material Receipt Note"		:	Call		:	EAT_LocReceiptNote
 	Add			:	Item		:	"Purchase"					:	Call		:	EAT_LocPurchase
 	
 	Add			:	Item		:	Blank
@@ -18,7 +18,7 @@
 	
 	Add			:	Item		:	"Foreign Purchase Enquiry"	:	Call		:	EAT_ForPurchaseEnquiry
 	Add			:	Item		:	"Foreign Purchase Order"	:	Call		:	EAT_ForPurchaseOrder
-	Add			:	Item		:	"Foreign Receipt Note"		:	Call		:	EAT_ForReceiptNote
+	Add			:	Item		:	"Foreign Material Receipt Note"	:	Call		:	EAT_ForReceiptNote
 	Add			:	Item		:	"Foreign Purchase"			:	Call		:	EAT_ForPurchase
 	
 	Add			:	Item		:	Blank

@@ -19,8 +19,8 @@
 [!Part:EAT_InquiryOpening]
 	Add			:	Part		:	Before		:	EAT_ColumnTitle			:	EAT_InquiryTerms
 	
-	Local		:	Line		:	EAT_VCHNo				:	+
-		Local	:	Field		:	MediumPrompt			:	Set as		:	"Doc No."
+;	Local		:	Line		:	EAT_VCHNo				:	+
+;		Local	:	Field		:	MediumPrompt			:	Set as		:	"Document No."
 		
 [Part:EAT_InquiryTerms]
 	Space Bottom:	2 mms

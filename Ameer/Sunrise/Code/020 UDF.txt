@@ -38,4 +38,4 @@
 	JC_VCHCustFeedBack		:	String			:	3180
 	JC_VCHPower				:	String			:	3200
 	JC_VCHMemo				:	String			:	3210
-
+	EW_Expense				:	Amount			:	3220

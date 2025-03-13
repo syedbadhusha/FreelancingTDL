@@ -18,13 +18,19 @@
 	Local		:	Line		:	EAT_Column				:	Option		:	EAT_AddTracking		:	@@EAT_IsNotEmptyOwnerDN
 	
 [!Part:EAT_SalesOpening]
-	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHOrderNo
+	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHOrderNo, EAT_VCHOrderDate
 	
 [Line:EAT_VCHOrderNo]
 	Field		:	MediumPrompt, NameField
 	
 	Local		:	Field		:	MediumPrompt			:	Set as		:	"P.O. No."
-	Local		:	Field		:	NameField				:	Set as		:	$EAT_LPONo
+	Local		:	Field		:	NameField				:	Set as		:	$BasicPurchaseOrderNo;$EAT_LPONo
+
+[Line:EAT_VCHOrderDate]
+	Field		:	MediumPrompt, NameField
+	
+	Local		:	Field		:	MediumPrompt			:	Set as		:	"P.O. Date"
+	Local		:	Field		:	NameField				:	Set as		:	$BasicOrderDate
 
 [!Line:EAT_SalesFields]
 	Add			:	Field		:	After	:	EAT_SNo		:	EAT_OrderNo, EAT_Name

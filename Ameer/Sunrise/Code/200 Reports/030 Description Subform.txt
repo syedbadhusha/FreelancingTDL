@@ -28,3 +28,34 @@
 ;	Max			:	2500
 ;	Line		:	25
 ;	Storage		:	BasicUserDescription
+
+[Report:EAT_Memo]
+	Title		:	"Memo"
+	
+	Form		:	EAT_Memo
+	
+[Form:EAT_Memo]
+	Width		:	70 % Page
+	Height		:	70 % Page
+	
+	Space Left	:	5 mms
+	Space Right	:	5 mms
+	
+	Part		:	FormSubtitle, EAT_Memo
+	
+	Local		:	Field		:	FormSubtitle			:	Set as		:	$$ContextKeyword
+	
+[Part:EAT_Memo]
+	Line		:	EAT_Memo
+	Scroll		:	Vertical
+	
+[Line:EAT_Memo]
+	Field		:	EAT_Memo
+	
+[Field:EAT_Memo]
+	Use			:	VoucherNarrationField
+	Type		:	String
+	Full Width	:	Yes
+	Max			:	2500
+	Line		:	25
+	Storage		:	JC_VCHMemo

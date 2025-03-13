@@ -56,7 +56,7 @@
 [!Line:EAT_JobDetailTitle1]
 	Use			:	EAT_JobDetailTitle
 	
-	Local		:	Field			:	EAT_VCHJobNo		:	Set as		:	"Job No"
+	Local		:	Field			:	EAT_VCHJobNo		:	Set as		:	"Ref No.";"Job No"
 	
 ;[!Part:EAT_Description]
 ;	Local		:	Line			:	Default				:	Option		:	EAT_DescriptionTitle

@@ -104,12 +104,47 @@
 	Local       :	Field	:	VCH CostClassPrompt	:	Set as	:	If ##CstClassFlag OR ##EmpExplodeFlag Then $$LocaleString:"Cost Centre/Classes:" Else $$LocaleString:"Cost Centre Class:"
 
 [Part:EW_VCHContainer]
-	Part		:	EW_VCHDefault, JC_VCHDetails
+	Part		:	EW_VCHDefault, JC_VCHDetails;, JC_Feedback
+		
+	Local		:	Part	:	JC_Feedback		:	Width		:	30 % Page
+	
+	Local		:	Field	:	JC_VCHCustFeedBack	:	Line	:	6
+	
+[Part:JC_Feedback]
+	Line		:	JC_Memo, JC_FeedbackTitle, JC_Feedback
+	
+	Local		:	Field	:	Default			:	Full Width	:	Yes
+	Local		:	Field	:	Default			:	Border		:	Thin Box
+
+	Local		:	Line	:	JC_Memo			:	+
+		Local	:	Field	:	Default			:	Background	:	Dark Red
+
+	Local		:	Line	:	JC_Memo			:	+
+		Local	:	Field	:	Default			:	Color		:	White
+		
+[Line:JC_Memo]
+	Invisible	:		@@IsSalesOrder
+	
+	Field		:	JC_FLD_VCHDetailsTit3, EW_IsMemo
+	Right Field	:	JC_FLD_VCHDetailsTit2, EW_Expense
+	
+	Local		:	Field	:	JC_FLD_VCHDetailsTit3	:	Set as		:	"Memo"
+	
+	Local		:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as		:	"Expense"
+	Local		:	Field	:	JC_FLD_VCHDetailsTit2	:	Invisible	:	Not $$IsCmpOwner
+	
+[Line:JC_FeedbackTitle]
+	Field		:	JC_FLD_VCHDetailsTit3
+	
+	Local		:	Field	:	JC_FLD_VCHDetailsTit3			:	Set as		:	"Customer's Feedback"
+	
+[Line:JC_Feedback]
+	Field		:	JC_VCHCustFeedBack
 		
 [Part:EW_VCHDefault]
 	Border		:	ThinBox
 	
-	Line		:	VCH Type, VCH WeekDay, EI Consignee, EI GetOrderNo, EICommonLed
+	Line		:	VCH Type, VCH WeekDay, EI Consignee, EI GetOrderNo, EICommonLed, EW_MemoExpense
 
 	Local		:	Line	:	VCH Type		:	Delete		:	Field		:	VCH Type
 	Local		:	Line	:	VCH Type		:	Add			:	Right Field	:	VCH Date
@@ -121,6 +156,28 @@
 	Local		:	Line	:	EICommonLED		:	Local		:	Field		:	Default			:	Inactive	:	NOT @@IsCommonSalesLed
 	Local		:	Line	:	EICommonLED		:	Local		:	Field		:	Simple Prompt	:	Width		:	@@VchLeftPromptWidth % Page
 
+[Line:EW_MemoExpense]
+	Field		:	MediumPrompt, EW_IsMemo
+	Right Field	:	SimplePrompt, EW_Expense
+	
+	Local		:	Field	:	Default			:	Color		:	RoyalBlue
+	
+	Local		:	Field	:	MediumPrompt	:	Width		:	@@VchLeftPromptWidth % Page
+	Local		:	Field	:	MediumPrompt	:	Set as		:	"Memo"
+	
+	Local		:	Field	:	SimplePrompt	:	Set as		:	"Expense"
+	Local		:	Field	:	SimplePrompt	:	Invisible	:	Not $$IsCmpOwner
+	
+[Field:EW_IsMemo]
+	Use			:	LogicalField
+	Set as		:	No
+	Sub Form	:	EAT_Memo		:	$$Value
+	
+[Field:EW_Expense]
+	Invisible	:	Not $$IsCmpOwner
+	Use			:	AmountForexField
+	Storage		:	EW_Expense
+	
 [Part:EW_VCHButtons]
 	Space Top	:	2 mms
 	
@@ -169,7 +226,9 @@
 	Add	:	Parts	:	After:EI SalesCurrBalanceInfo	:	JC_VCHDetails
 	
 	[Part:JC_VCHDetails]
+		Part	:	JC_VCHLeftDetails, JC_Feedback
 		
+		[Part:JC_VCHLeftDetails]
 		Line	:	JC_VCHDetailsTit1,JC_VCHDetails1,+
 					JC_VCHDetailsTit2,JC_VCHDetails2,+
 					JC_VCHDetailsTit3,JC_VCHDetails3
@@ -178,7 +237,7 @@
 		
 		[Line:JC_VCHDetailsTit1]
 
-			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3;,JC_FLD_VCHDetailsTit4
+			Field	:	/*JC_FLD_VCHDetailsTit1,*/JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3;,JC_FLD_VCHDetailsTit4
 
 			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"LPO Number"
 			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"LPO Description"
@@ -187,12 +246,12 @@
 
 		[Line:JC_VCHDetails1]
 			
-			Field	:	JC_VCHLPONum,JC_VCHLPONumDesc,JC_VCHEquipment
+			Field	:	/*JC_VCHLPONum,*/JC_VCHLPONumDesc,JC_VCHEquipment
 
 
 		[Line:JC_VCHDetailsTit2]
 
-			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3
+			Field	:	JC_FLD_VCHDetailsTit1,/*JC_FLD_VCHDetailsTit2,*/JC_FLD_VCHDetailsTit3
 
 			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Job Card Manual Number"
 			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Customer's Feedback"
@@ -200,12 +259,12 @@
 
 		[Line:JC_VCHDetails2]
 			
-			Field	:	JC_VCHManualNo,JC_VCHCustFeedBack,JC_VCHEquipmentDesc
+			Field	:	JC_VCHManualNo,/*JC_VCHCustFeedBack,*/JC_VCHEquipmentDesc
 
 
 		[Line:JC_VCHDetailsTit3]
 
-			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2,JC_FLD_VCHDetailsTit3
+			Field	:	JC_FLD_VCHDetailsTit1,JC_FLD_VCHDetailsTit2;,JC_FLD_VCHDetailsTit3
 
 			Local	:	Field	:	JC_FLD_VCHDetailsTit1	:	Set as	:	"Terms Of Payment"
 			Local	:	Field	:	JC_FLD_VCHDetailsTit2	:	Set as	:	"Power"
@@ -213,7 +272,7 @@
 
 		[Line:JC_VCHDetails3]
 			
-			Field	:	JC_VCHTermsPay,JC_VCHPower,JC_VCHMemo
+			Field	:	JC_VCHTermsPay,JC_VCHPower;,JC_VCHMemo
 
 
 ;;;;;;;;;;;;;;;;;;  Ttitle Field
@@ -319,13 +378,14 @@
 				
 			[Field:JC_VCHCustFeedBack]
 
-				Use			:	Name Field
+				Use			:	VoucherNarrationField
 				Set Always	:	Yes
 				Storage		:	JC_VCHCustFeedBack
 				Width		:	25% page
 				Border		:	Thin box
-				Align		:	Center
+;				Align		:	Center
 				Style		:	Normal
+				Line		:	4
 				
 			[Field:JC_VCHTermsPay]
 

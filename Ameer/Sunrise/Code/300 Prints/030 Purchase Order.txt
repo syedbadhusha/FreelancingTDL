@@ -13,11 +13,11 @@
 [!Part:EAT_POOpening]
 	Add			:	Part		:	Before		:	EAT_ColumnTitle			:	EAT_POTerms
 	
-	Local		:	Line		:	EAT_VCHNo				:	+
-		Local	:	Field		:	MediumPrompt			:	Set as		:	"LPO No."
-	
-	Local		:	Line		:	EAT_VCHDate				:	+
-		Local	:	Field		:	MediumPrompt			:	Set as		:	"LPO Date"
+;	Local		:	Line		:	EAT_VCHNo				:	+
+;		Local	:	Field		:	MediumPrompt			:	Set as		:	"LPO No."
+;	
+;	Local		:	Line		:	EAT_VCHDate				:	+
+;		Local	:	Field		:	MediumPrompt			:	Set as		:	"LPO Date"
 	
 [Part:EAT_POTerms]
 	Space Bottom:	2 mms

@@ -123,3 +123,15 @@
 	Use			:	LogicalField
 	Storage		:	EAT_IsCustomPrint
 	
+[#Line:VTYPDecl]
+	Option		:	EAT_VTYPDecl		:	$$IsPurchase:$Parent or $$IsPurcOrder:$Parent or $$IsRcptNote:$Parent
+	
+[!Line:EAT_VTYPDecl]
+	Local		:	Field		:	Default					:	Inactive		:	NOT @@EAT_DeclVoucherTypes
+	Local		:	Field		:	Long Prompt				:	Set as			:	$$LocaleString:"Set/alter Terms & Conditions:"  
+	
+[#Part:VoucherTypeDecl]
+	Option		:	EAT_VoucherTypeDecl	:	$$IsPurchase:$Parent or $$IsPurcOrder:$Parent or $$IsRcptNote:$Parent
+	
+[!Line:EAT_VoucherTypeDecl]
+	Local		:	Field		:	Form Subtitle			:	Info			:	$$LocaleString:"Terms & Conditions"
