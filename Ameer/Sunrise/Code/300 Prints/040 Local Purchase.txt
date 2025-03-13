@@ -8,6 +8,8 @@
 [Report:EAT_LocalPurcPrint]
 	Use			:	EAT_PRNCommon
 	
+	Local		:	Form		:	Default					:	Add			:	Bottom Part	:	After		:	EAT_CMNAmountSummary	:	EAT_InquirySignTitle
+	
 	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHReference, EAT_VCHRefDate
 	
 	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_LocalPurcFields

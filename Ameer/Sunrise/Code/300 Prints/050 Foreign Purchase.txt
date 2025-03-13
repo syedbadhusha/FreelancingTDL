@@ -8,6 +8,8 @@
 [Report:EAT_ForeignPurcPrint]
 	Use			:	EAT_LocalPurcPrint
 	
+	Local		:	Form		:	Default					:	Add			:	Bottom Part	:	After		:	EAT_CMNAmountSummary	:	EAT_InquirySignTitle
+	
 	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_ForeignPurcFields
 	Local		:	Line		:	EAT_Column				:	Option		:	EAT_ForeignPurcFields
 	

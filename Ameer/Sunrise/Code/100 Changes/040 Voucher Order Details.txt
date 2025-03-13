@@ -84,6 +84,7 @@
     Storage		:	EAT_Prices
     Case		:	Normal
     Set always	:	Yes
+	Set as		:	$$EAT_DelPrevValue:"Prices"
 	
 [Line:EAT_Delivery]
 	Left Fields	:	Medium Prompt, EAT_Delivery
@@ -97,6 +98,7 @@
     Storage		:	EAT_Delivery
     Case		:	Normal
     Set always	:	Yes
+	Set as		:	$$EAT_DelPrevValue:"Delivery"
 	
 [Line:EAT_Validity]
 	Left Fields	:	Medium Prompt, EAT_Validity
@@ -110,6 +112,7 @@
     Storage		:	EAT_Validity
     Case		:	Normal
     Set always	:	Yes
+	Set as		:	$$EAT_DelPrevValue:"Validity"
 	
 [Line:EAT_OrderedBy]
 	Left Fields	:	Medium Prompt, EAT_OrderedBy
@@ -123,6 +126,7 @@
     Storage		:	EAT_OrderedBy
     Case		:	Normal
     Set always	:	Yes
+	Set as		:	$$EAT_DelPrevValue:"OrderedBy"
 	
 [Line:EAT_LPONo]
 	Invisible	:	Yes;Not (@@IsSales or @@IsDelNote)
@@ -139,3 +143,7 @@
     Case		:	Normal
     Set always	:	Yes
 	
+[Function:EAT_DelPrevValue]
+	Parameter	:	Method		:	String
+	
+	000			:	Return		:	$$Evaluate:$$Sprintf:"$$ReportObject:$$CollectionFieldByKey:$%s:##SVVoucherType:EAT_DelNotes":##Method

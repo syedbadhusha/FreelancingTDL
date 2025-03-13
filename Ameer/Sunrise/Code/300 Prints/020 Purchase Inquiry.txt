@@ -52,19 +52,31 @@
 	Local		:	Field		:	PlainSubtitle			:	Align		:	Left
 	
 [Part:EAT_InquirySignTitle]
+	Invisible	:	$$IsEmpty:$VCHPrintDecl:VoucherType:##SVVoucherType
+	
 	Line		:	EAT_InquirySignTitle, EAT_InquiryRegards
 	
 [Line:EAT_InquirySignTitle]
 	Field		:	SimpleField
 	
-	Local		:	Field		:	SimpleField				:	Set as		:	"Your immediate response in this matter shall highly be valued."
+;	Local		:	Field		:	SimpleField				:	Set as		:	"Your immediate response in this matter shall highly be valued."
+	
+	Local		:	Field		:	SimpleField				:	Set as		:	"Terms & Conditions";"Dear Sir,"
+	Local		:	Field		:	SimpleField				:	Style		:	NormalBold
 	
 [Line:EAT_InquiryRegards]
+;	Space Top	:	1 mms
+;	
+;	Field		:	SimpleField
+;	
+;	Local		:	Field		:	SimpleField				:	Set as		:	"Regards,"
+	
 	Space Top	:	1 mms
 	
-	Field		:	SimpleField
+	Field		:	VoucherNarrationField
 	
-	Local		:	Field		:	SimpleField				:	Set as		:	"Regards,"
+	Local		:	Field		:	VoucherNarrationField	:	Set as		:	$VCHPrintDecl:VoucherType:##SVVoucherType;"Kindly quote us your most competitive price for below mentioned enquiry at earliest."
+	Local		:	Field		:	VoucherNarrationField	:	Full Width	:	Yes
 	
 [!Line:EAT_InquiryFields]
 	Delete		:	Right Field

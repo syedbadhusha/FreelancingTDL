@@ -154,6 +154,25 @@
 	Object		:	EAT_DeliveryNote
 	Object		:	EAT_Sales
 	
+[Collection:EAT_DelNotesSrc]
+	Type		:	Vouchers:VoucherType
+	Child Of	:	$$VchTypeDelNote
+	Belongs To	:	Yes
+	
+	Fetch		:	*
+	
+[Collection:EAT_DelNotes]
+	Source Collection	:	EAT_DelNotesSrc
 
-
-
+	Keep Source	:	().
+	Client Only	:	Yes
+	
+	By			:	VCHName			:	$VoucherTypeName
+	
+	Aggr Compute:	Prices			:	Last		:	$EAT_Prices
+	Aggr Compute:	Delivery		:	Last		:	$EAT_Delivery
+	Aggr Compute:	Validity		:	Last		:	$EAT_Validity
+	Aggr Compute:	OrderedBy		:	Last		:	$EAT_OrderedBy
+	
+	Search Key	:	$VCHName
+	

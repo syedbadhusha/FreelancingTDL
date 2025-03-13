@@ -7,7 +7,9 @@
 	
 [Report:EAT_PurcOrderPrint]
 	Use			:	EAT_PRNCommon
-		
+	
+	Local		:	Form		:	Default					:	Add			:	Bottom Part	:	After		:	EAT_CMNAmountSummary	:	EAT_InquirySignTitle
+	
 	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_POOpening
 	
 [!Part:EAT_POOpening]
