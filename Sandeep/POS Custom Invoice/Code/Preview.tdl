@@ -1,0 +1,254 @@
+[Report:POS Custom Invoice]
+	Use		: Printed Invoice
+	Delete	: Form
+	Add		: Form:POS Custom Invoice
+
+[Form:POS Custom Invoice]
+	Part		: POS Opening Page Break, POS Body, POS TaxableAmt, POS Total
+	Page Break	: DSP ContLine, POS Opening Page Break
+	Space Left	: 0.2 Inch
+	Space Right	: 0.2 Inch
+	Space Top	: 0.4 Inch
+	Space Bottom: 0.2 Inch
+	Local		: Field:Default:Style:Calibri Default
+	Local		: Field:Default:Local:Style:Default:Height:11
+	
+[Part:POS Opening Page Break]
+	Parts		: POS CMPDetails, POS CustomerDetails, POS Column
+	Vertical	: Yes
+	
+[Part:POS CMPDetails]
+	Line	: POS CMPName, POS CMPName PhoneNo, POS InvNoDate
+	Border	: Thin Box
+	
+[Line:POS CMPName]
+	Field	: Name Field
+	Local	: Field:Name Field:Local:Style:Default:Bold:Yes
+	Local	: Field:Name Field:Wide Space:Yes
+	Local	: Field:Name Field:Set as:$$CaseConvert:UpperCase:@Cmp
+	Local	: Field:Name Field:Full Width:Yes
+	Local	: Field:Name Field:Align:Centre
+	Local	: Field:Name Field:Local Formula:Cmp:$BasicCompanyFormalName:Company:$$CurrentCompany
+	
+[Line:POS CMPName PhoneNo]
+	Field	: Name Field
+	Local	: Field:Name Field:Local Formula:MobileNo:$CmpMobNo:Company:$$CurrentCompany
+	Local	: Field:Name Field:Set as:$$Sprintf:"Mobile No: %s":@MobileNo
+	Local	: Field:Name Field:Full Width:Yes
+	Local	: Field:Name Field:Align:Centre
+	Space Bottom	: 4
+	
+[Line:POS InvNoDate]
+	Field	: Name Field
+	Right Field: Short Name Field
+	Local	: Field:Name Field:Set as:$$Sprintf:"Estimate No.: %s":$VoucherNumber
+	Local	: Field:Short Name Field:Set as:$$Sprintf:"Date %s":$Date
+	Local	: Field:Short Name Field:Full Width:Yes
+	Local	: Field:Short Name Field:Align:Right
+	
+[Part:POS CustomerDetails]
+	Line	: POS CustomerDetailsTitle, POS CustomerName
+	Border	: Thin Left Right Bottom
+	
+[Line:POS CustomerDetailsTitle]
+	Field	: Name Field
+	Local	: Field:Name Field:Set as:"Customer Details:"
+	Local	: Field:Name Field:Full Width:Yes
+	Space Bottom:0.5
+	
+[Line:POS CustomerName]
+	Field	: Name Field
+	Local	: Field:Name Field:Set as:$PartyName
+	Local	: Field:Name Field:Full Width:Yes
+	
+
+;; Body
+[Part: POS Body]
+	Part		: POS Body Details
+	Vertical	: Yes
+	Common Border: Yes
+
+[Part:POS Column]
+	Line	: POS Column
+	Border	: Thin Top Bottom Right
+	Common Border: Yes
+
+[Part: POS Body Details]
+	Line	: POS Body
+	Common Border: Yes
+	Scroll	: Vertical
+	Height	: 3 inch
+	Repeat	: POS Body:InventoryEntries
+	Float	: No
+	Border	: Thin Box
+
+[Line:POS Column]
+	Use		: POS Body
+	Local	: Field:Default:Border:Thin Left
+	Local	: Field:Default:Type:String
+	Local	: Field:Default:Local:Style:Default:Bold:Yes
+	Local	: Field:POS SNo:Set as:"Slno"
+	Local	: Field:POS ItemName:Set as:"Item Name"
+	Local	: Field:POS Qty:Set as:"Qty"
+	Local	: Field:POS Rate:Set as:"Basic" + $$NewLine + "Rate"
+	Local	: Field:POS TotalAmt:Set as:"Amount"
+	Border	: Column Titles
+	Space Top: 0.2
+	Space Bottom: 0.2
+	Delete	: Remove if
+
+[Line:POS Body]
+	Fields	: POS SNo, POS ItemName, POS Qty, POS Rate, POS TotalAmt
+	Local	: Field:Default:Border:Thin Left
+	Space Top:0.1
+	Space Bottom:0.2
+	Border	: Thin Top
+	Explode	: POS Explode;:Yes
+	
+[Field:POS SNo]
+	Use		: Name Field
+	Set as	: $$Line
+	Width	: 5
+
+[Field:POS ItemName]
+	Use		: Name Field
+	Set as	: $$CaseConvert:UpperCase:$StockItemName
+	Full Width:Yes
+
+[Field:POS Qty]
+	Use		: Qty Field
+	Set as	: $BilledQty
+	Width	: 10
+	Align	: Right
+
+[Field:POS Rate]
+	Use		: Rate Field
+	Set as	: $Rate
+	Width	: 15
+	Align	: Right
+	Line	: 0
+
+[Field:POS TotalAmt]
+	Use		: Number Field
+	Set as	: $Amount
+	Width	: 17
+	Align	: Right
+	Format	: "Decimal:2"
+
+	
+[Part:POS Explode]
+	Line	: POS Explode
+	Scroll	: Vertical
+	
+[Line:POS Explode]
+	Fields	: POS ExSNo, POS ExItemName, POS ExAlternateQty, POS ExRate, POS ExTotalAmt
+
+[Field:POS ExSNo]
+	Use		: Name Field
+	Set as	: ""
+	Width	: 5
+	
+[Field:POS ExItemName]
+	Use		: Name Field
+	Set as	: ""
+	Full Width:Yes
+	
+[Field:POS ExAlternateQty]
+	Use		: QtySecondaryField
+	Set as  : $BilledQty
+	Width	: 10
+	Align	: Right
+	Format  : "Bracketed,NoZero,Symbol,ShortForm"
+	Style	: Normal Italic
+
+[Field:POS ExRate]
+	Use		: Name Field
+	Set as	: ""
+	Width	: 15
+	Align	: Right
+	
+[Field:POS ExTotalAmt]
+	Use		: Name Field
+	Set as	: ""
+	Width	: 17
+	Align	: Right
+
+[Part:POS TaxableAmt]
+	Line	: POS TaxableAmt
+	Border	: Thin Left Right
+	Space Bottom	: 2
+	
+[Line:POS TaxableAmt]
+	Left Field	: Short Prompt, Name Field
+	Right Field	: Short Name Field
+	Local	: Field:Short Prompt:Set as:$$Sprintf:"No of Items : %s":@NoofItems
+	Local	: Field:Short Prompt:Delete:Align
+	Local	: Field:Short Prompt:Local Formula:NoofItems:$$NumItems:InventoryEntries
+	Local	: Field:Short Prompt:Full Width:Yes
+	Local	: Field:Name Field:Set as:"E.&.O.E."
+	Local	: Field:Short Name Field:Set as:$$CollAmtTotal:InventoryEntries:$Amount
+	Local	: Field:Short Name Field:Full Width:Yes
+	Local	: Field:Short Name Field:Align:Right
+	
+
+[Part:POS Total]
+	Line	: POS LedgerEntries, POS LedgerEntries, POS OldBalance, POS BillAmt, POS NetPayable, 
+	Repeat	: POS LedgerEntries:LedgerEntries
+	Border	: Thin Left Right Bottom
+
+
+[Line:POS LedgerEntries]
+	Left Field	: Short Prompt
+	Right Field	: Name Field
+	Local	: Field:Short Prompt:Set as:$LedgerName
+	Local	: Field:Short Prompt:Full Width:Yes
+	Local	: Field:Name Field:Set as:$Amount
+	Local	: Field:Name Field:Align:Right
+	Remove if: $$IsLedOfGrp:$LedgerName:$$GroupSundryDebtors or $$IsLedOfGrp:$LedgerName:$$GroupSundryCreditors or +
+	$$IsLedOfGrp:$LedgerName:$$GroupBank or $$IsLedOfGrp:$LedgerName:$$GroupCash or $$IsEmpty:$LedgerName
+	Space Bottom:0.5
+
+[Line:POS OldBalance]
+	Left Field	: Short Prompt
+	Right Field	: Name Field
+	Local	: Field:Short Prompt:Set as:"Old Balance"
+	Local	: Field:Short Prompt:Full Width:Yes
+	Local	: Field:Name Field:Set as:$$String:@Value:"NoZero, Decimal:2"
+	Local	: Field:Name Field:Set Always:Yes
+;	Local	: Field:Name Field:Set By Condition:(@ClosingBalance1=0):0
+	Local	: Field:Name Field:Local Formula:Value:If @InvoiceAmount>@ClosingBalance Then @InvoiceAmount - @ClosingBalance Else  @ClosingBalance - @InvoiceAmount
+	Local	: Field:Name Field:Local Formula:ClosingBalance1:$$ToValue:($$Date:"01-01-30"):$ClosingBalance:Ledger:$PartyName 
+	Local	: Field:Name Field:Local Formula:ClosingBalance:If $$InCreateMode Then $$Number:@ClosingBalance1 + @InvoiceAmount Else $$Number:@ClosingBalance1
+	Local	: Field:Name Field:Local Formula:InvoiceAmount:$$Number:$Amount
+	Local	: Field:Name Field:Align:Right
+	Space Bottom: 0.5
+	Invisible:@@IsPartyBelongsToCashOrBank
+
+[Line:POS BillAmt]
+	Left Field	: Short Prompt
+	Right Field	: Name Field
+	Local	: Field:Short Prompt:Set as:"Bill Amount"
+	Local	: Field:Short Prompt:Full Width:Yes
+	Local	: Field:Name Field:Set as:$$String:@Value:"NoZero, Decimal:2"
+	Local	: Field:Name Field:Local Formula:Value:$$Number:$Amount
+	Local	: Field:Name Field:Align:Right
+
+[Line:POS NetPayable]
+	Left Field	: Short Prompt
+	Right Field	: Name Field
+	Local	: Field:Short Prompt:Set as:"NET PAYABLE"
+	Local	: Field:Short Prompt:Delete:Align
+	Local	: Field:Short Prompt:Width:22
+	Local	: Field:Short Prompt:Local:Style:Default:Bold:Yes
+	Local	: Field:Name Field:Set as:$$String:@Value:"NoZero, Decimal:2"
+	Local	: Field:Name Field:Local Formula:Value:@ClosingBalance
+	Local	: Field:Name Field:Local Formula:ClosingBalance1:$ClosingBalance:Ledger:$PartyName 
+	Local	: Field:Name Field:Local Formula:ClosingBalance:If $$InCreateMode Then $$Number:@ClosingBalance1 + @InvoiceAmount Else $$Number:@ClosingBalance1
+	Local	: Field:Name Field:Local Formula:InvoiceAmount:$$Number:$Amount
+	
+	Local	: Field:Name Field:Align:Right
+	Border	: Thin Top
+	
+
+[System:Formula]
+	IsPartyBelongsToCashOrBank:($$IsLedOfGrp:$PartyName:$$GroupCash OR $$IsLedOfGrp:$PartyName:$$GroupBank OR $$IsLedOfGrp:$PartyName:$$GroupBankOD)

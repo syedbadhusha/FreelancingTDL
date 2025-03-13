@@ -1,0 +1,63 @@
+[#Part: VTYP BehaviourMain]
+	Option:CI VTYP BehaviourMain:($$IsSales:$Parent)
+
+[!Part:CI VTYP BehaviourMain]
+	Add:Line:After:Form SubTitle:VTYP Custom Invoice, VTYP SelectPrinter
+
+[Line:VTYP Custom Invoice]
+	Fields: Long Prompt, VTYP Custom Invoice
+	Local : Field : Long  Prompt : Info     : $$LocaleString:"Enable Custom Invoice:"
+
+[Field:VTYP Custom Invoice]
+	Use			: Logical Field
+	Type		: Logical:Forced
+	Storage		: IsInvoiceEnabled
+	
+[Line:VTYP SelectPrinter]
+	Fields: Long Prompt, VTYP SelectPrinter
+	Local : Field : Long  Prompt : Info     : $$LocaleString:"Select Printer:"	
+	
+[Field:VTYP SelectPrinter]
+	Use			: Name Field
+	Table		: List of Printers
+	Show Table	: Always
+	Storage		: VTYP SelectPrinter
+
+[System:UDF]
+	IsInvoiceEnabled:Logical:3200
+	VTYP SelectPrinter:String:3201
+
+[System:Formulas]
+	IsInvoiceEnabled:$IsInvoiceEnabled:VoucherType:##SVVoucherType
+	
+[#Form:Voucher]
+	Option:POS Voucher:@@IsPOSInvoice AND @@IsInvoiceEnabled
+	
+[!Form:POS Voucher]
+	Set:SVPrinterName:$VTYPSelectPrinter:VoucherType:##SVVoucherType
+	
+[#Form:POS Invoice Color]
+	Option:POS Sales Color:@@IsInvoiceEnabled
+
+[!Form:POS Sales Color]
+	Delete:Print
+	Add:Print:POS Custom Invoice
+    
+
+
+;;; Add voucher type wise printer
+
+ [#Form: VCHPRN Sales]
+     
+    Add: Option: VTYPSelectedPrinter: @@IsInvoiceEnabled
+    
+[#Form: VCHPRN POSInvoice]
+    
+    Add: Option: VTYPSelectedPrinter: @@IsInvoiceEnabled
+
+
+[!Form: VTYPSelectedPrinter]
+     
+     Set:SVPrinterName:$VTYPSelectPrinter:VoucherType:##SVVoucherType
+
+    

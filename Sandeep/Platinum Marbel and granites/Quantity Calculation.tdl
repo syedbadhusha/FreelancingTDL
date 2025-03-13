@@ -3,16 +3,22 @@ Title:"Quantity Calculation"
 Forms:MisUnitRpt
 
 [Form:MisUnitRpt]
-Height:60% Screen
-Width:70% Screen
-Top Parts:MisUnitRptHd, MisUnitRptTTl, MisUnitRpt, MisUnitRptTot
-On:Form Accept:Yes:Call:MisUnitRptSetQty
-On:Form Accept:Yes:Form Accept
+
+	Height:60% Screen
+	Width:70% Screen
+	Top Parts:MisUnitRptHd, MisUnitRptTTl, MisUnitRpt, MisUnitRptTot
+	On:Form Accept:Yes:Call:MisUnitRptSetQty
+	On:Form Accept:Yes:Form Accept
 
 [Function:MisUnitRptSetQty]
 	
 	1000	:	Set Value	:	BilledQty	:	$$AsQty:$MisUnitSqmTot
 	2000	:	Set Value	:	ActualQty	:	$$AsQty:$MisUnitSqmTot
+
+	3000	:	Insert Collection Object	:	BatchAllocations
+	3500	:	Set Target	:	BatchAllocations[1].
+	4000	:		Set Value	:	BilledQty	:	$$AsQty:$MisUnitSqmTot
+	5000	:		Set Value	:	ActualQty	:	$$AsQty:$MisUnitSqmTot
 
 [Part:MisUnitRptHd]
 Top Lines:MisUnitRptHd
