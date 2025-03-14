@@ -3,7 +3,7 @@
 	
 [!Form:EAT_DelNotePrint]
 	Delete		:	Print
-	Add			:	Print		:	EAT_DelNotePrint
+	Add			:	Print		:	EAT_JobCardPrint, EAT_DelNotePrint
 	
 [Report:EAT_DelNotePrint]
 	Use			:	EAT_SalesPrint

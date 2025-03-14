@@ -144,6 +144,8 @@
     Set always	:	Yes
 	
 [Function:EAT_DelPrevValue]
+	<InUse:Collection:EAT_DelNotes>
+	
 	Parameter	:	Method		:	String
 	
 	000			:	Return		:	$$Evaluate:$$Sprintf:"$$ReportObject:$$CollectionFieldByKey:$%s:##SVVoucherType:EAT_DelNotes":##Method

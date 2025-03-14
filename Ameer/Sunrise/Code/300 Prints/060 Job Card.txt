@@ -3,7 +3,7 @@
 	
 [!Form:EAT_JobCardPrint]
 	Delete		:	Print
-	Add			:	Print		:	EAT_JobCardPrint
+	Add			:	Print		:	EAT_JobCardPrint, EAT_QuotationPrint
 	
 [Report:EAT_JobCardPrint]
 	Use			:	EAT_PRNCommon

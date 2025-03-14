@@ -313,29 +313,29 @@
 				Skip		:	Yes
 				Align	:	Center
 
-			[Field:JC_FLD_VCHDetailsTit4]
-				
-				Use			:	name field
-				Set Always	:	Yes
-				Set as		:	""
-				Width		:	25% page
-				Style		:	Small Bold
-				Background	:	Dark Red
-				Color		:	White
-				Skip		:	Yes
-				Align	:	Center
+;			[Field:JC_FLD_VCHDetailsTit4]
+;				
+;				Use			:	name field
+;				Set Always	:	Yes
+;				Set as		:	""
+;				Width		:	25% page
+;				Style		:	Small Bold
+;				Background	:	Dark Red
+;				Color		:	White
+;				Skip		:	Yes
+;				Align	:	Center
 
 ;;;;;;;;;;;;;;;;;;;;;;  Job Card Detail Fields	;;;;;;;;;;;;;
 
-			[Field:JC_VCHLPONum]
-
-				Use			:	Name Field
-				Set Always	:	Yes
-				Storage		:	EAT_LPONo
-				Width		:	25% page
-				Border		:	Thin box
-				Align		:	Center
-				Style		:	Normal
+;			[Field:JC_VCHLPONum]
+;
+;				Use			:	Name Field
+;				Set Always	:	Yes
+;				Storage		:	EAT_LPONo
+;				Width		:	25% page
+;				Border		:	Thin box
+;				Align		:	Center
+;				Style		:	Normal
 			[Field:JC_VCHLPONumDesc]
 
 				Use			:	Name Field
@@ -407,12 +407,12 @@
 				Align		:	Center
 				Style		:	Normal
 				
-			[Field:JC_VCHMemo]
-				
-				Use			:	Name Field
-				Set Always	:	Yes
-				Storage		:	JC_VCHMemo
-				Width		:	25% page
-				Border		:	Thin box
-				Align		:	Center
-				Style		:	Normal
+;			[Field:JC_VCHMemo]
+;				
+;				Use			:	Name Field
+;				Set Always	:	Yes
+;				Storage		:	JC_VCHMemo
+;				Width		:	25% page
+;				Border		:	Thin box
+;				Align		:	Center
+;				Style		:	Normal

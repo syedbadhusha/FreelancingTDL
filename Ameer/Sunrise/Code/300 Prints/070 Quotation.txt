@@ -3,7 +3,7 @@
 	
 [!Form:EAT_QuotationPrint]
 	Delete		:	Print
-	Add			:	Print		:	EAT_QuotationPrint
+	Add			:	Print		:	EAT_JobCardPrint, EAT_QuotationPrint
 	
 [Report:EAT_QuotationPrint]
 	Use			:	EAT_PRNCommon
@@ -21,11 +21,11 @@
 	
 	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHReference
 	
-	Local		:	Line		:	EAT_VCHNo				:	+
-		Local	:	Field		:	MediumPrompt			:	Set as		:	"QT No."
-	
-	Local		:	Line		:	EAT_VCHDate				:	+
-		Local	:	Field		:	MediumPrompt			:	Set as		:	"QT Date"
+;	Local		:	Line		:	EAT_VCHNo				:	+
+;		Local	:	Field		:	MediumPrompt			:	Set as		:	"QT No."
+;	
+;	Local		:	Line		:	EAT_VCHDate				:	+
+;		Local	:	Field		:	MediumPrompt			:	Set as		:	"QT Date"
 	
 	Local		:	Line		:	EAT_VCHReference		:	+
 		Local	:	Field		:	MediumPrompt			:	Set as		:	"Job No"
