@@ -201,6 +201,8 @@
 	Local		:	Field		:	EAT_RateSymbol			:	Set as			:	"Unit"
 	Local		:	Field		:	EAT_Rate				:	Set as			:	"U. Price"
 	Local		:	Field		:	EAT_Amount				:	Set as			:	"Amount"
+	Local		:	Field		:	EAT_VATAmount			:	Set as			:	"VAT Amount"
+	Local		:	Field		:	EAT_AmountIncl			:	Set as			:	"Amount Incl."
 	
 [Part:EAT_Column]
 	Border		:	ThinTopBottom
@@ -250,7 +252,7 @@
 [Field:EAT_OrderNo]
 	Use			:	NameField
 	Width		:	20 mms
-	Set as		:	$OrderNo
+	Set as		:	If $$IsSysName:$OrderNo then "" else $OrderNo
 	
 [Field:EAT_Name]
 	Use			:	NameField

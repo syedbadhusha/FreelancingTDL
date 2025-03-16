@@ -3,8 +3,14 @@
 	
 [!Form:EAT_JobCardPrint]
 	Delete		:	Print
-	Add			:	Print		:	EAT_JobCardPrint, EAT_QuotationPrint
+	Add			:	Print		:	EAT_JobCardPrint, EAT_JobSalesPrint
 	
+[Report:EAT_JobSalesPrint]
+	Use			:	EAT_SalesPrint2
+	
+	Local		:	Line		:	EAT_Column				:	+
+		Local	:	Field		:	EAT_OrderNo				:	Set as		:	$Reference
+		
 [Report:EAT_JobCardPrint]
 	Use			:	EAT_PRNCommon
 	

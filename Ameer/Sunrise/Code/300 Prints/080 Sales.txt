@@ -3,7 +3,7 @@
 	
 [!Form:EAT_SalesPrint]
 	Delete		:	Print
-	Add			:	Print		:	EAT_JobCardPrint, EAT_SalesPrint
+	Add			:	Print		:	EAT_SalesPrint, EAT_SalesPrint2
 	
 [Report:EAT_SalesPrint]
 	Use			:	EAT_PRNCommon
@@ -16,6 +16,9 @@
 
 	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_AddTracking		:	@@EAT_IsNotEmptyDN
 	Local		:	Line		:	EAT_Column				:	Option		:	EAT_AddTracking		:	@@EAT_IsNotEmptyOwnerDN
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_AddVATAmount	:	@@IsSales
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_AddVATAmount	:	@@IsSales
 	
 [!Part:EAT_SalesOpening]
 	Local		:	Part		:	EAT_VoucherDetails		:	Add			:	Line		:	EAT_VCHOrderNo, EAT_VCHOrderDate
@@ -37,7 +40,10 @@
 	
 [!Line:EAT_AddTracking]
 	Add			:	Field		:	After	:	EAT_OrderNo	:	EAT_TrackingNo
-	
+
+[!Line:EAT_AddVATAmount]
+	Add			:	Right Field	:	EAT_VATAmount, EAT_AmountIncl
+		
 [!Line:EAT_SalesTitle]
 	Use			:	EAT_SalesFields
 	
@@ -89,3 +95,48 @@
 	
 	Local		:	Field		:	MediumPrompt			:	Set as		:	"Receiver's Sign"
 	
+[Report:EAT_SalesPrint2]
+	Use			:	EAT_PRNCommon
+
+	Local		:	Part		:	EAT_PRNCMNOpening		:	Option		:	EAT_SalesOpening
+	Local		:	Part		:	EAT_CMNAmountSummary	:	Option		:	EAT_SalesAdditionalDetails
+	
+	Local		:	Part		:	EAT_Column				:	Option		:	EAT_SalesPrint2
+	
+	Local		:	Line		:	EAT_ColumnTitle			:	Option		:	EAT_SalesTitle2
+	Local		:	Line		:	EAT_Column				:	Option		:	EAT_SalesInfo2
+
+[!Part:EAT_SalesPrint2]
+	Delete		:	Part		:	EAT_LedgerEntries
+	
+	Local		:	Part		:	Default					:	Delete		:	Repeat
+	
+[!Line:EAT_SalesTitle2]
+	Use			:	EAT_SalesFields2
+	
+	Local		:	Field		:	EAT_Name				:	Set as		:	"Equipment"
+	Local		:	Field		:	EAT_Description			:	Set as		:	"Job Description"
+	
+[!Line:EAT_SalesInfo2]
+	Use			:	EAT_SalesFields2
+	
+	Local		:	Field		:	EAT_OrderNo				:	Set as		:	If $$IsSysName:$BasicPurchaseOrderNo then "" else $BasicPurchaseOrderNo
+	Local		:	Field		:	EAT_Name				:	Set as		:	$JC_VCHEquipment
+	Local		:	Field		:	EAT_Description			:	Set as		:	$JC_VCHMemo
+	Local		:	Field		:	EAT_Amount				:	Set as		:	$Amount - @@EAT_Discount - @@EAT_VATAmount - @@EAT_RoundOff
+	
+[!Line:EAT_SalesFields2]
+	Add			:	Field		:	After	:	EAT_SNo		:	EAT_OrderNo, EAT_Name
+	Delete		:	Right Field	:	EAT_Qty, EAT_RateSymbol, EAT_Rate
+
+[Field:EAT_VATAmount]
+	Use			:	AmountForexField
+	Width		:	25 mms
+	Set as		:	If $$IsEmpty:@transnature Then "" Else If ##vIsDebit Then $$AsDrAmt:@taxamt Else $$AsCrAmt:@taxamt
+    taxamt		:	$$ReportObject:$$CollectionFieldByKey:$VTAGCCInv_TaxAmount:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+    transnature	:	$$ReportObject:$$CollectionFieldByKey:$VATGCCInv_TransNature:@@GVATTaxAnalysisItemLedKey:VATGCCTaxAnalysisAlongWithItems
+    
+[Field:EAT_AmountIncl]
+	Use			:	AmountForexField
+	Width		:	25 mms
+	Set as		:	$Amount + #EAT_VATAmount
