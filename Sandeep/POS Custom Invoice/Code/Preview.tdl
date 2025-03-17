@@ -4,7 +4,8 @@
 	Add		: Form:POS Custom Invoice
 
 [Form:POS Custom Invoice]
-	Part		: POS Opening Page Break, POS Body, POS TaxableAmt, POS Total
+	Part		: POS Opening Page Break, POS Body;, POS TaxableAmt, POS Total
+	Bottom Part	:	POSBottomPart		;;;;;;;	Added By Syed
 	Page Break	: DSP ContLine, POS Opening Page Break
 	Space Left	: 0.2 Inch
 	Space Right	: 0.2 Inch
@@ -12,6 +13,12 @@
 	Space Bottom: 0.2 Inch
 	Local		: Field:Default:Style:Calibri Default
 	Local		: Field:Default:Local:Style:Default:Height:11
+	
+
+[Part:POSBottomPart]
+	
+	Part	:	POS TaxableAmt, POS Total
+	Vertical	:	Yes
 	
 [Part:POS Opening Page Break]
 	Parts		: POS CMPDetails, POS CustomerDetails, POS Column
@@ -77,7 +84,7 @@
 	Line	: POS Body
 	Common Border: Yes
 	Scroll	: Vertical
-	Height	: 3 inch
+;	Height	: 3 inch
 	Repeat	: POS Body:InventoryEntries
 	Float	: No
 	Border	: Thin Box
@@ -192,10 +199,10 @@
 	
 
 [Part:POS Total]
-	Line	: POS LedgerEntries, POS LedgerEntries, POS OldBalance, POS BillAmt, POS NetPayable, 
+	Line	: POS LedgerEntries, POS OldBalance, POS BillAmt, POS NetPayable ;POS LedgerEntries
 	Repeat	: POS LedgerEntries:LedgerEntries
 	Border	: Thin Left Right Bottom
-
+	
 
 [Line:POS LedgerEntries]
 	Left Field	: Short Prompt
@@ -205,7 +212,7 @@
 	Local	: Field:Name Field:Set as:$Amount
 	Local	: Field:Name Field:Align:Right
 	Remove if: $$IsLedOfGrp:$LedgerName:$$GroupSundryDebtors or $$IsLedOfGrp:$LedgerName:$$GroupSundryCreditors or +
-	$$IsLedOfGrp:$LedgerName:$$GroupBank or $$IsLedOfGrp:$LedgerName:$$GroupCash or $$IsEmpty:$LedgerName
+	$$IsLedOfGrp:$LedgerName:$$GroupBank or $$IsLedOfGrp:$LedgerName:$$GroupCash or $$IsEmpty:$LedgerName or $$IsNotApplicable:$LedgerName
 	Space Bottom:0.5
 
 [Line:POS OldBalance]
@@ -215,14 +222,21 @@
 	Local	: Field:Short Prompt:Full Width:Yes
 	Local	: Field:Name Field:Set as:$$String:@Value:"NoZero, Decimal:2"
 	Local	: Field:Name Field:Set Always:Yes
-;	Local	: Field:Name Field:Set By Condition:(@ClosingBalance1=0):0
+	Local	: Field:Name Field:Set By Condition:(@ClosingBalance1=0):0
+
 	Local	: Field:Name Field:Local Formula:Value:If @InvoiceAmount>@ClosingBalance Then @InvoiceAmount - @ClosingBalance Else  @ClosingBalance - @InvoiceAmount
 	Local	: Field:Name Field:Local Formula:ClosingBalance1:$$ToValue:($$Date:"01-01-30"):$ClosingBalance:Ledger:$PartyName 
 	Local	: Field:Name Field:Local Formula:ClosingBalance:If $$InCreateMode Then $$Number:@ClosingBalance1 + @InvoiceAmount Else $$Number:@ClosingBalance1
-	Local	: Field:Name Field:Local Formula:InvoiceAmount:$$Number:$Amount
+	Local	: Field:Name Field:Local Formula:InvoiceAmount:$$Number:($$FilterAmtTotal:LedgerEntries:OnlyDrLedger:$Amount);(($$CollAmtTotal:InventoryEntries:$Amount)+($$CollAmtTotal:LedgerEntries:$Amount));$Amount
 	Local	: Field:Name Field:Align:Right
 	Space Bottom: 0.5
+
 	Invisible:@@IsPartyBelongsToCashOrBank
+
+
+[System:Formula]
+	
+	OnlyDrLedger	:	$IsDeemedPositive
 
 [Line:POS BillAmt]
 	Left Field	: Short Prompt
@@ -230,21 +244,22 @@
 	Local	: Field:Short Prompt:Set as:"Bill Amount"
 	Local	: Field:Short Prompt:Full Width:Yes
 	Local	: Field:Name Field:Set as:$$String:@Value:"NoZero, Decimal:2"
-	Local	: Field:Name Field:Local Formula:Value:$$Number:$Amount
+	Local	: Field:Name Field:Local Formula:Value:$$Number:($$FilterAmtTotal:LedgerEntries:OnlyDrLedger:$Amount);$Amount
 	Local	: Field:Name Field:Align:Right
 
 [Line:POS NetPayable]
 	Left Field	: Short Prompt
 	Right Field	: Name Field
+
 	Local	: Field:Short Prompt:Set as:"NET PAYABLE"
 	Local	: Field:Short Prompt:Delete:Align
 	Local	: Field:Short Prompt:Width:22
 	Local	: Field:Short Prompt:Local:Style:Default:Bold:Yes
-	Local	: Field:Name Field:Set as:$$String:@Value:"NoZero, Decimal:2"
+	Local	: Field:Name Field:Set as:if @@IsPartyBelongsToCashOrBank then ($$String:@InvoiceAmount:"NoZero, Decimal:2") else ($$String:@Value:"NoZero, Decimal:2")
 	Local	: Field:Name Field:Local Formula:Value:@ClosingBalance
 	Local	: Field:Name Field:Local Formula:ClosingBalance1:$ClosingBalance:Ledger:$PartyName 
 	Local	: Field:Name Field:Local Formula:ClosingBalance:If $$InCreateMode Then $$Number:@ClosingBalance1 + @InvoiceAmount Else $$Number:@ClosingBalance1
-	Local	: Field:Name Field:Local Formula:InvoiceAmount:$$Number:$Amount
+	Local	: Field:Name Field:Local Formula:InvoiceAmount:$$Number:($$FilterAmtTotal:LedgerEntries:OnlyDrLedger:$Amount);$Amount
 	
 	Local	: Field:Name Field:Align:Right
 	Border	: Thin Top
