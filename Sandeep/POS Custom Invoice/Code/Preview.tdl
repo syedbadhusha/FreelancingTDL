@@ -4,26 +4,17 @@
 	Add		: Form:POS Custom Invoice
 
 [Form:POS Custom Invoice]
-	Part		: POS Opening Page Break, POS Body;,POSBottomPartTot;, POS TaxableAmt, POS Total
+	Part		: POS CMPDetails, POS CustomerDetails, POS Column,POS Body;,POSBottomPartTot;, POS TaxableAmt, POS Total
 	Bottom Part	:	POSBottomPartTot;POSBottomPart		;;;;;;;	Added By Syed
 	Page Break	: DSP ContLine, POS Opening Page Break
 	Space Left	: 0.2 Inch
-	Space Right	: 0.2 Inch
+	Space Right	: 0.1 Inch
 	Space Top	: 0.4 Inch
 	Space Bottom: 0.2 Inch
 	Local		: Field:Default:Style:Calibri Default
 	Local		: Field:Default:Local:Style:Default:Height:11
-	Option	:	POSBottomPartTot	:	$$PageNo = 2
-	Height	:	181 MMS
+	Height	:	170 MMS
 	
-;[Part:POSBottomPart]
-;	
-;	Part	:	POSBottomPartTot,DSP ContLine
-;	Vertical	:	Yes
-
-[!Form:POSBottomPartTot]
-	
-	Add	:	Part	:	At End	:	POSBottomPartTot
 	
 [Part:POSBottomPartTot]
 
@@ -32,7 +23,7 @@
 	Common Border	:	Yes
 	
 [Part:POS Opening Page Break]
-	Parts		: POS CMPDetails, POS CustomerDetails, POS Column
+	Parts		: POS Column;POS CMPDetails, POS CustomerDetails, POS Column
 	Vertical	: Yes
 	
 [Part:POS CMPDetails]
@@ -95,10 +86,16 @@
 	Line	: POS Body
 	Common Border: Yes
 	Scroll	: Vertical
-	Height	: 3.25 inch
+;	Height	: 3.25 inch
 	Repeat	: POS Body:InventoryEntries
 	Float	: No
 	Border	: Thin Box
+;	Option	:	Height_POS Body Details	:	$$PageNo = 1
+;
+;	[!Part:Height_POS Body Details]
+;		
+;		Delete	:	Height
+;		Add	:	Height	:	3.30
 
 [Line:POS Column]
 	Use		: POS Body
@@ -140,9 +137,10 @@
 	Align	: Right
 
 [Field:POS Rate]
-	Use		: Rate Field
+	Use		: Rate Price Field
 	Set as	: $Rate
 	Width	: 15
+	Format	:	"No Symbol"
 	Align	: Right
 	Line	: 0
 
