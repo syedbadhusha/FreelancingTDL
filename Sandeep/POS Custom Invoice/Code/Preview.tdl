@@ -13,9 +13,9 @@
 	Space Bottom: 0.2 Inch
 	Local		: Field:Default:Style:Calibri Default
 	Local		: Field:Default:Local:Style:Default:Height:11
-	Height	:	170 MMS
-	
-	
+	Height	:	210 MMS
+	Local	:	Part	:	DSP ContLine	:	Height: 45 MMS
+
 [Part:POSBottomPartTot]
 
 	Part	:	POS TaxableAmt, POS Total
