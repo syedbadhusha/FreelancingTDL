@@ -4,8 +4,8 @@
 	Add		: Form:POS Custom Invoice
 
 [Form:POS Custom Invoice]
-	Part		: POS Opening Page Break, POS Body;, POS TaxableAmt, POS Total
-	Bottom Part	:	POSBottomPart		;;;;;;;	Added By Syed
+	Part		: POS Opening Page Break, POS Body;,POSBottomPartTot;, POS TaxableAmt, POS Total
+	Bottom Part	:	POSBottomPartTot;POSBottomPart		;;;;;;;	Added By Syed
 	Page Break	: DSP ContLine, POS Opening Page Break
 	Space Left	: 0.2 Inch
 	Space Right	: 0.2 Inch
@@ -13,12 +13,23 @@
 	Space Bottom: 0.2 Inch
 	Local		: Field:Default:Style:Calibri Default
 	Local		: Field:Default:Local:Style:Default:Height:11
+	Option	:	POSBottomPartTot	:	$$PageNo = 2
+	Height	:	181 MMS
 	
+;[Part:POSBottomPart]
+;	
+;	Part	:	POSBottomPartTot,DSP ContLine
+;	Vertical	:	Yes
 
-[Part:POSBottomPart]
+[!Form:POSBottomPartTot]
 	
+	Add	:	Part	:	At End	:	POSBottomPartTot
+	
+[Part:POSBottomPartTot]
+
 	Part	:	POS TaxableAmt, POS Total
 	Vertical	:	Yes
+	Common Border	:	Yes
 	
 [Part:POS Opening Page Break]
 	Parts		: POS CMPDetails, POS CustomerDetails, POS Column
@@ -84,7 +95,7 @@
 	Line	: POS Body
 	Common Border: Yes
 	Scroll	: Vertical
-;	Height	: 3 inch
+	Height	: 3.25 inch
 	Repeat	: POS Body:InventoryEntries
 	Float	: No
 	Border	: Thin Box
@@ -231,7 +242,7 @@
 	Local	: Field:Name Field:Align:Right
 	Space Bottom: 0.5
 
-	Invisible:@@IsPartyBelongsToCashOrBank
+;	Invisible:@@IsPartyBelongsToCashOrBank
 
 
 [System:Formula]
@@ -266,4 +277,4 @@
 	
 
 [System:Formula]
-	IsPartyBelongsToCashOrBank:($$IsLedOfGrp:$PartyName:$$GroupCash OR $$IsLedOfGrp:$PartyName:$$GroupBank OR $$IsLedOfGrp:$PartyName:$$GroupBankOD)
+	IsPartyBelongsToCashOrBank:$$IsEmpty:$POSGiftLedger;($$IsLedOfGrp:$PartyName:$$GroupCash OR $$IsLedOfGrp:$PartyName:$$GroupBank OR $$IsLedOfGrp:$PartyName:$$GroupBankOD)
