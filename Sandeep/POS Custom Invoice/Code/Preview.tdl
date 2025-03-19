@@ -23,6 +23,7 @@
 	Common Border	:	Yes
 	
 [Part:POS Opening Page Break]
+
 	Parts		: POS Column;POS CMPDetails, POS CustomerDetails, POS Column
 	Vertical	: Yes
 	
