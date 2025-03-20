@@ -1,0 +1,123 @@
+[Collection	:	SalesmanWiseReceipt] ;Trigger]
+	
+	Use			: SalesmanWise Report
+    Replace 	: Trigger     : SalesmanTrigger4
+	Fetch		: SalesmanName
+	Replace		: Report      : Salesmanwise Receipt
+	
+[Report: SalesmanTrigger4]   ;;Auto Report
+
+			Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : SalesmanTrigger4
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Salesman Name"
+	
+[Field: SalesmanTrigger4]
+	
+	Use         : Name Field
+	Set as      :  ##SalesmanName3	;if ##SalesmanName3 = "" then $$SysName:Primary else ##SalesmanName3
+	Modifies    : SalesmanName3
+	Table       : SalesmanWiseReceipt
+	Show Table  : Always
+	CommonTable : No
+	On			: Accept	: Yes	: Call	: fun13 : $$Value;##SalesmanName3
+	On			: Accept	: Yes	: Field Accept
+	
+[Function: fun13]
+	Parameter	: parm1	: String
+	
+;01: Log: "inside fun11"
+01a: Set	: SalesmanName3	: ##parm1
+;01b: Log	: ##SalesmanName3
+02: Display	: SalesmanWiseReceipt
+
+
+[Report: Salesmanwise Receipt]
+	
+	Form	: Salesmanwise Receipt
+	
+[Form: Salesmanwise Receipt]
+	
+	Part	: Form SubTitle, Pt_SalesmanName, Salesmanwise Receipt
+	Local	: Part	: Form SubTitle	: Local	: Line	: Form SubTitle	: Local	: Field	: Form SubTitle	: Info	: $$LocaleString:"Salesmanwise Receipt"
+	Width	: 100% page	
+	Height	: 100% page
+
+[Part: Salesmanwise Receipt]
+	
+	line	: Salesmanwise Receipt Title, Salesmanwise Receipt Details
+	Border	: Thin Box
+	Repeat	: Salesmanwise Receipt Details	: ReceiptSummVouchersGather
+	Common Border	: Yes
+	Scroll			: Vertical
+	
+[Collection: ReceiptVouchersGather]
+	
+	Type		: vouchers	: VoucherType
+	Child Of	: $$VchTypeReceipt
+	Belongs To	: Yes
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount
+	
+[Collection: ReceiptSummVouchersGather]
+	
+	Source Collection	: ReceiptVouchersGather
+	Compute				: VoucherNumber		: $VoucherNumber
+	Compute				: Date				: $Date
+	Compute				: PartyLedgerName	: $PartyLedgerName
+	Compute				: Amount			: $Amount
+	Compute				: UDFSalesman1		: $UDFSalesman;(Ledger,$PartyLedgerName).UDFSalesman
+	Filter				: NonEmptySalesman, SalesmanPaymentFilter
+	
+;;select $VoucherNumber, $Salesman from ReceiptSummVouchersGather
+
+[Line: Salesmanwise Receipt Title]
+	
+	Use		: Salesmanwise Receipt Details
+	Local	: Field	: Number Field				: Set as	: $$LocaleString:"Sl No"
+	Local	: Field	: Receipt_VchNumber Field	: Set as	: $$LocaleString:"Voucher Number"
+	Local	: Field	: Receipt_VchDate Field		: Set as	: $$LocaleString:"Voucher Date"
+	Local	: Field	: Receipt_Party Field		: Set as	: $$LocaleString:"Party"
+	Local	: Field	: Receipt_Amount			: Set as	: $$LocaleString:"Amount"
+	Local	: Field	: Default					: Type		: String
+	Local	: Field	: Number Field 				: Align		: Center
+	Border	: Bottom Flush Column Titles
+
+[Line: Salesmanwise Receipt Details]
+	
+	Field		: Number Field, Receipt_VchNumber Field, Receipt_VchDate Field,
+	Right Field	: Receipt_Party Field, Receipt_Amount
+	Local		: Field	: Number Field	: Set as	: $$Line
+	Local		: Field	: Number Field	: Border	: Thin Right
+	Local		: Field	: Number Field	: Align		: Center
+
+[Field: Receipt_VchNumber Field]
+	
+	Use		: Name Field
+	Set As	: $VoucherNumber
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Receipt_VchDate Field]
+	
+	Use		: Unidate Field
+	Set As	: $$Date:$Date
+	Width	: @@NameWidth
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Receipt_Party Field]
+	
+	Use		: Name Field
+	Set As	: $PartyLedgerName
+	Full Width	: Yes
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Receipt_Amount]
+	
+	Use		: Amount Field
+	Set As	: $Amount
+	Border	: Thin Right
+	Align	: Center	
+	
+	
+	

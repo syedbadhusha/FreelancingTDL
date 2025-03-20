@@ -1,0 +1,353 @@
+
+[Report: AppCrushPurcVchImpFileInfo]
+	Family		: $$Translate:"Import Data"
+	Title		: "Import File Details"
+	Auto 		: Yes
+	
+[Form: AppCrushPurcVchImpFileInfo]
+	Parts       : AppCrushPurcVchImpFileInfo;, MTIVExcelImpParmSelect
+	Width		: 60 % Page
+	
+	Space Right : 1
+	Space Left  : 1
+	No confirm  : Yes
+	Option      : Small Size Form
+	Background  : @@SV_CMPCONFIG
+	
+	On: Form Accept	: Yes	: Form Accept
+	On: Form Accept	: Yes	: Call	: MTIPurcVchImpObjFunc:#MTIVExcelDirName:#MTIVExcelFileName:#MTIVExcelSheetName
+
+[Part: AppCrushPurcVchImpFileInfo]
+	Lines : Form SubTitle, MTIVExcelDirName, MTIVExcelFileName, MTIVExcelSheetName
+	Local : Field : Form SubTitle	: Info 		: $$LocaleString:"Location and File Information"
+	Local : Line  : Form SubTitle	: Space Top	: 1
+	
+[Line: MTIVExcelDirName]
+	Fields: Medium Prompt, MTIVExcelDirName
+	Local : Field : Medium Prompt	: Set As	: "Directory for Excel Files : "
+	Local : Field : Medium Prompt	: Style		: Small
+	Space Bottom: 0.2
+		
+[Field: MTIVExcelDirName]
+	Use			: NameField
+	Modifies	: MTIVExcelDirName
+	Set always	: Yes
+	Full Width	: Yes
+	Max			: 200
+	Case		: Normal
+	Style		: Small Bold
+	Control		: FolderNotExists	: $$IsEmpty:$$Value	or NOT $$IsFolderExists:$$Value 
+	Border		: Thin Box
+	Background	: "White"
+
+[Line: MTIVExcelFileName]
+	Fields: Medium Prompt, MTIVExcelFileName
+	Local : Field : Medium Prompt	: Set As	: "File Name :"
+	Local : Field : Medium Prompt	: Style		: Small
+	Space Bottom: 0.2
+	
+[Field: MTIVExcelFileName]
+	Use			: NameField
+	Modifies	: MTIVExcelFileName
+	Full Width	: Yes
+	Max			: 200
+	Case		: Normal
+	Style		: Small Bold
+	Table		: MTIV Excel Files
+	Show Table	: Always
+	Border		: Thin Box
+	Background	: "White"
+	
+[Line: MTIVExcelSheetName]
+	Fields: Medium Prompt, MTIVExcelSheetName
+	Local : Field : Medium Prompt	: Set As	: "Sheet Name : "
+	Local : Field : Medium Prompt	: Style		: Small
+	Space Bottom: 0.2
+			
+[Field: MTIVExcelSheetName]
+	Use			: NameField
+	Modifies	: MTIVExcelSheetName
+	Set always	: Yes
+	Full Width	: Yes
+	Max			: 200
+	Case		: Normal
+	Style		: Small Bold
+	Validate	: Not $$IsEmpty:$$Value
+	Border		: Thin Box
+	Background	: "White"
+	
+
+
+[Part : MTIVExcelImpParmSelect]
+	Lines	: FormSubTitle, MTIVImpRoundOffLed
+	
+	Local: Line	: Default	: Indent	: 1
+	Local: Field: Form SubTitle : Info: "Parameters Selections"
+	
+	Border: Thin Top
+	
+[Line : MTIVImpRoundOffLed]
+	Fields: Medium Prompt, MTIVImpRoundOffLed
+	Local : Field : Medium Prompt	: Set As	: "Round-Off Ledger : "
+	Local : Field : Medium Prompt	: Style		: Small
+	Space Bottom: 0.2
+			
+[Field: MTIVImpRoundOffLed]
+	Use			: NameField
+	Modifies	: MTIVImpRoundOffLedVar
+	Set always	: Yes
+	Full Width	: Yes
+	Max			: 200
+	Case		: Normal
+	Style		: Small Bold
+	Table		: MTIVOtherLedgersColl
+	Show Table	: Always
+	Border		: Thin Box
+	Background	: "White"
+	
+
+		
+[Collection : MTIV Excel Files]
+	Data Source : Directory	: #MTIVExcelDirName	
+	Title 		: "List of Excel Files"
+	Format		: $Name, 25
+	Filter		: MTIVExcelFilesFlt
+	Align		: Right
+	Full Height	: Yes
+
+
+[Collection: MTIVOtherLedgersColl]
+	Title       : $$LocaleString:"List of Ledgers"
+    Type        : Ledger
+	Belongs To	: Yes
+    Align       : Right
+    Full Height : Yes
+    With Alias  : No
+	Fetch		: Name
+	Format      : $$Name, 20
+	Filter		: MTIVNonDebtorCreditor
+	
+
+[System: Formulae]
+	MTIVExcelFilesFlt 	: $Name Contains ".xls" or $Name Contains ".xlsx"
+	MTIVNonDebtorCreditor	: Not ($$IsBelongsTo:$$GroupSundryDebtors or $$IsBelongsTo:$$GroupSundryCreditors +
+							or $$IsBelongsTo:$$GroupCash or $$IsBelongsTo:$$GroupBank or $$IsBelongsTo:$$GroupBankOD)
+	
+
+
+[System : Variable]
+	MTIVExcelDirName		: ""
+	MTIVExcelFileName		: ""
+	MTIVExcelSheetName		: ""
+	MTIVImpRoundOffLedVar	: ""
+
+	
+[Variable: MTIVExcelDirName]
+	Type		: String
+	Persistent	: Yes
+
+[Variable: MTIVExcelFileName]
+	Type		: String
+	Persistent	: Yes
+
+[Variable: MTIVExcelSheetName]
+	Type		: String
+	Persistent	: Yes
+
+
+[Variable: MTIVImpRoundOffLedVar]
+	Type		: String
+	Persistent	: Yes
+	
+
+[System : Variable]
+
+	List Variable	: MTIVVouchersImpListVar
+
+[Variable: MTIVVouchersImpListVar]
+	
+	Variables	: MTIVVouchersColum1,MTIVVouchersColum2,MTIVVouchersColum3,MTIVVouchersColum4,MTIVVouchersColum5,MTIVVouchersColum6,MTIVVouchersColum7,MTIVVouchersColum8				: String
+	Variable	: MTIVVouchersColum9,MTIVVouchersColum10,MTIVVouchersColum11,MTIVVouchersColum12,MTIVVouchersColum13,MTIVVouchersColum14,MTIVVouchersColum15,MTIVVouchersColum16,MTIVVouchersColum17	: String
+
+;;;;; ------- Vouchers Import Object Function ----
+
+[Function: MTIPurcVchImpObjFunc]
+	Parameter	: ExcelDirName		: String
+	Parameter	: ExcelFileName		: String
+	Parameter	: ExcelSheetName	: String
+	Variable	: RowCounter		: Number	: 2
+	Variable	: LedTotalCol		: Number	: 1
+	Variable	: ColCounter		: Number	: 1
+	
+	Variable	: FileNamewithPath	: String
+	
+	000	: List Delete: MTIVVouchersImpListVar
+		
+	00	: Set: FileNamewithPath	: if $$StringPart:##ExcelDirName:($$StringLength:##ExcelDirName - 1):1 = "\" then ##ExcelDirName + ##ExcelFileName else ##ExcelDirName + "\" + ##ExcelFileName
+	01	: If: $$IsFileExists:##FileNamewithPath
+	02	: Open File: ##FileNamewithPath : Excel: READ : ASCII
+	03	: Set Active Sheet: ##ExcelSheetName
+	
+	05	:	While	: Not $$IsEmpty:($$FileReadCell:##RowCounter:1) ;and ##RowCounter <= 12
+	
+	10	:		Start Progress	: ##LedTotalCol	: "Excel File Reading"
+		
+	11	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:1) :MTIVVouchersColum1
+	12	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:2) :MTIVVouchersColum2
+	13	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:3) :MTIVVouchersColum3
+	14	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:4) :MTIVVouchersColum4
+	15	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:5) :MTIVVouchersColum5
+	16	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:6) :MTIVVouchersColum6
+	17	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:7) :MTIVVouchersColum7
+	18	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:8) :MTIVVouchersColum8
+	20	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:9) :MTIVVouchersColum9
+	21	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:10):MTIVVouchersColum10
+	22	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:11):MTIVVouchersColum11
+	23	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:12):MTIVVouchersColum12
+	19	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:13):MTIVVouchersColum13
+	24	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:14):MTIVVouchersColum14
+	25	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:15):MTIVVouchersColum15
+	28	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:16):MTIVVouchersColum16
+	291	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:17):MTIVVouchersColum17
+
+
+	61	:		Increment	: RowCounter
+	62	:		Increment	: ColCounter
+	63	:		Show Progress: ##ColCounter
+	64	:		End Progress
+	65	:	End While
+	66	: Close File
+	67	: End If
+	
+	80	: Call	: AppCrushPurchImport
+	90	: List Delete: MTIVVouchersImpListVar
+
+
+
+
+[Function	: AppCrushPurchImport]
+	
+	Variable	: Count				: Number
+	Variable	: SVViewName		: String
+	Variable	: vsParty			: String
+	Variable	: SupplierNo		: String
+	Variable	: LedgerName Dtls	: String
+
+	0000	: Set	: SVViewName	: "Accounting Voucher View"
+
+	0010	: SET 	: Count		: 0
+	0020	: START PROGRESS	: ($$NumItems:MTIVVouchersImpListColl)	: "Journal Voucher" : @@CmpMailName	: "Importing Journal Voucher List..."
+
+	0030	: Walk Collection	: MTIVVouchersImpListColl
+		
+	0040	: 	New Object	: Voucher
+	
+	0050	: Set Value		: VOUCHERTYPENAME	: $MMTIVVouchersColum4
+	0060	: Set Value		: DATE				: $MMTIVVouchersColum1
+	2000	: Set Value		: VoucherNumber		: $MMTIVVouchersColum2
+	2001	: Set Value		: PartyLedgerName	: $MMTIVVouchersColum5
+	0090	: Set Value		: HASCASHFLOW		: YES
+	0100	: Set Value		: NARRATION			: $MMTIVVouchersColum17
+	
+	120	:		Set Value	:PARTYNAME				: $MMTIVVouchersColum5
+	130 :		SET			:SVViewName	    		: "Invoice Voucher View";$$SysName:AcctgVchView 
+    140 :		Set Value	:PARTYLEDGERNAME		: $MMTIVVouchersColum5
+    150 :		Set Value	:BASICBASEPARTYNAME		: $MMTIVVouchersColum5
+	151 :		Set Value	:BASICBUYERNAME			: $MMTIVVouchersColum5
+	2002:		Set Value	:PARTYGSTIN    			: $MMTIVVouchersColum5
+	8765	: Set Value		: CostCentreName		:$$String:$MMTIVVouchersColum3
+	2003:		Set Value	:CONSIGNEEGSTIN			: $MMTIVVouchersColum5
+	2004:		Set Value	:COUNTRYOFRESIDENCE		: "India"
+	
+
+	220 : 	INSERT COLLECTION OBJECT : Ledger Entries
+	230 : 		SET VALUE : Ledger Name 			: $MMTIVVouchersColum5
+	240 : 		SET VALUE : Amount 					: $$AsAmount:$MMTIVVouchersColum6;*-1
+	260 : 		SET VALUE : ISDEEMEDPOSITIVE 		: No	
+	270 :		Set Value : ISPARTYLEDGER	 		: Yes
+	280 : 		Set Value : ISLASTDEEMEDPOSITIVE	: No
+	
+	B1	: Insert Collection Object: BillAllocations
+	B2	: Set Value : NAME		: $MMTIVVouchersColum16
+	B3	: Set Value : BILLTYPE	: $$SysName:NewRef
+	B4	: Set Value : Amount		: $$AsAmount:$MMTIVVouchersColum6;*-1
+	290 :	SET TARGET : ..
+	
+	3001 :If:Not $$IsEmpty:$MMTIVVouchersColum8
+	3002 :		Insert Collection Object	: LedgerEntries
+	3003 :			Set Value		: LEDGERNAME				: $MMTIVVouchersColum7
+	3004 :			Set Value		: ISDEEMEDPOSITIVE			: Yes
+	3005 :			Set Value		: AMOUNT					: $$AsAmount:$MMTIVVouchersColum8*-1
+	3006 :	Set Target	: ..
+	3007 : End If
+	
+	3008 :If:Not $$IsEmpty:$MMTIVVouchersColum10
+	3009 :		Insert Collection Object	: LedgerEntries
+	3010 :			Set Value		: LEDGERNAME				: $MMTIVVouchersColum9
+	3011 :			Set Value		: ISDEEMEDPOSITIVE			: Yes
+	3012 :			Set Value		: AMOUNT					: $$AsAmount:$MMTIVVouchersColum10*-1
+	3013 :	Set Target	: ..
+	3014 : End If
+	
+	3015 :If:Not $$IsEmpty:$MMTIVVouchersColum12
+	3016 :		Insert Collection Object	: LedgerEntries
+	3017 :			Set Value		: LEDGERNAME				: $MMTIVVouchersColum11
+	3018 :			Set Value		: ISDEEMEDPOSITIVE			: Yes
+	3019 :			Set Value		: AMOUNT					: $$AsAmount:$MMTIVVouchersColum12*-1
+	3020 :	Set Target	: ..
+	3021 : End If
+	
+	3022 :If:Not $$IsEmpty:$MMTIVVouchersColum14
+	3023 :		Insert Collection Object	: LedgerEntries
+	3024 :			Set Value		: LEDGERNAME				: $MMTIVVouchersColum13
+	3025 :			Set Value		: ISDEEMEDPOSITIVE			: yes
+	3026 :			Set Value		: AMOUNT					: $$AsAmount:$MMTIVVouchersColum14*-1
+	3027 :	Set Target	: ..
+	3028 : End If
+	
+	3029 :If:Not $$IsEmpty:$MMTIVVouchersColum15
+	3030 :		Insert Collection Object	: LedgerEntries
+	3031 :			Set Value		: LEDGERNAME				: "RoundOff";$MMTIVVouchersColum15
+	3032 :			Set Value		: ISDEEMEDPOSITIVE			: Yes
+	3033 :			Set Value		: AMOUNT					: $$AsAmount:$MMTIVVouchersColum15*-1
+	3034 :	Set Target	: ..
+	3035 : End If
+	3036 : Set Target:..
+		
+	0610 	: SET VALUE    	: PersistedView 	: ##SVViewName
+
+	0620	: 	SHOW PROGRESS	: ##Count
+	0630	: 	Increment		: Count
+	
+	0640	: Accept Create
+
+	0650	: End Walk
+	0660	: END PROGRESS
+		
+
+[Collection	: AppcrushPurcImportListvarSrc]
+	Data Source	: Variable	: MTIVVouchersImpListVar
+	
+[Collection	: MTIVVouchersImpListColl]
+	Source Collection	: AppcrushPurcImportListvarSrc
+	
+Compute	: MMTIVVouchersColum1:  $MTIVVouchersColum1
+Compute	: MMTIVVouchersColum2:  $MTIVVouchersColum2
+Compute	: MMTIVVouchersColum3:  $MTIVVouchersColum3
+Compute	: MMTIVVouchersColum4:  $MTIVVouchersColum4
+Compute	: MMTIVVouchersColum5:  $MTIVVouchersColum5
+Compute	: MMTIVVouchersColum6:  $$Number:$MTIVVouchersColum6
+Compute	: MMTIVVouchersColum7:  $MTIVVouchersColum7
+Compute	: MMTIVVouchersColum8:  $$number:$MTIVVouchersColum8
+Compute	: MMTIVVouchersColum9:  $MTIVVouchersColum9
+Compute	: MMTIVVouchersColum10: $$number:$MTIVVouchersColum10
+Compute	: MMTIVVouchersColum11: $MTIVVouchersColum11
+Compute	: MMTIVVouchersColum12: $$number:$MTIVVouchersColum12
+Compute	: MMTIVVouchersColum13: $MTIVVouchersColum13
+Compute	: MMTIVVouchersColum14: $$number:$MTIVVouchersColum14
+Compute	: MMTIVVouchersColum15: $$Number:$MTIVVouchersColum15
+Compute	: MMTIVVouchersColum16: $MTIVVouchersColum16
+Compute	: MMTIVVouchersColum17: $MTIVVouchersColum17
+
+
+;=========================

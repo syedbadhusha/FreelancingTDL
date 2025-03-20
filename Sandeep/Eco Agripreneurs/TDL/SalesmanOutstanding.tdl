@@ -1,0 +1,274 @@
+
+[Report: Rpt_SC_OutReceivable]
+	Form	: Frm_SC_OutReceivable
+	Variable: SVFromDate,SVToDate, SVDebtors, SalesmanName3
+	;On		: Load	: Yes	: Set	: SVItem1			: $$SysName:AllItems
+	On		: Load	: Yes	: Set	: SVDebtors			: $$SysName:AllItems
+	On		: Load	: Yes	: Set	: SalesmanName3		: $$SysName:AllItems
+;	Set		: SVFromDate	: ##SvCurrentDate
+;	Set		: SVToDate		: ##SvCurrentDate
+	
+[Form: Frm_SC_OutReceivable]	
+	Part	: Pt_SC_OutReceivableDateTitle, Pt_SC_OutReceivableTitle, Pt_SC_OutReceivableDetails	;, Salesmanwise Report
+	;Local	: Part	: Form SubTitle	: Local	: Line	: Form SubTitle	: Local	: Field	: Form SubTitle	: Info	: $$LocaleString:"Salesmanwise Report"
+	Width	: 100% page	
+	Height	: 100% page
+	Button			:	Print button, Mail Button, Export Button,Upload Button, Change Period 
+	 
+	Button			: 	SEDebtorsButton, SESalesmanButton  ;ExplodeFlag, Change Period, 
+	
+[Part: Pt_SC_OutReceivableDateTitle]
+	Line	: Ln_SC_OutReceivableDateTitle
+
+[Line: Ln_SC_OutReceivableDateTitle]
+	Left Field	: Short Name Field, Name Field
+	Local		: Field	: Short Name Field	: Info	: "Report Date : "
+	Local		: Field	: Name Field		: Set as: "From : " + $$String:##SvFromDate + " To: " + (IF $$IsEmpty:##SvToDate THEN $$String:##SvCurrentDate ELSE $$String:##SvToDate)
+	Local		: Field	: Short Name Field	: Style	: Normal
+	Local		: Field	: Short Name Field	: Width	: 10
+	
+
+[Part: Pt_SC_OutReceivableTitle]
+	Line	: Ln_SC_OutReceivableTitle
+
+[Line: Ln_SC_OutReceivableTitle]
+	Field		: SalesMid11, Fld_SC_OutSlNo, Fld_SC_OutSalesman, Fld_SC_OutVchDate, Fld_SC_OutVchNo, Fld_SC_OutParty
+	Right Field	: Fld_SC_OutPendingAmt, Fld_SC_OutDueOn, Fld_SC_OutOverDueDays
+
+	Local	: Field	: SalesMid11				: Set as	: $$LocaleString:"Master Id"
+	Local	: Field	: Fld_SC_OutSlNo			: Set as	: $$LocaleString:"Sl No"
+	Local	: Field	: Fld_SC_OutSalesman		: Set as	: $$LocaleString:"Sales Person"
+	Local	: Field	: Fld_SC_OutVchDate			: Set as	: $$LocaleString:"Date"
+	Local	: Field	: Fld_SC_OutParty			: Set as	: $$LocaleString:"Customer"
+	Local	: Field	: Fld_SC_OutVchNo			: Set as	: $$LocaleString:"Customer Invoice"
+	Local	: Field	: Fld_SC_OutPendingAmt		: Set as	: $$LocaleString:"Pending Amt"	
+	Local	: Field	: Fld_SC_OutDueOn			: Set as	: $$LocaleString:"Due On"
+	Local	: Field	: Fld_SC_OutOverDueDays		: Set as	: $$LocaleString:"Overdue By Days"
+	Local	: Field	: Fld_SC_OutOverDueDays		: Line	: 2
+	
+	Local	: Field	: Default					: Type		: String
+	Local	: Field	: Number Field 				: Align		: Center
+	Local		: Field	: Default				: Style		: Calibri Default Bold
+	Border	: Bottom Flush Column Titles
+	
+
+[Part: Pt_SC_OutReceivableDetails]
+	line			: Ln_SC_OutReceivableDetails
+	Bottom Line		: Ln_SC_OutReceivableTotal
+	Border			: Thin Box
+	Repeat			: Ln_SC_OutReceivableDetails	: Col_SC_BillsReceivablesSalesman
+	Common Border	: Yes
+	Scroll			: Vertical
+	Total			: Fld_SC_OutPendingAmt
+	
+
+[Line: Ln_SC_OutReceivableTotal]
+	Field		: SalesMid11, Fld_SC_OutSlNo, Fld_SC_OutSalesman, Fld_SC_OutVchDate, Fld_SC_OutVchNo, Fld_SC_OutParty
+	Right Field	: Fld_SC_OutPendingAmt, Fld_SC_OutDueOn, Fld_SC_OutOverDueDays
+
+	Local	: Field	: SalesMid11				: Set as	: ""
+	Local	: Field	: Fld_SC_OutSlNo			: Set as	: ""
+	Local	: Field	: Fld_SC_OutSalesman		: Set as	: "Total"
+	Local	: Field	: Fld_SC_OutVchDate			: Set as	: ""
+	Local	: Field	: Fld_SC_OutParty			: Set as	: ""
+	Local	: Field	: Fld_SC_OutVchNo			: Set as	: ""
+	Local	: Field	: Fld_SC_OutPendingAmt		: Set as	: $$CollAmtTotal:Col_SC_BillsReceivablesSalesman:$FinalBalance	;$$Total:Fld_SC_OutPendingAmt
+	Local	: Field	: Fld_SC_OutDueOn			: Set as	: ""
+	Local	: Field	: Fld_SC_OutOverDueDays		: Set as	: ""
+	Local	: Field	: Default					: Type		: String
+	Local	: Field	: Fld_SC_OutOverDueDays		: Delete	: Line	: 2
+	;Local	: Field	: Number Field 				: Align		: Center
+	Border	: Bottom Flush Column Titles
+	Local		: Field	: Default				: Style		: Calibri Default Bold
+	
+
+[Line: Ln_SC_OutReceivableDetails]
+	Field		: SalesMid11, Fld_SC_OutSlNo, Fld_SC_OutSalesman, Fld_SC_OutVchDate, Fld_SC_OutVchNo, Fld_SC_OutParty
+	Right Field	: Fld_SC_OutPendingAmt, Fld_SC_OutDueOn, Fld_SC_OutOverDueDays
+	Local		: Field	: Number Field	: Set as	: $$Line
+	Local		: Field	: Number Field	: Border	: Thin Right
+	Local		: Field	: Number Field	: Align		: Center
+	Local		: Field	: Default		: Style		: Calibri Default Bold
+	Local		: Field	: Fld_SC_OutOverDueDays		: Delete 	: Line	: 2
+	Local		: Field	: Fld_SC_OutVchNo			: Set as	: "-"
+	;Key			: MyKey11
+	Explode		: Pt_SC_OutReceivableBills	: ! $$IsEmptyCollection:Col_SC_BillsReceivablesSalesmanBills
+	
+[Part: Pt_SC_OutReceivableBills]
+	Line			: Ln_SC_OutReceivableBills
+	Bottom Line		: Ln_SC_OutReceivableBillsTotal
+	Repeat			: Ln_SC_OutReceivableBills	: Col_SC_BillsReceivablesSalesmanBills
+	Common Border	: Yes
+	Scroll			: Vertical
+	Total			: Fld_SC_OutPendingAmt
+	
+[Line: Ln_SC_OutReceivableBills]
+	Field		: SalesMid11, Fld_SC_OutSlNo, Fld_SC_OutSalesman, Fld_SC_OutVchDate, Fld_SC_OutVchNo, Fld_SC_OutParty
+	Right Field	: Fld_SC_OutPendingAmt, Fld_SC_OutDueOn, Fld_SC_OutOverDueDays
+	Local		: Field	: Fld_SC_OutSlNo	: Set as	: "";$$Line
+	Local		: Field	: Fld_SC_OutSlNo	: Type		: String	: Forced	
+	;Local		: Field	: Number Field	: 
+	Local		: Field	: Fld_SC_OutSlNo	: Border	: Thin Right
+	Local		: Field	: Fld_SC_OutSlNo	: Align		: Center
+	Local		: Field	: Default		: Style		: Calibri Default
+	Local		: Field	: Fld_SC_OutOverDueDays		: Delete 	: Line	: 2
+	Local		: Field	: Fld_SC_OutSalesman		: Set as	: ""
+	Local		: Field	: Fld_SC_OutVchNo			: Set as	: $Name
+	Local		: Field	: Fld_SC_OutParty			: Set as	: ""
+	Key			: MyKey11
+	
+[Line: Ln_SC_OutReceivableBillsTotal]
+	Field		: SalesMid11, Fld_SC_OutSlNo, Fld_SC_OutSalesman, Fld_SC_OutVchDate, Fld_SC_OutVchNo, Fld_SC_OutParty
+	Right Field	: Fld_SC_OutPendingAmt, Fld_SC_OutDueOn, Fld_SC_OutOverDueDays
+
+	Local	: Field	: SalesMid11				: Set as	: ""
+	Local	: Field	: Fld_SC_OutSlNo			: Set as	: ""
+	Local	: Field	: Fld_SC_OutSalesman		: Set as	: ""
+	Local	: Field	: Fld_SC_OutVchDate			: Set as	: ""
+	Local	: Field	: Fld_SC_OutParty			: Set as	: "Total"
+	Local	: Field	: Fld_SC_OutVchNo			: Set as	: ""
+	Local	: Field	: Fld_SC_OutPendingAmt		: Set as	: $$AsAmount:$$Total:Fld_SC_OutPendingAmt
+	Local	: Field	: Fld_SC_OutDueOn			: Set as	: ""
+	Local	: Field	: Fld_SC_OutOverDueDays		: Set as	: ""
+	Local	: Field	: Default					: Type		: String
+	;Local	: Field	: Number Field 				: Align		: Center
+	Border	: Bottom Flush Column Titles
+	Local		: Field	: Default				: Style		: Calibri Default Bold
+	
+
+;[Key: MyKey11]
+;	Key		: Enter
+;	Action	: Alter	: MyVch11
+;
+;[Field: SalesMid11]
+;	Use	: Name field
+;	Set as	: ("ID:"+$$String:$Masterid)
+;	Invisible	: Yes
+;	
+;[Report: MyVch11]
+;	Use	: Voucher
+;	Object	: Voucher	: #SalesMid11
+;	
+;[Form: MyVch11]
+;	Use	: Voucher
+	
+[Field: Fld_SC_OutSlNo]
+	Use		: Number Field
+	Set As	: $$Line
+	Border	: Thin Right
+	Align	: Center
+	Width	: 5
+
+[Field: Fld_SC_OutSalesman]
+	Use		: Name Field
+	Set As	: $UDFSalesman1
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_OutVchNo]	
+	Use		: Name Field
+	Set As	: $Name
+	Border	: Thin Right
+	Align	: Center
+	Full Width	: Yes
+	;Background	: red
+	Fixed		: Yes
+	
+[Field:  Fld_SC_OutVchDate]
+	Use		: Unidate Field
+	Set As	: $$Date:$BillDate
+	;Width	: @@NameWidth
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_OutParty]
+	Use		: Name Field
+	Set As	: $PartyName
+	Full Width	: Yes
+	Border	: Thin Right
+	Align	: Center
+	;Background	: green
+	
+[Field:  Fld_SC_OutDueOn]
+	Use		: Unidate Field
+	Set As	: $BrBillDueOn
+	Border	: Thin Right
+	Align	: Center	
+
+[Field: Fld_SC_OutPendingAmt]	
+	Use		: Amount Field
+	Set As	: $FinalBalance
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_OutOverDueDays]
+	Use		: Number Field
+	Set As	: $DueDays	;$BrBillDueOn - $$MachineDate	;$LastPurCost	
+	Border	: Thin Right
+	Align	: Center
+	Line	: 2
+
+
+
+[Collection: Col_SC_BillsReceivables]
+	Type		: Bills
+	Parm Var	: SVFromDate		: Date	: $$Date:"1/1/2023";##SVFromDate
+	Parm Var	: SVToDate			: Date	: ##SVToDate
+	Fetch		: BillDate, IsAdvance, Parent, ClosingBalance, OpeningBalance, FinalBalance, BillCreditPeriod, ForexClosing, Name
+	Compute Var	: vLedgerAlias			: String	: If $$IsEmpty:##DSPNameStyle OR $$IsSysNameEqual:NameOnly:##DSPNameStyle Then "" Else $OnlyAlias:Ledger:$Parent
+
+	Compute		: PartyName				: $$FuncDSPAccName:$Parent:##vLedgerAlias
+	Compute		: DSPNameStyle			: ##DSPNameStyle
+	
+	Switch		: RemoteCmpReceivables	: RemoteCmpReceivables : $$IsRemoteCompany ;; Temporary solution to improve performance in server
+	Compute		: GrpName				: ##GroupName ;; Dummy Compute to send the Variable to the Client side.
+	
+    Filter  	: IsReceivable, DueBillsFilter;, AgeFilter, BillsOfGroupName, PaymentLinkFilter
+	Compute 	: BrOverdueDays         : IF $$IsEmpty:##SVToDate THEN ($$MachineDate - @@CreditPeriod) ELSE (##SVToDate - @@CreditPeriod);If (##SVToDate >= @@CreditPeriod) Then +
+;										$$String:(If ($$IsEmpty:$ClosingBalance AND NOT $$IsEmpty:$ClearedOn) Then +
+;										($ClearedOn - @@CreditPeriod) Else ##SVToDate - @@CreditPeriod)+
+;										Else ""
+	Compute 	: BrBillDueOn           : $$String:@@CreditPeriod:UniversalDate 
+	Compute		: UDFSalesman1			: $LedgerEntries.CostCentreName
+	Compute		: Masterid				: $LedgerEntries.Masterid
+	Filter		: InBwBillDateFilt
+;;select $Name, $PartyName, $FinalBalance, $BillCreditPeriod, $BrBillDueOn, $BrOverdueDays, $ClosingBalance, $BillDate, $UDFSalesman1, $BillDueDays from Col_SC_BillsReceivablesSalesman
+
+
+[Collection: Col_SC_BillsReceivablesSalesman]
+	Source Collection	: Col_SC_BillsReceivables
+;	Parm Var	: SVFromDate		: Date	: ##SVFromDate
+;	Parm Var	: SVToDate			: Date	: ##SVToDate
+	By				: UDFSalesman1		: $UDFSalesman1
+	By				: PartyName			: $PartyName
+;	Compute			: Name				: ""
+	Compute			: BillDate			: $BillDate
+;	By				: Name				: $Name
+	Aggr Compute	: FinalBalance		: Sum	: $FinalBalance
+;	Aggr Compute	: BrBillDueOn		: Last	: $BrBillDueOn
+;	Aggr Compute	: Masterid			: Last	: $Masterid
+	Filter			: NonEmptySalesman, SamePartyFilt, SameSalesPersonFilt, InBwBillDateFilt
+	Sort			: @@Default		: $UDFSalesman1
+
+[Collection: Col_SC_BillsReceivablesSalesmanBills]
+	Source Collection	: Col_SC_BillsReceivables
+	Parm Var		: SVFromDate		: Date	: $$Date:"1/1/2023";##SVFromDate
+	Parm Var		: SVToDate			: Date	: ##SVToDate
+	By				: UDFSalesman1		: $UDFSalesman1
+	By				: PartyName			: $PartyName
+	By				: BillDate			: $BillDate
+	By				: Name				: $Name
+	Aggr Compute	: FinalBalance		: Last	: $FinalBalance
+	Aggr Compute	: BrBillDueOn		: Last	: $BrBillDueOn
+	Aggr Compute	: Masterid			: Last	: $Masterid
+	Compute			: DueDays			: $BrOverdueDays	;##SvToDate - $BrBillDueOn 
+	Filter			: NonEmptySalesman, SameSalesmanOut, SamePartyOut;, SamePartyFilt
+	Filter			: InBwBillDateFilt
+	;Sort			: @@Default		: $UDFSalesman1
+	
+[System: Formula]
+	SameSalesmanOut		: ($UDFSalesman1 = $$ReqObject:$UDFSalesman1)
+	SamePartyOut		: ($PartyName = $$ReqObject:$PartyName)
+	SamePartyFilt		: If $$IsSysName:##SVDebtors THEN YES ELSE ($PartyName = ##SVDebtors)
+	SameSalesPersonFilt	: If $$IsSysName:##SalesmanName3 THEN YES ELSE ($UDFSalesman1 = ##SalesmanName3)
+	InBwBillDateFilt	: IF $$IsEmpty:##SVToDate THEN YES ELSE (##SvFromDate <= $$Date:$BillDate AND $$Date:$BillDate <= ##SVToDate)

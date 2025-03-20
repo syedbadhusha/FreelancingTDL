@@ -1,0 +1,81 @@
+[#Part: LED Mailing Parts]
+Add:Parts:After:LED Contact:SalesManShree
+
+[Part:SalesManShree]
+Add:Bottom Line:At End:SalesManShree
+
+[Line:SalesManShree]
+Field:MediumPrompt,SalesmanSgree
+
+Local:Field:Medium Prompt:Set as:"SalesMan :"
+Local	:	Field	:MEDIUM PROMPT	:Background	:yellow
+ 
+[Field:SalesmanSgree]
+Use : Name Field
+Storage : StrgSalesMan
+Set as : $StrgSalesMan
+Width : 25
+Table : SalesmanNameCollection, not applicable
+Show Table: Always
+Key : Create SalesmanName
+Background:white
+
+[Key: Create SalesmanName]
+Key :Alt + C
+Action: CREATE: SalesmanName
+;--------------------------------------------------------------------------
+;[System:UDF]
+;	StrgSalesMan	:String:2014
+		 
+
+;[#Menu: Gateway Of Tally]
+;Add : Item : Salesman : Menu : SalesmanMenu
+
+[Menu: SalesmanMenu]
+Add : Item : Salesman Master : Alter : Salesman Name
+Add : Item : Blank
+
+[Report: Salesman Name]
+Form : Salesman Name
+Object : Company
+
+[Form: Salesman Name]
+Part : FormSubTitle, Saleman
+;Button : Delete All, Remove Line, Restore Line, Restore All,Report Operations
+FullWidth : No
+Height : 90% Screen
+Background : @@SV_CHEQUE
+SpaceRight : 0.5
+SpaceLeft : 1.5
+Local : Field : Form SubTitle : Info : $$LocaleString:"Salesman Name"
+Option : Small Size Form
+
+
+[Part: Saleman]
+Lines : CMP Salesman
+Repeat : CMP Salesman:mydbsalesman
+Break on: $$IsEmpty:$SalesmanName
+Scroll : Vertical
+Height : 90% Screen
+
+[Line: CMP Salesman]
+Fields : Multi SNo, CMPSalemanName
+Local : Field : Default : Delete : Border
+
+[Field: CMPSalemanName]
+Use : Short Name Field
+Storage : SalesmanName
+Unique : Yes
+
+
+;[System: UDF]
+;mydbsalesman : Aggregate: 999
+;SalesmanName : String : 1000 ;: Yes
+
+[Collection : SalesmanNameCollection]
+Type : mydbsalesman : Company
+Childof : ##SVCurrentCompany
+Format : $SalesmanName, 10
+Title : Salesman Name
+
+;=============== During Sales Voucher Entry=============

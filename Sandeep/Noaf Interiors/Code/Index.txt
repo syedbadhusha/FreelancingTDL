@@ -1,0 +1,53 @@
+[Include	: Purcimport.txt]
+[Include	: Payment Import.txt]
+
+
+[#Part: CMP TallyShopFeatures Left]
+	Add	: Line	: At Beginning: MTIV EnableExcelImpUtility
+	
+[Part: MTIV EnableExcelImpUtility]
+	Lines	: MTIV EnableExcelImpUtility
+	Option	: Small Size Part
+	
+[Line: MTIV EnableExcelImpUtility]
+	Fields		: Long Prompt, MTIV EnableExcelImpUtility
+	Local: Field: Long Prompt: Set as: "Enable Item Excel Import Utility :"
+	Space Bottom: 2 mms
+	
+[Field: MTIV EnableExcelImpUtility]
+	Use			: Logical Field
+	Storage		: MTIVEnableExcelImpUtilityUdf
+	Set Always	: Yes
+	Border		: Thin Box
+	Background	: "White"
+
+
+[#Menu: Gateway of Tally]
+	
+	Add: Option: MTIV Import Indirect : @@MTIVExcelImpUtilityEnabled
+	
+[!Menu: MTIV Import Indirect]
+	
+	Add: KeyItem: before: @@locquit : @@MTIVUtilities : 3 : Menu : MTIVUtilities 
+	
+[Menu: MTIVUtilities]
+	Title	: "Excel Import Utilities"
+	
+	Key Item: Purchase Import		: I	: Alter: AppCrushPurcVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
+	Item	: Blank
+	Key Item: Bank Payment Import	: B	: Alter: AppCrushbankPayVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
+	Item	: Blank
+	
+
+[System: Udf]
+	MTIVEnableExcelImpUtilityUdf	: Logical	: 57002	
+	
+[System: Formulae]
+	MTIVExcelImpUtilityEnabled		: $MTIVEnableExcelImpUtilityUdf:Company:##SVCurrentCompany
+	
+	MTIVUtilities 		: $$LocaleString:"Excel Import Utilities"
+	
+	MTIVSalesVchImport	: $$LocaleString:"Journal Vouchers Import"
+	MTIVPurcVchImport	: $$LocaleString:"Purchase Vouchers Import"
+	MTIVCNoteVchImport	: $$LocaleString:"Credit Note Vouchers Import"
+	MTIVDNoteVchImport	: $$LocaleString:"Debit Note Vouchers Import"

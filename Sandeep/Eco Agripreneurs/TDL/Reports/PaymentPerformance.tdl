@@ -1,0 +1,150 @@
+
+[Collection	:	SalesmanWisePayment] ;Trigger]
+	
+;	Use         : SalesmanDetailsTable
+;    Title       : $$LocaleString:"Salesman"
+;	Belongs To	: Yes
+;    Variable    : SalesmanName3
+	Use			: SalesmanWise Report
+    Replace 	: Trigger     : SalesmanTrigger3
+	Fetch		: SalesmanName
+	Replace		: Report      : Payment Performance
+	
+[Report: SalesmanTrigger3]   ;;Auto Report
+
+			Use     : Collection Variable
+			;Local   : Line : Collection Variable : Add	 : Field	:  SalesmanTrigger3
+            Local   : Line : Collection Variable : Field 	: SalesmanTrigger3
+            Local   : Field: MV Title            : Add	 : Info  : $$LocaleString:"Salesman Name"
+	
+[Field: SalesmanTrigger3]
+	
+	Use         : Name Field
+	Set as      : if ##SalesmanName3 = "" then $$SysName:Primary else ##SalesmanName3
+	Modifies    : SalesmanName3
+	Table       : SalesmanWise Payment
+	Show Table  : Always
+	CommonTable : No
+	On			: Accept	: Yes	: Call	: fun12 : $$Value;##SalesmanName3
+	On			: Accept	: Yes	: Field Accept
+	
+[Function: fun12]
+	Parameter	: parm1	: String
+	
+;01: Log: "inside fun11"
+01a: Set	: SalesmanName3	: ##parm1
+;01b: Log	: ##SalesmanName3
+02: Display	: Payment Performance
+
+[Report: Payment Performance]
+	
+	Form	: Payment Performance
+	Variable: SalesmanName3
+	
+[Form: Payment Performance]
+	
+	Part	: Form SubTitle, Pt_SalesmanName, Payment Performance
+	Local	: Part	: Form SubTitle	: Local	: Line	: Form SubTitle	: Local	: Field	: Form SubTitle	: Info	: $$LocaleString:"Payment Performance"
+	Width	: 100% page	
+	Height	: 100% page
+
+[Part: Payment Performance]
+	
+	line	: PaymentPerformance Title, PaymentPerformance Details
+	Border	: Thin Box
+	Repeat	: PaymentPerformance Details	: PaymentSummVouchersGather
+	Common Border	: Yes
+	Scroll			: Vertical
+	
+[Collection: PaymentVouchersGather]
+	
+	Type		: vouchers	: VoucherType
+	Child Of	: $$VchTypePayment
+	Belongs To	: Yes
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount
+	
+[Collection: PaymentSummVouchersGather]
+	
+	Source Collection	: PaymentVouchersGather
+	Compute				: VoucherNumber		: $VoucherNumber
+	Compute				: Date				: $Date
+	Compute				: PartyLedgerName	: $PartyLedgerName
+	Compute				: Amount			: $Amount
+	Compute				: UDFSalesman1		: $UDFSalesman
+	Compute				: NormalCreditPer	: $(Ledger,$PartyLedgerName).BillCreditPeriod
+	;Compute				: AcutalCreditPer	: 
+	Filter				: NonEmptySalesman, SalesmanPaymentFilter
+	
+;;select $VoucherNumber, $Date, $PartyLedgerName, $Amount, $Salesman, $NormalCreditPer from PaymentSummVouchersGather
+
+[Line: PaymentPerformance Title]
+	
+	Use		: PaymentPerformance Details
+	Local	: Field	: Number Field				: Set as	: $$LocaleString:"Sl No"
+	Local	: Field	: Payment_VchNumber Field	: Set as	: $$LocaleString:"Voucher Number"
+	Local	: Field	: Payment_VchDate Field		: Set as	: $$LocaleString:"Voucher Date"
+	Local	: Field	: Payment_Party Field		: Set as	: $$LocaleString:"Party"
+	Local	: Field	: Payment_Amount			: Set as	: $$LocaleString:"Amount"
+	Local	: Field	: Payment_Normal CP			: Set as	: $$LocaleString:"Normal Credit Period"
+	Local	: Field	: Payment_Acutal CP			: Set as	: $$LocaleString:"Actual Credit Period"
+	Local	: Field	: Default					: Type		: String
+	Local	: Field	: Number Field 				: Align		: Center
+	Local	: Field	: Default					: Add		: Style		: Normal Bold
+	Border	: Bottom Flush Column Titles
+
+[Line: PaymentPerformance Details]
+	
+	Field		: Number Field, Payment_VchNumber Field, Payment_VchDate Field,
+	Right Field	: Payment_Party Field, Payment_Amount;, Payment_Normal CP, Payment_Acutal CP
+	Local		: Field	: Number Field	: Set as	: $$Line
+	Local		: Field	: Number Field	: Border	: Thin Right
+	Local		: Field	: Number Field	: Align		: Center
+	Local		: Field	: Default		: Add		: Style		: Normal
+
+[Field: Payment_VchNumber Field]
+	
+	Use		: Name Field
+	Set As	: $VoucherNumber
+	Border	: Thin Right
+	Align	: Center
+	Width	: @@NameWidth
+	
+[Field: Payment_VchDate Field]
+	
+	Use		: Unidate Field
+	Set As	: $$Date:$Date
+	Width	: @@NameWidth - 7
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Payment_Party Field]
+	
+	Use		: Name Field
+	Set As	: $PartyLedgerName
+	Full Width	: Yes
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Payment_Amount]
+	
+	Use		: Amount Field
+	Set As	: $Amount
+	Border	: Thin Right
+	Align	: Center	
+	
+[Field: Payment_Normal CP]
+	
+	Use		: Due Date Field
+	Set As	: $NormalCreditPer
+	Border	: Thin Right
+	Align	: Center
+	Width	: @@NameWidth - 5
+	
+[Field: Payment_Acutal CP]
+	
+	Use		: Name Field
+	Set As	: ""
+	Border	: Thin Right
+	Align	: Center
+	Width	: @@NameWidth - 5
+	

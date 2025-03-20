@@ -1,0 +1,33 @@
+
+[#Menu: GatewayOfTally]
+	Add	: Item	: CopySalesman	: Call	: Fn_SM_CopySalesman
+	
+[Function: Fn_SM_CopySalesman]
+	Variable	: VarMid		: String
+
+100: Walk Collection	: Col_SM_SalesmanGather
+;101:	Log	: "Col_SM_SalesmanGather"
+110:	Set			: VarMid	: "ID:" + $$String:$Masterid
+120: 	New Object	: Voucher	: ##VarMid	: Yes
+130:	Set Value	: UDFSalesman	: $Reference	 
+140:	Accept Alter
+150: End Walk	
+
+
+
+
+[Collection: Col_SM_SalesmanGather]
+	
+	Type		: vouchers	: VoucherType
+	Child Of	: $$VchTypeSales
+	Belongs To	: Yes
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount, UDFSalesman, Masterid, Reference
+	Filter		: NonEmptyReference, EmptySalesman
+	
+;;select $VoucherNumber, $Date, $UDFSalesman, $Reference from Col_SM_SalesmanGather
+
+[System: Formula]
+	NonEmptyReference		: Not $$IsEmpty:$Reference
+	EmptySalesman			: $$IsEmpty:$UDFSalesman
+	
+	

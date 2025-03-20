@@ -1,0 +1,283 @@
+;; Sri Ganeshji : Sri Balaji : Sri Pitreshwarji : Sri Durgaji : Sri Venkateshwara
+
+/*
+
+Objective(s) 
+- This code demonstrates to display a trigger report using a display collection and make this report available on the browser
+- A TDL Object helps to make this report available on browser. Once the object is defined, use the object in a predefined collection
+- called List of Custom Browser Reports
+
+- A new Report attribute called Date Picker Type is introduced in Release 6.6.1 to bring the period change button in browser.
+- It accepts the values Range, Day, or None.
+
+Last modification 
+-	Altered on 27/04/2020
+
+*/
+
+
+[Collection: TSPL Smp SD Group Summary]
+	
+	Use			: Group Summary
+
+	Title				: $$LocaleString:"SD Groups"
+	Replace	: Report	: TSPL Smp SD Group Summary
+	Replace : Trigger	: TSPL Smp SD Group Name
+	Delete	: Collection: Primary
+	Child Of			: $$GroupSundryDebtors
+	Belongs To			: Yes
+	Align 				: Centre
+	
+[Collection	:	SalesmanWisePartyCrDr]
+	
+	Use         : SalesmanDetailsTable
+    Title       : $$LocaleString:"Salesman"
+	Belongs To	: Yes
+    Variable    : SalesmanName3
+    Trigger     : SalesmanTrigger5
+	Fetch		: SalesmanName
+	Report      : TSPL Smp SD Group Summary
+
+[Report: SalesmanTrigger5]
+	
+	Use     : Collection Variable
+	Local   : Line : Collection Variable : Field : SalesmanTrigger5
+	Local   : Field: MV Title            : Info  : $$LocaleString:"Salesman Name"
+	;Title		: "Sundry Debtors Groups"
+	
+[Field: SalesmanTrigger5]
+	
+	Use         : Name Field
+	Set as      : if ##SalesmanName3 = "" then $$SysName:Primary else ##SalesmanName3
+	Modifies    : SalesmanName3
+	Table       : SalesmanWisePartyCrDr
+	Show Table  : Always
+	CommonTable : No
+	On			: Accept	: Yes	: Call	: fun14 : $$Value;##SalesmanName3
+	On			: Accept	: Yes	: Field Accept
+	
+[Function: fun14]
+	Parameter	: parm1	: String
+	
+;01: Log: "inside fun11"
+01a: Set	: SalesmanName3	: ##parm1
+;01b: Log	: ##SalesmanName3
+02: Display	: TSPL Smp SD Group Summary
+
+;; Common Report to display list of Ledgers under selected group
+
+[Report: TSPL Smp SD Group Summary]
+	
+	Title				: "Sundry Debtors Summary"
+	Form				: TSPL Smp Group Summary
+	
+	;;Variable is explicitly mentioned in the report
+	
+	Variable          	: GroupName, SVFromDate, SVToDate, SalesmanName3
+	
+	
+[Form: TSPL Smp Group Summary]
+	
+	Use					: DSP Template
+
+	Parts				: DD TB Period, TSPL Smp Group Summary
+	Buttons				: Print Button, Export Button, Mail Button, Upload Button, F2 Change Period
+
+[Part: TSPL Smp Group Summary]
+
+	Lines				: TSPL Smp Group Summary Title, TSPL Smp Group Summary Details
+	Repeat				: TSPL Smp Group Summary Details	: TSPL Smp Group Ledgers
+	Scroll				: Vertical
+
+	[Line: TSPL Smp Group Summary Title]
+
+		Use				: TSPL Smp Group Summary Details
+
+		Local	: Field	: Default						: Type		: String
+		Local	: Field	: Default						: Style		: Normal
+		Local	: Field	: TSPL Smp Group Summary Name	: Set As	: "Name"
+		Local	: Field	: TSPL Smp Group Summary AmtDr	: Set As	: "Dr."
+		Local	: Field	: TSPL Smp Group Summary AmtCr	: Set As	: "Cr."
+		Local	: Field	: Default						: Style		: Normal Bold	
+		Border			: Thin Top Bottom
+
+	[Line: TSPL Smp Group Summary Details]
+
+		Fields			: TSPL Smp Group Summary Name
+		Right Fields	: TSPL Smp Group Summary AmtDr, TSPL Smp Group Summary AmtCr
+
+		[Field: TSPL Smp Group Summary Name]
+
+			Use			: Name Field
+			Variable	: LedgerName
+			Full Width	: Yes
+			Set As		: $Name
+			Display		: Ledger Vouchers
+
+		[Field: TSPL Smp Group Summary AmtDr]
+
+			Use			: Amount Forex Field
+			Set As		: if $$IsDr:$ClosingBalance then $ClosingBalance else 0
+
+		[Field: TSPL Smp Group Summary AmtCr]
+
+			Use			: Amount Forex Field
+			Set As		: if NOT $$IsDr:$ClosingBalance then $ClosingBalance else 0
+
+[Collection: TSPL Smp Group Ledgers]
+
+	Type				: Ledger
+	;Child Of			: ##GroupName
+	;Belongs To			: Yes
+	Fetch				: Name, ClosingBalance;, UDFSalesman
+	;Filter				: SameSalesman	;TSPL Smp All Debtors
+
+;;select $Name, $ClosingBalance, $UDFSalesman from TSPLSmpGroupLedgers
+	
+
+;;Any objects under this collection will be listed in the browser reports
+
+
+[#Collection: List of Custom Browser Reports]
+     
+   Add	: Object		: TSPL Group Summary Coll
+   
+[Object: TSPL Group Summary Coll]
+	
+	Name        		: "Customized Trigger Report - SD Group Summary" 
+    IsCollection    	: True
+    DefinitionName     	: "TSPL Smp SD Group Summary"       
+    IsAccessAvailable 	: $$Allow:Display:GroupSummary     
+    IsFeatureEnabled   	: $$IsAccountingOn or $$IsInventoryOn 
+	
+
+
+[Part: DD TB Period]
+	
+Line	: DD TB Period
+
+[Line: DD TB Period]
+ 
+	Right Field: DSP MainDateTitle
+
+[Part: DD TB Part]
+
+    Lines       : DD TB Title, DD TB Details
+    BottomLines : DD TB Total
+    Repeat      : DD TB Details	: DD TB GroupsLedgers
+    Total       : DD TB Dr Amt Field, DD TB Cr Amt Field
+    Scroll      : Vertical
+    CommonBorder: Yes
+		
+
+	
+
+	[Line: DD TB Title]
+        
+        Use     : DD TB Details
+		Local   : Field : Default           : Type  : String
+        Local   : Field : Default           : Align : Centre		
+        Local   : Field : DD TB Name Field  : Set as: "Name"
+        Local   : Field : DD TB ParNameField: Set as: "Parent"
+        Local   : Field : DD TB Dr Amt Field: Set as: "Debit"
+        Local   : Field : DD TB Cr Amt Field: Set as: "Credit"
+		Border  : Thin Top Bottom
+
+    [Line: DD TB Details]
+
+        Fields      : DD TB Name Field, DD TB ParName Field
+        Right Fields: DD TB Dr Amt Field, DD TB Cr Amt Field
+		
+		Explode		: DD TB Group Explosion		: ##ExplodeFlag OR $$KeyExplode
+ 
+        [Field: DD TB Name Field]
+
+			Use         : Name Field
+			Set as      : $$Name
+			Option      : DD TB Name Field Grp  : $$IsGroup
+			Option      : DD TB Name Field Led  : $$IsLedger
+			
+            [!Field: DD TB Name Field Grp]
+            
+				Variable    : DDGroupName1
+				Display     : DD Trial Balance
+			
+            [!Field: DD TB Name Field Led]
+            
+                Variable    : LedgerName
+                Display     : Ledger Monthly Summary
+                Style       : Normal Italic
+                            
+        [Field: DD TB ParName Field]
+
+			Use         : Name Field
+			Set as      : $Parent
+			Border      : Thin Left
+
+        [Field: DD TB Dr Amt Field]
+
+            Use         : Amount Field
+		    Set as      : if $$IsDr:$ClosingBalance then $ClosingBalance else 0
+		    Border      : Thin Left
+
+        [Field: DD TB Cr Amt Field]
+
+            Use         : Amount Field
+		    Set as      : if NOT $$IsDr:$ClosingBalance then $ClosingBalance else 0
+		    Border      : Thin Left
+		    					
+    [Line: DD TB Total]
+
+        Use     : DD TB Details
+        Local   : Field : DD TB Name Field  : Align : Centre
+        Local   : Field : DD TB Name Field  : Set as: "TOTAL"
+        Local   : Field : DD TB Dr Amt Field: Set as: $$Total:DDTBDrAmtField
+        Local   : Field : DD TB Cr Amt Field: Set as: $$Total:DDTBCrAmtField
+        Border  : Thin Top Bottom
+
+;; Explode Part
+
+[Part: DD TB Group Explosion]
+
+    Lines       : DD TB Details Explosion
+    Repeat      : DD TB Details Explosion   : DD TB GroupsLedgers
+    Scroll      : Vertical
+    
+    [Line: DD TB Details Explosion]
+    
+        Fields      : DD TB Name Field, DD TB ParName Field
+        Right Fields: DD TB Dr Amt Field, DD TB Cr Amt Field
+        Explode     : DD TB Group Explosion : $$IsGroup and ($$KeyExplode OR ##ExplodeFlag)
+        Indent      : 2  * $$ExplodeLevel
+        Local       : Field     : Default   : Delete: Border
+
+;; Explode Part Ends here
+
+[Collection: DD TB GroupsLedgers]
+
+    Collection  : DD TB Groups, DD TB Ledgers
+
+[Collection: DD TB Groups]
+
+    Type        : Group
+    Child Of    : #DDGroupName1
+    Filter      : Zero Filter
+	Fetch		: Name, ClosingBalance
+    
+[Collection: DD TB Ledgers]
+
+    Type        : Ledger
+    Child Of    : #DDGroupName1
+    Filter      : Zero Filter
+	Fetch		: Name, ClosingBalance
+
+[Variable: DDGroupName1]
+	
+	Type		: String
+	Default		: ""
+	
+
+;; End-of-File
+
+
+;; End-of-File

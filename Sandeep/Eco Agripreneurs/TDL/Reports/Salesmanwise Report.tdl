@@ -1,0 +1,678 @@
+
+;;;;;;;;;;;Button
+[Button	: SEDebtorsButton]
+	Key		: F7
+	Title	: "Parties"
+	Action	: Alter	: SEDebtorsTriggerReport
+	
+[Button	: SEItemsButton]
+	Key		: F8
+	Title	: "Items"
+	Action	: Alter	: SEItemsTriggerReport
+	
+[Button: SESalesmanButton]
+	Key		: F9
+	Title	: "Salesman"
+	Action	: Alter	: SalesmanTrigger1
+	
+[Report	: SEDebtorsTriggerReport]	
+	Use		: Collection Variable
+	Local   : Line : Collection Variable : Field : SEDebtorsFilt	
+	Local   : Field: MV Title            : Info  : $$LocaleString:"Select Party"
+
+[Field: SEDebtorsFilt]
+	Use         : Name Field
+	Table		: Party Cash Ledgers Extract, AllItems
+	Show Table  : Always	
+	Modifies	: SVDebtors	: Yes
+	Set Always	: Yes
+	
+
+[Collection: DebtorsLedTable1]
+	Type     	: Group	
+	Child Of	: $$GroupSundryDebtors
+	Belongs To	: Yes
+	Fetch		: Name, StateName, OpeningBalance, ClosingBalance
+	Title		: "List Of Debtors"
+	Format   	: $Name, 15
+;	Format   	: $StateName, 15
+;	Format   	: $OpeningBalance, 10
+;	Format   	: $ClosingBalance, 10
+
+[Report	: SEItemsTriggerReport]	
+	Use		: Collection Variable
+	Local   : Line : Collection Variable : Field : SEItemsFilt	
+	Local   : Field: MV Title            : Info  : $$LocaleString:"Select Item"
+
+[Field: SEItemsFilt]
+	Use         : Name Field
+	Table		: Vch Stock Item Extract, AllItems
+	Show Table  : Always	
+	Modifies	: SVItem1	: Yes
+	Set Always	: Yes
+	
+
+[Variable: SVItem1]
+	Type	: String
+	
+[Variable: SVDebtors]
+	Type	: String
+	
+[System: Variable]
+	SVItem1					: ""
+	SVDebtors				: ""
+	
+	
+;;;;;;;;;;;;Button End
+
+
+[Variable	: SalesmanName3]
+	
+	Type	: String
+	
+[System: Variable]
+	
+	SalesmanName3	: ""
+
+[Collection	:	SalesmanWise Report] ;Trigger]
+	
+	;Use         : SalesmanDetailsTable 
+	;Use			: SalesmanNameCollection;
+	Use         : Alias Collection
+	Type 		: mydbsalesman : Company
+	Childof 	: ##SVCurrentCompany
+	Delete		: Format
+	Add			: Format	: $SalesmanName, 35
+	
+    Title       : $$LocaleString:"Salesman"
+	Belongs To	: Yes
+    Variable    : SalesmanName3
+    Trigger     : SalesmanTrigger1
+	Fetch		: SalesmanName
+	Report      : Salesmanwise Report
+	
+[Report: SalesmanTrigger1]   ;;Auto Report
+	Use     : Collection Variable
+	Local   : Line : Collection Variable : Field : SalesmanTrigger1
+	Local   : Field: MV Title            : Info  : $$LocaleString:"Salesman Name"
+	;Local   : Line : Collection Variable : Local : Field : SalesmanTrigger1 : Add : Table : SalesmanWise Report
+
+[Field: SalesmanTrigger1]
+	Use         : Name Field
+	;Set as      : if ##SalesmanName3 = "" then $$SysName:Primary else ##SalesmanName3
+	Modifies    : SalesmanName3
+	Table       : SalesmanWise Report, AllItems
+	Show Table  : Always
+	CommonTable : No
+;	On			: Accept	: Yes	: Call	: fun11 : $$Value
+;	On			: Accept	: Yes	: Field Accept
+	
+[Function: fun11]
+	Parameter	: parm1	: String
+	
+;01: Log: "inside fun11"
+01a: Set	: SalesmanName3	: ##parm1
+01b: Log	: ##SalesmanName3
+02: Display	: SalesmanWise Report
+
+[Report: Salesmanwise Report]
+	Form	: Salesmanwise Report
+	Variable: SVFromDate,SVToDate, SVItem1, SVDebtors, SalesmanName3
+	On		: Load	: Yes	: Set	: SVItem1			: $$SysName:AllItems
+	On		: Load	: Yes	: Set	: SVDebtors			: $$SysName:AllItems
+	On		: Load	: Yes	: Set	: SalesmanName3		: $$SysName:AllItems
+	Set		: SVFromDate	: ##SvCurrentDate
+	Set		: SVToDate		: ##SvCurrentDate
+	
+[Form: Salesmanwise Report]
+	
+	Part	: Form SubTitle, Pt_SC_OutReceivableDateTitle, Pt_SalesmanName, Pt_SalesmanName, Salesmanwise Report
+	Local	: Part	: Form SubTitle	: Local	: Line	: Form SubTitle	: Local	: Field	: Form SubTitle	: Info	: $$LocaleString:"Salesmanwise Report"
+	Width	: 100% page	
+	Height	: 100% page
+	Button			:	Print button, Mail Button, Export Button,Upload Button 
+	 
+	Button			: 	Change Period, SEDebtorsButton, SEItemsButton, SESalesmanButton  ;ExplodeFlag, 
+	
+[Part: Pt_SalesmanName]
+	Line	: Ln_SalesmanName
+
+[Line: Ln_SalesmanName]
+	Left Field	: Short Name Field, Name Field
+	Local		: Field	: Short Name Field	: Info	: "Salesman : "
+	Local		: Field	: Name Field		: Set as: ##SalesmanName3
+	Local		: Field	: Short Name Field	: Style	: Normal
+	Local		: Field	: Short Name Field	: Width	: 10
+
+[Part: Salesmanwise Report]
+	line			: Salesmanwise Title, SalesmanwiseTitle2, Salesmanwise Details
+	Bottom Line		: Ln_SR_TotalLine
+	Border			: Thin Box
+	Repeat			: Salesmanwise Details	: Col_SR_SalesmanSales
+	Common Border	: Yes
+	Scroll			: Vertical
+	Total			: Fld_SC_SalesAmt, Fld_SC_PurAmt, Fld_SC_PurAmt, Fld_SR_SalesmanCommAmt, Fld_SC_TotalProfitAmt
+	
+[Collection: SalesVouchersGather]
+	Type		: vouchers	: VoucherType
+	Child Of	: $$VchTypeSales
+	Belongs To	: Yes
+;	Parm Var:Svfromdate:##SVFromDate
+;	Parm Var:Svtodate:##Svtodate
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount, UDFSalesman
+	
+[Collection: Col_SR_SalesmanSales]	
+	Source Collection	: SalesVouchersGather
+	Walk				: AllInventoryEntries	
+	Compute				: VoucherNumber		: $..VoucherNumber
+	Compute				: Masterid			: $..Masterid
+	
+	By					: PartyLedgerName	: $..PartyLedgerName
+	By					: StockItemName		: $StockItemName
+	By					: Date				: $..Date
+	Aggr Compute		: SalesAmount		: Sum	: $Amount
+	Aggr Compute		: BilledQty			: Sum	: $BilledQty
+	By					: UDFSalesman1		: $..CostCentreName	;$(Ledger,$PartyLedgerName).UDFSalesman
+	Aggr Compute		: SalesRate			: Last	: $Rate
+	;Compute				: LastPurCost		: $$CollectionField:$FirstPurCost:1:Col_SR_SalesmanPurchase	;$(StockItem,$StockItemName).LastPurcCost
+	Compute				: LastPurAmt		: $BilledQty * $(StockItem,$StockItemName).LastPurcCost
+	;Compute				: SalesRate1		: $SalesAmount / $BilledQty
+	Compute				: ProfitAmt			: ($$AsAmount:($$Number:$Rate - $$Number:$$TgtObject:$LastPurCost)) * $$AsAmount:$BilledQty
+	Filter				: NonEmptySalesman
+	Filter				: SalesmanReportFilter, ItemFilter, PartyFilter
+	
+;;;select $PartyLedgerName, $VoucherNumber, $Date, $UDFSalesman1, $StockItemName, $LastPurCost1, $LastPurAmt from Col_SR_SalesmanSales
+
+[System: Formula]
+	ItemFilter		: If $$IsSysName:##SVItem1 Then Yes Else $StockItemName = ##SVItem1
+	PartyFilter		: If $$IsSysName:##SVDebtors Then Yes Else $PartyLedgerName = ##SVDebtors
+	ItemFilterPur	: $StockItemName = #Fld_SC_Itemname;$$ReqOwner:$StockItemName	;$Name = "Laser Cutting"
+
+
+[Collection: Col_SC_Items]
+	Type		: StockItem
+	Fetch		: Name, AvgPurcPrice,AvgPurccost
+	Filter:AVFG
+	
+[System:Formula]
+	avfg:Not $$isempty:$AvgPurcPrice
+;	Search Key	: $Name
+	
+
+
+;;;select $Name, $AvgPurcPrice,$AvgPurccost from Col_SC_Items
+
+[Collection: SalesVouchersPurchase1]
+	Type		: vouchers	: VoucherType
+	Child Of	: $$VchTypePurchase
+	Belongs To	: Yes
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount, UDFSalesman
+	Parm Var	: SvFromDate		: Date	: @@BooksFromDate	;##SvFromDate
+	Parm Var	: SvToDate			: Date	: @@LastVoucherDate	;##SvToDate	
+	Keep Source	: ().
+	
+
+[Collection: Col_SR_SalesmanPurchase1]	
+	Source Collection	: SalesVouchersPurchase1
+	Walk				: AllInventoryEntries	
+	;By					: VoucherNumber		: $..VoucherNumber
+	;Compute				: Masterid			: $..Masterid
+
+	
+	Compute				: Date				: $..Date
+	;By					: PartyLedgerName	: $..PartyLedgerName
+	By				: StockItemName1	: $StockItemName
+	Aggr Compute:amt:Sum:$$Number:$amount
+	Aggr Compute:Qty:Sum:$$Number:$Billedqty
+;	Aggr Compute:avg:Sum:($$Number:$amount/$$Number:$Billedqty)
+	
+;select $StockitemName1,$Amt,$Qty,$avg from Col_SR_SalesmanPurchase1
+	;Compute				: FirstPurCost		: $AvgPurcPrice:StockItem:$StockItemName1	;$(StockItem,$StockItemName).AvgPurcPrice	;$Rate
+;	By					: Date				: $..Date
+;	Aggr Compute		: SalesAmount		: Sum	: $Amount
+;	Aggr Compute		: BilledQty			: Sum	: $BilledQty
+;	By					: UDFSalesman1		: $..CostCentreName	;$(Ledger,$PartyLedgerName).UDFSalesman
+;	Aggr Compute		: SalesRate			: Last	: $Rate
+;	Compute				: LastPurCost		: $(StockItem,$StockItemName).LastPurcCost
+;	Compute				: LastPurAmt		: $$TgtObject:$BilledQty * $(StockItem,$StockItemName).LastPurcCost
+;	Compute				: ProfitAmt			: ($$AsAmount:($$Number:$Rate - $$Number:$$TgtObject:$LastPurCost)) * $$AsAmount:$BilledQty
+;	Filter				: NonEmptySalesman
+;	Filter				: ItemFilterPur	;SalesmanReportFilter, PartyFilter
+	Search Key			: $StockItemName1
+;	Sort				: @@Default	: $Masterid
+	
+;;;select $StockItemName, $FirstPurCost,$ from Col_SR_SalesmanPurchase
+
+[Collection: Col_SR_SalesmanPurchase]	
+	Source Collection	: Col_SR_SalesmanPurchase1
+	Compute				: Date				: $..Date
+	;By					: PartyLedgerName	: $..PartyLedgerName
+	By					: StockItemName1	: $StockItemName
+	Compute				: FirstPurCost		: $FirstPurCost
+	Search Key			: $StockItemName1
+
+
+;[#Menu: GatewayofTally]
+;	Add		: Item	: a	: Call	: Fn_a
+	
+;[Function: Fn_a]
+;	
+;100: Log	: $(StockItem,"Laser Cutting").AvgPurcPrice
+
+[Collection: RBVATKeralaStockItemWiseSrc1] 
+	Type	: Stock Item
+	Fetch	: Name, StkClBalance, TBalClosing, BaseUnits
+	Filter	: ItemFilterPur
+	
+;select $Name, $StkClBalance, $TBalClosing, $BaseUnits from RBVATKeralaStockItemWiseSrc1
+
+[Collection: StockVoucherTemplate1]
+	Source Collection	: Stock Voucher Template
+	Compute	: InVchAmt			: $TPG_StkItemInAmt	;If (##IsItemBatchReport) Then (@@StkBatchInAmt) Else +
+;								  If ##IsGodownReport Then (@@StkGodownInAmt) Else +
+;								  If ##IsItemBatchGdwnReport Then (@@StkBatchGdwnInAmt) Else +
+;								  If (##IsMultiPage AND NOT ##InNewPages)Then @@TPG_AllInVchAmt Else $TPG_StkItemInAmt
+
+;;select $InVchAmt, $OutVchAmt from StockVoucherTemplate1
+;$$NettAmount:$OutVchAmt:$InVchAmt
+
+/*
+[Collection: Col_SR_SalesmanPurchaseSrc]	
+	Type		: vouchers	: VoucherType
+	Child Of	: $$VchTypeSales
+	Belongs To	: Yes
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount, UDFSalesman, UDFCommissionPerVch
+	
+[Collection: Col_SR_SalesmanPurchase1]	
+	Source Collection	: Col_SR_SalesmanPurchaseSrc
+	Walk				: AllInventoryEntries	
+	Fetch				: BilledQty
+	Compute				: PartyLedgerName	: $..PartyLedgerName
+	Compute				: StockItemName		: $StockItemName
+	Compute				: Amount			: $Amount
+	Compute				: UDFSalesman1		: $..UDFSalesman	
+	Compute				: UDFCommissionPerVch1	: $..UDFCommissionPerVch
+	Compute				: CommissionAmt			: $Amount * $..UDFCommissionPerVch%
+	Filter				: NonEmptySalesman
+	Filter				: SalesmanReportFilter
+
+[Collection: Col_SR_SalesmanPurchase]	
+	Source Collection	: Col_SR_SalesmanPurchase1
+	;Walk				: AllInventoryEntries	
+	;By					: VoucherNumber		: $..VoucherNumber
+	;Compute				: Date				: $..Date
+	;By					: Masterid			: $..Masterid	
+	;By					: PartyLedgerName	: $PartyLedgerName
+	By					: StockItemName		: $StockItemName
+	;By					: Date				: $..Date
+	Aggr Compute		: Amount			: Sum	: $Amount
+	Aggr Compute		: BilledQty			: Sum	: $BilledQty
+	By					: UDFSalesman1		: $UDFSalesman1	;$(Ledger,$PartyLedgerName).UDFSalesman
+	Aggr Compute		: TotalCommissionAmt: Sum	: $CommissionAmt
+;	Filter				: NonEmptySalesman
+;	Filter				: SalesmanReportFilter
+	
+;;select $VoucherNumber, $UDFSalesman1 from SalesSummVouchersGather
+*/
+
+
+[Collection: STK Item Purchases1]
+
+	Type	: Vouchers	: Stock Item
+	Child Of: ##StockItemName
+	Filter	: IsPurchaseVoucherType
+	Fetch	: Date, PartyLedgerName, VoucherNumber, MasterId
+	ParmVar	: SVFromDate	: Date		: $$STKItemPurchasesFromDate
+	ParmVar	: SVToDate		: Date		: $LastPurcDate:StockItem:##StockItemName
+	Option		: Voucher Filter Methods	: @@FetchVoucherMethods
+
+
+[Collection: STK Item PurchasesExtract1]
+	
+	Source Collection	: STK Item Purchases1
+
+	Source Var	: svDate			: Date		: $Date
+	Source Var	: svVoucherNumber	: String	: $VoucherNumber
+	Source Var	: svPartyName		: String	: $PartyLedgerName
+	Source Var	: svMasterID		: String	: $MasterID
+	
+	Walk	: AllLedgerEntries, InventoryAllocations
+	
+	By	: StockItemName		: $StockItemName
+	By	: Rate				: $Rate
+	By	: Discount			: $Discount
+	By	: MasterID			: ##svMasterID
+					
+	Aggr Compute	: VchItemQty			: Sum	: $ActualQty
+	Aggr Compute	: VchItemBilledQty		: Sum	: $BilledQty
+	Aggr Compute	: VchItemNetAmt			: Sum	: @@TotalAmount
+	Aggr Compute	: VchItemAmt			: Sum	: $Amount
+
+	Compute			: VchDiscount			: $Discount
+	Compute			: VchItemRate			: $Rate
+	Compute			: Date					: ##svDate
+	Compute			: VoucherNumber			: ##svVoucherNumber
+	Compute			: PartyLedgerName		: ##svPartyName
+	
+	Sort			: @@Default				: -$Date, -$VoucherNumber
+	
+	Filter			: ForVarStockItem
+	
+	Option      : SQDrillDownInfo   : $$InMobileBrowserExport
+
+
+[Line: Salesmanwise Title]
+	Use		: Salesmanwise Details
+	Local	: Field	: SalesMid11				: Set as	: $$LocaleString:"Master Id"
+	Local	: Field	: Fld_SC_SlNo				: Set as	: $$LocaleString:"Sl No"
+	Local	: Field	: Fld_SC_Salesman			: Set as	: $$LocaleString:"Sales Person"
+	Local	: Field	: Fld_SC_VchDate			: Set as	: $$LocaleString:"Date"
+	Local	: Field	: Fld_SC_Party				: Set as	: $$LocaleString:"Customer"
+	Local	: Field	: Fld_SC_ItemName			: Set as	: $$LocaleString:"Model/Details"
+	Local	: Field	: Fld_SR_SalesmanCommAmt	: Set as	: $$LocaleString:"Total"
+	Local	: Field	: Fld_SC_BilledQty			: Set as	: $$LocaleString:"Qty"
+	
+	Local	: Field	: Fld_SC_UnitSalesPrice		: Set as	: $$LocaleString:"Unit Sale"
+	Local	: Field	: Fld_SC_SalesAmt			: Set as	: $$LocaleString:"Total"
+	Local	: Field	: Fld_SC_UnitPurPrice		: Set as	: $$LocaleString:"Unit Pur"
+	Local	: Field	: Fld_SC_PurAmt				: Set as	: $$LocaleString:"Total Pur"
+	Local	: Field	: Fld_SC_UnitProfit			: Set as	: $$LocaleString:"Per Unit"
+	Local	: Field	: Fld_SC_TotalProfitAmt		: Set as	: $$LocaleString:"Total"
+	Local	: Field	: Fld_SC_CommissionPer		: Set as	: $$LocaleString:"Comission"
+
+	Local	: Field	: Default					: Type		: String
+	Local	: Field	: Number Field 				: Align		: Center
+	Local		: Field	: Default				: Style		: Calibri Default Bold
+	Border	: Bottom Flush Column Titles
+	
+
+[Line: SalesmanwiseTitle2]
+	Use		: Salesmanwise Details
+
+	Local	: Field	: Fld_SC_SlNo				: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_Salesman			: Set as	: $$LocaleString:"Name"
+	Local	: Field	: Fld_SC_VchDate			: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_Party				: Set as	: $$LocaleString:"Details"
+	Local	: Field	: Fld_SC_ItemName			: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SR_SalesmanCommAmt	: Set as	: $$LocaleString:"Commission"
+	Local	: Field	: Fld_SC_BilledQty			: Set as	: $$LocaleString:""
+	
+	Local	: Field	: Fld_SC_UnitSalesPrice		: Set as	: $$LocaleString:"Price"
+	Local	: Field	: Fld_SC_SalesAmt			: Set as	: $$LocaleString:"Sales Amt"
+	Local	: Field	: Fld_SC_UnitPurPrice		: Set as	: $$LocaleString:"Price"
+	Local	: Field	: Fld_SC_PurAmt				: Set as	: $$LocaleString:"Amount"
+	Local	: Field	: Fld_SC_UnitProfit			: Set as	: $$LocaleString:"Profit"
+	Local	: Field	: Fld_SC_TotalProfitAmt		: Set as	: $$LocaleString:"Profit"
+	Local	: Field	: SalesMid11				: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_CommissionPer		: Set as	: $$LocaleString:"%"
+
+	Local	: Field	: Default					: Type		: String
+	;Local	: Field	: Number Field 				: Align		: Center
+	Local	: Field	: Default					: Style		: Calibri Default Bold
+	Border	: Bottom Flush Column Titles
+	
+[Line: Ln_SR_TotalLine]
+	Use		: Salesmanwise Details
+	
+	Local	: Field	: SalesMid11				: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_SlNo				: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_Salesman			: Set as	: $$LocaleString:"Total"
+	Local	: Field	: Fld_SC_VchDate			: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_Party				: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_ItemName			: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SR_SalesmanCommAmt	: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_BilledQty			: Set as	: $$LocaleString:""
+	
+	Local	: Field	: Fld_SC_UnitSalesPrice		: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_SalesAmt			: Set as	: $$Total:Fld_SC_SalesAmt
+	Local	: Field	: Fld_SC_UnitPurPrice		: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_PurAmt				: Set as	: $$Total:Fld_SC_PurAmt
+	Local	: Field	: Fld_SC_UnitProfit			: Set as	: $$LocaleString:""
+	Local	: Field	: Fld_SC_TotalProfitAmt		: Set as	: $$Total:Fld_SC_TotalProfitAmt
+	Local	: Field	: Fld_SR_SalesmanCommAmt	: Set as	: $$Total:Fld_SR_SalesmanCommAmt
+	Local	: Field	: Fld_SC_CommissionPer		: Set as	: ""
+	Local	: Field	: Default					: Type		: String
+	;Local	: Field	: Number Field 				: Align		: Center
+	Border	: Bottom Flush Column Titles
+	Local		: Field	: Default				: Style		: Calibri Default Bold
+	
+
+[Line: Salesmanwise Details]
+	Field		: SalesMid11, Fld_SC_SlNo, Fld_SC_VchDate, Fld_SC_Party
+	Right Field	: Fld_SC_ItemName, Fld_SC_Salesman, Fld_SC_BilledQty, Fld_SC_UnitSalesPrice, Fld_SC_SalesAmt, Fld_SC_UnitPurPrice, Fld_SC_PurAmt, Fld_SC_UnitProfit, Fld_SC_TotalProfitAmt;, Fld_SC_CommissionPer, Fld_SR_SalesmanCommAmt
+	Local		: Field	: Number Field	: Set as	: $$Line
+	Local		: Field	: Number Field	: Border	: Thin Right
+	Local		: Field	: Number Field	: Align		: Center
+	Local		: Field	: Default		: Style		: Calibri Default
+	Key		: MyKey11
+	
+[Key: MyKey11]
+	Key		: Enter
+	Action	: Alter	: MyVch11
+
+[Field: SalesMid11]
+	Use	: Name field
+	Set as	: ("ID:"+$$String:$Masterid)
+	Invisible	: Yes
+	
+[Report: MyVch11]
+	Use	: Voucher
+	Object	: Voucher	: #SalesMid11
+	
+[Form: MyVch11]
+	Use	: Voucher
+	
+[Field: Fld_SC_SlNo]
+	Use		: Number Field
+	Set As	: $$Line
+	Border	: Thin Right
+	Align	: Center
+	Width	: 5
+
+[Field: Fld_SC_Salesman]
+	Use		: Name Field
+	Set As	: $UDFSalesman1
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_ItemName]	
+	Use		: Name Field
+	Set As	: $StockItemName
+	Border	: Thin Right
+	Align	: Center
+	Full Width	: Yes
+	Set Always:Yes
+	
+[Field:  Fld_SC_VchDate]
+	Use		: Unidate Field
+	Set As	: $$Date:$Date
+	;Width	: @@NameWidth
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_Party]
+	Use		: Name Field
+	Set As	: $PartyLedgerName
+	Full Width	: Yes
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_BilledQty]
+	Use		: Qty Field
+	Set As	: $BilledQty
+	Border	: Thin Right
+	Align	: Center	
+	
+[Field: Fld_SC_UnitSalesPrice];, Fld_SC_SalesAmt, Fld_SC_UnitPurPrice, Fld_SC_PurAmt, Fld_SC_UnitProfit, Fld_SC_TotalProfitAmt
+	Use		: Rate Field
+	;Set As	: $SalesRate
+	Set as	: $$AsRate:$SalesAmount/$$Number:$BilledQty
+	Border	: Thin Right
+	Align	: Center
+
+[Field: Fld_SC_SalesAmt]	
+	Use		: Amount Field
+	Set As	: $SalesAmount
+	Border	: Thin Right
+	Align	: Center
+	
+[Field: Fld_SC_UnitPurPrice]
+	Use		: Number field; Field
+	Set As	: $$Round:@@avgpr:0.5
+	;Set As	: $$ReportObject:$$CollectionField:$FirstPurCost:1:Col_SR_SalesmanPurchase
+	;Set as	: $$CollectionField:$FirstPurCost:(#Fld_SC_ItemName):Col_SR_SalesmanPurchase1 
+	;Set as	: $$ReportObject:$$CollectionFieldByKey:$AvgPurcPrice:#Fld_SC_ItemName:Col_SC_Items
+	Border	: Thin Right
+	Align	: Center
+	Set Always:Yes
+	
+[System:Formulae]
+	avgpr:($$ReportObject:$$CollectionFieldByKey:$Amt:($StockItemName):Col_SR_SalesmanPurchase1)/($$ReportObject:$$CollectionFieldByKey:$Qty:($StockItemName):Col_SR_SalesmanPurchase1)
+
+[Field: Fld_SC_PurAmt]	
+	Use		: Amount Field
+	Set As	: $$AsAmount:$BilledQty * $$AsAmount:$$Number:#Fld_SC_UnitPurPrice	;$LastPurCost
+	Border	: Thin Right
+	Align	: Center	
+	
+[Field: Fld_SC_UnitProfit]
+	Use		: Rate Field
+	;Set As	: $$AsRate:($$Number:$SalesRate - $$Number:$LastPurCost)
+	Set as	: $$AsRate:#Fld_SC_TotalProfitAmt/$$Number:$BilledQty	;$$AsRate:(($$Number:$SalesAmount - $$Number:#Fld_SC_PurAmt)/$BilledQty)
+	Border	: Thin Right
+	Align	: Center
+
+[Field: Fld_SC_TotalProfitAmt]	
+	Use		: Amount Field
+	;Set As	: $ProfitAmt	;($$AsAmount:($$Number:$SalesRate - $$Number:$LastPurCost)) * $$AsAmount:$BilledQty
+	Set as	: ($SalesAmount - #Fld_SC_PurAmt)
+	Border	: Thin Right
+	Align	: Center	
+
+[Field: Fld_SC_CommissionPer]
+	Use		: Number Field
+	Set as	: $(CostCentre,$UDFSalesman1).UDFSalesmanCommission
+	Format	: "Percentage"
+	Border	: Thin Right
+	Align	: Center
+
+[Field: Fld_SR_SalesmanCommAmt]
+	Use		: Amount Field 
+	Set as	: $ProfitAmt * #Fld_SC_CommissionPer%
+	Border	: Thin Right
+	Align	: Center
+;	Invisible	: Yes
+;	Inactive	: Yes
+	
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Salesman Commission Report;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[Report: Salesmanwise CommissionReport]
+	Form	: Salesmanwise CommissionReport
+	Variable: SVFromDate, SVToDate, SVItem1, SVDebtors, SalesmanName3
+	On		: Load	: Yes	: Set	: SVItem1			: $$SysName:AllItems
+	On		: Load	: Yes	: Set	: SVDebtors			: $$SysName:AllItems
+	On		: Load	: Yes	: Set	: SalesmanName3		: $$SysName:AllItems
+	Set		: SVFromDate	: ##SvCurrentDate
+	Set		: SVToDate		: ##SvCurrentDate
+
+[Form: Salesmanwise CommissionReport]	
+	Part	: Form SubTitle, Salesmanwise CommissionReport
+	Local	: Part	: Form SubTitle	: Local	: Line	: Form SubTitle	: Local	: Field	: Form SubTitle	: Info	: $$LocaleString:"Salesmanwise Report"
+	Width	: 100% page	
+	Height	: 100% page
+	Button	:	Print button, Mail Button, Export Button,Upload Button 
+	 
+	Button	: 	Change Period, SESalesmanButton  ;ExplodeFlag, 
+	
+
+[Part: Salesmanwise CommissionReport]
+	line			: Salesmanwise CommissionTitle, Salesmanwise CommissionDetails
+	;Bottom Line		: Ln_SR_TotalLineCommission
+	Border			: Thin Box
+	Repeat			: Salesmanwise CommissionDetails	: Col_SR_SalesmanSalesCommission
+	Common Border	: Yes
+	Scroll			: Vertical
+	Total			: Fld_SC_SalesAmt, Fld_SC_PurAmt, Fld_SC_PurAmt, Fld_SR_SalesmanCommAmt, Fld_SC_TotalProfitAmt
+	
+
+[Line: Salesmanwise CommissionTitle]
+	Use		: Salesmanwise CommissionDetails
+	Local	: Field	: SalesMid11				: Set as	: $$LocaleString:"Master Id"
+	Local	: Field	: Fld_SC_SlNo				: Set as	: $$LocaleString:"Sl No"
+	Local	: Field	: Fld_SC_Salesman			: Set as	: $$LocaleString:"Sales Person"
+	Local	: Field	: Fld_SR_SalesmanCommAmt	: Set as	: $$LocaleString:"Total"
+	Local	: Field	: Fld_SC_BilledQty			: Set as	: $$LocaleString:"Qty"
+	
+	Local	: Field	: Fld_SC_UnitSalesPrice		: Set as	: $$LocaleString:"Unit Sale"
+	Local	: Field	: Fld_SC_SalesAmt			: Set as	: $$LocaleString:"Total"
+	Local	: Field	: Fld_SC_UnitPurPrice		: Set as	: $$LocaleString:"Unit Pur"
+	Local	: Field	: Fld_SC_PurAmt				: Set as	: $$LocaleString:"Total Pur"
+	Local	: Field	: Fld_SC_UnitProfit			: Set as	: $$LocaleString:"Per Unit Profit"
+	Local	: Field	: Fld_SC_TotalProfitAmt		: Set as	: $$LocaleString:"Total Profit"
+	Local	: Field	: Fld_SC_CommissionPer		: Set as	: $$LocaleString:"Commission"
+	Local	: Field	: Fld_SC_AfterCmpProfit		: Set as	: $$LocaleString:"After Company Profit"
+
+	Local	: Field	: Default					: Type		: String
+	Local	: Field	: Number Field 				: Align		: Center
+	Local	: Field	: Default				: Style		: Calibri Default Bold
+	Border	: Bottom Flush Column Titles
+	
+
+[Line: Salesmanwise CommissionDetails]
+	Field		: Fld_SC_SlNo, 
+	;Right Field	: Fld_SC_Salesman, Fld_SC_BilledQty, Fld_SC_UnitSalesPrice, Fld_SC_SalesAmt, Fld_SC_UnitPurPrice, Fld_SC_PurAmt, Fld_SC_UnitProfit, Fld_SC_TotalProfitAmt, Fld_SC_CommissionPer, Fld_SR_SalesmanCommAmt
+	Right Field	: Fld_SC_Salesman, Fld_SC_SalesAmt, Fld_SC_PurAmt, Fld_SC_TotalProfitAmt, Fld_SC_AfterCmpProfit, Fld_SC_CommissionPer, Fld_SR_SalesmanCommAmt
+	Local		: Field	: Number Field	: Set as	: $$Line
+	Local		: Field	: Number Field	: Border	: Thin Right
+	Local		: Field	: Number Field	: Align		: Center
+	Local		: Field	: Default		: Style		: Calibri Default
+	Local		: Field	: Fld_SC_SalesAmt			: Invisible	: Yes
+	Local		: Field	: Fld_SC_PurAmt				: Invisible	: Yes
+	Local		: Field	: Fld_SC_CommissionPer		: Invisible	: Yes
+	Local		: Field	: Fld_SC_UnitPurPrice		: Set as	: $$AsRate:$$Number:$ProfitAmt/$$Number:$BilledQty
+	Local		: Field	: Fld_SC_TotalProfitAmt		: Set as	: $$AsAmount:$ProfitAmt
+	Local		: Field	: Fld_SR_SalesmanCommAmt	: Set as	: $$AsAmount:#Fld_SC_AfterCmpProfit * $(CostCentre,$UDFSalesman1).UDFSalesmanCommission%
+		
+[Field: Fld_SC_AfterCmpProfit]
+	Use		: Amount Field
+	Set as	: ($$AsAmount:$ProfitAmt - $$AsAmount:$(CostCentre,$UDFSalesman1).UDFSalesmanThresholdLimit)
+	Border	: Thin Right
+	Align	: Center	
+
+
+[Collection: Col_SR_SalesmanSalesCommission1]	
+	Source Collection	: SalesVouchersGather
+	Walk				: AllInventoryEntries	
+	Compute				: VoucherNumber		: $..VoucherNumber
+	;By					: Masterid			: $..Masterid
+	
+	Compute				: PartyLedgerName	: $..PartyLedgerName
+	Compute				: StockItemName		: $StockItemName
+	Compute				: Date				: $..Date
+	Compute				: SalesAmount		: $Amount
+	Compute				: BilledQty			: $BilledQty
+	Compute				: UDFSalesman1		: $..CostCentreName	;$(Ledger,$PartyLedgerName).UDFSalesman
+	Compute				: SalesRate			: $Rate
+	Compute				: LastPurCost1		: $(StockItem,$StockItemName).LastPurcCost
+	Compute				: LastPurAmt		: $BilledQty * $(StockItem,$StockItemName).LastPurcCost
+	;Compute				: SalesRate1		: $SalesAmount / $BilledQty
+	Compute				: ProfitAmt			: $$Number:$Amount - ($$Number:$(StockItem,$StockItemName).LastPurcCost * $$Number:$BilledQty)
+	Filter				: NonEmptySalesman
+	Filter				: SalesmanReportFilter
+
+;;select $SalesAmount, $BilledQty, $UDFSalesman1, $SalesRate, $LastPurCost1, $LastPurAmt, $ProfitAmt from Col_SR_SalesmanSalesCommission1
+
+[Collection: Col_SR_SalesmanSalesCommission]	
+	Source Collection	: Col_SR_SalesmanSalesCommission1
+	Compute				: SalesAmount		: $SalesAmount
+	Aggr Compute		: BilledQty			: Sum	: $BilledQty
+	By					: UDFSalesman1		: $UDFSalesman1
+	Aggr Compute		: SalesAmount		: Sum	: $Amount
+	;Aggr Compute		: SalesRate			: Last	: $Rate
+	Compute				: LastPurcCost2		: $LastPurCost1		
+	;Aggr Compute		: LastPurAmt		: Sum	: $LastPurAmt
+	Aggr Compute		: ProfitAmt			: Sum	: $$AsAmount:$ProfitAmt	;$$AsAmount:$SalesAmount - ($$AsAmount:$LastPurcCost * $BilledQty)	;($$AsAmount:($$Number:$Rate - $$Number:$$TgtObject:$LastPurCost)) * $$AsAmount:$BilledQty
+	;Filter				: NonEmptySalesman
+	;Filter				: SalesmanReportFilter	;, ItemFilter, PartyFilter
+	
+;;;select $UDFSalesman1, $StockItemName1, $BilledQty, $LastPurCost2, $LastPurAmt, $ProfitAmt from Col_SR_SalesmanSalesCommission

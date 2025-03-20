@@ -1,0 +1,58 @@
+
+
+
+
+[#Part: Company Users]
+ 
+	Local	:	Line	:	CUTitle			:	Add	:	Field	:	At End	:	SM_EnableUser
+	Local	:	Line	:	CUSubTitle		:	Add	:	Field	:	At End	:	SM_EnableUser
+    Local 	: 	Line 	: 	Company Users 	: 	Add	: 	Fields  : 	At End 	:  SM_EnableUser
+
+	Local	:	Line	:	CUTitle		:	Local:	Field	:	SM_EnableUser	:	Type	:	String
+	Local	:	Line	:	CUSubTitle	:	Local:	Field	:	SM_EnableUser	:	Type	:	String
+
+	Local	:	Line	:	CUTitle		:	Local:	Field	:	SM_EnableUser	:	Delete	:	Inactive
+	Local	:	Line	:	CUSubTitle	:	Local:	Field	:	SM_EnableUser	:	Delete	:	Inactive
+
+	Local	:	Line	:	CUTitle		:	Local:	Field	:	SM_EnableUser	:	Delete	:	Storage
+	Local	:	Line	:	CUSubTitle	:	Local:	Field	:	SM_EnableUser	:	Delete	:	Storage
+	
+	Local	:	Line	:	CUTitle		:	Local:	Field	:	SM_EnableUser	:	Skip	:	Yes
+	Local	:	Line	:	CUSubTitle	:	Local:	Field	:	SM_EnableUser	:	Skip	:	Yes
+
+	Local	:	Line	:	CUTitle		:	Local:	Field	:	SM_EnableUser	:	Style	: Normal
+	Local	:	Line	:	CUSubTitle	:	Local:	Field	:	SM_EnableUser	:	Style	: Normal
+
+	Local	:	Line	:	CUTitle		:	Local:	Field	:	SM_EnableUser	:	Set as	:	"Allow SM"
+	Local	:	Line	:	CUSubTitle	:	Local:	Field	:	SM_EnableUser	:	Info	:	"Module"
+
+
+	
+[Field : SM_EnableUser]
+
+	Use 		: Logical Field
+	Width: 7
+	Align	:	Center
+	Inactive: $$IsEnd:#CmpLevel
+	Invisible : Not @@BSD_Salesman_CmpOnCustom
+	Storage	:	SM_EnableUser
+	
+
+[Function:SM_EnableUserFun]
+	
+	00	:	Return	:	if $$IsCmpOwner then yes else @@SM_EnableUserFunFor
+	
+
+[System:Formula]
+	
+	SM_EnableUserFunFor	:	$$FilterValue:$SM_EnableUser:SM_EnableUserCll:1:SM_CurrentSameUser
+	SM_CurrentSameUser 	: ($$Name=$$CmpUserName)
+
+[Collection:SM_EnableUserCll]
+	
+	Type:User List:Company
+
+	Child Of	:	##SvCurrentCompany
+	Fetch	:	name,UserwiseGrpe,SalesmanFlg, *.*
+	Filter	:	SM_CurrentSameUser
+

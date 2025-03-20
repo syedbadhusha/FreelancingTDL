@@ -1,0 +1,35 @@
+[System: UDF]
+	
+	BSD_Salesman_CmpOnCustom			: Logical	: 21200
+	
+	mydbsalesman 						: Aggregate	: 21201
+	SalesmanName 						: String 	: 21202
+	
+	UDFSalesman							: String	: 21203
+	UDFSalesmanEnabled					: Logical	: 21204
+	
+	UDFSalesmanCommission				: Number	: 21205
+	UDFCommissionPerVch					: Number	: 21206
+	UDFSalesmanThresholdLimit			: Amount	: 21207
+
+	SM_EnableUser						: Logical	: 21208
+
+[System: Formulae]
+	
+	BSD_Salesman_CmpOnCustom		: $BSD_Salesman_CmpOnCustom:Company:##SVCurrentCompany
+	BSD_EnableSalesman				: $UDFSalesmanEnabled:VoucherType:##SVVoucherType
+	
+	locSalesmanMaster				: $$LocaleString:"Salesman Master"	;"Broker Master";
+	locSalesmanReport				: $$LocaleString:"Salesmanwise Report"	;"Brokerage Report"
+	locPerformanceReport			: $$LocaleString:"Payment Performance"
+	locReceiptReport				: $$LocaleString:"Salesmanwise Receipt"
+	locPartyOutstanding				: $$LocaleString:"Partywise Outstanding"
+	locCreditDebitReport			: $$LocaleString:"Credit Debit Report"
+	
+	NonEmptySalesman				: Not $$IsSysName:$UDFSalesman1
+	;SalesmanFilter					: $(Ledger,($$FuncDSPAccName:$Parent:##vLedgerAlias)).UDFSalesman = ##Salesman1
+	;SalesmanFilter					: if ##SalesmanName1 = $$SysName:AllItems then yes else $(Ledger,($$FuncDSPAccName:$Parent:##vLedgerAlias)).UDFSalesman = ##SalesmanName1
+	SalesmanReportFilter			: IF $$IsSysName:##SalesmanName3 THEN YES ELSE $UDFSalesman1 = ##SalesmanName3
+	SalesmanPaymentFilter			: IF $$IsSysName:##SalesmanName3 THEN YES ELSE $UDFSalesman1 = ##SalesmanName3
+	SameSalesman					: IF $$IsSysName:##SalesmanName3 THEN YES ELSE $UDFSalesman1	= ##SalesmanName3
+	SalesmanOutstandingFilter		: IF $$IsSysName:##SalesmanName3 THEN YES ELSE $LedgerEntries[1].UDFSalesman = ##SalesmanName3

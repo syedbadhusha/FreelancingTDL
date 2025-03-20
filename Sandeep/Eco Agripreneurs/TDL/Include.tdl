@@ -1,0 +1,18 @@
+
+;[Include: Extra.tdl]
+
+[Include: BSD_Salesman_Cmp.tdl]
+[Include: BSD_Salesman_Storages&SF.tdl]
+[Include: shreenathpaper.txt]
+[Include: Reports/Salesmanwise Report.tdl]
+[Include: Reports/PaymentPerformance.tdl]
+[Include: Reports/SalesmanPartywiseReceipt.tdl]
+[Include: Reports/SalesmanwisePartyOutstanding.tdl]
+[Include: Reports/SalesmanPartyCreditDebit.tdl]
+[Include: SalesmanOutstanding.tdl]
+[Include: Reports/PurchaseRateChange.tdl]
+
+;;;;;;  Added By Syed Badhusha
+
+[Include:UserwiseSalesmanModule.txt]
+

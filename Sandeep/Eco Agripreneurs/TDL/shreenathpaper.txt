@@ -1,0 +1,343 @@
+;;;;Tally.ERP 9
+/*
+[#Line: Ei consignee]
+	Field	:MediumPrompt1,SalesmanSgree;, SalesmanCommPer
+	Local	:Field:Medium Prompt1:Set as:"Broker :"
+	Local	:Field	:MEDIUM PROMPT1	:Background	:yellow
+	Local	:Field:Medium Prompt1:Invisible		:	If @@BSD_Salesman_CmpOnCustom Then Not @@BSD_EnableSalesman Else Yes
+	Local	:Field:SalesmanSgree:Invisible		:	If @@BSD_Salesman_CmpOnCustom Then Not @@BSD_EnableSalesman Else Yes
+	
+[Field: SalesmanCommPer]
+	Use			: Number Field
+	Set as		: $(Ledger,#SalesmanSgree).UDFSalesmanCommission
+	Set Always	: Yes
+	Format		: "Percentage"
+	Storage		: UDFCommissionPerVch
+
+;[Field: MediumPrompt1]
+;	Use	: MediumPrompt
+
+[#Line: ACLSFixedLed]
+	Field:MediumPrompt1,SalesmanSgree
+	Local:Field:Medium Prompt1:Set as:"Broker :"
+	Local	:	Field	:MEDIUM PROMPT1	:Background	:yellow
+	Local:Field:Medium Prompt1:Invisible	:	If @@BSD_Salesman_CmpOnCustom Then Not @@BSD_EnableSalesman Else Yes
+	Local:Field:SalesmanSgree:Invisible		:	If @@BSD_Salesman_CmpOnCustom Then Not @@BSD_EnableSalesman Else Yes
+*/
+
+
+[#Part: LED Mailing Parts]
+;Add:Parts:After:LED Contact:SalesManShree
+
+[#Part: EI Consignee]
+	Add	: Line	: At End	: SalesManShree			;Tally Prime
+	
+	
+[#Part: ACLSFixedLedger]
+	;Add	: Line	: At End	: SalesManShree			;Tally Prime
+
+[Part:SalesManShree]
+Add:Bottom Lines:At End:SalesManShree,ActualCreditday
+
+[Line:SalesManShree]
+Field:MediumPrompt,SalesmanSgree
+Local:Field:Medium Prompt:Set as:"Salesman";"Broker :"
+Local	:	Field	:MEDIUM PROMPT	:Background	:yellow
+Invisible	:	Not @@BSD_EnableSalesman
+ 
+[Field: MediumPrompt1]
+	Use		: MediumPrompt
+
+[Field:SalesmanSgree]
+Background:white
+Use	: Name Field
+Storage : UDFSalesman
+Set as : $UDFSalesman
+Width : 25
+Table : SalesmanNameCollection, not applicable
+Show Table: Always
+;Key : Create SalesmanName
+Background:white
+
+[Key: Create SalesmanName]
+Key :Alt + C
+Action: CREATE: SalesmanName
+;----------------------------------------------------------------------------------
+;[System:UDF]
+;	UDFSalesman	:String:2014
+		 
+[#Menu: Gateway Of Tally]
+		
+	Option	:	SM_GatewayOfTally1	:	$$SM_EnableUserFun
+	
+[!Menu:SM_GatewayOfTally1]
+
+	Add : Item : Salesman : Menu : SalesmanMenu
+
+[Menu: SalesmanMenu]
+Add : Item : Salesman Master : Alter : Salesman Name
+Add : Item : Blank
+
+[Report: Salesman Name]
+Form : Salesman Name
+Object : Company
+
+[Form: Salesman Name]
+Part : FormSubTitle, Saleman
+;Button : Delete All, Remove Line, Restore Line, Restore All,Report Operations
+FullWidth : No
+Height : 90% Screen
+Background : @@SV_CHEQUE
+SpaceRight : 0.5
+SpaceLeft : 1.5
+Local : Field : Form SubTitle : Info : $$LocaleString:"Salesman";"Broker Name"
+Option : Small Size Form
+
+
+[Part: Saleman]
+Lines : CMP Salesman
+Repeat : CMP Salesman:mydbsalesman
+Break on: $$IsEmpty:$SalesmanName OR $$IsEndOfList:$SalesmanName
+Scroll : Vertical
+Height : 90% Screen
+
+[Line: CMP Salesman]
+Fields : Multi SNo, CMPSalemanName
+Local : Field : Default : Delete : Border
+
+[Field: CMPSalemanName]
+Use : Name Field
+Storage : SalesmanName
+Unique : Yes
+Table	: Col_SR_SalesmanList, EndOfList
+
+
+[Collection: Col_SR_SalesmanList]
+	Use		: VLedTable
+	Type	: Cost Centre
+	;Child Of: "Broker"
+	Fetch	: Name
+	;Format	: $Name, 20
+	Title	: "List Of Salesman"
+	Align	: Right
+	
+	
+;;select $Name from Col_SR_SalesmanList
+
+
+;[System: UDF]
+;mydbsalesman : Aggregate: 999
+;SalesmanName : String : 1000 ;: Yes
+
+[Collection : SalesmanNameCollection]
+Type : mydbsalesman : Company
+Childof : ##SVCurrentCompany
+Format : $SalesmanName, 10
+Title : "Salesman Name"
+
+;=============== During Sales Voucher Entry=========================================
+ 
+[#Field:ledcreditper]
+	;Background:blue 
+	
+
+
+[#Field: EI Consignee]
+	
+   ;Control	: CtrlCreditDays	: @@ChkCreditDays>0 and $$InCreateMode and $$IsSales:##SVVoucherType
+   
+;   Delete	: Notify
+;   Add		: Control  	: CtrlCreditDays    : ($$IsSysName:##NotifyPartyName OR (##NotifyPartyName!=$$Value)) AND $$SetNotifyParty AND (($IsCreditDaysChkOn:Ledger:$$Value AND $IsBillwiseOn:Company:##SVCurrentCompany AND (If $$IsEqual:($Parent:Ledger:$$Value):$$GroupBranches + 
+;											Then $$IsAllBillWiseOn Else Yes) AND (@@IsSales OR @@IsDelNote OR @@IsSalesOrder) + 
+;											AND ((NOT $IsOptional) AND @@DueBillsOfParty > 0))) 	
+	
+	
+[Collection: Credit PartyPending Bills]
+
+    Type        : Bills
+    Child of    : #EIConsignee
+    Unique      : $$Name		
+	Format		: @@DateDiff
+    Format      : $BillDate, 8      : Universal Date
+    Format      : $$Name, 10
+    Format      : $BaseClosing,-30  : "AllSymbols, DrCr"
+	Format		: @@DueDate
+	Format		: ##SVCurrentDate
+	Filter		: FltrCreditDays, FltrCrAmt
+
+[System	: Formula]
+    CtrlCreditDays		: if @@ChkCreditDays = 1 then "The Customer has " + $$NewLine + $$String:@@ChkCreditDays +  $$NewLine + " Bill OverDue." else "The Customer has " + $$NewLine + $$String:@@ChkCreditDays +  $$NewLine + " Bills OverDue."
+	ChkCreditDays		: $$Numitems:CreditPartyPendingBills
+	FltrCreditDays		: $$Number:@@DateDiff>=1 
+	DueDate				: $$Date:$$String:$strActualCreditd:UniversalDate
+	DateDiff			: ##SVCurrentDate - @@DueDate
+	FltrCrAmt			: $$IsDr:$BaseClosing 
+
+;;---------------------------------------------------------------------------------------------------
+ 
+;;---------------------------------------------------------------------------------------------------
+;;E.O.F. ,ActualCreditday
+ 
+[Line:ActualCreditday]
+	 Fields:ActualCreditdayTitle,ActualCreditdayInp;,ActualCreditdayInpU
+	 
+
+[Field:ActualCreditdayTitle]
+	Use: Due Date Title Field
+	Set as: "Actual Credit period :"
+	Full Width:Yes
+	Align:Left
+	Style:normal bold
+	Background:red
+	
+
+[Field:ActualCreditdayInp]
+	Type:Due Date
+	Use: Due Date Field
+	Storage:strActualCreditd
+	Set as:$strActualCreditd
+	full Width:Yes
+	Align:Left
+	Style:normal bold
+	Background:white
+	;Inactive    : $$IsEmpty:$Name OR NOT $IsBillWiseOn OR @@InactiveBillOn
+	Set Always:Yes 
+	
+
+ 
+[System:udf]
+	strActualCreditd:Due Date:2044
+	
+
+
+
+;;;;;;;;;;;;; Credit Days Blocking ;;;;;;;;;;;;;;;;
+/*
+
+[#Field: EIConsignee]
+	
+	;Add: Option	: EIConsigneeOption : (#PlainVCHDate > $$Date:"1/1/2020") 
+	
+;[!Field: EIConsigneeOption]
+	
+	Delete: Notify	;: IsSales
+	Add: Control  	: PartyCreditDateLimit    : (If (! $$IsSysName:$$Value and @@IsSales) then ($$SetNotifyParty AND (($IsCreditDaysChkOn:Ledger:$$Value AND $IsBillwiseOn:Company:##SVCurrentCompany AND (If $$IsEqual:($Parent:Ledger:$$Value):$$GroupBranches + 
+											Then $$IsAllBillWiseOn Else Yes) AND (@@IsSales OR @@IsDelNote OR @@IsSalesOrder) + 
+											AND ((NOT $IsOptional) AND @@MyDueBillsOfParty > 0)))) else No) and $$InCreateMode
+											
+	;Add: Control  	: PartyCreditDaysExceeded	: If $$NumItems:BillCol1 > 0 then yes else no;(($IsCreditDaysChkOn:Ledger:$$Value)) ; AND (If $$IsEqual:($Parent:Ledger:$$Value):$$GroupBranches + 
+											;Then $$IsAllBillWiseOn Else Yes) AND (@@IsSales OR @@IsDelNote OR @@IsSalesOrder) + 
+											;AND ((NOT $IsOptional) AND @@DueBillsOfParty > 0)))
+
+	
+
+[Collection: BillCol1]
+	
+	Type: Bill
+	Child Of: #EIConsignee   
+	Fetch: Name, BillCreditPeriod, BillDate
+	Compute	: BillCreditPeriod1: $$Number:$BillCreditPeriod
+	Compute	: LedBillCreditDays: $$Number:$(Ledger,#EIConsignee).strActualCreditd  ;BillCreditPeriod
+	Filter: CreditPeriodFilter
+	
+;;select $Name, $BillCreditPeriod, $LedBillCreditDays, $BillDate from BillCol1
+	
+[System: Formulae]
+	
+	PartyCreditDaysExceeded : "Party Credit Days has been Exceeded"
+	CreditPeriodFilter		: $$Owner:$$Number:$BillCreditPeriod1 > $$Owner:$LedBillCreditDays;$$Number:$(Ledger,"Abhi1").BillCreditPeriod
+	
+
+
+[Collection: MyBills Of Party]
+	
+    Type        : Bills
+	Child Of	: If @@IsSales AND (NOT ##InvoicingModeFlag) Then #VCHParticulars Else #EIConsignee
+    Fetch		: Name, BillDate;, ClosingBalance, BillCreditPeriod
+	Compute		: BillDate				: $BillDate
+	Compute		: BillCreditPeriod1  	: $$Date:$BillDate + $$Number:$(Ledger,#EIConsignee).strActualCreditd;$BillCreditPeriod
+    ;Filter      : BillDateFilter, BillCreditPeriodFilter1, MyExceedDueDate
+	Filter      :  MyExceedDueDate1
+	;Add			: Option	: MyBills Of PartyOption	: (##VARVchDate >= $$Date:$BillCreditPeriod2)
+	
+[!Collection: MyBills Of PartyOption]
+	
+	Filter:	BillCreditPeriodFilter1, MyExceedDueDate
+	
+;;select $Name, $BillDate, $BillCreditPeriod, $BillCreditPeriod1, $LedBillCreditDays  from MyBillsOfParty
+	
+ [System:Formula]
+
+		MyDueBillsOfParty : $$NumItems:MyBillsOfParty
+	    MyExceedDueDate   : (##VARVchDate >= ($$Date:$BillDate + $BillCreditPeriod)) ;@@MyCreditPeriod) 
+		MyExceedDueDate1   : (##VARVchDate >= ($$Date:$BillDate + $$Number:$(Ledger,#EIConsignee).strActualCreditd)) ;@@MyCreditPeriod)  
+        MyCreditPeriod	  : if $$IsEmpty:$BillCreditPeriod2 then $BillDate else $BillCreditPeriod2
+		;BillCreditPeriodFilter	: @@MyCreditPeriod > $$Date:"1/1/2020"
+		BillCreditPeriodFilter1	: (($$Date:($$Date:$BillDate + $BillCreditPeriod)) >= $$Date:"1/11/2019")
+		BillDateFilter1			: $$Date:$BillDate >= $$Date:"1/11/2019"
+		PartyCreditDateLimit         : $$SPrintf:@@PartyDateLimitMsgFormat:@@MyDueBillsOfParty:$$Value
+	
+		
+[#Line: EI Consignee] 
+	Local		: Field : Name Field	: Delete: set as 
+	Local		: Field : Name Field	: Add	: Set as	: If $IsCreditDaysChkOn:Ledger:#EIConsignee Then $$NumItems:MyBillsOfparty Else ""
+		
+*/
+
+[#Part: EXPINV SaleTopLeft]
+	Add		: Part	: At End	: Pt_Expinv_Salesman
+	
+[Part: Pt_Expinv_Salesman]
+	Line	: Ln_Expinv_Salesman
+	Height	: 1
+	
+[Line: Ln_Expinv_Salesman]
+	Field	: Medium Prompt, Fld_Expinv_Salesman
+	Local	: Field	: Medium Prompt	: Info	: $$LocaleString:"Salesman"
+	Local	: Field	: Fld_Expinv_Salesman	: Cells      : 6 * ($$Quotient:@@ExcelCellColumn:8)
+	
+[Field: Fld_Expinv_Salesman]
+	Use		: Name Field
+	Set as	: $UDFSalesman
+	
+[#Part: EXPINV Buyer]
+	;Add	: Line	: At End	: Ln_Expinv_Salesman
+	
+[#Part: EXPINV LeftSign]
+	;Add	: Option	: Pt_EXPINV LeftSign	:  If @@BSD_Salesman_CmpOnCustom Then @@BSD_EnableSalesman Else No
+	
+[!Part: Pt_EXPINV LeftSign]
+    Add	: Bottom Part: Before	:  EXPINV Narration	: Pt_Expinv_Salesman;, EXPINV SalesTax, EXPINV Declaration
+
+
+;;;;;;;;;;;;;;;;; Salesman Commission in Ledger Master ;;;;;;;;;;;;;;;;;;;;;;
+;[#Part: LED Mailing Parts]
+;	Add	:	Parts	:	After	:	LED Contact	:	Pt_SR_SalesmanCommission
+	
+[#Part : Cost Centre]
+	Add	: Option	: Pt_SC_CostCentre	: yes;@@BSD_Salesman_CmpOnCustom
+	
+[!Part: Pt_SC_CostCentre]
+	Add	: Part	: At End	: Pt_SR_SalesmanCommission
+
+[Part: Pt_SR_SalesmanCommission]
+	Line	: Ln_SR_SalesmanThresholdLimit, Ln_SR_SalesmanCommission
+	
+[Line: Ln_SR_SalesmanThresholdLimit]
+	Field	: Medium Prompt, Fld_SR_SalesmanThresholdLimit
+	Local	: Field	: Medium Prompt	: Info	: "Threshold Limit "
+	
+[Field: Fld_SR_SalesmanThresholdLimit]
+	Use		: Amount Field
+	Storage	: UDFSalesmanThresholdLimit
+	Set as	: $UDFSalesmanThresholdLimit
+
+[Line: Ln_SR_SalesmanCommission]
+	Field	: Medium Prompt, Fld_SR_SalesmanCommission
+	Local	: Field	: Medium Prompt	: Info	: "Salesman Commission "
+	
+[Field: Fld_SR_SalesmanCommission]
+	Use		: Number Field
+	Storage	: UDFSalesmanCommission
+	Set as	: $UDFSalesmanCommission
+	Format	: "Percentage"

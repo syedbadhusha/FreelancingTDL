@@ -1,0 +1,72 @@
+
+[Report: Rpt_SC_PurPriceChange]
+	Form	: Frm_SC_PurPriceChange
+	
+[Form: Frm_SC_PurPriceChange]
+	Part	: Formsubtitle, Pt_SC_PurPriceChange
+	Local	: Part	: Formsubtitle	: Local	: Line	: Formsubtitle	: Local	: Field	: Formsubtitle	: Info	: $$LocaleString:"Purchase Price Change"
+	
+[Part: Pt_SC_PurPriceChange]
+	Line	: Ln_SC_PurPriceChangeTitle, Ln_SC_PurPriceChange
+	Repeat	: Ln_SC_PurPriceChange	:	Col_SR_Purchase
+	Scroll	: Vertical
+	Common Border	: Yes
+	
+[Line: Ln_SC_PurPriceChangeTitle]
+	Field	: MultiSNo Title, Fld_SC_PurPriceChangeVchNo, Fld_SC_PurPriceChangeParty, Fld_SC_PurPriceChangeItem, Fld_SC_PurPriceChangeRate
+	Local	: Field	: Fld_SC_PurPriceChangeVchNo	: Info	: $$LocaleString:"Voucher Number"
+	Local	: Field	: Fld_SC_PurPriceChangeParty	: Info	: $$LocaleString:"Party"
+	Local	: Field	: Fld_SC_PurPriceChangeItem		: Info	: $$LocaleString:"Stock Item"
+	Local	: Field	: Fld_SC_PurPriceChangeRate		: Info	: $$LocaleString:"Pur Rate"
+	Border	: Thin Box
+	Local	: Field	: Default	: Type		: String	: Forced
+	Local	: Field	: Default	: Align		: Center
+
+[Line: Ln_SC_PurPriceChange]
+	Field	: MultiSNo, Fld_SC_PurPriceChangeVchNo, Fld_SC_PurPriceChangeParty, Fld_SC_PurPriceChangeItem, Fld_SC_PurPriceChangeRate
+	Local	: Field	: Default	: Border	: Thin Right
+	Local	: Field	: Default	: Style		: Normal
+
+[Field: Fld_SC_PurPriceChangeVchNo]
+	Use		: Name Field
+	Set as	: $VoucherNumber
+	Width	: 12
+	
+[Field: Fld_SC_PurPriceChangeParty]
+	Use		: Name Field
+	Set as	: $PartyLedgerName
+	Full Width	: Yes
+	
+[Field: Fld_SC_PurPriceChangeItem]
+	Use		: Name Field
+	Set as	: $StockItemName
+	
+[Field: Fld_SC_PurPriceChangeRate]
+	Use		: Rate Field
+	Set as	: $$AsRate:$Rate1
+	
+[Collection: Col_SC_Purchase1]
+	Type	: vouchers	: VoucherType
+	Child Of	: $$VchTypePurchase
+	Belongs To	: Yes
+	Fetch		: VoucherNumber, Date, PartyLedgerName, Amount, UDFSalesman
+	Parm Var	: SvFromDate		: Date	: @@BooksFromDate	;##SvFromDate
+	Parm Var	: SvToDate			: Date	: @@LastVoucherDate	;##SvToDate	
+	Keep Source	: ().
+	
+
+[Collection: Col_SR_Purchase]	
+	Source Collection	: Col_SC_Purchase1
+	Walk				: AllInventoryEntries	
+	Parm Var			: SvFromDate		: Date	: $$FinYearBeg:##StartDate:$StartingFrom:Company:##SVCurrentCompany
+	Parm Var			: SvToDate			: Date	: @@LastVoucherDate
+	Compute				: VoucherNumber		: $..VoucherNumber
+	Compute				: Masterid			: $..Masterid
+	
+	;By					: Date				: $..Date
+	By					: PartyLedgerName	: $..PartyLedgerName
+	By					: StockItemName		: $StockItemName
+	By					: Rate1				: $Rate
+	Sort				: @@Default			: $StockItemName, $PartyLedgerName
+	
+;;select $VoucherNumber, $Date, $StockItemName, $Rate from Col_SR_Purchase

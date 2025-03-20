@@ -1,0 +1,109 @@
+;[#Form		: Company Operations]
+	
+[#Form		: CMP TallyShop Features]	
+	Add		: Option  : MISPL_DIL_CompanyOperations   : Yes
+
+[!Form		: MISPL_DIL_CompanyOperations]	
+	Local	: Part  : CMP TallyShopFeatures Left : Add :  Line : At End  : BSD_Salesman_CmpOnCustom
+
+[Line 		: BSD_Salesman_CmpOnCustom]
+	
+	Fields	: Long Prompt, BSD_Salesman_CmpOnCustom
+	Local   : Field : long Prompt : Info    : $$LocaleString:"Enable Salesman Module?"
+	Local   : Field : long Prompt : Width	: 35
+	SpaceTop: 0.4
+
+[Field			: BSD_Salesman_CmpOnCustom]
+	
+	Use			: Logical Field
+	Storage		: BSD_Salesman_CmpOnCustom
+	Set Always	: Yes
+		
+
+;;;;;;;;;;;;;;;; Including Voucher Type for Enabling Salesman ;;;;;;;;;;;;;;;;;;;
+[#Part: VTYP Behaviour]
+	Add	: Bottom Line	: Ln_SM_Salesman
+	
+[Line: Ln_SM_Salesman]
+	Field	: Long Prompt, Fld_SM_Salesman
+	Local	: Field	: Long Prompt	: Info	: $$LocaleString:"Enable Salesman : "
+	Invisible		: Not @@BSD_Salesman_CmpOnCustom
+	
+[Field: Fld_SM_Salesman]
+	Use		: Logical Field
+	Storage	: UDFSalesmanEnabled
+
+
+[#Menu: GatewayOfTally]
+	
+	Option	:	SM_GatewayOfTally	:	$$SM_EnableUserFun
+	
+[!Menu:SM_GatewayOfTally]
+	
+	Add			: Key Item	: Before     : @@locQuit : "Salesman Menu" : U : Menu  : BSD_Salesman_Menu : @@BSD_Salesman_CmpOnCustom
+	Add			: Item		: Before     : @@locQuit : Blank
+	
+	
+[Menu: BSD_Salesman_Menu]
+	
+
+	Title		: "Salesman"
+	Indent  	: @@locIndentMasters
+	Key Item 	: @@locSalesmanMaster 	 		: M		: Alter 	: Salesman Name
+	Item		: Blank
+	Indent  	: @@locIndentReports
+	Key Item	: @@locSalesmanReport      		: A 	: Display	: Salesmanwise Report	;Display Collection 	: SalesmanWise Report	: $UDFSalesmanEnabled:VoucherType:$$VchTypeSales	;SalesmanWiseTrigger	;Salesmanwise Report		
+	;Item    	: BLANK
+	Key Item	: "Commission"					: O		: Display	: Salesmanwise CommissionReport
+	Key Item	: "Purchase Price Change"		: P		: Display	: Rpt_SC_PurPriceChange
+	
+;	Key Item	: @@locPerformanceReport      	: P		: Display Collection 	: SalesmanWisePayment	: $UDFSalesmanEnabled:VoucherType:$$VchTypePayment	;Payment Performance		
+;	Item    	: BLANK
+	;Item    	: BLANK
+	;Key Item	: @@locReceiptReport 	     	: R		: Display Collection 	: SalesmanWiseReceipt	: $UDFSalesmanEnabled:VoucherType:$$VchTypeReceipt	;Salesmanwise Receipt		
+	;Item    	: BLANK
+	;Key Item	: @@locPartyOutstanding     	: O 	: Display Collection  	: SalesmanWiseOutstanding	;Salesmanwise Partywise Outstanding		
+	;Item    	: BLANK
+	Key Item	: @@locCreditDebitReport      	: C		: Display				: TSPL Smp SD Group Summary	;: Display Collection 	: SalesmanWisePartyCrDr ;TSPL Smp SD Group Summary
+	;Item    	: BLANK
+	Key Item	: "Outstanding Receivables"     : U		: Display				: Rpt_SC_OutReceivable
+	
+
+
+
+
+;	Add			: Key Item	: @@LocTrackReport 				: P		: Display			: BM Vehicle History			: yes
+;	Add			: Item    	: BLANK
+;	Add			: Item		: Excel Import 					: Menu	: Bulk Excel Import
+	  
+;[Menu: Bulk Excel Import]
+;	
+;	Item		: Sales Import 		: 	Alter					: 	GSTUploadSales
+;	Item    	: BLANK
+;	Add			: Item				:	Journal/Expense Import	:	Alter	:	journal
+;	Add			: Item    			: 	BLANK
+;	Add			: Item				:	Payment Import			:	Alter	:	GSTUPLOAD4new1
+;
+;[#Menu: GatewayOfTally]
+;	
+;	Add			: Key Item	: Before     : @@locQuit : "Salesman Module" : S : Menu  : BSD_Salesman_Menu : @@BSD_Salesman_CmpOnCustom
+;	Add			: Item		: Before     : @@locQuit : Blank
+;	
+;[Menu: BSD_Salesman_Menu]
+;	
+;	Title		: "Salesman Reports"
+;	Add			: Item		: Blank
+;	Add			: Key Item	: @@locSalesmanReport      		: S 	: Menu  			: Salesmanwise Report			: yes
+;	Add			: Item    	: BLANK
+;;	Add			: Key Item	: @@LocTrackReport 				: P		: Display			: BM Vehicle History			: yes
+;;	Add			: Item    	: BLANK
+;;	Add			: Item		: Excel Import 					: Menu	: Bulk Excel Import
+;	  
+;[Menu: Bulk Excel Import]
+;	
+;	Item		: Sales Import 		: 	Alter					: 	GSTUploadSales
+;	Item    	: BLANK
+;	Add			: Item				:	Journal/Expense Import	:	Alter	:	journal
+;	Add			: Item    			: 	BLANK
+;	Add			: Item				:	Payment Import			:	Alter	:	GSTUPLOAD4new1
+;

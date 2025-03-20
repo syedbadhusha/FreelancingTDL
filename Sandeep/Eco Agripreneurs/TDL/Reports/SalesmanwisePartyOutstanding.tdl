@@ -1,0 +1,193 @@
+[Collection	:	SalesmanWiseOutstanding] 
+	
+	Use			: SalesmanWise Report
+    Replace 	: Trigger     : SalesmanTrigger6
+	Fetch		: SalesmanName
+	Replace		: Report      : Salesmanwise Partywise Outstanding
+	
+[Report: SalesmanTrigger6]   ;;Auto Report
+
+			Use     : Collection Variable
+            Local   : Line : Collection Variable : Field 	: SalesmanTrigger6
+            Local   : Field: MV Title            : Add	 : Info  : $$LocaleString:"Salesman Name"
+	
+[Field: SalesmanTrigger6]
+	
+	Use         : Name Field
+	Set as      : if ##SalesmanName3 = "" then $$SysName:Primary else ##SalesmanName3
+	Modifies    : SalesmanName3
+	Table       : SalesmanWiseOutstanding
+	Show Table  : Always
+	CommonTable : No
+	On			: Accept	: Yes	: Call	: fun15 : $$Value
+	On			: Accept	: Yes	: Field Accept
+
+[Function: fun15]
+	Parameter	: parm1	: String
+	
+;01: Log: "inside fun11"
+01a: Set	: SalesmanName3	: ##parm1
+;01b: Log	: ##SalesmanName3
+02: Display	: Salesmanwise Partywise Outstanding
+
+
+[Report: Salesmanwise Partywise Outstanding]
+	
+	<unitgroup:billsreceivable>
+
+    Family      : $$Translate:"Outstandings"
+    Variables   : SV CurrentCompany, SV FromDate, SV ToDate, SV SortMethod
+    Variables   : SVBudget, SVVariance
+    Variables   : ExplodeFlag, ShowForex
+    Variable    : DSPShowMonthly, ExplodeNarrFlag
+    Variable    : ShowReceivables, ShowOpBillAmt, ShowDaysByBillDate
+    Variable    : IsBillWiseReport, DSPHasMultiLevel, IsGrpBillReport
+    Variable    : DSPNotScaleable, DSPHasColumnTotal, ShowBillRange
+    Variable    : GroupName
+    Variable    : ShowInterest, InterestRecv, InterestPaya
+ 	Variable	: ShowByLedBill, InNewPages, SVLedSortMethod, ShowDueOnPrompt, ShowOverdueOfBill, BillwithOrder
+	Variable    : ShowContactDetails
+
+    Set         : SV Sort Method    : @@Default
+	Set			: SVLedSortMethod	: @@Default
+    Set         : DSPShowMonthly    : No
+    Set         : DSPNotScaleable   : Yes
+    Set         : DSPHasColumnTotal : No
+    Set         : ShowReceivables   : Yes
+    Set         : ShowOpBillAmt     : No
+    Set         : ShowDaysByBillDate: No
+    Set         : DSPHasMultiLevel  : No
+    Set         : IsBillWiseReport  : No        ;;This is set to YES by LedgerBillWise only!
+    Set         : IsGrpBillReport   : No        ;;This is set to YES by LedgerBillWise only!
+	Set			: InNewPages		: Yes
+
+ 	Set         : SALogoPath        : $LogoPath:Company:##SVCurrentCompany
+	Set   		: ReportNameVar 	: "Bills Receivable"
+	Set    		: SACompLogo 		: (If $$IsEmpty:($$ListValue:RepLogoSpecific:##ReportNameVar) then Yes else $$ListValue:RepLogoSpecific:##ReportNameVar)
+
+
+	Set   		: ShowDueOnPrompt	: Yes
+	Set   		: ShowOverdueOfBill : Yes
+	Set   		: ShowDaysByBillDate: No
+	
+	Repeat      : AgeFrom, AgeTo
+
+    PrintSet    : ReportTitle       : @@BILLMainTitle
+
+    Filtered    : Yes
+    Form        : Bills Outstanding
+
+    Print       : BILLPrint Configure
+    Title       : $$LocaleString:"My Bills Outstanding"
+	List Name	: $$LocaleString:"Bills Receivable"
+    Export      : Yes
+    PrintSet    : PrintFileName   : "Bills"
+    Local       : Button  : RelReports : Inactive : yes
+
+	Column Var	 : AgeFrom, AgeTo
+
+	Collection	: LedgerwiseBills_Print, LedgerName: ##InNewPages AND @@PartywiseStartFreshApplied
+	Variable	: IsUserReceivables
+	On			: Load	: Yes	: Set	: IsUserReceivables	: Yes
+;	On			: Load	: Yes	: Set	: SalesmanName1		: $$SysName:AllItems
+	
+[Variable: IsUserReceivables]
+	
+	Type	: Logical
+	
+;[#Form: BO Receivable]
+	
+	;Add			: Option			: MyBO Receivable		: ##IsUserReceivables = Yes 
+	
+[!Form: MyBO Receivable]
+	
+	Add			: Button		: SalesmanButton
+	
+[Button: SalesmanButton]
+	
+	Key			: Alt + 1
+	Action		: Alter		: SalesmanTrigger
+	Title   	: $$LocaleString:"Salesman"
+	
+	
+[Collection	:	SalesmanWise]
+	
+	Use         : SalesmanDetailsTable
+    Title       : $$LocaleString:"Salesman"
+	Belongs To	: Yes
+    Variable    : SalesmanName1
+    Trigger     : SalesmanTrigger
+	Fetch		: SalesmanName
+	Report      : Salesmanwise Partywise Outstanding
+
+[Collection: SalesmanDetailsTable]
+	
+	Title				: "Salesman"
+	Source Collection	: SalesmanNameCollection, Not Applicable
+	Fetch				: SalesmanName
+	Format				: $SalesmanName, 35
+
+
+[Report: SalesmanTrigger]    ;;Auto Report
+        
+            Use     : Collection Variable
+            Local   : Line : Collection Variable : Field : SalesmanTrigger
+            Local   : Field: MV Title            : Info  : $$LocaleString:"Salesman Name"
+			Local	: Field: SalesmanTrigger	 : Set as: ##SalesmanName1
+			
+
+	
+[Field: SalesmanTrigger]
+	
+	Use         : Name Field
+	;Key         : Create Group
+	Set as      : if ##SalesmanName1 = "" then $$SysName:Primary else ##SalesmanName1
+	Modifies    : SalesmanName1
+	Table       : SalesmanWise
+	Show Table  : Always
+	CommonTable : No
+
+[System	: Variables]
+	
+	SalesmanName1	: ""
+
+	
+[Variable	: SalesmanName1]
+	
+	Type	: String
+
+	
+
+	
+[#Collection: Company Receivables]
+	
+	Add			: Option			: MyCompany Receivables1A		: ##IsUserReceivables = Yes 
+	
+[!Collection: MyCompany Receivables1A]
+	
+	Add			: Compute		: Salesman			: $LedgerEntries[1].UDFSalesman
+	Filter		: SalesmanOutstandingFilter;SalesmanFilter
+	
+[#Line: BILL Detail]
+	
+	Add			: Option			: MyBILL Detail		: ##IsUserReceivables = Yes 
+	
+[!Line: MyBILL Detail]
+	
+	Add			: Left Field	: After				: BILLFixed	: SalesmanNameField
+	
+[Function: fun1]
+	
+	Variable	: var1	: Logical
+	
+01: Log	: "inside fun1"
+02: Set	: var1	:	$$ContextKeyword:Yes:No
+03: Log	: ##var1
+04: Return : ##var1
+	
+[Field: SalesmanNameField]
+	
+	Use			: Name Field
+	Set as		: $UDFSalesman;(Ledger,($$FuncDSPAccName:$Parent:##vLedgerAlias)).UDFSalesman;$Salesman
+	Align		: Center
+	Color		: Red
