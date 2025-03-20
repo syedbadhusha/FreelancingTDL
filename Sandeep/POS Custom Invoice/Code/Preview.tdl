@@ -119,7 +119,7 @@
 	Space Top:0.1
 	Space Bottom:0.2
 	Border	: Thin Top
-	Explode	: POS Explode;:Yes
+	Explode	: POS Explode:Not $$IsNotApplicable:($AdditionalUnits:StockItem:$StockItemName)
 	
 [Field:POS SNo]
 	Use		: Name Field
@@ -140,10 +140,10 @@
 [Field:POS Rate]
 	Use		: Rate Price Field
 	Set as	: $Rate
-	Width	: 15
+	Width	: 17
 	Format	:	"No Symbol"
 	Align	: Right
-	Line	: 0
+;	Line	: 0
 
 [Field:POS TotalAmt]
 	Use		: Number Field
@@ -181,7 +181,7 @@
 [Field:POS ExRate]
 	Use		: Name Field
 	Set as	: ""
-	Width	: 15
+	Width	: 17
 	Align	: Right
 	
 [Field:POS ExTotalAmt]
