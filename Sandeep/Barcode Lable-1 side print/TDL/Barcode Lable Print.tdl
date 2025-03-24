@@ -1,0 +1,296 @@
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; JAI SHREE GANESH ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;======================================== Single Strip Barcode Lable Print ======================================
+
+
+[#Menu: Gate Way of Tally]
+	
+	Add		: 	Item	: 	Before	: 	@@locQuit	:	"BarCode Lable Print"	:	Alter	:	BarCodePrintDTLS
+	Add		:   Item	:   Before	:   @@locQuit   :   Blank
+	
+[Report: BarCodePrintDTLS]
+		
+	Use		:	DSP Template
+	Title	:	"Set Barcode Printing Value"
+	Object	:	Company ;: ##SVCurrentCompany
+	Form	:	BarCodePrintDTLS
+
+[Form: BarCodePrintDTLS]
+
+	Use		    :	DSP Template
+	Height	    :	60% Screen
+	Width	    :	50% Screen
+	Part	    :	BarCodePrintDTLSHead,BarCodePrintDTLS
+;	On:Form Accept:Yes:Call:BarcodePrint:#BDSetBarcodeItemName:#BDSetBarcodeItemCode:#BDSetBarcodeQty
+	On:Form Accept:Yes:Call: BDUpdateLVForBarcode;:BarcodeLBPrint
+	On:Form Accept:Yes:Form Accept
+	
+	
+[Part: BarCodePrintDTLSHead]
+	
+	Line		:	BarCodePrintDTLSHead
+	Space Bottom:	1
+	Space Top	:	1
+	
+[Line: BarCodePrintDTLSHead]
+	
+	Field	:	Name Field
+	
+	Local	:	Field	:	Name Field	:	Info		:	"BARCODE LABLE PRINT DETAILS"
+	Local	:	Field	:	Name Field	:	Full Width	:	Yes
+	Local	:	Field	:	Name Field	:	Align		:	Center
+	Local	:	Field	:	Name Field	:	Style		:	Large Bold
+	Local	:	Field	:	Name Field	:	Color		:	Red
+	
+[Part: BarCodePrintDTLS]
+	
+	Line		:	BarCodePrintDTLSTL,BarCodePrintDTLS
+	Repeat		:	BarCodePrintDTLS	: 	BarCodePrintDTLSAggr
+	Scroll		:	Vertical
+	Break On	:	$BDSetBarcodeItemNameVal = " End of List"			;$$Line > 0
+	Border		:	Thin Box
+
+
+[Line: BarCodePrintDTLSTL]
+
+	Border			: Column Titles
+	Space Bottom 	: 3 mms
+	Space Top		: 3 mms
+	
+	Field	:	BDSetBarcodeItemName ,BDSetBarcodeItemCode,BDSetBarcodeQty
+	
+	Local	: Field	: Default			 	: Type		: String
+	Local	: Field	: Default			 	: Align		: Center
+	Local	: Field	: Default			 	: Delete	: Storage
+	Local	: Field	: Default			 	: Style		: Normal Bold
+	Local	: Field	: BDSetBarcodeItemName	: Info		: "Stock Item Name"
+	Local	: Field	: BDSetBarcodeItemName	: Align		: Left
+	Local	: Field	: BDSetBarcodeItemCode	: Info	 	: "Item Code"
+	Local	: Field	: BDSetBarcodeQty		: Info		: "Qty"
+	
+
+[Line: BarCodePrintDTLS]
+
+	Field		:	BDSetBarcodeItemName ,BDSetBarcodeItemCode,BDSetBarcodeQty
+	Space Bottom:	3 mms
+	
+[Field: BDSetBarcodeItemName]
+	
+	Use			:	Name Field
+	Table		:	NewStockItem , End of List
+	Show Table	:	Always
+	Set as		:	$StockitemName
+	Storage		:	BDSetBarcodeItemNameVal
+	Set Always	:	yes 
+	Full Width	:	Yes
+	
+[Field: BDSetBarcodeItemCode]
+	
+	use			:	Name Field
+	set as		:	$PartNo:Stockitem:#BDSetBarcodeItemName
+	storage		:	BDSetBarcodeItemCodeVal
+	set always  :	yes 
+	width		:	35 mms
+	Skip		:	Yes
+	Align		:	Center
+	Inactive	:	$BDSetBarcodeItemNameVal = " End of List"
+	
+[Field: BDSetBarcodeQty]
+	
+	use			:	Number Field
+	storage		:	BDSetBarcodeQtyVal
+	set always  :	yes 
+	width		:	25 mms
+	Align		:	Center
+	Inactive	:	$BDSetBarcodeItemNameVal = " End of List"
+
+	
+[Collection: NEwStock Item]
+
+    Use         : Alias Collection
+    Title       : $$LocaleString:"List of Items"
+    Type        : Stock Item
+
+    Report      : Stock Item
+    Variable    : SStockItem
+    Trigger     : SStockItem
+    IsODBCTable : Yes
+	Fetch 		: Name
+
+;============================================== Function 
+
+[Collection: InvEntLblVarCollSrc]
+    
+    Data Source: Variable: DMItemDetails			;ItemDetailss
+	Fetch	: ItemName, ItemCode
+    
+[Collection: InvEntLblVarColl]
+    
+    Source Collection: InvEntLblVarCollSrc
+    Compute  : CompItemName  : $ItemName
+    Compute  : CompItemCode  : $ItemCode
+	
+[Variable: DMItemDetails]
+
+	Variable	: 	ItemName 	: 	String
+	Variable	: 	ItemCode 	: 	String
+	
+[System: Variable]
+	
+    List Var    : DMItem Details
+	
+[Function: BDUpdateLVForBarcode]
+
+    Variable    : Counter   : Number    ;: 0
+    Variable    : LblCounter: Number 	;: 0
+	
+	00	: 	List Delete: DMItemDetails
+    01  :   Walk Collection: BarcodeLBPrintColl
+    02  :   If: Not ($$IsEmpty:$BDSetBarcodeQtyVal OR $BDSetBarcodeQtyVal=0)
+    03  :   Set: Counter    : $BDSetBarcodeQtyVal
+    04  :   While   : ##Counter > 0
+    05  :   Increment   : LblCounter
+    06  :   List Add Ex   : DMItemDetails
+    07  :   Set: DMItemDetails[##LblCounter].ItemName 	: $BDSetBarcodeItemNameVal
+    08  :   Set: DMItemDetails[##LblCounter].ItemCode  	: $BDSetBarcodeItemCodeVal	
+    10  :                   Decrement   : Counter
+    11  :               End While
+    12  :        End If
+    13  :   End Walk
+	
+	100 :	Print	: BarcodeLBPrint
+
+[Report: BarcodeLBPrint]
+
+	Title	:	"Barcode Lable Print"
+	Form	:	BarcodeLBPrint
+;	Collection	:	InvEntLblVarColl
+	
+[Form: BarcodeLBPrint]
+	
+	Part	:	BarcodeLBPrint
+	Height	:	25 MMS
+	Width	:	38 MMS
+	
+	Space Top	:	6 MMS
+	Space Left	:	5 MMS
+;	Space Bottom: 	5 MMS
+;	Vertical Align	:	Center
+;	Horizontal Align:	Center
+	
+[Part: BarcodeLBPrint]
+	
+	Line	:	BarcodeLBPrint
+	Repeat	:	BarcodeLBPrint		;:	BarcodeLBPrintColl
+	Scroll	:	Vertical
+	Set		:	$$Roundup:($$ListCount:DMItemDetails):1			; $$ListCount:DMItemDetails; $$Roundup:(( )):10
+	
+[Line: BarcodeLBPrint]
+	
+	Line	:	BarcodeLBPrintCmpName,BarcodeLBPrintItemName,BarcodeLBPrintItemCode,BarcodeLBPrintCmpCRNCY
+	
+[Line: BarcodeLBPrintCmpName]
+	
+	Field		:	BarcodeLBPrintCmpName
+	Local	: Field:Default:Local:Style:Default:Height:5
+	Local	: Field:Default:Local:Style:Default:Bold:Yes
+	
+[Field: BarcodeLBPrintCmpName]
+	
+	Use			:	Name Field
+	Set As		:	@@CmpMailName
+	Style		:	Small Bold    ;TNRB 
+	Align		:	Center
+	Full Width	:	Yes
+	;Width		:	38 mms;42 mms
+	
+[Line: BarcodeLBPrintItemName]
+	
+	Field		:	BarcodeLBPrintItemName
+	Local	: Field:Default:Local:Style:Default:Height:5
+	Local	: Field:Default:Local:Style:Default:Bold:Yes
+	
+[Field: BarcodeLBPrintItemName]
+	
+	Use			:	Name Field
+;	Set As		:	$ItemName			;$BDSetBarcodeItemNameVal		
+	Set as		:	##DMItemDetails[@@BarcodeFirstIndex].ItemName
+	Style		:	Small Bold    ;TNRB                          
+	Align		:	Center
+	Full Width	:	Yes
+;	Line		:	0
+;	Width		:	38 mms;42 mms
+;	Space Left  :	10 mms
+	
+[System	: Formula]
+	
+	BarcodeFirstIndex	: ($$Line*1)
+	
+[Line: BarcodeLBPrintItemCode]
+	
+	Field		:	BarcodeLBPrintItemCode
+	Space Bottom:	0.3
+	
+[Field: BarcodeLBPrintItemCode]
+	
+	Use			:	Name Field
+	Set As		:	"*"+##DMItemDetails[@@BarcodeFirstIndex].ItemCode+"*" 			;"*"+$PartNo:StockItem:#BarcodeLBPrintItemName+"*" 
+	Style		:	Barcode1Style
+	Align		:	Center
+	Full Width	:	Yes
+;	Width		:	38 mms;42 mms
+;	Space Left  :	10 mms
+
+[Line: BarcodeLBPrintCmpCRNCY]
+	
+	Field		:	BarcodeLBPrintCmpCRNCY
+	Local	: Field:Default:Local:Style:Default:Height:4
+	Local	: Field:Default:Local:Style:Default:Bold:No
+;	Space Bottom:	0.2
+	
+[Field: BarcodeLBPrintCmpCRNCY]
+	
+	Use			:	Name Field
+	Set As		:	"UAE"
+	Style		:	Tiny    ;TNRB 
+	Align		:	Center
+	Full Width	:	Yes
+;	Width		:	38 mms;42 mms
+;	Space Left  :	10 mms
+	
+
+;[style: TNRB]
+;	
+;	Font	   	:	"Times New Roman"
+;	Height	    :	9.5
+;	Bold	    :	Yes
+
+[Style: Barcode1Style]
+
+	Font	    :	"IDAutomationHC39M"		;"IDAutomationHC39S"	
+	Height	    :	7
+
+
+
+[Collection: BarcodeLBPrintColl]
+	
+	Type	:	BarCodePrintDTLSAggr	:	Company
+	Child Of:	##SVCurrentCompany
+	
+	Fetch	:	BDSetBarcodeItemNameVal,BDSetBarcodeItemCodeVal,BDSetBarcodeQtyVal,*.*
+	
+	
+
+;==================================== System UDFS =======================================
+
+[System: UDF]
+	
+	BarCodePrintDTLSAggr	:	Aggregate	:	23001
+	BDSetBarcodeItemNameVal	:	String		:	23002
+	BDSetBarcodeItemCodeVal	:	String		:	23003
+	BDSetBarcodeQtyVal		:	Number		:	23004
+	
+
+
