@@ -1,0 +1,550 @@
+ [Report	: AppCrushSalaryVchImpFileInfo]
+	Title	:"Salary Import"
+	
+Form	: AppCrushSalaryVchImpFileInfo
+
+[Form	: AppCrushSalaryVchImpFileInfo]
+
+	Parts       : AppCrushPurcVchImpFileInfo
+	Width		: 60 % Page
+	
+	Space Right : 1
+	Space Left  : 1
+	No confirm  : Yes
+	Option      : Small Size Form
+	Background  : @@SV_CMPCONFIG
+	
+	On: Form Accept	: Yes	: Form Accept
+	On: Form Accept	: Yes	: Call	: MTISalaryVchImpObjFunc:#MTIVExcelDirName:#MTIVExcelFileName:#MTIVExcelSheetName
+
+[Function	: MTISalaryVchImpObjFunc]
+	
+	Parameter	: ExcelDirName		: String
+	Parameter	: ExcelFileName		: String
+	Parameter	: ExcelSheetName	: String
+	Variable	: RowCounter		: Number	: 2
+	Variable	: LedTotalCol		: Number	: 1
+	Variable	: ColCounter		: Number	: 1
+	
+	Variable	: FileNamewithPath	: String
+	
+	000	: List Delete: MTIVVouchersImpListVar
+		
+	00	: Set: FileNamewithPath	: if $$StringPart:##ExcelDirName:($$StringLength:##ExcelDirName - 1):1 = "\" then ##ExcelDirName + ##ExcelFileName else ##ExcelDirName + "\" + ##ExcelFileName
+	01	: If: $$IsFileExists:##FileNamewithPath
+	02	: Open File: ##FileNamewithPath : Excel: READ : ASCII
+	03	: Set Active Sheet: ##ExcelSheetName
+	
+	05	:	While	: Not $$IsEmpty:($$FileReadCell:##RowCounter:1) ;and ##RowCounter <= 12
+	
+	10	:		Start Progress	: ##LedTotalCol	: "Excel File Reading"
+		
+	11	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:1) :MTIVVouchersColum1
+	12	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:2) :MTIVVouchersColum2
+	13	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:3) :MTIVVouchersColum3
+	14	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:4) :MTIVVouchersColum4
+	15	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:5) :MTIVVouchersColum5
+	16	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:6) :MTIVVouchersColum6
+	17	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:7) :MTIVVouchersColum7
+	18	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:8) :MTIVVouchersColum8
+	20	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:9) :MTIVVouchersColum9
+	21	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:10):MTIVVouchersColum10
+	22	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:11):MTIVVouchersColum11
+	23	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:12):MTIVVouchersColum12
+	19	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:13):MTIVVouchersColum13
+	24	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:14):MTIVVouchersColum14
+	25	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:15):MTIVVouchersColum15
+	28	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:16):MTIVVouchersColum16
+	29	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:17):MTIVVouchersColum17
+	30  :		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:18):MTIVVouchersColum18
+
+	61	:		Increment	: RowCounter
+	62	:		Increment	: ColCounter
+	63	:		Show Progress: ##ColCounter
+	64	:		End Progress
+	65	:	End While
+	66	: Close File
+	67	: End If
+	
+	80	: Call	: AppCrushSalaryvchImport
+	90	: List Delete: MTIVVouchersImpListVar
+
+
+[Function	: AppCrushSalaryvchImport]
+	Variable	: Count				: Number
+	Variable	: SVViewName		: String
+	Variable	: vsParty			: String
+	Variable	: SupplierNo		: String
+	Variable	: LedgerName Dtls	: String
+	Variable	: TotalAmt			: Amount
+	Variable	: VarEmp1			: String
+	
+	0000	: Set	: SVViewName	: "PaySlip Voucher View"
+;
+	0010	: SET 	: Count		: 0
+;	0020	: START PROGRESS	: ($$NumItems:MTIVPayrollImpListColl)	: "Journal Voucher" : @@CmpMailName	: "Importing Journal Voucher List..."
+;
+	0030	: Walk Collection	: MTIVPayrollImpListColl
+;	0031	: 	Log	: "MTIVPayrollImpListColl"
+;	0032	:	Log	: $MMTIVVouchersColum1
+;	0033	:	Log	: $MMTIVVouchersColum2
+;		
+	0040	: 	New Object	: Voucher
+	11a		: Set	: TotalAmt	: $$AsAmount:$MMTIVVouchersColum5	;:
+;	12a		: Log	: ##TotalAmt
+	0050	: Set Value		: VOUCHERTYPENAME	: $MMTIVVouchersColum3
+	0060	: Set Value		: DATE				: $MMTIVVouchersColum1
+	2000	: Set Value		: VoucherNumber		: $MMTIVVouchersColum2
+	2001	: Set Value		: PartyLedgerName	: $MMTIVVouchersColum4
+;	0090	: Set Value		: HASCASHFLOW		: YES
+	0100	: Set Value		: NARRATION			: $MMTIVVouchersColum17
+	
+	120	:		Set Value	:PARTYNAME				: $MMTIVVouchersColum4
+	130 :		SET			:SVViewName	    		:"PaySlip Voucher View"
+    140 :		Set Value	:PARTYLEDGERNAME		: $MMTIVVouchersColum4
+    150 :		Set Value	:BASICBASEPARTYNAME		: $MMTIVVouchersColum4
+	151 :		Set Value	:BASICBUYERNAME			: $MMTIVVouchersColum4
+	2002:		Set Value	:PARTYGSTIN    			: $MMTIVVouchersColum4
+	2033s:		Set Value	: Narration				: $MMTIVVouchersColum17
+	081 : 	Set Value	: ASPAYSLIP			: Yes
+
+
+		090	:	Insert Collection Object: LEDGERENTRIES
+;	091	:	 Set Object
+	100	:		Set Value	: LedgerName 		: $MMTIVVouchersColum4
+	110	:		Set Value	: ISDEEMEDPOSITIVE 	: No
+	111	:		Set Value	: LEDGERFROMITEM	: No		
+	112	:		Set Value	: REMOVEZEROENTRIES	: No
+	112a:		Set Value	: ISPARTYLEDGER		: Yes
+	112b:		Set Value	: ISLASTDEEMEDPOSITIVE: No
+	113	:		Set Value	: Amount			: $$AsAmount:$MMTIVVouchersColum5
+	115	:		Set Target	: ..
+
+    ;; Cost Category Allocation - By Default Hard Coded as Primary Cost 
+	
+/*
+	Variable	: varCostCategory	: String
+	abhi101	: Walk Collection	: MTIVPayrollImpListCollCostCategory
+	abhi102:	Set	: varCostCategory	: $MMTIVVouchersColum18
+	afshaida:	Log	: ##varCostCategory
+	abhi103	: 	INSERT COLLECTION OBJECT	: CATEGORYENTRY
+	abhi104	:   SET VALUE				: Category	: $$TgtObject:##varCostCategory	;$Category:CostCentre:$MMTIVVouchersColum6
+*/	
+	Variable	: VarCategory	: String
+	117	:   Walk Collection: MTIVPayrollImpListCollPayhead ;;co
+	118 :		Set	: VarCategory	: $Category:CostCentre:$MMTIVVouchersColum6
+	;119 :		Log	: ##VarCategory
+
+	1100	: INSERT COLLECTION OBJECT	: CategoryEntries
+	1110	:   SET VALUE				: Category	: $$TgtObject:##VarCategory;$Category:CostCentre:$MMTIVVouchersColum6
+
+    ;; Employee Allocations
+	abhi2001: 	If	: !$$IsObjectExists:CostCentre:$MMTIVVouchersColum6
+	;abhi2002:		Log	: "Employee"
+	abhi2003:		Set	: VarEmp1	: ("Employee " + $MMTIVVouchersColum6 + " - Doesn't Exist")
+	;abhi2004:		Log	: ##VarEmp1
+	abhi2005:	End If
+	1150	: 		    INSERT COLLECTION OBJECT	: Employee Entries 
+
+	1160	: 		        SET VALUE		: EmployeeSortOrder	: $$LoopIndex
+	1170	: 			    SET VALUE		: EmployeeName		: $MMTIVVouchersColum6 
+	1333	: 				Set Value		: Amount			: $$AsAmount:##TotalAmt*-1
+
+    ;; Payhead Allocation - Attendance 
+	T1		: If	: not $$IsEmpty:$MMTIVVouchersColum8
+	1190	: 			    INSERT COLLECTION OBJECT	: Payhead Allocations  
+
+	1200	: 				    SET VALUE	: PayHeadSortOrder		: $$Number:1
+	1210	: 				    SET VALUE	: PayHeadName			: $MMTIVVouchersColum7
+	1220	: 				    SET VALUE	: IsDeemedPositive		: Yes    
+	1230	: 				    SET VALUE	: Amount				: $$AsAmount:$MMTIVVouchersColum8 * -1
+    
+	1240 	:			    SET TARGET	: ..    ;; Back to Payhead Allocations
+	T2		: End If
+	
+	T3		: If	: not $$IsEmpty:$MMTIVVouchersColum10
+	119x0	: 			    INSERT COLLECTION OBJECT	: Payhead Allocations  
+
+	120x0	: 				    SET VALUE	: PayHeadSortOrder		: $$Number:2
+	121x0	: 				    SET VALUE	: PayHeadName			: $MMTIVVouchersColum9
+	122x0	: 				    SET VALUE	: IsDeemedPositive		: Yes    
+	123x0	: 				    SET VALUE	: Amount				: $$AsAmount:$MMTIVVouchersColum10 * -1
+    
+	124x0 	:			    SET TARGET	: ..    ;; Back to Payhead Allocations
+	t4		: End If
+	
+	T5		: If	: not $$IsEmpty:$MMTIVVouchersColum12
+	260	:				Insert Collection Object: PAYHEADALLOCATIONS
+	270	:					Set Value	: PAYHEADNAME 		: $MMTIVVouchersColum11
+	280	:					Set Value	: ISDEEMEDPOSITIVE 	: No
+	290	:					Set Value	: Amount	  		: $$Negative:$$AsAmount:$MMTIVVouchersColum12;*-1;$$Negative:$Column6
+	300	:					Set Value	: PAYHEADSORTORDER 	: $$Number:3
+	301	:					Set Target	: ..
+	t6	: End If
+	
+	T7		: If	: not $$IsEmpty:$MMTIVVouchersColum14
+	
+	310	:				Insert Collection Object: PAYHEADALLOCATIONS
+	320	:					Set Value	: PAYHEADNAME 		: $MMTIVVouchersColum13
+	330	:					Set Value	: ISDEEMEDPOSITIVE 	: Yes
+	340	:					Set Value	: Amount	  		: $$AsAmount:$MMTIVVouchersColum14*-1;$$Negative:$Column7
+	350	:					Set Value	: PAYHEADSORTORDER 	: $$Number:4
+	351	:					Set Target	: ..
+	
+	t8	: End If
+	
+	T9		: If	: not $$IsEmpty:$MMTIVVouchersColum16
+	360	:				Insert Collection Object: PAYHEADALLOCATIONS
+	370	:					Set Value	: PAYHEADNAME 		: $MMTIVVouchersColum15
+	380	:					Set Value	: ISDEEMEDPOSITIVE 	: No
+	390	:					Set Value	: Amount	  		: $$AsAmount:$MMTIVVouchersColum16*-1;$Column8
+	400	:					Set Value	: PAYHEADSORTORDER 	: $$Number:5
+	401	:					Set Target	: ..
+;	
+	1260: 		    SET TARGET		: ..    ;; Back to Employee Allocations
+	t10	: End If
+	31d:End Walk
+
+    1300	: SET TARGET	: .. 
+	;abhi105: End Walk
+	1320	: 	CREATE TARGET
+    322	 : End Walk
+    ;; If Attendacne Bonus are calculated then only Voucher will Create otherwise will not Create.
+	;1320	: 	CREATE TARGET
+	1330	: 	RETURN
+	
+
+
+[Collection	: MTIVPayrollImpListColl]
+Source Collection	: AppcrushPurcImportListvarSrc
+By		: MMTIVVouchersColum1:  $MTIVVouchersColum1
+By		: MMTIVVouchersColum2:  $MTIVVouchersColum2
+Compute	: MMTIVVouchersColum3:  $MTIVVouchersColum3
+Compute	: MMTIVVouchersColum4:  $MTIVVouchersColum4
+AggrCompute	: MMTIVVouchersColum5: sum: $$Number:$MTIVVouchersColum5
+Compute	: MMTIVVouchersColum6:  $MTIVVouchersColum6
+Compute	: MMTIVVouchersColum7:  $MTIVVouchersColum7
+AggrCompute	: MMTIVVouchersColum8: sum: $$Number:$MTIVVouchersColum8
+Compute	: MMTIVVouchersColum9:  $MTIVVouchersColum9
+AggrCompute	: MMTIVVouchersColum10:sum: $$Number:$MTIVVouchersColum10
+Compute	: MMTIVVouchersColum11: $MTIVVouchersColum11
+AggrCompute	: MMTIVVouchersColum12: sum:$$Number:$MTIVVouchersColum12
+Compute	: MMTIVVouchersColum13: $MTIVVouchersColum13
+AggrCompute	: MMTIVVouchersColum14:sum: $$number:$MTIVVouchersColum14
+Compute	: MMTIVVouchersColum15: $MTIVVouchersColum15
+AggrCompute	: MMTIVVouchersColum16:sum: $$Number:$MTIVVouchersColum16
+Compute	: MMTIVVouchersColum17: $MTIVVouchersColum17
+;select $MMTIVVouchersColum1,$MMTIVVouchersColum2,$MMTIVVouchersColum3 from MTIVPayrollImpListColl
+
+
+[Collection	: MTIVPayrollImpListCollCostCategory]
+	Source Collection	: AppcrushPurcImportListvarSrc
+	
+;By		: MMTIVVouchersColum1:  $MTIVVouchersColum1
+;By		: MMTIVVouchersColum2:  $MTIVVouchersColum2
+By		: MMTIVVouchersColum18: $MTIVVouchersColum18
+;Compute	: MMTIVVouchersColum3:  $MTIVVouchersColum3
+;Compute	: MMTIVVouchersColum4:  $MTIVVouchersColum4
+;AggrCompute	: MMTIVVouchersColum5: sum: $$Number:$MTIVVouchersColum5
+;Compute	: MMTIVVouchersColum6:  $MTIVVouchersColum6
+;Compute	: MMTIVVouchersColum7:  $MTIVVouchersColum7
+;AggrCompute	: MMTIVVouchersColum8: sum: $$Number:$MTIVVouchersColum8
+;Compute	: MMTIVVouchersColum9:  $MTIVVouchersColum9
+;AggrCompute	: MMTIVVouchersColum10:sum: $$Number:$MTIVVouchersColum10
+;Compute	: MMTIVVouchersColum11: $MTIVVouchersColum11
+;AggrCompute	: MMTIVVouchersColum12: sum:$$Number:$MTIVVouchersColum12
+;Compute	: MMTIVVouchersColum13: $MTIVVouchersColum13
+;AggrCompute	: MMTIVVouchersColum14:sum: $$number:$MTIVVouchersColum14
+;Compute	: MMTIVVouchersColum15: $MTIVVouchersColum15
+;AggrCompute	: MMTIVVouchersColum16:sum: $$Number:$MTIVVouchersColum16
+;Compute	: MMTIVVouchersColum17: $MTIVVouchersColum17
+
+;select $MMTIVVouchersColum1,$MMTIVVouchersColum2,$MTIVVouchersColum18 from MTIVPayrollImpListCollCostCategory
+
+
+
+[Collection	: MTIVPayrollImpListCollPayhead]
+	Source Collection	: AppcrushPurcImportListvarSrc
+	
+Compute	: MMTIVVouchersColum1:  $MTIVVouchersColum1
+Compute	: MMTIVVouchersColum2:  $MTIVVouchersColum2
+Compute	: MMTIVVouchersColum3:  $MTIVVouchersColum3
+Compute	: MMTIVVouchersColum4:  $MTIVVouchersColum4
+Compute	: MMTIVVouchersColum5:  $$Number:$MTIVVouchersColum5
+compute	: MMTIVVouchersColum6:  $MTIVVouchersColum6
+Compute	: MMTIVVouchersColum7:  $MTIVVouchersColum7
+Compute	: MMTIVVouchersColum8:  $$Number:$MTIVVouchersColum8
+Compute	: MMTIVVouchersColum9:  $MTIVVouchersColum9
+Compute	: MMTIVVouchersColum10: $$Number:$MTIVVouchersColum10
+Compute	: MMTIVVouchersColum11: $MTIVVouchersColum11
+Compute	: MMTIVVouchersColum12: $$Number:$MTIVVouchersColum12
+Compute	: MMTIVVouchersColum13: $MTIVVouchersColum13
+Compute	: MMTIVVouchersColum14: $$number:$MTIVVouchersColum14
+Compute	: MMTIVVouchersColum15: $MTIVVouchersColum15
+Compute	: MMTIVVouchersColum16: $$Number:$MTIVVouchersColum16
+Compute	: MMTIVVouchersColum17: $MTIVVouchersColum17
+Compute	: MMTIVVouchersColum18: $MTIVVouchersColum18
+Filter	: VchNoanddateFilter;, SameCategoryFilter
+
+
+[System	: Formula]
+	VchNoanddateFilter	: $MMTIVVouchersColum1=$$ReqObject:$MMTIVVouchersColum1 and $MMTIVVouchersColum2=$$ReqObject:$MMTIVVouchersColum2
+	SameCategoryFilter	: $MMTIVVouchersColum18 = ##varCostCategory
+
+;==============Petty Cash Impory
+
+[Report	: AppCrushPettyCashImport]
+	Title	:"Salary Import"
+	
+Form	: AppCrushPettyCashImport
+
+[Form	: AppCrushPettyCashImport]
+
+	Parts       : AppCrushPurcVchImpFileInfo
+	Width		: 60 % Page
+	
+	Space Right : 1
+	Space Left  : 1
+	No confirm  : Yes
+	Option      : Small Size Form
+	Background  : @@SV_CMPCONFIG
+	
+	On: Form Accept	: Yes	: Form Accept
+	On: Form Accept	: Yes	: Call	: MTIpettyCashRead:#MTIVExcelDirName:#MTIVExcelFileName:#MTIVExcelSheetName
+
+[Function	: MTIpettyCashRead]
+	
+	Parameter	: ExcelDirName		: String
+	Parameter	: ExcelFileName		: String
+	Parameter	: ExcelSheetName	: String
+	Variable	: RowCounter		: Number	: 2
+	Variable	: LedTotalCol		: Number	: 1
+	Variable	: ColCounter		: Number	: 1
+	Variable	: AnyError		: Logical:No
+	
+	Variable	: FileNamewithPath	: String
+	
+	000	: List Delete: MTIVVouchersImpListVar
+		
+	00	: Set: FileNamewithPath	: if $$StringPart:##ExcelDirName:($$StringLength:##ExcelDirName - 1):1 = "\" then ##ExcelDirName + ##ExcelFileName else ##ExcelDirName + "\" + ##ExcelFileName
+	01	: If: $$IsFileExists:##FileNamewithPath
+	02	: Open File: ##FileNamewithPath : Excel: READ : ASCII
+	03	: Set Active Sheet: ##ExcelSheetName
+	
+	05	:	While	: Not $$IsEmpty:($$FileReadCell:##RowCounter:1) ;and ##RowCounter <= 12
+	
+	10	:		Start Progress	: ##LedTotalCol	: "Excel File Reading"
+		
+	11	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:1) :MTIVVouchersColum1
+	12	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:2) :MTIVVouchersColum2
+	13	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:3) :MTIVVouchersColum3
+	14	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:4) :MTIVVouchersColum4
+	15	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:5) :MTIVVouchersColum5
+	16	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:6) :MTIVVouchersColum6
+	1x4	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:7) :MTIVVouchersColum188
+	
+	17	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:8) :MTIVVouchersColum7
+	18	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:9) :MTIVVouchersColum8
+	1cd	: 		List Add	: MTIVVouchersImpListVar: $$LoopIndex:($$FileReadCell:##RowCounter:10) :MTIVVouchersColum10
+	
+	61	:		Increment	: RowCounter
+	62	:		Increment	: ColCounter
+	63	:		Show Progress: ##ColCounter
+	64	:		End Progress
+	65	:	End While
+	66	: Close File
+	67	: End If
+	
+;	1x2	: Call	: LedImportPettypayment
+	
+	920	: Call		: AppCrushPettyCashFindError
+;	
+	930	: If	: ##AnyError
+	940	:	Browse Url	: error.log
+	950	:	Msg Box		: "ERROR !!!"	: "Please Solve the error and Import Again..."
+	960	: else 
+;	122s:Call	:	ledcreate
+;	142	:	 Call	:	ledcreate
+	970	:	Call		: AppCrushPettyCashImport
+	990	: End If
+	
+;	80	: Call	: 
+	90	: List Delete: MTIVVouchersImpListVar
+
+
+[Function	: LedImportPettypayment]
+	
+
+233:Walk Collection	: MTIVVouchersImpListPettyCashCollError
+11:If	: not $$IsObjectExists:Ledger:$MMTIVVouchersColum9
+	  
+	00140	: NEW OBJECT	: Ledger			
+	FGT		: Set Value		: Name				: $MMTIVVouchersColum9
+	
+	0121	: Set Value		: Parent			: "Sundry Debtors"
+	
+	I1		: Insert Collection Object	: LEDMAILINGDETAILS
+	I3		: Set Value		: APPLICABLEFROM	:"1-4-2023"
+	a9		: Set Value		: STATE			: "Dubai"
+	a10		: Set Value		: COUNTRY		: "UAE"
+	I2		: Set Target:..
+	00230	: Accept
+;	00250	: INCREMENT	: SCounter
+;	00251	: Show Progress	: ##SCounter
+	112	: End If
+234	: End Walk
+
+
+[Function	: AppCrushPettyCashFindError]
+	
+	100	: Open File			: error.log	: text	: write
+	110	: Truncate File
+	120	: Write File Line	: "**********************************************"
+	130	: Write File Line	: "*******************Error Log******************"
+	140	: Write File Line	: "**********************************************"
+	200	: Walk Collection	: MTIVVouchersImpListPettyCashCollError
+
+	210	:	If	: $$IsEmpty:$Name:Costcentre:$MMTIVVouchersColum7 and not $Name:Costcentre:$MMTIVVouchersColum7="" or +
+					$$IsEmpty:$NAME:Ledger:$MMTIVVouchersColum4 and not $NAME:Ledger:$MMTIVVouchersColum4 ="" or +
+					$$IsEmpty:$Name:Vouchertype:$MMTIVVouchersColum10 and not $Name:Vouchertype:$MMTIVVouchersColum10=""
+					
+					
+	225	:		Do If	: ($$IsEmpty:$NAME:Costcentre:$MMTIVVouchersColum7)	and not ($NAME:Costcentre:$MMTIVVouchersColum7="")	: Write File Line	: $$Sprintf:"Line : %s , CostCentre Not Found !!! - CostCentre : %s":$MMTIVVouchersColum7
+	216	:		Do If	: ($$IsEmpty:$NAME:Ledger:$MMTIVVouchersColum4)		and not ($NAME:Ledger:$MMTIVVouchersColum4="")	: Write File Line	: $$Sprintf:"Line : %s , Ledger Not Found !!! - ledger : %s":$MMTIVVouchersColum4
+	26	:		Do If	: ($$IsEmpty:$NAME:Vouchertype:$MMTIVVouchersColum10)		and not ($NAME:Vouchertype:$MMTIVVouchersColum10="")	: Write File Line	: $$Sprintf:"Line : %s , Vouchertype Not Found !!! - Vouchertype : %s":$MMTIVVouchersColum10
+	
+	238	:		Set		: AnyError		: Yes
+	239	: 	End If	
+
+	370	:	End Walk
+
+
+[Function	: AppCrushPettyCashImport]
+	Variable	: Count				: Number
+	Variable	: SVViewName		: String
+	Variable	: vsParty			: String
+	Variable	: SupplierNo		: String
+	Variable	: LedgerName Dtls	: String
+;	Variable	: IsNegatibe		: Logical
+;	Variable:Roundoff:Number
+	0000	: Set	: SVViewName	: "Accounting Voucher View"
+
+	0010	: SET 	: Count		: 0
+	0020	: START PROGRESS	: ($$NumItems:MTIVVouchersPaymentImpListColl)	: "Petty Cash Payment" : @@CmpMailName	: "Importing Petty Cash Payment Voucher List..."
+
+	0030	: Walk Collection	: AppcrushPurcImportPettyCash
+	
+	0040	: 	New Object	: Voucher
+	
+	0050	: Set Value		: VOUCHERTYPENAME	: $MMTIVVouchersColum10;$$VchTypePayment;$MMTIVVouchersColum4
+	0060	: Set Value		: DATE				: $MMTIVVouchersColum1
+;	2311	: Set Value		: Vouchernumber		: $MMTIVVouchersColum2
+;	2322	: Set Value		: Reference			: $MMTIVVouchersColum5
+;	2323	: Set Value		: ReferenceDate		: $MMTIVVouchersColum6
+	0090	: Set Value		: HASCASHFLOW		: YES
+;	0100	: Set Value		: NARRATION			: $MMTIVVouchersColum8
+;	8765	: Set Value		: CostCentreName	: $$String:$MMTIVVouchersColum7
+	vcxv	: Set Value		: ISCOSTCENTRE			: Yes
+	
+	
+	100A	: Walk Collection	: AppcrushPurcImportPettyCledgerEntries
+	01120	: Insert Collection Object	: ALLLEDGERENTRIES
+	YT		: Set Value	: NARRATION			: $MMTIVVouchersColum8
+	01130	: Set Value	: LEDGERNAME		: $MMTIVVouchersColum4
+	01140	: Set Value	: ISDEEMEDPOSITIVE	: Yes
+	01150	: Set Value	: ISPARTYLEDGER		: No
+	060		: Set Value	: AMOUNT			: $$AsAmount:$MMTIVVouchersColum5*-1 ;then -$$AsAmount:$SStkJrnlClm10 else $$AsAmount:$SStkJrnlClm10
+	
+	766		: Insert Collection Object	: CATEGORYALLOCATIONS
+	767		: Set Value	: CATEGORY	: if $$IsEmpty:$Category:Costcentre:$MMTIVVouchersColum7 then "Primary Cost Category" else $Category:Costcentre:$MMTIVVouchersColum7 
+	768		: Set Value	: ISDEEMEDPOSITIVE	: Yes
+	
+    sjajsjajsjasjsj:If: NOT $$IsObjectExists:CostCEntre:$MMTIVVouchersColum5
+	shashahshahsas:Log:$MMTIVVouchersColum5
+	shashashahs:End If
+
+	769		: Insert Collection Object	: COSTCENTREALLOCATIONS
+	770		: Set Value	: NAME	: $MMTIVVouchersColum7
+	771		: Set Value	: AMOUNT	: $$AsAmount:$MMTIVVouchersColum5*-1
+	772		: Set Target:..
+	773		: Set Target:..
+	0290	: Insert Collection Object	: BILLALLOCATIONS
+	0300	: Set Value	: NAME		: $MMTIVVouchersColum6
+	0310	: Set Value	: BILLTYPE	: "New Ref"
+	0320	: Set Value	: AMOUNT	: $$AsAmount:$MMTIVVouchersColum5*-1
+	23323	: Set Target	: ..
+	
+sdsaf:End Walk
+
+	0120	: Insert Collection Object	: ALLLEDGERENTRIES
+	
+	0130	: Set Value	: LEDGERNAME		: $MMTIVVouchersColum2
+	0140	: Set Value	: ISDEEMEDPOSITIVE	: No
+	0150	: Set Value	: ISPARTYLEDGER		: Yes
+	0160	: Set Value	: AMOUNT			: $$AsAmount:$MMTIVVouchersColum3;if $$IsNegative:$$AsAmount:$SStkJrnlClm6 then -$$AsAmount:$SStkJrnlClm6 else $$AsAmount:$SStkJrnlClm6
+
+	0330	: Set Target	: ..
+;
+
+
+	0340	: Set Target	: ..
+	0610 	: SET VALUE    	: PersistedView 	: ##SVViewName
+
+	0620	: 	SHOW PROGRESS	: ##Count
+	0630	: 	Increment		: Count
+	
+	0640	: Accept Create
+
+	0650	: End Walk
+	0660	: END PROGRESS
+	
+
+[Collection	: AppcrushPurcImportPettyCash]
+	
+Source Collection	: AppcrushPurcImportListvarSrc
+	
+By		: MMTIVVouchersColum1:  $MTIVVouchersColum1
+Compute	: MMTIVVouchersColum2:  $MTIVVouchersColum2
+Compute	: MMTIVVouchersCostCat	: $MTIVVouchersColum188
+AggrCompute	: MMTIVVouchersColum3:Sum:  $$Number:$MTIVVouchersColum3
+Compute		: MMTIVVouchersColum4:  $MTIVVouchersColum4
+AggrCompute	: MMTIVVouchersColum5:Sum:  $$Number:$MTIVVouchersColum5
+Compute	: MMTIVVouchersColum6:  $MTIVVouchersColum6
+Compute	: MMTIVVouchersColum7:  $MTIVVouchersColum7
+Compute	: MMTIVVouchersColum8 : $MTIVVouchersColum8
+Compute	: MMTIVVouchersColum10	: $MTIVVouchersColum10
+
+
+[Collection	: AppcrushPurcImportPettyCledgerEntries]
+	
+Source Collection	: AppcrushPurcImportListvarSrc
+	
+Compute		: MMTIVVouchersColum1:  $MTIVVouchersColum1
+Compute		: MMTIVVouchersColum2:  $MTIVVouchersColum2
+Compute	: MMTIVVouchersCostCat	: $MTIVVouchersColum188
+AggrCompute	: MMTIVVouchersColum3:Sum:  $$Number:$MTIVVouchersColum3
+compute			: MMTIVVouchersColum4:  $MTIVVouchersColum4
+AggrCompute	: MMTIVVouchersColum5:Sum:  $$Number:$MTIVVouchersColum5
+By			: MMTIVVouchersColum6:  $MTIVVouchersColum6
+Compute		: MMTIVVouchersColum7:  $MTIVVouchersColum7
+Compute		: MMTIVVouchersColum8 : $MTIVVouchersColum8
+Filter		: LedDateFilter
+
+
+[System	: Formula]
+	LedDateFilter	: $MMTIVVouchersColum1=$$ReqObject:$MMTIVVouchersColum1
+
+
+[Collection	: MTIVVouchersImpListPettyCashCollError]
+	Source Collection	: AppcrushPurcImportListvarSrc
+	
+Compute	: MMTIVVouchersColum1:  $MTIVVouchersColum1
+Compute	: MMTIVVouchersColum2:  $MTIVVouchersColum2
+Compute	: MMTIVVouchersCostCat	: $MTIVVouchersColum188
+Compute	: MMTIVVouchersColum3:  $MTIVVouchersColum3
+Compute	: MMTIVVouchersColum4:  $MTIVVouchersColum4
+Compute	: MMTIVVouchersColum5:  $MTIVVouchersColum5
+Compute	: MMTIVVouchersColum6:  $MTIVVouchersColum6
+Compute	: MMTIVVouchersColum7:  $MTIVVouchersColum7
+Compute	: MMTIVVouchersColum8:  $MTIVVouchersColum8
+Compute	: MMTIVVouchersColum10:$MTIVVouchersColum10

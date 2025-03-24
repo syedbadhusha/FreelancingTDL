@@ -1,5 +1,6 @@
 [Include	: Purcimport.txt]
 [Include	: Payment Import.txt]
+[Include	: Salary Import.txt]
 
 
 [#Part: CMP TallyShopFeatures Left]
@@ -11,7 +12,7 @@
 	
 [Line: MTIV EnableExcelImpUtility]
 	Fields		: Long Prompt, MTIV EnableExcelImpUtility
-	Local: Field: Long Prompt: Set as: "Enable Item Excel Import Utility :"
+	Local		: Field: Long Prompt: Set as: "Enable Item Excel Import Utility :"
 	Space Bottom: 2 mms
 	
 [Field: MTIV EnableExcelImpUtility]
@@ -27,7 +28,6 @@
 	Add: Option: MTIV Import Indirect : @@MTIVExcelImpUtilityEnabled
 	
 [!Menu: MTIV Import Indirect]
-	
 	Add: KeyItem: before: @@locquit : @@MTIVUtilities : 3 : Menu : MTIVUtilities 
 	
 [Menu: MTIVUtilities]
@@ -36,6 +36,14 @@
 	Key Item: Purchase Import		: I	: Alter: AppCrushPurcVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
 	Item	: Blank
 	Key Item: Bank Payment Import	: B	: Alter: AppCrushbankPayVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
+	Item	: Blank
+	Key Item: Expenses Import		: E	: Alter: AppCrushPurcVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
+	Item	: Blank
+	Key Item: CashPurchase Import	: E	: Alter: AppCrushPurcVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
+	Item	: Blank
+	Key Item: Salary Import			: E	: Alter: AppCrushSalaryVchImpFileInfo	: NOT $$IsEmpty:$$SelectedCmps 
+	Item	: Blank
+	Key Item: Petty Cash Import		: E	: Alter: AppCrushPettyCashImport	: NOT $$IsEmpty:$$SelectedCmps 
 	Item	: Blank
 	
 
