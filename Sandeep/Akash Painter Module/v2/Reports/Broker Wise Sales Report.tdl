@@ -1,0 +1,221 @@
+
+
+
+
+[Report: Broker Wise Sales Report]
+	Variable: SVFromDate, SVToDate
+	Form	: Broker Wise Sales Report
+	
+[Form: Broker Wise Sales Report]
+	Part	: BWSR Header, BWSR Body
+	Height	: 100% page
+	Width	: 100% page
+	Button	: F2 Change Period, FilterBrokerBtn
+	
+[Button: FilterBrokerBtn]
+	Title	: "Filter"
+	Key		: F3
+	Action	: Alter : Filter Broker Report 
+	
+[Part: BWSR Header]
+	Line	: BWSR CompanyName, BWSR ReportName, BWSR Period
+	
+	Local	: Field: Default: Full Width: Yes
+	Local	: Field: Default: Align: Center
+	
+[Line: BWSR CompanyName]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: $$CurrentCompany
+	Local	: Field: Name Field: Style	: Calibri Default Bold
+	Local	: Field: Name Field: Local	: Style: Default: Height: 15
+	
+[Line: BWSR ReportName]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: "Salesman Wise Sales Report"
+	Local	: Field: Name Field: Style	: Calibri Default
+	Local	: Field: Name Field: Local	: Style: Default: Height: 11
+	
+[Line: BWSR Period]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: @@DSPDateStr
+	Local	: Field: Name Field: Style	: Calibri Default
+	Local	: Field: Name Field: Local	: Style: Default: Height: 11
+	
+	
+;; Body
+	
+[Part: BWSR Body]
+	Line	: BWSR Column, BWSR Body
+	Repeat	: BWSR Body:Broker Sales Summary Coll
+	Scroll	: Vertical
+	Space Top	: 1
+	Bottom Line	: BWSR TotalBody
+	Totals	: BWSR TaxableAmt, BWSR CreditNote, BWSR NetSales, BWSR CommissionOnGross
+	
+[Line: BWSR Column]
+	Use		: BWSR Body
+	
+	Local	: Field: Default: Type: String
+	
+	Local	: Field: BWSR AreaName:  		 Set as	: "Area"
+	Local	: Field: BWSR BrokerName: 		 Set as	: @@BrokerNameText
+	Local	: Field: BWSRBrokerMobileNum	:	Set as	:	"Mobile Number"
+	Local	: Field: BWSR PartyName: 		 Set as	: "Customer"
+	Local	: Field: BWSR TaxableAmt: 		 Set as	: "Sales Amount"
+	Local	: Field: BWSR CreditNote: 	 	 Set as	: "Sales Return"
+	Local	: Field: BWSR NetSales: 	 	 Set as	: "Net Sales"
+	Local	: Field: BWSR CommissionPer: 	 Set as	: "Commission %"
+	Local	: Field: BWSR CommissionOnGross: Set as	: "Commission"
+	
+	
+	Border	: Column Titles
+	
+[Line: BWSR Body]
+	Fields	: BWSR BrokerName, BWSRBrokerMobileNum,BWSR AreaName, BWSR PartyName, BWSR TaxableAmt, BWSR CreditNote,  +
+	BWSR NetSales, BWSR CommissionPer, BWSR CommissionOnGross 
+	
+	Local	: Field: Default: Style: Calibri Default
+	Local	: Field: Default: Local	: Style: Default: Height: 11
+	Space Top	: 0.2
+	Space Bottom	: 0.2
+	
+[Field: BWSR AreaName]
+	Use		: Name Field
+	Set as	: $BrokerArea
+	Width	: 18
+	
+[Field: BWSR BrokerName]
+	Use		: Name Field
+	Set as	: $BrokerName
+	Full Width: Yes
+	Local	: Style: Default: Bold: Yes
+	
+[Field:BWSR BrokerMobileNum]
+	
+	Use	:	Name Field
+	Set as	:	$LedgerMobileNo:Ledger:$BrokerName
+	Width	: 25
+	
+[Field: BWSR PartyName]
+	Use		: Name Field
+	Set as	: $Party
+	Width	: 25
+	Variable:LedgerName
+	Display:Ledger Vouchers
+	Invisible	: Yes
+	
+[Field: BWSR TaxableAmt]
+	Use		: Number Field
+	Set as	: $TaxableAmt
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field: BWSR CreditNote]
+	Use		: Number Field
+	Set as	: $SalesReturnAmt
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field:  BWSR NetSales]
+	Use		: Number Field
+	Set as	: #BWSRTaxableAmt - #BWSRCreditNote
+	Width	: 15
+	Format	: "Decimal:2"
+	Local	: Style: Default: Bold: Yes
+	
+[Field: BWSR CommissionPer]
+	Use		: Number Field
+	Set Always:Yes
+	Set as	: $BrokerCommission
+	Width	: 15
+	Format	: "Percentage"
+	Invisible	: Yes
+	
+[Field: BWSR CommissionOnGross]
+	Use		: Number Field
+	Set as	: #BWSRNetSales*#BWSRCommissionPer%
+	Width	: 15
+	Format	: "Decimal:2"
+	Local	: Style: Default: Bold: Yes
+	Invisible	: Yes
+	
+
+
+;; Totals
+
+[Line: BWSR TotalBody]
+	Use		: BWSR Body
+	
+	Local	: Field: BWSR AreaName:  		 Set as	: ""
+	Local	: Field: BWSR BrokerName: 		 Set as	: "Totals"
+	Local	: Field: BWSR BrokerName: 		 Style	: Calibri Large Bold Italic
+	Local	: Field: BWSR TaxableAmt: 		 Set as	: $$Total:BWSRTaxableAmt
+	Local	: Field: BWSR CreditNote: 	 	 Set as	: $$Total:BWSRCreditNote
+	Local	: Field: BWSR NetSales: 	 	 Set as	: $$Total:BWSRNetSales
+	Local	: Field: BWSR CommissionOnGross: Set as	: $$Total:BWSRCommissionOnGross
+	
+	Local	: Field: Default: Local: Style: Default: Bold: Yes
+	Border	: Totals
+	
+
+	
+
+;; ==================================== Filter Report
+
+[Report: Filter Broker Report]
+	Form	: Filter Broker Report 
+	Object	: Company
+
+[Form: Filter Broker Report ]
+	Part			: FBR Title, FBR Body
+	Full Height		: No
+	Full Width		: No
+	Space Bottom	: 1
+	Space Top		: 1
+	Space Left		: 1
+	Space Right		: 1
+	On:Form Accept:Yes:Form Accept
+	On:Form Accept:Yes:Display:Filtered Broker Sales Report
+	
+[Part: FBR Title]
+	Line	: FormSubtitle
+	
+	Local	: Field: FormSubtitle: Set as: "Filter : "
+	Local	: Field: FormSubtitle: Border: Thin Bottom
+	Local	: Field: FormSubtitle: Full Width: No
+	Local	: Field: FormSubtitle: Style: Calibri Large Bold Italic
+	
+[Part: FBR Body]
+	Line	: FBR Body
+	
+[Line: FBR Body]
+	Fields	: Medium Prompt, Name Field
+	
+	Local	: Field: Medium Prompt: Set as: "Salesman Name : "
+	
+	Local	: Field: Name Field: Storage: FilterBroker
+	Local	: Field: Name Field: Table: Broker Table, AllItems
+	Local	: Field: Name Field: Show Table: Always
+	Local	: Field: Name Field: Modifies:vBrokerName
+	
+
+
+[Variable: vBrokerName]
+	Type	: String
+	
+[System: Variable]
+	vBrokerName : ""
+	
+[Report: Filtered Broker Sales Report]
+	Use		: Broker Wise Sales Report
+	Local	: Collection: Broker Sales Summary Coll :Add: Filter: BrokerFilter
+	
+[System: Formulae]
+	BrokerFilter	: If $$IsEmpty:##vBrokerName OR $$IsSysName:##vBrokerName Then Yes Else $$IsEqual:$BrokerName:##vBrokerName
+	
+
+	
+	

@@ -1,0 +1,223 @@
+[Report:Supervisor Master]
+Form:Supervisor Master
+Title:"Supervisor's Master"
+Object:Company
+
+[Form:Supervisor Master]
+Width:30% Page
+Height:80% Page
+Parts:SUP FormTitle, SUP Body
+Delete:Space Top
+Horizontal Align:Centre
+Vertical Align:Centre
+Background:White
+
+[Part:SUP FormTitle]
+Line:SUP FormTitle
+Background:Cyan Blue
+
+[Line:SUP FormTitle]
+Field:Name Field
+Local:Field:Default:Full Width:Yes
+Local:Field:Default:Color:White
+Local:Field:Default:Style:Calibri Default Bold
+Local:Field:Default:Skip:Yes
+Local:Style:Default:Height:13
+Local:Field:Name Field:Wide Spaced:Yes
+Local:Field:Name Field:Set as:"List of Supervisors"
+Local:Field:Name Field:Align:Center
+Space Top:0.5
+Space Bottom:0.5
+
+[Part:SUP Body]
+Line:SUP BTitle, SUP Body
+Repeat:SUP Body:SupervisorAggr
+Break On:$$IsEmpty:$SuperVisorName
+Scroll:Vertical
+Common Borders:Yes
+On:Focus:Yes:Part End
+
+[Line:SUP BTitle]
+Use:SUP Body
+Local:Field:Default:Skip:Yes
+Local:Field:Default:Delete:Inactive
+Local:Field:Default:Delete:Storage
+
+Local:Field:SUP BSerialNo:Info:"SL No"
+Local:Field:SUP Shop Name:Info:"SuperVisor Name"
+Border:Column Titles
+
+[Line:SUP Body]
+Fields:SUP BSerialNo, SUP Shop Name
+Local:Style:Default:Height:11
+Space Top:0.25
+Space Bottom:0.25
+
+[Field:SUP BSerialNo]
+Use:Name Field
+Width:5% Page
+Border:Thin Right
+Set as:$$Line
+Skip:Yes
+Style:Calibri Default Bold
+
+[Field:SUP Shop Name]
+Use:Name Field
+Storage:SuperVisorName
+Full Width:Yes
+Style:Calibri Default Bold
+
+[Collection:List Of SuperVisor]
+	Title:"List of SuperVisor's"
+	Type:SuperVisor Aggr:Company
+	Child Of:$$CurrentCompany
+	Fetch:SuperVisorName
+	Format:$SuperVisorName, 25
+	Align:Right
+	Full Height:Yes
+	
+
+[System:UDF]
+	SupervisorAggr:Aggregate:6711
+	SuperVisorName:String:6722
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+[Report:SalesManFilter]
+	Form:SalesManFilter
+	
+	
+
+[Form:SalesManFilter]
+	Part:SalesManFilter
+	Height:30% screen
+	Width:60% screen
+	
+
+[Part:SalesManFilter]
+	Line:SalesManFilter
+	
+
+[Line:SalesManFilter]
+	Field:Medium Prompt,SalesManFilter
+	Local:Field:Medium Prompt:Set as:"Select Sales Man"
+	
+
+[Field:SalesManFilter]
+	Use:name field
+	Modifies:SalesManFilter:Yes
+	Table:VCH SalemanName Coll,AllItems
+	Show Table:Always
+	
+[Variable:SalesManFilter]
+	Type:String
+	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[Report:SuperVisorFilter]
+	Form:SalesManFilter
+	
+	
+
+[Form:SuperVisorFilter]
+	Part:SuperVisorFilter
+	Height:30% screen
+	Width:60% screen
+	
+
+[Part:SuperVisorFilter]
+	Line:SuperVisorFilter
+	
+
+[Line:SuperVisorFilter]
+	Field:Medium Prompt,SuperVisorFilter
+	Local:Field:Medium Prompt:Set as:"Select Supervisor"
+	
+
+[Field:SuperVisorFilter]
+	Use:name field
+	Modifies:SuperVisorFilter:Yes
+	Table:List Of SuperVisor,AllItems
+	Show Table:Always
+	
+[Variable:SuperVisorFilter]
+	Type:String
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+[Report:MobileFilter]
+	Form:MobileFilter
+	
+	
+
+[Form:MobileFilter]
+	Part:MobileFilter
+	Height:30% screen
+	Width:60% screen
+	
+
+[Part:MobileFilter]
+	Line:MobileFilter
+	
+
+[Line:MobileFilter]
+	Field:Medium Prompt,MobileFilter
+	Local:Field:Medium Prompt:Set as:"Select Mobile No."
+	
+
+[Field:MobileFilter]
+	Use:name field
+	Modifies:MobileFilter:Yes
+	Table:List Of MobileFilter,AllItems
+	Show Table:Always
+	
+[Variable:MobileFilter]
+	Type:String
+	
+
+[Collection:MobileFilterMain]
+	Type:Ledger
+	
+[Collection:List Of MobileFilter]
+	Title:"List Of Mobile No."
+	Source Collection:MobileFilterMain
+	By:MOBNo:$LedgerMobileNo
+	Format:$MOBNo,20
+	
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	
+
+[Report:ShopFilter]
+	Form:ShopFilter
+	
+	
+
+[Form:ShopFilter]
+	Part:ShopFilter
+	Height:30% screen
+	Width:60% screen
+	
+
+[Part:ShopFilter]
+	Line:ShopFilter
+	
+
+[Line:ShopFilter]
+	Field:Medium Prompt,ShopFilter
+	Local:Field:Medium Prompt:Set as:"Shop"
+	
+
+[Field:ShopFilter]
+	Use:name field
+	Modifies:ShopFilter:Yes
+	Table:List of Companies MColl,AllItems
+	Show Table:Always
+	
+[Variable:ShopFilter]
+	Type:String
+	

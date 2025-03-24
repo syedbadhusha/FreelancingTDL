@@ -1,0 +1,77 @@
+[Report:Shop Boy Master]
+Form:Shop Boy Master
+Title:"Shop Boy Master"
+Object:Company
+
+[Form:Shop Boy Master]
+Width:30% Page
+Height:80% Page
+Parts:SBM FormTitle, SBM Body
+Delete:Space Top
+Horizontal Align:Centre
+Vertical Align:Centre
+Background:White
+
+[Part:SBM FormTitle]
+Line:SBM FormTitle
+Background:Cyan Blue
+
+[Line:SBM FormTitle]
+Field:Name Field
+Local:Field:Default:Full Width:Yes
+Local:Field:Default:Color:White
+Local:Field:Default:Style:Calibri Default Bold
+Local:Field:Default:Skip:Yes
+Local:Style:Default:Height:13
+Local:Field:Name Field:Wide Spaced:Yes
+Local:Field:Name Field:Set as:"List of Shop Boy's"
+Local:Field:Name Field:Align:Center
+Space Top:0.5
+Space Bottom:0.5
+
+[Part:SBM Body]
+Line:SBM BTitle, SBM Body
+Repeat:SBM Body:Shop Boy Aggr
+Break On:$$IsEmpty:$ShopBoyName
+Scroll:Vertical
+Common Borders:Yes
+On:Focus:Yes:Part End
+
+[Line:SBM BTitle]
+Use:SBM Body
+Local:Field:Default:Skip:Yes
+Local:Field:Default:Delete:Inactive
+Local:Field:Default:Delete:Storage
+
+Local:Field:SBM BSerialNo:Info:"SL No"
+Local:Field:SBM Shop Boy Name:Info:"Shop Boy Name"
+Border:Column Titles
+
+[Line:SBM Body]
+Fields:SBM BSerialNo, SBM Shop Boy Name
+Local:Style:Default:Height:11
+Space Top:0.25
+Space Bottom:0.25
+
+[Field:SBM BSerialNo]
+Use:Name Field
+Width:5% Page
+Border:Thin Right
+Set as:$$Line
+Skip:Yes
+Style:Calibri Default Bold
+
+[Field:SBM Shop Boy Name]
+Use:Name Field
+Storage:ShopBoyName
+Full Width:Yes
+Style:Calibri Default Bold
+
+[Collection:List Of Shop Boys]
+	Title:"List of Shop Boys"
+	Type:Shop Boy Aggr:Company
+	Child Of:$$CurrentCompany
+	Fetch:ShopBoyName
+	Format:$ShopBoyName, 25
+	Align:Right
+	Full Height:Yes

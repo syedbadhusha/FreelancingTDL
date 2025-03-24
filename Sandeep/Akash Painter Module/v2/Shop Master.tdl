@@ -1,0 +1,77 @@
+[Report:Shop Master]
+Form:Shop Master
+Title:"Shop's Master"
+Object:Company
+
+[Form:Shop Master]
+Width:30% Page
+Height:80% Page
+Parts:SM FormTitle, SM Body
+Delete:Space Top
+Horizontal Align:Centre
+Vertical Align:Centre
+Background:White
+
+[Part:SM FormTitle]
+Line:SM FormTitle
+Background:Cyan Blue
+
+[Line:SM FormTitle]
+Field:Name Field
+Local:Field:Default:Full Width:Yes
+Local:Field:Default:Color:White
+Local:Field:Default:Style:Calibri Default Bold
+Local:Field:Default:Skip:Yes
+Local:Style:Default:Height:13
+Local:Field:Name Field:Wide Spaced:Yes
+Local:Field:Name Field:Set as:"List of Shop's"
+Local:Field:Name Field:Align:Center
+Space Top:0.5
+Space Bottom:0.5
+
+[Part:SM Body]
+Line:SM BTitle, SM Body
+Repeat:SM Body:Shops Aggr
+Break On:$$IsEmpty:$ShopName
+Scroll:Vertical
+Common Borders:Yes
+On:Focus:Yes:Part End
+
+[Line:SM BTitle]
+Use:SM Body
+Local:Field:Default:Skip:Yes
+Local:Field:Default:Delete:Inactive
+Local:Field:Default:Delete:Storage
+
+Local:Field:SM BSerialNo:Info:"SL No"
+Local:Field:SM Shop Name:Info:"Shop Name"
+Border:Column Titles
+
+[Line:SM Body]
+Fields:SM BSerialNo, SM Shop Name
+Local:Style:Default:Height:11
+Space Top:0.25
+Space Bottom:0.25
+
+[Field:SM BSerialNo]
+Use:Name Field
+Width:5% Page
+Border:Thin Right
+Set as:$$Line
+Skip:Yes
+Style:Calibri Default Bold
+
+[Field:SM Shop Name]
+Use:Name Field
+Storage:ShopName
+Full Width:Yes
+Style:Calibri Default Bold
+
+[Collection:List Of Shops]
+	Title:"List of Shop's"
+	Type:Shops Aggr:Company
+	Child Of:$$CurrentCompany
+	Fetch:ShopName
+	Format:$ShopName, 25
+	Align:Right
+	Full Height:Yes

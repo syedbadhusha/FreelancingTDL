@@ -1,0 +1,139 @@
+[#Part: MST LED Details]
+	Option	: MST LED Painter: @@IsPainterModuleEnabled
+	
+[!Part: MST LED Painter]
+	Add: Line: At End: LED Shop Title,LED SuperVisor Name;LED Shop Name
+	Space Top:2
+
+[Line:  LED Shop Title]
+	Field	: Name Field
+	Local	: Field	: Name Field: Set as: "Shop Details"
+	Local	: Field	: Name Field: Border: Thin Bottom
+	Local	: Field	: Name Field: Width: 12	
+	Local	: Field	: Name Field: Skip:Yes
+	Space Bottom	: 1
+	Space Top	: 1
+
+[Line: LED Shop Name]
+	Fields	: Medium Prompt, Name Field
+	Local	: Field: Medium Prompt: Set as: "Shop Name:"
+	Local	: Field: Name Field: Storage: ShopName
+	Local	: Field: Name Field: Show Table:Always
+	Local	: Field: Name Field: Table:List Of Shops, NotApplicable
+	
+
+
+[Line: LED SuperVisor Name]
+	Fields	: Medium Prompt, Name Field
+	Local	: Field: Medium Prompt: Set as: "Supervisor Name:"
+	Local	: Field: Name Field: Storage: LedSupervisorName
+	Local	: Field: Name Field: Show Table:Always
+	Local	: Field: Name Field: Table:List Of Supervisor, NotApplicable
+	
+
+[System:UDF]
+	LedSupervisorName:String:6778
+
+
+
+
+[#Part:EI Consignee]
+	Option:EI Consignee Sales:@@IsPainterModuleEnabled AND @@IsSales
+	
+[!Part:EI Consignee Sales]
+	Add:Line:At End:EI Salesman Name
+	
+[Line:EI Salesman Name]
+	Fields:Medium Prompt, Name Field
+	Local:Field:Medium Prompt:Set as:"Salesman"
+	Local:Field:Medium Prompt:Width:@@VchLeftPromptWidth % Page
+	Local:Field:Name Field:Table:ListOfSalesman, NotApplicable
+	Local:Field:Name Field:Show Table:Always
+	Local:Field:Name Field:Storage:VchSalesManName
+	Local:Field:Name Field:Set Always:Yes
+
+[#Form:Ledger]
+On:Form Accept:Yes:Form Accept
+On:Form Accept:@@IsPainterModuleEnabled AND ($$IsEqual:$Parent:"Salesman"):Call:ReplicateInOtherCompanies:$Name
+	
+
+[#Form:Sales Color]
+	Control:IsSalesmanTagged:NOT ($$IsEmpty:$VchSalesManName) AND NOT $$IsCmpOwner
+	
+
+[#Form:Daybook]
+Add:Button:Update Stock Item Value
+
+[Button:Update Stock Item Value]
+Title:"Update Stock Item Value"
+Key:Alt + 3
+Action:Alter:Update Stock Item Rate
+
+[Function:Change Stock Item Rate]
+Parameter:VoucherId:String
+Parameter:ItemName:String
+Parameter:NewRate:Number
+Variable:Amount:Number
+Variable:PreviousAmount:Number
+Variable:DiffAmount:Number
+Object:Voucher:##VoucherId
+000:Set Target
+010:Set Object
+020:Walk Collection:InventoryEntries
+021:Log:$StockItemName
+030:	If:($$IsEqual:$StockItemName:##ItemName)
+040:		Set Target:InventoryEntries[$$LoopIndex]
+041:		Set:PreviousAmount:$Amount
+042:		Set:Amount:$$Number:$ActualQty*##NewRate
+045:		Set:DiffAmount:##vAmount - ##PreviousAmount
+050:		Set Value:Rate:$$TgtObject:$$AsRate:##NewRate
+051:		Set Value:Amount:If $IsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
+060:		Walk Collection:BatchAllocations
+070:			Set Value:BatchRate:$$TgtObject:$$AsRate:##NewRate
+080:		Set Target:..
+090:		End Walk
+
+091:		Walk Collection:AccountingAllocations
+092:			Set Value:Amount:If $IsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
+093:		Set Target:..
+094:		End Walk
+075:		Set Target:..
+100:	End If
+110:End Walk
+
+120:Walk Collection:LedgerEntries
+130:	If:($$LoopIndex=1)
+140:		Set Target:LedgerEntries[$$LoopIndex]
+141:		Set:Amount:$Amount + ##DiffAmount 
+150:		Set Value:Amount:If $IsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
+160:		Set Target:..
+170:	End If
+180:End Walk
+190:Set Target:..
+200:Alter Target
+210:Return:True
+	
+[System:Formula]
+	IsSalesmanTagged:"Transaction cannot be altered as it is tagged to a Salesman. Please use Admin credentials to make modifications."
+	
+
+[#Collection: SVFilterObjsColl]
+	
+		Add: Object: Flt Salesman Name
+	
+[Object: Flt Salesman Name]
+
+	FLTGroupLabel		: @@FLTItemDetails               				; It will help to show the User Method name in table                     
+	fltusermethodname	: $$localestring:"Salesman Name"					; This attributes help to set the name of define column
+	FltMethodName		: "VchSalesManName"									; Define the added UDF, which is added in voucher level
+	FltMethodType		: Voucher										; Define the context (voucher / Ledger etc.)
+	FltDataType			: String										; UDF data type 
+	FltChain			: "VchSalesManName" 									; Define the UDF root
+	
+
+[#Form:Daybook]
+	Local:Collection:Default:Add:Fetch:VchSalesManName
+	
+[#Collection: Daybook Vouchers of Company]                                       ;;Under Default daybook collection fetch the UDF value 
+
+	  Add: Fetch  :VchSalesManName

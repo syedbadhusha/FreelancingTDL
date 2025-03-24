@@ -1,0 +1,338 @@
+
+
+;[Include:Update Inventory.txt]
+;[Include:Salesman Report.txt]
+;[Include:Remove StockItem.txt]
+;[Include:Auto Code Painter.txt]
+
+;------------------------------------------------------------
+ [#Part	: CMP TallyShopFeatures Left]
+	Add :Line :At Beginning: Enable Painter Module, ;Enable Barcode Module,Heading Color Name
+ 
+[Line:Enable Painter Module]
+	Fields: Medium prompt,Enable Painter Module
+	Local:Field:Medium prompt : Set as : "Enable Painter Module "
+  	
+[Field:Enable Painter Module]
+       Use : logical field
+       Table : YesNoTable
+       Show Table    : Always
+       Storage       : ActiveLoadSlipYN
+       Set Always	: Yes
+       Color  : White
+       Background: Tory Blue 
+		
+[#Part: VTYP Behaviour]
+	Add:Line : Use VTPainter Module
+	Space Top: 0.1 cm
+
+[Line : Use VTPainter Module]
+	Fields: Long prompt,Use VTPainter Module
+	Local:Field:Long prompt	:Set as		: "Use Salesman For Vouchers "
+	Local:Field:Long prompt	:Color		: Blue	
+	Invisible:Not ($$IsSales:$Parent)
+ 	
+[Field:Use VTPainter Module]
+       Use			: logical field
+       Table		: YesNo
+       Show Table	: Always
+       Storage		: UseVchTypeYN
+       Set Always	: Yes
+       Color		: Blue
+       
+;=============================================================================================================
+[System:UDF]
+       ActiveLoadSlipYN	: Logical	: 4001
+       UseVchTypeYN	: Logical	: 4002
+	
+[System:Formula]
+       ActiveWetYNF	: $ActiveLoadSlipYN:Company:##SVCurrentCompany		
+       UseVchTypeYNF	: $UseVchTypeYN:VoucherType:##SVVoucherType	
+           
+;=======================================================================================================
+
+[#Form: VCHBasic InvoiceMode]
+	Option: VCHBasic InvoiceMode Painter : @@IsSales and @@UseVchTypeYNF
+       
+[!Form: VCHBasic InvoiceMode Painter]
+	Add : Parts	: Before :  EI PartyInfo	: Vch SalesMan Name
+    Add : Parts : Before  : VCH POS PartyContact: Vch SalesMan Name
+
+
+
+[Part	: Vch SalesMan Name]
+	Line	: Vch SalesMan Name
+	
+[Line	: Vch SalesMan Name]
+	Field  : Simple Prompt, Vch SalesMan Name
+ 	Local  : Field : Simple Prompt: Info               : $$LocaleString:"Salesman Name :"
+	Local  : Field : Simple Prompt: Width	   : @@VchLeftPromptWidth % Page
+ 	Local  : Field : Default    : Color       : Blue
+	Local  : Field : Default    : Style       : Normal Bold
+
+[Field	: Vch SalesMan Name]
+       Use			: Name Field
+       Show Table	: Always								
+       Storage		: Vch SalesMan Name
+       Skip Forward: Yes
+       Background	: White
+       Width		: 15
+       Skip		: Yes
+;	   
+
+
+[System:UDF]
+	Vch SalesMan Name:String:4043
+	
+[#Form:Daybook]
+	Add:Button	: Update Salesman Name
+
+;=====================================
+[Button :  Update Salesman Name]
+	Title		: "Update Salesman"
+	Key			: Alt + 6
+	Action 		: Call	: Update Salesman Name Fun
+	Inactive	: ($$NumLinesInScope=0)	
+       Color:White
+       Background: Tory Blue
+
+[Collection	: TSPL Trans]	
+	Data Source	: Report: Selected
+	Fetch		: *.*,LedgerEntries.*,InventoryEntries.*,InventoryEntries.ItemDesc,InventoryEntries.SalesLed,VchUIActualInvYN,VoucherTypeName
+	
+[Function : Update Salesman Name Fun]  
+	Variable	: vchmid 	: String
+	Variable	: VchIsYes  : Logical
+	Variable	: totlines,counter	: Number
+	Variable	: CurrCmpName	: String
+	
+	Local Formula	: QryMsg	: "Do you want Update Salesman Name?" 
+	
+       090	: Set	: counter : 0
+       091	: Modify Variables:EI VCH LoadSLIP
+       092	: Query Box	: @QryMsg	: Yes: No
+       093	: DO IF	: NOT $$LastResult : RETURN	: ""
+       102 : Start Batch Post
+       105 : Set : totlines:$$NumItems:TSPLTrans 
+       110 : Start Progress:##totlines:"Updating Salesman Name In Vouchers "
+       115 : Set : CurrCmpName:##SvCurrentCompany
+       120 : Walk Collection:TSPL Trans
+       130 : Start Batch Post
+       140	:	Set 	: vchmid   : "ID:"+$$string:$MasterId
+       155 :	Modify Object:(Voucher,##VchMID).VchSalesManName[1].VchSalesManName:##VCHSalemanNameVAR
+       182	:   Increment:counter
+       185	:	Show Progress:##counter:($$String:##counter)+"/"+($$String:##totlines)
+       190	: End Walk
+       200 : End Batch Post
+ 
+;==========================================================================================================
+[#Collection: Daybook Vouchers of Company]
+	Add	   : Fetch	: VchSalesManName,VchUIActualInvYN
+       Filter        : VAR VCH SalemanNameFil
+       
+[#Collection: DBVoucher SRC]
+	Add		: Fetch	: VchSalesManName,VchUIActualInvYN
+ 
+[#Collection: Specific Vouchers of Company]
+	Add		: Fetch	: VchSalesManName,VchUIActualInvYN
+       Filter            : VAR VCH SalemanNameFil
+
+[#Collection:  SRC Specific Vouchers of Company]
+	Add		: Fetch	: VchSalesManName,VchUIActualInvYN
+ 
+[#Collection: Filtered Vouchers of Company]
+	Add		: Fetch	: VchSalesManName,VchUIActualInvYN
+       Filter            : VAR VCH SalemanNameFil
+
+[#Collection	: SRC Filtered Vouchers of Company]
+	Add		: Fetch	: VchSalesManName,VchUIActualInvYN
+
+[Report	: EI VCH LoadSLIP]
+	Use     : Modify Variables
+	Local   : Part : Modify Variables : Lines     : EI VCH SalemanName
+	Local   : Field: MV Title         : Info      : $$LocaleString:"Salesman Name"
+	Local   : Field: Medium Prompt    : Invisible : Yes
+	Title	: $$LocaleString:"Salesman Name"
+	Local   : Part : Modify Variables : Common Border : Yes
+
+[Line: EI VCH Mobile]
+	Field   : Medium Prompt,EI VCH Mobile
+	Local	: Field	:  Medium Prompt	: Info	 : "Mobile"
+ 	Local	: Field	:  Medium Prompt	: Skip	 : Yes 
+ 	Local	: Field	:  Medium Prompt	: Delete : Variable
+ 	Border	: Column Titles 
+	
+[Field: EI VCH Mobile]
+	Use			: Name Field
+	Variable	: VCH SalemanMobile VAR
+	Modifies	: VCH SalemanMobile VAR : Yes
+	Width		: 18
+	Border		: Thin Left Right
+ 
+       
+[Line: EI VCH SalemanName]
+	Field   : Medium Prompt,EI VCH SalemanName
+	Local	: Field	:  Medium Prompt	: Info	 : "Salesman Name"
+ 	Local	: Field	:  Medium Prompt	: Skip	 : Yes 
+ 	Local	: Field	:  Medium Prompt	: Delete : Variable
+ 	Border	: Column Titles 
+
+[Field: EI VCH SalemanName]
+	Use			: Name Field
+; 	Use			: NewNumberTemplate
+	Table		: VCH SalemanName Coll,Not Applicable ,Create Master     ;New Number, chk
+	Show Table	: Always
+;    Key         : Create New Number
+	Variable	: VCH SalemanName VAR
+	Modifies	: VCH SalemanName VAR : Yes
+;	Dynamic     : ""
+;    Trigger     : New Number : $$IsSysNameEqual:NewNumber:$$EditData
+	Width		: 18
+	Border		: Thin Left Right
+  	Use : Create Ledger
+	
+[Variable: VCH SalemanName VAR]
+	Type:String
+	
+[Variable: VCH SalemanMobile VAR]
+	Type:String
+	
+[System:Variable]
+	 VCH SalemanName VAR:""
+	 VCH SalemanMobile VAR:""
+
+[Collection:VCH SalemanName Coll]
+	Type		: Ledger
+	Child Of	: "Salesman"
+    Belongs To  : Yes
+       
+    Sub Title   : "Salesman", "Mobile No", "Painter Code"
+	Fetch		: Name,LedgerMobileNo,LedPartyCode, CONTACTDETAILS.*
+	Format		: $Name,20
+	Format		: $LedgerMobileNo,20
+    Format      : $LedPartyCode,20
+	Full Height	: Yes
+	;Alignment	: Right
+    ;Column Align: Left,Left
+       
+
+;=====================================
+	[#Line	: DSP VchDetail]
+		Add: Option : DSP VchDetail Option	: Yes
+		
+	[!Line	: DSP VchDetail Option]
+		Add:  Fields	: At End : DSP VchType Status1,DSP VchType Status2
+
+   [#Line: DBTitle1]
+		Add:  Fields: After :   DSP VchAcctTitle: DSP VchType Status1,DSP VchType Status2 
+		Local		: Field	: DSP VchType Status1	: Set as	: "Salesman"
+		Local		: Field	: DSP VchType Status2	: Set as	: "Updated"
+
+   [#Line: DBTitle2]
+		Add:  Fields: After :   DSP VchAcctTitle: DSP VchType Status1,DSP VchType Status2 
+		Local		: Field	: DSP VchType Status1	: Set as	: "Name"
+		Local		: Field	: DSP VchType Status2	: Set as	: "Entry"
+
+[Field: DSP VchType Status1]
+	Use         : Short Name Field
+	Width       : @@DSPNumberWidth +15 
+	Style       : Small Bold
+	Color		: Blue
+	Align		: Center
+	Set as		: $VchSalesManName
+	
+[Field: DSP VchType Status2]
+	Use         : Short Name Field
+	Width       : @@DSPNumberWidth +2
+	Style       : Small Bold
+	Color		: Blue
+	Align		: Center
+	Set as		: $VchUIActualInvYN
+	
+;==========================================================================================================
+[#Form: Ledger]
+	On	: Form Accept	: $$InCreateMode	: Form Accept
+	On	: Form Accept	: $$InCreateMode	: Call			: Create Ledger Other Company:$Name
+
+
+[Collection : List of Companies Coll]
+	Title	: $$LocaleString:"List of Companies"
+	Type	: Company
+
+[Function	: Create Ledger Other Company]
+	Parameter	: LedName	: String
+	Variable	: NewCmpName: String
+	Variable	: NumCmp	: Number
+	Variable	: CurrCmpName : String
+	
+	;101	: Log:##LedName
+	102	: Set:CurrCmpName:##SVCurrentCompany
+	
+	205	:		Set		: NumCmp		: $$NumItems:ListofCompaniesColl
+	206	:	Query Box:"Do You want Create Ledger All Open Company's":Yes:No
+	207	:	Do If:($$LastResult=No):Return
+	213	:			While: (##NumCmp != 0)
+	215	:			 Set		: NewCmpName : $$CollectionField:$Name:##NumCmp:ListofCompaniesColl
+	;216	:			 Log		: ##NewCmpName 
+	217	: 		If	:##CurrCmpName!=##NewCmpName
+	400	: 			Set Object	: (Ledger, ##LedName).
+	405	: 			Set Target
+	408	: 			Set		: SVCurrentCompany : ##NewCmpName
+	447 : 			Set Value : Name		: $$String:##LEdName 
+	450	: 			CREATE TARGET
+	451	:			Do If:($$LastResult=Yes):Log:"Ledger Name "+$$String:##LedName+"  ====>  Company  "+##NewCmpName+" Created"
+	452	:		End If
+	920	: 					Decr	: NumCmp
+	930	:			End While
+	908	: Set		: SVCurrentCompany : ##CurrCmpName
+
+
+
+;---------------------------------------
+[#Form:Daybook]
+	Add:Button	: EI VAR LoadSLIP Fil
+
+[Button :  EI VAR LoadSLIP Fil]
+	Title  : "Salesman Filter"
+	Key    : Alt + 6
+	Action : Modify Variables :EI VAR LoadSLIP
+
+[Report	: EI VAR LoadSLIP]
+	Use     : Modify Variables
+	Local   : Part : Modify Variables : Lines     : EI VAR SalemanName
+	Local   : Field: MV Title         : Info      : $$LocaleString:"Salesman Name"
+	Local   : Field: Medium Prompt    : Invisible : Yes
+	Title	: $$LocaleString:"Salesman Name"
+	Local   : Part : Modify Variables : Common Border : Yes
+
+[Line: EI VAR SalemanName]
+	Field   : Medium Prompt,EI VAR SalemanName
+	Local	: Field	:  Medium Prompt	: Info	 : "Salesman Name"
+ 	Local	: Field	:  Medium Prompt	: Skip	 : Yes 
+ 	Local	: Field	:  Medium Prompt	: Delete : Variable
+ 	Border	: Column Titles 
+
+[Field: EI VAR SalemanName]
+	Use			: Name Field
+	Table		       : VCH SalemanName Coll,Allitems
+	Show Table	: Always
+	Variable	       : VAR VCH SalemanName
+	Modifies	       : VAR VCH SalemanName : Yes
+	Width		       : 18
+	Border		       : Thin Left Right
+
+[Variable: VAR VCH SalemanName]
+	Type:String
+	
+[System:Variable]
+	VAR VCH SalemanName:""
+
+
+[System:Formula]
+       VAR VCH SalemanNameFil:If ##VARVCHSalemanName=$$sysName:AllItems Then Yes else #VARVCHSalemanName=$VchSalesManName
+       
+[#Report:Daybook]
+       Set:VARVCHSalemanName:   $$sysName:AllItems 
+       
+
+;;-------------------------------------------

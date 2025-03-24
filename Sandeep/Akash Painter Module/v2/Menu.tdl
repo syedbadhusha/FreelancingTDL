@@ -1,0 +1,32 @@
+[#Menu:Gateway of Tally]
+Option:Gateway of Tally Painter:yes;@@IsPainterModuleEnabled
+
+
+[!Menu:Gateway of Tally Painter]
+	Add:Key Item:Before:@@LocQuit:"Painter Module":P:Menu:Painter Module
+	
+[Menu:Painter Module]
+	Title:"Painter Module"
+	Indent:"Masters"
+	Indent:Blank
+	;Key Item:"1 : Create Shops"						:1:Alter:Shop Master
+	Key Item:"1 : Create Supervisors"						:1:Alter:SuperVisor Master
+	Indent:Blank
+	
+	Indent:"Reports"
+	Key Item:"1.  Salesman Report"					:1:Display:Salesman Report Data 
+	Indent:Blank
+	
+	Key Item:"2.  Salesman Wise Sales Report"		:2:Display:Broker Wise Sales Report
+	Indent:Blank
+	
+	;Key Item:"3.  Broker Commission on Receipt"	:3:Display:Broker Commission on Receipt
+	;Indent:Blank
+	
+	Key Item:"3.  Salesman Outstanding Report"		:3:Display:Broker Outstanding Report
+	Indent:Blank
+	
+	Key Item:"4.  Contact Info"						:4:Display:Broker Contact Info
+	Indent:Blank
+
+;	Key Item:"2 : Create Shop Boy's":2:Alter:Shop Boy Master

@@ -1,0 +1,30 @@
+[Function:ReplicateInOtherCompanies]
+Parameter:LedgerName:String
+Variable:LedgerXMLFile:String
+Variable:vCurrentCompany:String
+000:Set:LedgerXMLFile:$$ExportReportToXml:"Ledger XML":"Ledger XML"
+010:Set:vCurrentCompany:$$CurrentCompany
+020:Walk Collection:Company
+030:If:NOT ($$IsEqual:$Name:##vCurrentCompany)
+040:	Set:SVCurrentCompany:$Name
+050:	Call:Import Masters 1:##LedgerXMLFile
+051:	Log:($$Sprintf:"Created %s Ledger in %s Company":##LedgerName:$Name)
+060:End If
+070:End Walk
+080:Return
+
+[Function:Import Masters 1]
+Parameter:MastersFilePath:String
+Variable:ImportFile:String
+000:Set:SVIgnoreErrInImport	: Yes
+010:Set:SVOverwriteImpVch	: Yes
+020:Set:SVIsManualImport	: Yes	
+030:Set:ImportFile			: ##MastersFilePath
+031:Set:svImportFormat		:@@IMXML
+032:Set:svMstImportFile:##MastersFilePath
+033:Set:vCurrentFile:##MastersFilePath
+040:Import    : All Masters:True
+
+050:Set:ImportVoucher		: @@IMXML
+060:Set:SVIsManualImport	: No
+070:Return

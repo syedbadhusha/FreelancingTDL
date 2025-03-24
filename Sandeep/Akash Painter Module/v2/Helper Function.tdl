@@ -1,0 +1,16 @@
+[Function: ExportReportToXml]
+Parameter:ReportName:String
+Parameter:FileName:String:##ReportName
+Variable:vFilePath:String
+000: Set   :vFilePath:$$Sprintf:"%s\Export\%s.xml":$$ApplicationPath:##FileName
+
+010: If:($$IsFileExists:##vFilePath)
+020: Delete File:##vFilePath
+030: End If
+
+040: Set   :SVOpenFileAfterExport:No
+050: Set   :SVExportFormat  : $$SysName:XML
+060: Set   :SVExportLanguage: $$SysName:XML
+070: Set   :SVPrintFileName : ##vFilePath
+100: Action:Export:##ReportName + ":True:True"
+120: Return:##vFilePath

@@ -1,0 +1,17 @@
+[System:Formulae]
+	IsPainterModuleEnabled:$EnablePainterModule:Company:$$CurrentCompany
+	IsSalesmanLedGroup:$GRPIsSalesmanGroup:Group:$parent
+	
+	IsBrokerLedger			: $$IsEqual:$Parent:"Salesman";$BMIsBrokerLed
+	IsDebtor				: $$IsGroupSundryDebtors:$Parent
+	IsDebtorOrCreditor		: $$IsGroupSundryDebtors:$Parent OR $$IsGroupSundryCreditors:$Parent
+	BelongtoBrokerLed		: $$IsEqual:$LedgerName:$BMIsBrokerLed
+	
+	IsBrokerModuleEnable	: $IsBrokerModule:Company:$$CurrentCompany
+	IsBrokerVch				: NOT $$IsEmpty:$VchSalesManName
+	
+	IsSalesAndCreditNoteVch	: @@IsSalesVch or @@IsCreditNoteVch
+	
+	BrokerNameText			: "S a l e s m a n "
+	ReceiptAmount			: $LedgerEntries[1, @@IsReceiptOrPaymentVch].Amount; OR $LedgerEntries[1, @@IsPaymentVch].Amount
+	IsReceiptOrPaymentVch	: @@IsReceiptVch OR @@IsPaymentVch

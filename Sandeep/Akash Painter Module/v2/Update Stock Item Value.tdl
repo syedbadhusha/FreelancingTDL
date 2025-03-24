@@ -1,0 +1,71 @@
+[Report:Update Stock Item Rate]
+Form:Update Stock Item Rate
+Object:Company
+
+[Form:Update Stock Item Rate]
+Part:US Form Title, US Body
+Width:50% Page
+Full Height:No
+Background:White
+Delete:Space Top
+On:Form Accept:Yes:Form Accept
+On:Form Accept:Yes:Call:Update Stock Item Rate
+
+[Function:Update Stock Item Rate]
+Variable:ProgressCounter:Number
+Local Formula:ItemName:$PM_StockItemName:Company:$$CurrentCompany
+Local Formula:Rate:$PM_ItemRate:Company:$$CurrentCompany
+
+000:Set:ProgressCounter:$$NumItems:ParentVoucherToLink
+010:Start Progress:##ProgressCounter:"Updating Stock Items":"Please wait !!!"
+020:Walk Collection:ParentVoucherToLink
+030:	Call:Change Stock Item Rate:$$Name:@ItemName:@Rate
+040:	Show Progress:$$LoopIndex:($$Sprintf:"Processing %s of %s":$$LoopIndex:##ProgressCounter)
+050:End Walk
+060:End Progress
+070:Return
+
+
+[Collection: ParentVoucherToLink]	
+Data Source	: Parent Report	: Selected
+
+	
+[Part:US Form Title]
+Lines:US Form Title
+Space Top:0.5
+Space Bottom:0.5
+Background:Cyan Blue
+
+[Line:US Form Title]
+Fields:Name Field
+Local:Field:Name Field:Info:"Update Stock Item Rate"
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Name Field:Align:Centre
+Local:Field:Name Field:Color:White
+Local:Field:Name Field:Style:Calibri Large Bold
+Local:Field:Name Field:Wide Space:Yes
+
+[Part:US Body]
+Line:US Stock Item Name, US Item Rate
+Local:Field:Medium Prompt:Style:Calibri Default
+Local:Field:Name Field:Style:Calibri Default Bold
+Local:Field:Number Field:Style:Calibri Default Bold
+Local:Field:Name Field:Full Width:Yes
+Local:Field:Number Field:Full Width:Yes
+Local:Style:Default:Height:11
+
+[Line:US Stock Item Name]
+Fields:Medium Prompt, Name Field
+Local:Field:Medium Prompt:Set as:"Item Name:"
+Local:Field:Name Field:Storage:PM_StockItemName
+Local:Field:Name Field:Table:ListOfStockItem
+Space Top:0.1
+Space Bottom:0.1
+
+[Line:US Item Rate]
+Fields:Medium Prompt, Number Field
+Local:Field:Medium Prompt:Set as:"Item Rate:"
+Local:Field:Number Field:Storage:PM_ItemRate
+Local:Field:Number Field:Validate:NOT ($$IsEmpty:$$Value)
+Space Top:0.1
+Space Bottom:0.1

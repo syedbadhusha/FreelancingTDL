@@ -1,0 +1,52 @@
+[Report: Ledger XML]
+Form        : Ledger XML
+Filtered    : Yes
+Export      : Yes
+Object:Ledger:##LedgerName
+	
+[Form: Ledger XML]
+Parts: SYNCHeader, Ledger XML Body
+Local:Part:SYNCHeader:local:Line:SYNCHeader:Delete:Fields:SYNCXMLVersion,SYNCType, SYNCID, SYNCMsgToken, SYNCSessionID
+Local   : Field : SYNCRequest   : Set as : "Import Data"       
+
+[Part:Ledger XML Body]
+XMLTag  : "BODY"
+Part    : Ledger XML Import Data
+Vertical: Yes
+
+[Part: Ledger XML Import Data]
+XMLTag  : "IMPORTDATA"                  
+Part    : LED XML REQDESC, LED XML Data
+Vertical: Yes
+
+[Part:LED XML REQDESC]
+Line	: LED XML REQDESC
+XMLTag	: "REQUESTDESC"
+Vertical: Yes
+Scroll  : Vertical
+	
+[Line:LED XML REQDESC]
+Fields:LED XML REQDESC
+
+[Field:LED XML REQDESC]
+Set as:"All Masters"
+XMLTag:"REPORTNAME"
+	
+[Part: LED XML Data]
+XMLTag  : "REQUESTDATA"
+Part    : LED XML Body
+Vertical: Yes
+
+[Part:LED XML Body]
+Lines   : LED XML Body
+;;Repeat  : LED XML Body : RTS SVSendRemoteMsgs
+Scroll  : Vertical
+
+[Line: LED XML Body]
+XMLTag          : "TALLYMESSAGE"
+XMLAttr         : "xmlns:UDF"   : "TallyUDF"
+Line            : LED XML Body 1
+
+[Line : LED XML Body 1]
+Field           : Simple Field
+FullObject      : Yes

@@ -1,0 +1,314 @@
+[#Form:Daybook]
+	Add:Button	: Update Inventory Data
+
+[Button :  Update Inventory Data]
+       Title		: "Update Inventory"
+       Key			: Alt + 4
+       Action 		: Call	: Update Inventory Data Fun
+       Inactive	: ($$NumLinesInScope=0)	
+       Color: White
+       Background: Tory Blue 
+
+[Function : Update Inventory Data Fun]  
+	Variable	: vchmid 	: String
+	Variable	: VchIsYes  : Logical
+	Variable	: totlines,counter	: Number
+	Variable	: CurrCmpName	: String
+	Variable	: IsUpdate	: Logical	: No
+	Local Formula	: QryMsg	: "Do you want Update Inventory Details?" 
+	
+	090	: Set	: counter : 0
+ 	092	: Query Box	: @QryMsg	: Yes: No
+    093	: DO IF	: NOT $$LastResult : RETURN	: ""
+	102 : Start Batch Post
+	105 : Set : totlines:$$NumItems:TSPLTrans 
+	110 : Start Progress:##totlines:"Updating Inventory Details In Vouchers "
+	115 : Set : CurrCmpName:##SvCurrentCompany
+	120 : Walk Collection:TSPL Trans
+	130 : Start Batch Post
+	140	:	Set 	: vchmid   : "ID:"+$$string:$MasterId
+	141	:	Set		: IsUpdate : $VchUIActualInvYN
+	142	: If	: ($$IsSales:$VoucherTypeName)
+	155 :	Do If	: (##IsUpdate=No)	: Call	: Update Inventory : ##vchmid
+	180	: End If	
+	182	:   Increment:counter
+	185	:	Show Progress:##counter:($$String:##counter)+"/"+($$String:##totlines)
+	190	: End Walk
+	200 : End Batch Post
+ 
+
+
+[Function	: Update Inventory]
+	Parameter	: MSTID	: String
+	Object		: Voucher : ##MSTID
+	Variable	: SIName   : String	
+	Variable	: SIRate   : Number 
+	Variable	: SIQty	   : Number 
+    Variable	: SIAmount : Number
+
+	00 	: New Object : Voucher : ##MSTID : Yes
+	02	: Set Object
+
+	
+	A1	: While	: NOT ($$IsEmptyCollection:VchInventoryData)
+ 	A2	: 	DELETE COLLECTION OBJECT	: VchInventoryData	: 1	: Yes
+ 	A3	: End While
+	
+	10	: Walk Collection	: InventoryEntries
+	11	: Set	: SIName	: $StockItemName
+	12	: Set	: SIRate	: $$Number:$Rate
+	13	: Set	: SIQty		: $$Number:$BilledQty
+	14	: Set	: SIAmount	: $$Number:$Amount
+	
+
+	20	: Insert Collection Object	: VchInventoryData
+	21	: Set Value	: VchInvName	: ##SIName	
+	22	: Set Value	: VchInvRate	: $$Number:##SIRate	
+	23	: Set Value	: VchInvQty		: $$Number:##SIQty		
+	24	: Set Value	: VchInvAmount	: $$Number:##SIAmount	
+	25	: Set Target: ..
+
+	30	: End Walk
+	40	: Set Value	: Vch UIActual InvYN : Yes
+	50  : Accept Alter
+	
+
+;=============================
+[#Part: VCH Narration]
+		Add	: Line	: At Beginning : Vch UIActual Invntory YN
+
+[#Form:Pos Invoice Color]
+       Part : Vch UIActual Invntory YN
+       
+[Part: Vch UIActual Invntory YN]
+		Add	: Line	:  Vch UIActual Invntory YN
+ 
+[Line	:  Vch UIActual Invntory YN]
+	Field	: Medium Prompt, Logical Field,Vch UIActual InvntoryYN
+	Local	: Field	:  Medium Prompt : Set as	: "Updated For Commision Report"
+       Local	: Field	:  Medium Prompt : Color: Blue
+	Local	: Field	:  Logical Field :Sub Form	: Vch UIActual Invntory Data : $$Value
+       Local	: Field	:  Logical Field : Color: Blue
+       Local	: Field	:  Logical Field : Set as:No
+       Local	: Field	:  Logical Field :Skip : !$$IsCmpOwner
+       Invisible: !@@issales 
+       
+;IsSalesOrder    		       
+;IsDelNote       			
+;IsSales         			
+;IsCreditNote    		
+;Receipt				
+;IsJournal 				
+;IsJobMaterialIssue	
+;IsJobMaterialReceive
+
+
+	
+
+[Field	:  Vch UIActual InvntoryYN]
+	Use			: logical Field
+	Sub Form	: Vch UIActual Invntory Data : $$Value
+	Storage		: Vch UIActual InvYN	
+	Skip		: !$$IsCmpOwner
+       Invisible:Yes
+
+[Report:Vch UIActual Invntory Data]
+	Form:Vch UIActual Invntory Data
+	[Form	: Vch UIActual Invntory Data]
+		Part: Vch UIActual Invntory Data
+		[Part	: Vch UIActual Invntory Data]
+			Line			: Vch UIActual Invntory DataT,Vch UIActual Invntory Data
+			Repeat			: Vch UIActual Invntory Data:VchInventoryData
+			Bottom Line		: Vch UIActual Invntory DataTot
+			Scroll			: Vertical
+			Common Border	: Yes
+			Break			: ($$IsEmpty:$VchInvName) or ($$IsEndOfList:$VchInvName)
+			Total			: Vch UIActual Qty,Vch UIActual Amt
+			
+			[Line	: Vch UIActual Invntory DataT]
+				Field	: Vch UIActual Sr No,Vch UIActual ItemName,Vch UIActual Qty,Vch UIActual Rate,Vch UIActual Amt
+				Local	: Field	: Default				   : Type	: String
+				Local	: Field	: Default				   : Delete	: Storage
+				Local	: Field	: Default				   : Delete	: Inactive
+				Local	: Field	: Default				   : Align	: Center
+				Local	: Field	: Default				   : Skip	: Yes
+				Local	: Field	: Vch UIActual Sr No	   : Set as : "Sr No"
+				Local	: Field	: Vch UIActual ItemName    : Set as : "Item Name"
+				Local	: Field	: Vch UIActual Qty         : Set as : "Qty"
+				Local	: Field	: Vch UIActual Rate        : Set as : "Rate"
+				Local	: Field	: Vch UIActual Amt         : Set as : "Amount"
+				Border	: Column Titles
+				
+			[Line	: Vch UIActual Invntory DataTot]
+				Field	: Vch UIActual Sr No,Vch UIActual ItemName,Vch UIActual Qty,Vch UIActual Rate,Vch UIActual Amt
+				Local	: Field	: Default				   : Type	: String
+				Local	: Field	: Default				   : Delete	: Storage
+				Local	: Field	: Default				   : Delete	: Inactive
+				Local	: Field	: Default				   : Skip	: Yes
+				Local	: Field	: Vch UIActual Sr No	   : Set as : ""
+				Local	: Field	: Vch UIActual ItemName    : Set as : "TOTAL"
+				Local	: Field	: Vch UIActual Qty         : Type	: Number
+				Local	: Field	: Vch UIActual Qty         : Set as : $$Total:VchUIActualQty       
+				Local	: Field	: Vch UIActual Rate        : Set as : ""
+				Local	: Field	: Vch UIActual Amt         : Type	: Number
+				Local	: Field	: Vch UIActual Amt         : Set as : $$Total:VchUIActualAmt
+				Border	: Column Titles
+				
+[Line	: Vch UIActual Invntory Data]
+       Field	: Vch UIActual Sr No,Vch UIActual ItemName,Vch UIActual Qty,Vch UIActual Rate,Vch UIActual Amt
+       ;Local: Field:default: Read Only:Yes
+
+[Field	: Vch UIActual Sr No]
+       Use		: Name Field
+       Set as	: $$Line
+       Width	: 5
+       Skip	: Yes
+       Border	: Thin Left right
+					
+				[Field	: Vch UIActual ItemName]
+					Use		: Name Field
+					Table	: List of Stock Items,End Of List
+					Storage	: VchInvName
+					Width	: 25
+					Border	: Thin Left right
+					
+				[Field	: Vch UIActual Qty]
+					Use		: Number Field
+ 					Width	: 15
+ 					Align	: Right
+					Set Always	: Yes
+					Format	: Decimal:2
+					Storage	: VchInvQty
+					Inactive: ($$IsEmpty:$VchInvName) or ($$IsEndOfList:$VchInvName)
+					Border	: Thin Left right
+
+				[Field	: Vch UIActual Rate]
+					Use		: Number Field
+ 					Width	: 15
+ 					Align	: Right
+					Set Always	: Yes
+					Format	: Decimal:2
+					Storage	: VchInvRate
+					Border	: Thin Left right
+					Inactive: ($$IsEmpty:$VchInvName) or ($$IsEndOfList:$VchInvName)
+
+				[Field	: Vch UIActual Amt]
+					Use		: Number Field
+ 					Width	: 15
+ 					Align	: Right
+					Set Always	: Yes
+					Format	: Decimal:2
+					Storage	: VchInvAmount
+					Border	: Thin Left right
+					Inactive: ($$IsEmpty:$VchInvName) or ($$IsEndOfList:$VchInvName)
+
+
+[System:UDF]
+	Vch UIActual InvYN:Logical    :9028	
+	
+	VchInventoryData:Aggregate	:9029
+	VchInvName		:String		:1
+    VchInvRate	    :Number		:2
+    VchInvQty		:Number		:3
+    VchInvAmount	:Number		:4
+    
+
+;------------------------------------
+;[#Part:VCH Narration]
+;       Add: Line : CMP Info Name Field
+        
+[Line:CMP Info Name Field]
+       Field:CMP Info Name Field
+       
+;[#Line: VCH Narration]
+;       RIghtField	: CMP Info Name Field
+	
+[Field:CMP Info Name Field]
+       Use:Name field
+       Full Width:Yes
+       Color:@@HeadingColorFor
+       Delete:Style
+       Add: Style:AExtraLarge Bold
+       Align:Center
+       Set as:"Working Company : "+$$String:##SVCurrentCompany
+       Skip: Yes
+        
+[System:Formula]
+       Heading Color  For : If !($$IsEmpty:@@HeadingColorNameF) Then @@HeadingColorNameF else "Red" ; chck
+       
+ 
+;;---------------------------------------------------Sales
+[#Form: Export Invoice]
+         Delete:Option   : Small Size Form
+         
+[#Form: POS Invoice]
+          Delete:Option   : Small Size Form
+          
+ [#Form: Journal Color]
+       Delete:Option   : Small Size Form
+          
+
+;;--          
+;[#Form: Receipt Color]
+;      Delete:Option   : Small Size Form
+   
+;-------------------------------------------------------------------------------------------------------------------  
+[#Form:Sales Color]
+	Option	: DefaultOption
+       
+[#Form: POS Invoice Color]
+       Option	: DefaultOption
+       
+[#Form:Purchase Color]
+       Option	: DefaultOption
+       
+[#Form	:   Payment Color]
+       Option	: DefaultOption
+       
+[#Form: Receipt Color]
+       Option	: DefaultOption
+       
+[#Form: Credit Note Color]
+       Option : DefaultOption
+ 
+[#Form: Debit Note Color]
+       Option	: DefaultOption
+   
+[#Form: Contra Color]
+       Option	: DefaultOption
+
+[#Form: Journal Color]
+        Option	: DefaultOption
+        
+[#Form: Stock Journal Color]
+       Option	: DefaultOption
+       
+[#Form: Sales Order Color]
+         Option: DefaultOption
+       
+[#Form: Purc Order Color]
+        Option: DefaultOption
+        
+[!Form:DefaultOption]
+	Add : Bottom Part : SMS InfoPart
+  
+[Part :SMS Info Part]
+	Line : SMS Info Line
+ 
+[Line:SMS Info Line]
+       Fields : Short Prompt	
+       Local	: Field	: Short Prompt	: Set As 	 : "Working Company : "+$$String:##SVCurrentCompany
+       Local	: Field	: Default 		: Full Width   : Yes
+       Local	: Field	: Default 		: Align		 : Center
+       Local	: Field	: Default 		: Style		 : AExtraLarge Bold
+       Local	: Field	: Default 		: Color          : @@HeadingColorFor
+       Border	: Thin Box
+       Space Bottom: 0.5
+
+[Style: AExtra Large Bold]
+       Font    : "Arial" 
+       Height	:19 
+       Bold    : Yes
+ 
+ 
+

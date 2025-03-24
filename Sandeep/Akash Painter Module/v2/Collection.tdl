@@ -1,0 +1,130 @@
+[Collection:ListOfSalesman]
+	Type:Ledger
+	Child Of:"Salesman"
+	Belongs To:Yes
+	Fetch:Name, ShopName
+	Format:$Name, 25
+	Format:$ShopName, 25
+	Title:"List of Salesman's"
+	Sub Title:"Name", "Shop Name"
+	Full Height:Yes
+	Align:Right
+	
+
+;; Painter Collection
+[Collection: Broker Ledger Collection]
+	Type	: Ledger
+	Child Of: $$GroupSundryDebtors
+	Belongs To: Yes
+	Filter	: IsBrokerLedger
+	Fetch	: *, .*, BMBrokerArea, Name
+	
+
+;; Broker Wise Sales Report
+
+[Collection: Broker Sales Coll]
+	Type		: Vouchers
+	Fetch		: *, Amount, InventoryEntries.*, VchSalesManName.*, VchBrokerArea, LedgerEntries.*, VchInventoryData.*, +
+	VchInvAmount
+	Filter		: IsSalesAndCreditNoteVch, IsBrokerVch
+	
+;select $VchBrokerName From BrokerSalesColl
+
+[Collection: Broker Sales Summary Coll1]
+	Source Collection	: Broker Sales Coll
+	By					: BrokerName:$VchSalesManName;VchBrokerName
+	Compute				: BrokerArea:$VchBrokerArea
+	Compute				: BrokerCommission:$VchBrokerCommission
+	Compute				: Party:$PartyLedgerName
+	Aggr Compute		: TaxableAmt:Sum:$$FilterNumTotal:VchInventoryData:IsSalesVch:@@VchTaxableAmount;If @@IsSalesVch Then @@VchTaxableAmount Else 0;if @@IsSalesVch And (NOT $$IsEmpty:$VchInvAmount) then $VchInvAmount else if @@IsSalesVch And ($$IsEmpty:$VchInvAmount) then ($$Owner:$Amount) else 0
+	Aggr Compute		: SalesReturnAmt:Sum:$$FilterNumTotal:VchInventoryData:IsCreditNoteVch:@@VchTaxableAmount;If @@IsCreditNoteVch Then @@VchTaxableAmount Else 0;if @@IsCreditNoteVch And (NOT $$IsEmpty:$VchInvAmount) then $VchInvAmount else if @@IsCreditNoteVch And ($$IsEmpty:$VchInvAmount) then ($$Owner:$Amount) else 0
+	Sort				: @@Default:$VchSalesManName
+	
+[Collection:Painters Sales]
+	Source Collection	: Broker Sales Coll	
+	Walk:VchInventoryData
+	By					: BrokerName:$VchSalesManName
+	By					: VoucherNumber:$VoucherNumber
+	Aggr Compute		: TaxableAmt:Sum:If @@IsSalesVch Then @@VchTaxableAmount Else 0;if @@IsSalesVch And (NOT $$IsEmpty:$VchInvAmount) then $VchInvAmount else if @@IsSalesVch And ($$IsEmpty:$VchInvAmount) then ($$Owner:$Amount) else 0
+	Aggr Compute		: SalesReturnAmt:Sum:If @@IsCreditNoteVch Then @@VchTaxableAmount Else 0;if @@IsCreditNoteVch And (NOT $$IsEmpty:$VchInvAmount) then $VchInvAmount else if @@IsCreditNoteVch And ($$IsEmpty:$VchInvAmount) then ($$Owner:$Amount) else 0
+	Sort				: @@Default:$VchSalesManName
+	
+;select $VoucherNumber, $TaxableAmt, $SalesReturnAmt From BrokerSalesSummaryColl
+
+[System:Formulae]
+	VchTaxableAmount:If $$IsEmpty:$VchInvAmount Then $$Owner:$Amount Else $VchInvAmount
+
+[Collection: Broker Sales Summary Coll]
+	Collection:Broker Sales Summary Coll1;, Painters Sales
+
+
+
+;; Broker Wise Oustanding Report
+
+[Collection: Broker Oustanding Coll]
+	Type		: Vouchers
+	Fetch		: *, VoucherTypeName, Amount, InventoryEntries.*, VchBrokerName.*, VchBrokerArea, LedgerEntries.*, RecievedAmount
+	Filter		: IsSalesAndCreditNoteVch,IsBrokerVch
+	
+;select $VchBrokerName From BrokerSalesColl
+
+[Collection: Broker Oustanding Summary Coll1]
+	Source Collection	: Broker Oustanding Coll
+	By					: BrokerName:$VchSalesManName;$VchBrokerName
+	Compute				: BrokerArea:$VchBrokerArea
+	Compute				: BrokerCommission:$VchBrokerCommission
+	Compute				: Party:$PartyLedgerName
+	Aggr Compute		: TaxableAmt:Sum:$$FilterNumTotal:VchInventoryData:IsSalesVch:@@VchTaxableAmount;If @@IsSalesVch Then @@VchTaxableAmount Else 0;if @@IsSalesVch And (NOT $$IsEmpty:$VchInvAmount) then $VchInvAmount else if @@IsSalesVch And ($$IsEmpty:$VchInvAmount) then ($$Owner:$Amount) else 0
+	Aggr Compute		: SalesReturnAmt:Sum:$$FilterNumTotal:VchInventoryData:IsCreditNoteVch:@@VchTaxableAmount;If @@IsCreditNoteVch Then @@VchTaxableAmount Else 0;if @@IsCreditNoteVch And (NOT $$IsEmpty:$VchInvAmount) then $VchInvAmount else if @@IsCreditNoteVch And ($$IsEmpty:$VchInvAmount) then ($$Owner:$Amount) else 0
+	Aggr Compute		: RecievedAmount:Sum:if @@IsSalesVch then $$CollAmtTotal:GetBillsData:@@ReceiptAmount else 0
+	Sort				: @@Default:$VchSalesManName
+	
+[Collection: Painter Oustanding Summary Coll]
+	Source Collection	: Broker Oustanding Coll
+	By					: BrokerName:$VchSalesManName;$VchBrokerName
+	By					: VoucherNumber:$VoucherNumber
+	Aggr Compute		: TaxableAmt:Sum:If @@IsSalesVch Then @@VchTaxableAmount Else 0
+	Aggr Compute		: SalesReturnAmt:Sum:If @@IsCreditNoteVch Then @@VchTaxableAmount Else 0
+	;Sort				: @@Default:$VchSalesManName
+	
+
+[Collection: Broker Oustanding Summary Coll]
+	Collection	: Broker Oustanding Summary Coll1;, Painter Oustanding Summary Coll
+;; Broker Table
+
+[Collection: Broker Table]
+	Type		: Ledger
+	Fetch		: BMBrokerName, BMIsBrokerLed
+	Title		: "List of Broker"
+	Full Height	: Yes
+	Search Key	: $BMBrokerName
+	Format		: $BMBrokerName, 25
+	Filter:IsBrokerLedger
+	
+
+;; Broker Commission on Receipt
+
+[Collection: Broker Receipt Coll]
+	Type		: Vouchers
+	Filter		: IsReceiptVch
+	Filter		: IsBrokerVch
+	Fetch		: *, LedgerEntries.*, Amount, PartyLedgerName, VchBrokerArea, VchBrokerName
+
+[Collection: Broker Receipt Summary Coll]
+	Source Collection	: Broker Receipt Coll
+	By					: BrokerName:$VchSalesManName
+	Compute				: BrokerArea:$VchBrokerArea
+	Compute				: BrokerCommission:$VchBrokerCommission
+	Compute				: Party:$LedgerName
+	Aggr Compute		: ReceiptAmt:Sum:$Amount
+	Sort				: @@Default:$VchBrokerName
+	
+
+;; Broker Contact Info
+
+[Collection: Broker Contact Info]
+	Type	: Ledger
+	Child Of: $$GroupSundryDebtors
+	Belongs To: Yes
+	Filter	: IsBrokerLedger
+	Fetch	: *, .*, BMBrokerArea, Name, BMBrokerName, Address

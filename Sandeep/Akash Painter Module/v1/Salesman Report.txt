@@ -1,0 +1,154 @@
+
+
+ [#Menu: Display Menu]
+ 	Add : Key Item  : At Beginning  : "Salesman Report" : N : Display : Salesman Report Data 
+ 	
+[Report	: Salesman Report Data]
+	Form	: Salesman Report Data  
+	Variable: SVFromdate,SVTodate,ReportTitle
+ 	
+
+[Form	: Salesman Report Data]
+       Part : Salesman ReportTitle,Salesman Report Data Main
+       Button		: F2ChangePeriod 
+       Set Always	: ReportTitle : "SALESMAN REPORT" 
+
+[Part	: Salesman ReportTitle]
+       Lines       : DSP ReportName, DSP ReportPeriod
+       Local		: Field	: DSP ReportName : Style	: Extra Large Bold
+       Local		: Field	: DSP ReportName : Align	: Center
+       Local		: Field	: DSP ReportName : Border	: Thin Bottom
+       Space Top	: 1
+       Space Bottom: 1
+
+[Part	: Salesman Report Data  Main]
+       Line			: Salesman Report Data T,Salesman Report Data  
+       Repeat			: Salesman Report Data  : Salesman Vouchers Coll
+       Scroll			: Vertical
+       Total			: Salesman Qty,Salesman Amount 
+       Common Border	: Yes
+       Bottom Line		: Salesman Report Data Tot
+			
+[Line	: Salesman Report Data T]
+       Use	: Salesman Report Data
+       Local	: Field	: Default			: Type	 : String
+       Local	: Field	: Default			: Align	 : Center
+       Local	: Field	: Default			: Line	 : 0
+       Local	: Field	: Salesman SrNo     : Set As : "Sr No"
+       Local	: Field	: Salesman PName : Set As : "Salesman / Painter"
+       Local	: Field	: Salesman Qty		: Set As : "Qty"
+       Local	: Field	: Salesman Amount	: Set As : "Amount"
+       Border	: Column Titles
+
+[Line	: Salesman Report Data Tot]
+       Field		: Salesman SrNo,Salesman PName
+       Right Field	: Salesman Qty,Salesman Amount 
+       Local		: Field	: Default			    : Delete : Border
+       Local		: Field	: Salesman SrNo	    : Type : String
+       Local		: Field	: Salesman SrNo	    : Set As : ""
+       Local		: Field	: Salesman PName     : Set As : "Total :"
+        Local		: Field	: Salesman PName     : Align: Right
+        Local		: Field	: Salesman PName     : Full Width:Yes
+       Local		: Field	: Salesman Amount	    : Set As : $$Total:SalesmanAmount
+       Local		: Field	: Salesman Qty		    : Set As : $$Total:SalesmanQty
+       Border		: Column Titles
+				
+			[Line	: Salesman Report Data]
+				Field		: Salesman SrNo,Salesman PName
+				Right Field	: Salesman Qty,Salesman Amount 
+				Option		: AlterOnEnter
+				
+				[Field	: Salesman SrNo]
+					Use		: Name field
+					Set as	: $$Line
+					Width	: 5
+					Border	: Thin Left Right
+					
+				[Field	: Salesman PDate]
+					Use		: Name field
+					Set as	: $Date
+					Border	: Thin Left Right
+					Width	: 10
+
+				[Field	: Salesman PVch]
+					Use		: Name field
+					Set as	: $VoucherNumber
+					Alter	: Voucher
+					Border	: Thin Left Right
+					Width	: 16
+
+				[Field	: Salesman PVchType]
+					Use		: Name field
+					Set as	: $VoucherTypeName
+					Alter	: Voucher
+					Border	: Thin Left Right
+					Width	: 30
+
+				[Field  : Salesman CName]
+					Use		: Name field
+					Set as	: $SalesCmpName
+					Border	: Thin right
+					Width	: 30
+
+				[Field  : Salesman PName]
+					Use		: Name field
+					Set as	: $VchEntrySMan	
+					Width	: 30                        
+						
+				[Field	: Salesman Qty]
+					Use		: Number field
+					Set as	: $VchEntrySQty
+					Format	: Decimal:2
+					Align	: Right
+					Border	: Thin Left Right
+				
+				[Field	: Salesman Amount]
+					Use		: Number field
+					Set as	: $VchEntrySAmt
+					Format	: Decimal:2
+					Align	: Right
+					Border	: Thin Left Right
+
+
+[Collection: List of Companies MColl]
+	Title	: $$LocaleString:"List of Companies"
+	Type	: Company
+	Filter	: IsSimpleCompanyFil
+	
+[System:Formula]
+	IsSimpleCompanyFil:($$IsSimpleCompany:$Name)
+ 
+[Collection: TSPL Vouchers]
+	Type 		: Vouchers   
+	Child Of	: ($$LoopCollObj:$Name)
+	Belongs To	: Yes
+	Compute		: SalesCmpName	   : $$LoopCollObj:$Name
+	Fetch		: *.*,LedgerEntries,InventoryEntries.*,InventoryEntries.ItemDesc,InventoryEntries.SalesLed
+	Fetch		: ItemDesc,IsTransfer,MasterID,Amount	
+	Fetch		: Date, VoucherNumber, VoucherTypeName, SortPosition, MasterID, IsCancelled, IsInvoice, BuyerName
+	Fetch		: IsOptional, IsDeleted, Narration, IsEditLogPresent, IsAuditedVchModified
+	Fetch		: AllLedgerEntries.HasBankAllocations, AllInventoryEntries.*, AllLedgerEntries.InventoryAllocations.*
+	Fetch		: TotVchInvAmount,TotVchInvQty,VchUIActualInvYN
+       Filter               :VchUIActualInvYNFil
+       
+[System:Formula]
+       VchUIActualInvYNFil:$VchUIActualInvYN=Yes
+
+
+[Collection: Salesman Vouchers SRC]
+	Collection	: TSPL Vouchers : List of Companies MColl
+	Fetch		: *.*
+
+
+[Collection: Salesman Vouchers]
+	Source Collection: Salesman Vouchers SRC
+	Fetch			 : *.* 
+	Keep Source		 : Yes
+
+
+[Collection: Salesman Vouchers Coll]
+	Source Collection: Salesman Vouchers 
+	Walk			 : VchInventoryData
+	By				 : VchEntrySMan		: $$Owner:$VchSalesManName
+    Aggr Compute	 : VchEntrySQty		: Sum	 : $VchInvQty	 
+    Aggr Compute	 : VchEntrySAmt		: Sum	 : $VchInvAmount 

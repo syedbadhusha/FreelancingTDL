@@ -1,0 +1,164 @@
+[Report: Broker Outstanding Report]
+	Variable: SVFromDate, SVToDate
+	Form	: Broker Outstanding Report
+	
+[Form: Broker Outstanding Report]
+	Part	: BOR Header, BOR Body
+	Height	: 100% page
+	Width	: 100% page
+	Button	: F2 Change Period
+	
+	
+[Part: BOR Header]
+	Line	: BOR CompanyName, BOR ReportName, BOR Period
+	
+	Local	: Field: Default: Full Width: Yes
+	Local	: Field: Default: Align: Center
+	
+[Line: BOR CompanyName]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: $$CurrentCompany
+	Local	: Field: Name Field: Style	: Calibri Default Bold
+	Local	: Field: Name Field: Local	: Style: Default: Height: 15
+	
+[Line: BOR ReportName]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: "Salesman's Outstanding Report"
+	Local	: Field: Name Field: Style	: Calibri Default
+	Local	: Field: Name Field: Local	: Style: Default: Height: 11
+	
+[Line: BOR Period]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: @@DSPDateStr
+	Local	: Field: Name Field: Style	: Calibri Default
+	Local	: Field: Name Field: Local	: Style: Default: Height: 11
+	
+	
+;; Body
+	
+[Part: BOR Body]
+	Line	: BOR Column, BOR Body
+	Repeat	: BOR Body: Broker Oustanding Summary Coll
+	Scroll	: Vertical
+	Space Top	: 1
+	Bottom Line	: BOR TotalBody
+	Totals	: BOR SalesAmt, BOR CreditNote,  BOR NetSales, BOR CommissionPer, +
+	BOR CommissionOnGross, BOR PaidToBroker, BOR ClosingBalance
+	
+[Line: BOR Column]
+	Use		: BOR Body
+	
+	Local	: Field: Default: Type: String
+	Local	: Field: Default: Local: Style: Default: Bold: Yes
+	
+	Local	: Field: BOR BrokerName: 		 Set as	: @@BrokerNameText
+	Local	: Field: BOR SalesAmt: 			 Set as	: "Sales Amount"
+	Local	: Field: BOR CreditNote: 	 	 Set as	: "Sales Return"
+	Local	: Field: BOR NetSales: 	 		 Set as	: "Net Sales"
+	Local	: Field: BOR CommissionPer: 	 Set as	: "Commission %"
+	Local	: Field: BOR CommissionOnGross:  Set as	: "Commission"
+	Local	: Field: BOR PaidToBroker:  	 Set as	: "Paid to Salesman"
+	Local	: Field: BOR ClosingBalance:  	 Set as	: "Closing Balance"
+	
+	Border	: Column Titles
+	
+[Line: BOR Body]
+	Fields	: BOR BrokerName, BOR SalesAmt, BOR CreditNote,  BOR NetSales, BOR CommissionPer, +
+	BOR CommissionOnGross, BOR PaidToBroker, BOR ClosingBalance
+	
+	Local	: Field: Default: Style: Calibri Default
+	Local	: Field: Default: Local	: Style: Default: Height: 11
+	Space Top	: 0.2
+	Space Bottom	: 0.2
+	
+	
+[Field: BOR BrokerName]
+	Use		: Name Field
+	Set as	: $BrokerName
+	Full Width: Yes
+
+[Field: BOR PartyName]
+	Use		: Name Field
+	Set as	: $Party
+	Width	: 25
+	;Variable:LedgerName
+	;Display:Ledger Vouchers
+	Invisible	: Yes
+	
+[Field: BOR SalesAmt]
+	Use		: Number Field
+	Set as	: $TaxableAmt
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field: BOR CreditNote]
+	Use		: Number Field
+	Set as	: $SalesReturnAmt
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field:  BOR NetSales]
+	Use		: Number Field
+	Set as	: #BORSalesAmt - #BORCreditNote
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field: BOR CommissionPer]
+	Use		: Number Field
+	Set as	: $BrokerCommission
+	Width	: 15
+	Format	: "NoZero,Percentage"
+	Invisible	: Yes
+	
+[Field: BOR CommissionOnGross]
+	Use		: Number Field
+	Set as	: #BORNetSales*#BORCommissionPer%
+	Width	: 15
+	Format	: "Decimal:2"
+	Invisible	: Yes
+	
+[Field: BOR PaidToBroker]
+	Use		: Number Field
+	Set as	: $$Abs:$ClosingBalance:Ledger:$BrokerName;$RecievedAmount
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field: BOR ClosingBalance]
+	Use		: Number Field
+	Set as	: #BORNetSales - #BORPaidToBroker
+	Width	: 15
+	Format	: "Decimal:2"
+	
+
+
+;; Totals
+
+[Line: BOR TotalBody]
+	Use		: BOR Body
+	
+	Local	: Field: BOR AreaName:  		 Set as	: ""
+	Local	: Field: BOR BrokerName: 		 Set as	: "Totals"
+	Local	: Field: BOR BrokerName: 		 Style	: Calibri Large Bold Italic
+
+	Local	: Field: BOR SalesAmt: 			 Set as	: $$Total:BORSalesAmt
+	Local	: Field: BOR CreditNote: 	 	 Set as	: $$Total:BORCreditNote
+	Local	: Field: BOR NetSales: 	 		 Set as	: $$Total:BORNetSales
+	Local	: Field: BOR CommissionPer: 	 Set as	: ""
+	Local	: Field: BOR CommissionOnGross:  Set as	: $$Total:BORCommissionOnGross
+	Local	: Field: BOR PaidToBroker:  	 Set as	: $$Total:BORPaidToBroker
+	Local	: Field: BOR ClosingBalance:  	 Set as	: $$Total:BORClosingBalance
+	
+	Local	: Field: Default: Local: Style: Default: Bold: Yes
+	Border	: Totals
+	
+[#Object:Voucher]
+RecievedAmount:$$CollAmtTotal:GetBillsData:$ClosingBalance
+
+[Collection: GetBillsData]
+Object	: Bill	: @@PartyBillKey
+Fetch	: Name, Parent, ClosingBalance, LedgerEntries.*
+Parm Var: BillName		: String	: $LedgerEntries[1].BillAllocatons[1].Name
+Parm Var: LedgerName	: String	: $$ReqObject:$PartyLedgerName

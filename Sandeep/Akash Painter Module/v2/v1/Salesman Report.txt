@@ -1,0 +1,489 @@
+
+
+ [#Menu: Display Menu]
+ 	;Add : Key Item  : At Beginning  : "Salesman Report" : N : Display : Salesman Report Data 
+	
+
+
+
+
+
+
+
+
+
+
+
+ 	
+[Report	: Salesman Report Data]
+	Form	: Salesman Report Data  
+	Variable: SVFromdate,SVTodate,ReportTitle
+	Variable:SalesManFilter
+	Variable:SuperVisorFilter
+	Variable:MobileFilter
+	Variable:ShopFilter
+;	Variable   : ExplodeFlag
+On:Load:Yes:Set:SVFromdate:##svcurrentdate
+On:Load:Yes:Set:SVTodate:##svcurrentdate
+ 	On:Load:Yes:Set:SalesManFilter:$$SysName:AllItems
+	On:Load:Yes:Set:SuperVisorFilter:$$SysName:AllItems
+	On:Load:Yes:Set:MobileFilter:$$SysName:AllItems
+	on:Load:Yes:Set:ShopFilter:$$SysName:AllItems
+	
+
+[Button:SalesManFilter]
+	Title:"Sales man"
+	Key:CTRL+1
+	Action:Alter:SalesManFilter
+	
+
+	
+[Button:SuperVisorFilter]
+	Title:"SuperVvisor"
+	Key:CTRL+2
+	Action:Alter:SuperVisorFilter
+	
+
+[Button:MobileFilter]
+	Title:"Mobile"
+	Key:CTRL+3
+	Action:Alter:MobileFilter
+	
+[Button:ShopFilter]
+	Title:"Shop"
+	Key:CTRL+4
+	Action:Alter:ShopFilter
+	
+
+[Button:DisplayDetailed]
+	Title:"Show Detail"
+	Key:CTRL+5
+	Scope:Selected Lines
+	Action:Call:DisplayDetailed
+	
+
+
+[Collection:DisplayDetailed]
+	Data Source	:  Report		: Selected
+	
+
+[Function:DisplayDetailed]
+	Variable:Sman:String
+	Variable:Cmpname:String
+	
+	
+01:Walk Collection:DisplayDetailed
+02:Set:Sman:$VchEntrySMan
+03:Set:Cmpname:$CMPName
+04:Display:SalesMainDetailedReport
+05:End Walk
+	
+ 	
+
+[Form	: Salesman Report Data]
+       Part : Salesman ReportTitle,Salesman Report Data Main
+       Button		: F2ChangePeriod ,SalesManFilter,SuperVisorFilter,MobileFilter,ShopFilter,DisplayDetailed
+       Set Always	: ReportTitle : "SALESMAN REPORT" 
+
+[Part	: Salesman ReportTitle]
+       Lines       : DSP ReportName, DSP ReportPeriod
+       Local		: Field	: DSP ReportName : Style	: Extra Large Bold
+       Local		: Field	: DSP ReportName : Align	: Center
+       Local		: Field	: DSP ReportName : Border	: Thin Bottom
+       Space Top	: 1
+       Space Bottom: 1
+
+[Part	: Salesman Report Data  Main]
+       Line			: Salesman Report Data T,Salesman Report Data  
+       Repeat			: Salesman Report Data  : Salesman Vouchers Coll
+       Scroll			: Vertical
+       Total			: Salesman Qty,Salesman Amount 
+       Common Border	: Yes
+       Bottom Line		: Salesman Report Data Tot
+			
+[Line	: Salesman Report Data T]
+       Use	: Salesman Report Data
+       Local	: Field	: Default			: Type	 : String
+       Local	: Field	: Default			: Align	 : Center
+       Local	: Field	: Default			: Line	 : 0
+       Local	: Field	: Salesman SrNo     : Set As : "Sr No"
+       Local	: Field	: Salesman PName : Set As : "Salesman / Painter"
+       Local	: Field	: Salesman Qty		: Set As : "Qty"
+       Local	: Field	: Salesman Amount	: Set As : "Amount"
+	   
+
+       Local	: Field	: SalesMobileNumber : Set As : "Mobile No."
+       Local	: Field	: SalesShopName		: Set As : "Shop"
+       Local	: Field	: SalesSupervisorName	: Set As : "Supervisor"
+       Border	: Column Titles
+
+[Line	: Salesman Report Data Tot]
+       Field		: Salesman SrNo,Salesman PName,SalesMobileNumber,SalesShopName,SalesSupervisorName
+       Right Field	: Salesman Qty,Salesman Amount 
+       Local		: Field	: Default			    : Delete : Border
+       Local		: Field	: Salesman SrNo	    : Type : String
+       Local		: Field	: Salesman SrNo	    : Set As : ""
+	    Local		: Field	: SalesMobileNumber    : Set As : ""
+		 Local		: Field	: SalesShopName	    : Set As : ""
+		  Local		: Field	: SalesSupervisorName    : Set As : ""
+
+       Local		: Field	: Salesman PName     : Set As : "Total :"
+        Local		: Field	: Salesman PName     : Align: Right
+        Local		: Field	: Salesman PName     : Full Width:Yes
+       Local		: Field	: Salesman Amount	    : Set As : $$Total:SalesmanAmount
+       Local		: Field	: Salesman Qty		    : Set As : $$Total:SalesmanQty
+	   
+
+
+[Field  : SalesMobileNumber]
+					Use		: Name field
+					Set as	: $LedgerMobileNo:Ledger:#SalesmanPName	
+					Width	: 15% page                       
+						
+       Border		: Column Titles
+	   
+
+
+[Field  : SalesShopName]
+					Use		: Name field
+					Set as	: $CMPName;$ShopName:Ledger:$VchEntrySMan	
+					Width	: 20% page                        
+						
+       Border		: Column Titles
+	   
+
+
+[Field  : SalesSupervisorName]
+					Use		: Name field
+					Set as	: $LedSupervisorName:Ledger:$VchEntrySMan	
+					Width	: 15% page                       
+						
+       Border		: Column Titles
+	   
+
+				
+			[Line	: Salesman Report Data]
+				Field		: Salesman SrNo,Salesman PName,SalesMobileNumber,SalesShopName,SalesSupervisorName
+				Right Field	: Salesman Qty,Salesman Amount 
+				;Key:DisplayAnotherReport
+				;Option		: AlterOnEnter
+				;Local:Field:default:Align:Center
+				;Explode:DetailSalesMan
+				
+				[Field	: Salesman SrNo]
+					Use		: Name field
+					Set as	: $$Line
+					Width	: 5% page
+					Border	: Thin Left Right
+					Align:Center
+					
+				[Field	: Salesman PDate]
+					Use		: Name field
+					Set as	: $Date
+					Border	: Thin Left Right
+					Width	: 10
+					Align:Center
+
+				[Field	: Salesman PVch]
+					Use		: Name field
+					Set as	: $VoucherNumber
+					Alter	: Voucher
+					Border	: Thin Left Right
+					Width	: 16
+					Align:Center
+
+				[Field	: Salesman PVchType]
+					Use		: Name field
+					Set as	: $VoucherTypeName
+					Alter	: Voucher
+					Border	: Thin Left Right
+					Width	: 30
+					Align:Center
+
+				[Field  : Salesman CName]
+					Use		: Name field
+					Set as	: $SalesCmpName
+					Border	: Thin right
+					Width	: 30
+					Align:Center
+
+				[Field  : Salesman PName]
+					Use		: Name field
+					Set as	: $VchEntrySMan	
+					Width	: 15% page 
+					;Variable:SalesManName
+					Modifies:SalesManName:Yes
+					Key:DisplayAnotherReport
+					
+[Variable:SalesManName]
+	Type:String
+	
+
+[System:Variable]
+	SalesManName:""
+					
+
+[Key:DisplayAnotherReport]
+	Key:Enter
+	Action:Display:SalesMainDetailedReport
+	
+	
+
+						
+				[Field	: Salesman Qty]
+					Use		: Number field
+					Set as	: $VchEntrySQty
+					Format	: Decimal:2
+					Align	: Right
+					Border	: Thin Left Right
+					Width:10% page
+				
+				[Field	: Salesman Amount]
+					Use		: Number field
+					Set as	: $VchEntrySAmt
+					Format	: Decimal:2
+					Align	: Right
+					Border	: Thin Left Right
+					Width:10% page
+
+
+[Collection: List of Companies MColl]
+	Title	: $$LocaleString:"List of Companies"
+	Type:Company
+   Native Method:Name
+    Filters:IsNotAggregate
+	;Filter	: IsSimpleCompanyFil
+	
+;select $name from ListofCompaniesMColl
+	
+[System:Formula]
+	IsSimpleCompanyFil:($$IsSimpleCompany:$Name)
+    IsNotAggregate:if $IsAggregate:Company:##SVCurrentCompany then Not $IsAggregate else ($Name=##SVCurrentCompany)
+	
+[Collection: TSPL Vouchers]
+	Type 		: Vouchers:VoucherType 
+	Child Of	: $$VchTypeSales
+	Belongs To	: Yes
+	Compute		: SalesCmpName	   : $$LoopCollObj:$Name
+	Fetch		: *.*,LedgerEntries,InventoryEntries.*,InventoryEntries.ItemDesc,InventoryEntries.SalesLed
+	Fetch		: ItemDesc,IsTransfer,MasterID,Amount	
+	Fetch		: Date, VoucherNumber, VoucherTypeName, SortPosition, MasterID, IsCancelled, IsInvoice, BuyerName
+	Fetch		: IsOptional, IsDeleted, Narration, IsEditLogPresent, IsAuditedVchModified
+	Fetch		: AllLedgerEntries.HasBankAllocations, AllInventoryEntries.*, AllLedgerEntries.InventoryAllocations.*
+	Fetch		: TotVchInvAmount,TotVchInvQty,VchUIActualInvYN
+	
+;select $MasterID,$Date,$VoucherNumber from TSPLVouchers
+   filter               :VchUIActualInvYNFil
+   
+[Collection:Smain]
+	Type:Vouchers:VoucherType
+	Child Of:$$VchTypeSales
+	Belongs To:Yes
+	
+[Collection:sum]
+	Source Collection:smain
+	Compute:D:$date
+	Compute:V:$voucherNumber
+	Compute:VT:$VoucherTypeName
+	
+;select $D,$V,$Vt from sum
+       
+[System:Formula]
+       VchUIActualInvYNFil:$VchUIActualInvYN=Yes
+
+
+[Collection: Salesman Vouchers SRC]
+	Collection	: TSPL Vouchers : List of Companies MColl
+	Fetch		: *.*
+
+
+[Collection: Salesman Vouchers]
+	Source Collection: Salesman Vouchers SRC
+	Fetch			 : *.* 
+	Keep Source		 : Yes
+
+
+[Collection: Salesman Vouchers Coll]
+	Source Collection: Salesman Vouchers
+	Walk			 : VchInventoryData
+	By				 : VchEntrySMan		: $$Owner:$VchSalesManName
+    Aggr Compute	 : VchEntrySQty		: Sum	 : $VchInvQty	 
+    Aggr Compute	 : VchEntrySAmt		: Sum	 : $VchInvAmount 
+	By:CMPName:$SalesCmpName
+	Compute:Supname:$LedSupervisorName:Ledger:($$Owner:$VchSalesManName)
+	compute:mob:$LedgerMobileNo:Ledger:($$Owner:$VchSalesManName)
+	Add:Option:SalesManFilter:##SalesManFilter!=$$SysName:AllItems
+	Add:Option:SuperVisorFilter:##SuperVisorFilter!=$$SysName:AllItems
+	Add:Option:MobileFilter:##MobileFilter!=$$SysName:AllItems
+	Add:Option:ShopFilter:##ShopFilter!=$$SysName:Allitems
+	
+
+[!Collection:SalesManFilter]
+	Add:Filter:SalesManFilter
+	
+[!Collection:SuperVisorFilter]
+	Add:Filter:SuperVisorFilter
+	
+[!Collection:MobileFilter]
+	Add:Filter:MobileFilter
+	
+[!Collection:ShopFilter]
+	Add:Filter:ShopFilter
+	
+[System:Formula]	
+	SalesManFilter:$VchEntrySMan=##SalesManFilter
+	SuperVisorFilter:$Supname=##SuperVisorFilter
+	MobileFilter:$mob=##MobileFilter
+	ShopFilter:$CMPName=##ShopFilter
+	
+;select $CMPName,$VchEntrySQty from SalesmanVouchersColl
+	
+
+[Collection:SalesmanVouchersCollItemWise]
+	Source Collection: Salesman Vouchers 
+	Walk			 : VchInventoryData
+	compute				 : VchEntrySMan		: $$Owner:$VchSalesManName
+    Compute	 : Ebilledqty	 : $VchInvQty	 
+	Compute:EstockitemName:$VchInvName
+    Compute	 : Eamount : $VchInvAmount
+	Compute:EvoucherTypename:$$Owner:$VoucherTypeName
+	Compute:EvoucherNumber:$$Owner:$VoucherNumber
+	Compute:Edate:$$Owner:$date
+	Compute:CMPName:$SalesCmpName
+	Filter:sManfil
+	Filter:Cmp
+	
+[System:Formula]
+	sManfil:$VchEntrySMan=##Sman
+	cmp:$CMPName=##Cmpname
+	
+	
+	
+
+
+[Report:SalesMainDetailedReport]
+	Form:SalesMainDetailedReport
+	Variable:SalesManName
+	Variable:SVFromdate,SVTodate
+	On:Load:Yes:Set:SVFromdate:##svcurrentdate-30
+On:Load:Yes:Set:SVTodate:##svcurrentdate
+	
+
+[Form:SalesMainDetailedReport]
+	Part:DetailSalesMan
+	Button:ChangePeriod
+	Height:100% screen
+	Width:100% screen
+
+
+
+[Part:DetailSalesMan]
+	Line:DetailSalesManTitle,DetailSalesMan
+	Bottom Line:DetailTotal
+	Repeat:DetailSalesMan:SalesmanVouchersCollItemWise
+	Scroll:Vertical
+	Total:DetailSalesManQTy,DetailSalesManRate,DetailSalesManAmount
+	
+
+
+[Line:DetailSalesManTitle]
+	Use:DetailSalesMan
+	local:Field:default:Type:String:Forced
+    local:Field:DetailSalesManDate:set as:"Date"
+	local:Field:DetailSalesManVchNumber:set as:"Voucher Number"
+	
+	
+	local:Field:DetailSalesManVCHType:set as:"Voucher Type"
+	Local:Field:DetailSalesManname:Set as:"Sales Man"
+	Local:Field:DetailShopname:Set as:"Shop"
+	local:Field:DetailSalesManItemName:set as:"Item Name"
+	local:Field:DetailSalesManQTy:set as:"Qty"
+	local:Field:DetailSalesManRate:set as:"Rate"
+	local:Field:DetailSalesManAmount  :set as:"Amount"
+	Border:thin box
+	
+[Line:DetailTotal]
+	Use:DetailSalesMan
+	local:Field:default:Type:String:Forced
+    local:Field:DetailSalesManDate:set as:""
+	local:Field:DetailSalesManVchNumber:set as:""
+	
+	
+	local:Field:DetailSalesManVCHType:set as:""
+	Local:Field:DetailSalesManname:Set as:""
+	Local:Field:DetailShopname:Set as:""
+	local:Field:DetailSalesManItemName:set as:"Total"
+	local:Field:DetailSalesManQTy:set as:$$Total:DetailSalesManQTy
+	local:Field:DetailSalesManRate:set as:"";$$Total:DetailSalesManRate
+	local:Field:DetailSalesManAmount  :set as:$$Total:DetailSalesManAmount
+	Border:thin box
+
+
+[Line:DetailSalesMan]
+	Field:DetailSalesManDate
+	Field:DetailSalesManVchNumber
+	Field:DetailSalesManVCHType
+	Field:DetailSalesManname
+	Field:DetailShopname
+	Field:DetailSalesManItemName
+	Field:DetailSalesManQTy
+	Field:DetailSalesManRate
+	Field:DetailSalesManAmount
+	
+
+
+    [Field:DetailSalesManDate]
+		Use:Name field
+		Set as:$$String:$EDate
+		Width:30
+
+	[Field:DetailSalesManVchNumber]
+		use:Name field
+		Set as:$EVoucherNumber
+		Width:30
+
+	[Field:DetailSalesManVCHType]
+		Use:name field
+		Set as:$EVoucherTypeName
+		Width:30
+		
+    [Field:DetailSalesManname]
+		Use:name field
+		Set as:$VchEntrySMan
+		Width:30
+		Set Always:Yes
+		
+  [Field:DetailShopname]
+	  Use:name field
+		Set as:$CMPName
+		Width:30
+		Set Always:Yes
+	  
+
+	[Field:DetailSalesManItemName]
+		Use:name field
+		Set as:$EStockItemName
+		Width:30
+
+		[Field:DetailSalesManQTy]
+			Use:Number field
+			Set as:$EBilledQty
+			Width:30
+			Align:Right
+		
+		[Field:DetailSalesManRate]
+			Use:Number field
+			Set as:$Eamount/$EBilledQty
+			Width:30
+			Align:Right
+		
+		[Field:DetailSalesManAmount]
+			Use:Number field
+			Set as:$Eamount
+			Width:30
+			Align:Right
+		
+
+;select $VchEntrySMan,$VchEntrySQty,$VchEntrySAmt from SalesmanVouchersColl
+
+;select $VchDate,$VchNumber,$VchType,$VchEntrySMan,$ItemName,$VchEntrySQty,$VchEntrySAmt from SalesmanVouchersCollItemWise

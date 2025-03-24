@@ -1,0 +1,188 @@
+;=============================================================================
+[System:UDF]
+       LedPartyCode:String:43019
+       LedgerMobileNo:String:43020
+       
+[#Report: Ledger]
+	Set : SVLastBatch : @@LastItemBatch
+	
+;[#Field: STKI PartNo]
+;	Option	: STKI PartNo Opt :  @@LastItemBatchYN  
+
+[#Form: Ledger]
+              Add:Part:Before:Led Notes:LED Auto Barcode
+              
+[Part:LED Auto Barcode]
+       Line:LED Auto Barcode, LED Mobile No1
+
+    [Line: LED Auto Barcode]
+        Field         	: Short Prompt, LED Auto Barcode
+        Local   	: Field: Short Prompt   : Setas : $$LocaleString:"Painter Code :"
+        Local   	: Field: Default:Style:Normal Bold
+        Local   	: Field: Default:Color:Blue
+        Local   	: Field: Default:Inactive:$Parent!="Salesman" 
+        
+    [Line:  LED Mobile No1]
+        Field         	: Short Prompt, Led MobileNo1
+        Local   	: Field: Short Prompt   : Setas : $$LocaleString:"Painter Mobile :"
+        Local   	: Field: Default:Style:Normal Bold
+        Local   	: Field: Default:Color:Blue
+        Local   	: Field: Default:Inactive:$Parent!="Salesman" 
+              
+
+[Field: LED Auto Barcode]
+       Use                    : Short Name Field
+	Use			: First Upper Case Field
+       Style                   : Small Bold
+       Storage              : LedPartyCode
+	Skip		       : Yes
+ 	Add			: Set By Condition	: At Beginning : ($$InCreateMode) and ($$Line=1): $$GetBatchName:##SVLastBatch
+ 		
+[Field: LED Mobile No1]
+    Use         : Name Field
+    Style       : Small Bold
+    Storage     : LedgerMobileNo
+              
+[Function	: GetBatchName]
+	Parameter:LastBatchName : Number
+	Variable:FinBatchName:String
+	Return	: String
+	
+  	40	: Set	: FinBatchName	 : ##LastBatchName+1
+  	44	: Do If	: @@FillWithZero : Set	: FinBatchName	: $$ZeroFill:##FinBatchName:@@BatchNoOfDigit
+  	55	: Return:##FinBatchName
+	
+
+[#Form:Ledger]
+	Option	: Stock Item Opt : @@LastItemBatchYN
+	
+[!Form   :  Stock Item Opt]
+	On	: Form Accept	:  $$InCreateMode	And $Parent="Salesman" : Call	: SetLastBatchCMP : $LedPartyCode
+
+[Function:SetLastBatchCMP]
+	Parameter:ItemLastBatch:String
+	
+	24	: Modify Object	: (Company,##SVCurrentCompany). LastItemBatch[1].LastItemBatch : ##ItemLastBatch	
+	
+[System:UDF]
+	LastItemBatchYN : Logical	: 4002
+	LastItemBatch	: Number 	: 4003
+	FillWithZero	: Logical	: 4004	
+	BatchNoOfDigit  : Number	: 4005
+	LastBatchSaleYN	: Logical	: 4006
+	
+       Heading Color Name:String:4012
+       
+[System:Formula]
+	LastItemBatch	:$LastItemBatch:Company:##SVCurrentCompany	 
+	FillWithZero	:$FillWithZero:Company:##SVCurrentCompany	 	 
+	BatchNoOfDigit  :$BatchNoOfDigit:Company:##SVCurrentCompany	  
+	LastItemBatchYN :$LastItemBatchYN:Company:##SVCurrentCompany	  
+	LastBatchSaleYN :$LastBatchSaleYN:Company:##SVCurrentCompany	  
+	
+       Heading Color NameF:$HeadingColorName:Company:##SVCurrentCompany	  
+       
+[Variable:SVLastBatch]
+	Type	  :Number
+	Persistent:Yes
+	
+[System:Variable]
+	SVLastBatch:""
+ 
+;===================================================
+[Line : Heading Color Name]
+       Fields: Medium prompt,Heading Color Name
+       Local:Field:Medium prompt	:Set as : "Color Name"
+       Space Top: 0.5
+  
+[Field : Heading Color Name]
+        Use : Name field
+       Show Table : Always
+       Storage : Heading Color Name
+       Set Always : Yes
+       Width: 10
+       Table:Heading Color Coll
+       
+[Collection:Heading Color Coll]
+       Title: "Heading Color"
+       List Name: "Yellow", "DarkGreen", "Blue", "Geranium"
+  
+[Line : Enable Barcode Module]
+       Fields: Medium prompt,Enable Barcode Module
+       Local:Field:Medium prompt	:Set as : "Enable Auto Code"
+       Space Top: 0.5
+  
+[Field	: Enable Barcode Module]
+       Use : logical field
+       Table : YesNo
+       Show Table : Always
+       Storage : Enable Barcode Module
+       Set Always : Yes
+       Sub Form : Auto Batch In Purchase : $$Value
+  		
+[Report :  Auto Batch In Purchase]
+	Form	:  Auto Batch In Purchase
+       
+[Form	:  Auto Batch In Purchase]
+       Part 		: Form Subtitle,Auto Batch In Purchase
+       Local		: Field	: Form Subtitle : Set as	: "Auto Painter Code Settings"
+       Full Width	: No
+		
+[Part: Auto Batch In Purchase]
+       Line : Auto Batch In PurchaseAY,Auto Batch Fill With,Auto Batch NoOfDigit,Auto Batch In Purchase;,Auto Batch In SaleRate
+
+[Line: Auto Batch In PurchaseAY]
+       Field:Medium Prompt, Auto Batch PurchaseAY
+       Local:Field:Medium Prompt:Set as:"Auto Painter Code / Creation"
+       Local:Field:Medium Prompt:Width :30
+
+[Field:Auto Batch PurchaseAY]
+       Use		: Logical Field
+       Storage	: LastItemBatchYN
+       Width	: 15
+       Format	: "NoComma"
+
+[Line: Auto Batch In Purchase]
+       Field:Medium Prompt, Auto Batch Purchase
+       Local:Field:Medium Prompt:Set as:"Last Painter"
+       Local:Field:Medium Prompt:Width :30
+
+[Field:Auto Batch Purchase]
+       Use		: Number Field
+       Storage	: LastItemBatch
+       Width	: 15
+       Format	: "NoComma"
+ 
+[Line: Auto Batch Fill With]
+       Field:Medium Prompt, Auto Batch Fill With
+       Local:Field:Medium Prompt:Set as:"Prefill With Zero"
+       Local:Field:Medium Prompt:Width :30
+
+[Field:Auto Batch Fill With]
+       Use		: Logical Field
+       Storage	: FillWithZero
+       Width	: 15
+       Format	: "NoComma"
+
+[Line: Auto Batch NoOfDigit]
+       Field:Medium Prompt, Auto Batch NoOfDigit
+       Local:Field:Medium Prompt:Set as:"Number of Digits"
+       Local:Field:Medium Prompt:Width :30
+
+[Field:Auto Batch NoOfDigit]
+       Use		: Number Field
+       Storage	: BatchNoOfDigit
+       Width	: 15
+       Format	: "NoComma"
+
+[Line: Auto Batch In SaleRate]
+       Field:Medium Prompt, Auto Batch In SaleRate
+       Local:Field:Medium Prompt:Set as: "Enable Batch Wise Sales Rate"
+       Local:Field:Medium Prompt:Width : 30
+
+[Field:Auto Batch In SaleRate]
+       Use		: Logical Field
+       Storage	: LastBatchSaleYN
+       Width	: 15
+       Format	: "NoComma"
+        

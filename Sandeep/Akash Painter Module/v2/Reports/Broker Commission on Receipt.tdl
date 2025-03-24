@@ -1,0 +1,187 @@
+[Report: Broker Commission on Receipt]
+	Variable: SVFromDate, SVToDate
+	Form	: Broker Commission on Receipt
+	
+[Form: Broker Commission on Receipt]
+	Part	: BCOR Header, BCOR Body
+	Height	: 100% page
+	Width	: 100% page
+	Button	: F2 Change Period, FilterBrokerReceiptBtn
+
+[Button: FilterBrokerReceiptBtn]
+	Title	: "Filter"
+	Key		: F3
+	Action	: Alter : Filter BrokerReceipt Report 
+	
+[Part: BCOR Header]
+	Line	: BCOR CompanyName, BCOR ReportName, BCOR Period
+	
+	Local	: Field: Default: Full Width: Yes
+	Local	: Field: Default: Align: Center
+	
+[Line: BCOR CompanyName]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: $$CurrentCompany
+	Local	: Field: Name Field: Style	: Calibri Default Bold
+	Local	: Field: Name Field: Local	: Style: Default: Height: 15
+	
+[Line: BCOR ReportName]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: "Salesman Commission on Receipt"
+	Local	: Field: Name Field: Style	: Calibri Default
+	Local	: Field: Name Field: Local	: Style: Default: Height: 11
+	
+[Line: BCOR Period]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as	: @@DSPDateStr
+	Local	: Field: Name Field: Style	: Calibri Default
+	Local	: Field: Name Field: Local	: Style: Default: Height: 11
+	
+	
+;; Body
+	
+[Part: BCOR Body]
+	Line		: BCOR Column, BCOR Body
+	Repeat		: BCOR Body:Broker Receipt Summary Coll
+	Scroll		: Vertical
+	Space Top	: 1
+	Bottom Line	: BCOR TotalBody
+	Totals		: BCOR ReceiptAmt, BCOR CommissionOnGross
+	
+[Line: BCOR Column]
+	Use		: BCOR Body
+	
+	Local	: Field: Default: Type: String
+	Local	: Field: Default: Style: Calibri Default Bold
+	
+	Local	: Field: BCOR AreaName:  		 Set as	: "Area"
+	Local	: Field: BCOR BrokerName: 		 Set as	: @@BrokerNameText
+	Local	: Field: BCOR Party: 			 Set as	: "Customer"
+	Local	: Field: BCOR ReceiptAmt: 		 Set as	: "Receipt Amount"
+	Local	: Field: BCOR CommissionPer: 	 Set as	: "Commission %"
+	Local	: Field: BCOR CommissionOnGross: Set as	: "Commission"
+	
+	
+	Border	: Column Titles
+	
+[Line: BCOR Body]
+	Fields	:  BCOR BrokerName, BCOR AreaName, BCOR Party,BCOR ReceiptAmt, BCOR CommissionPer, BCOR CommissionOnGross 
+	
+	Local	: Field: Default: Style: Calibri Default
+	Local	: Field: Default: Local	: Style: Default: Height: 11
+	Space Top	: 0.2
+	Space Bottom	: 0.2
+	
+[Field: BCOR AreaName]
+	Use		: Name Field
+	Set as	: $BrokerArea
+	Width	: 18
+	
+[Field: BCOR BrokerName]
+	Use		: Name Field
+	Set as	: $BrokerName
+	Full Width: Yes
+	
+[Field: BCOR Party]
+	Use		: Name Field
+	Set as	: $Party
+	Width	: 25
+	;Variable:LedgerName
+	;Display:Ledger Vouchers
+	Invisible	: Yes
+	
+[Field: BCOR ReceiptAmt]
+	Use		: Number Field
+	Set as	: $ReceiptAmt
+	Width	: 15
+	Format	: "Decimal:2"
+	
+[Field: BCOR CommissionPer]
+	Use		: Number Field
+	Set as	: $BrokerCommission
+	Width	: 15
+	Format	: "Percentage"
+	
+[Field: BCOR CommissionOnGross]
+	Use		: Number Field
+	Set as	: $ReceiptAmt*#BCORCommissionPer%
+	Width	: 15
+	Format	: "Decimal:2"
+	
+
+
+;; Totals
+
+[Line: BCOR TotalBody]
+	Use		: BCOR Body
+	
+	Local	: Field: BCOR AreaName:  		 Set as	: ""
+	Local	: Field: BCOR BrokerName: 		 Set as	: "Totals"
+	Local	: Field: BCOR BrokerName: 		 Style	: Calibri Large Bold Italic
+	Local	: Field: BCOR ReceiptAmt: 		 Set as	: $$Total:BCORReceiptAmt
+	Local	: Field: BCOR CommissionOnGross: Set as	: $$Total:BCORCommissionOnGross
+	
+	Local	: Field: Default: Local: Style: Default: Bold: Yes
+	Border	: Totals
+	
+
+
+;; ==================================== Filter Report
+
+[Report: Filter BrokerReceipt Report]
+	Form	: Filter BrokerReceipt Report
+	Object	: Company
+
+[Form: Filter BrokerReceipt Report]
+	Part			: FBRR Title, FBRR Body
+	Full Height		: No
+	Full Width		: No
+	Space Bottom	: 1
+	Space Top		: 1
+	Space Left		: 1
+	Space Right		: 1
+	On:Form Accept:Yes:Form Accept
+	On:Form Accept:Yes:Display:Filtered Broker Receipt Report
+	
+[Part: FBRR Title]
+	Line	: FormSubtitle
+	
+	Local	: Field: FormSubtitle: Set as: "Filter : "
+	Local	: Field: FormSubtitle: Border: Thin Bottom
+	Local	: Field: FormSubtitle: Full Width: No
+	Local	: Field: FormSubtitle: Style: Calibri Large Bold Italic
+	
+[Part: FBRR Body]
+	Line	: FBRR Body
+	
+[Line: FBRR Body]
+	Fields	: Medium Prompt, Name Field
+	
+	Local	: Field: Medium Prompt: Set as: "Salesman Name : "
+	
+	Local	: Field: Name Field: Storage: FilterBroker
+	Local	: Field: Name Field: Table: Broker Table, AllItems
+	Local	: Field: Name Field: Show Table: Always
+	Local	: Field: Name Field: Modifies:vBrokerNameReceipt
+	
+
+
+[Variable: vBrokerNameReceipt]
+	Type	: String
+	
+[System: Variable]
+	vBrokerNameReceipt : ""
+	
+[Report: Filtered Broker Receipt Report]
+	Use		: Broker Commission on Receipt
+	Local	: Collection: Broker Receipt Summary Coll :Add: Filter: BrokerReceiptFilter
+	
+[System: Formulae]
+	BrokerReceiptFilter	: If $$IsEmpty:##vBrokerNameReceipt OR $$IsSysName:##vBrokerNameReceipt Then Yes Else $$IsEqual:$BrokerName:##vBrokerNameReceipt
+	
+
+	
+	

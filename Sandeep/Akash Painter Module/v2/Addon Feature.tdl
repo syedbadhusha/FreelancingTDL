@@ -1,0 +1,15 @@
+;; =================================== Enable module from add-on report to use
+
+[#Part: CMP TallyShopFeaturesTitle]
+	Add	: Line	: After		: CMP TallyShopFeaturesTitle	: Painter Module
+	Space Top	: 0.5
+	
+[Line: Painter Module]
+	Field	: Long Prompt, Painter Module	
+	Local	: Field	: Long Prompt	: Info	: $$LocaleString:"Enable Painter Module"
+	Space Top	: 0.5
+
+[Field: Painter Module]
+	Use	: Logical Field
+	Storage	: EnablePainterModule
+	Show Table:Always

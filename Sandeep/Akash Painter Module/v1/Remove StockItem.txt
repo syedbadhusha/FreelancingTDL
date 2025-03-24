@@ -1,0 +1,241 @@
+[#Form:Daybook]
+	Add:Button	: Remove Inventory Data
+
+[Button :  Remove Inventory Data]
+	Title  : "Less Inv"
+	Key    : Alt + 8
+	Action : Call : Remove Inventory Data Fun
+	Inactive	: ($$NumLinesInScope=0)	
+
+[Report: Change ItemName]  ;;Auto Report
+    Use     : Modify Variables
+    Local   : Part : Modify Variables : Lines     : Change ItemName  
+    Local   : Field: MV Title         : Info      : $$LocaleString:"Less Inv"
+    Title	: $$LocaleString:"Less Inv"
+
+    [Line: Change ItemName]
+        Field : Medium Prompt,Change ItemName  
+        Local : Field : Medium Prompt : Set as	: "Select Item : "
+
+		[Field	: Change ItemName]
+			Use		: Name Field
+			Table	: List of Stock Items
+			Variable: ChangeItemName  
+			Modifies: ChangeItemName  : Yes
+			
+[Variable: ChangeItemName]
+	Type:String
+	
+[System:Variable]
+	 ChangeItemName  :""
+
+[Function : Remove Inventory Data Fun]  
+	Variable	: vchmid 	: String
+	Variable	: VchIsYes  : Logical
+	Variable	: totlines,counter	: Number
+	Variable	: CurrCmpName	: String
+	Variable	: IsUpdate	: Logical	: No
+	Local Formula	: QryMsg	: "Do you want Less Inv" 
+	
+	090	: Set	: counter : 0
+	091	: Modify Variables: Change ItemName
+ 	092	: Query Box	: @QryMsg	: Yes: No
+    093	: DO IF	: NOT $$LastResult : RETURN	: ""
+	102 : Start Batch Post
+	105 : Set : totlines:$$NumItems:TSPLTrans 
+	110 : Start Progress:##totlines:"Remove Inventory Details In Vouchers "
+	115 : Set : CurrCmpName:##SvCurrentCompany
+	120 : Walk Collection:TSPL Trans
+	130 : Start Batch Post
+	140	:	Set 	: vchmid   : "ID:"+$$string:$MasterId
+	141	:	Set		: IsUpdate : $VchUIActualInvYN
+	142	: If	: ($$IsSales:$VoucherTypeName)
+	155 :	Do If	: (##IsUpdate=Yes)	: Call	: Remove Inventory : ##vchmid:##ChangeItemName
+;  	155 :	Call	: Remove Inventory : ##vchmid:##ItemName 
+	180	: End If	 
+  	182	:   Increment:counter
+	185	:	Show Progress:##counter:($$String:##counter)+"/"+($$String:##totlines)
+	190	: End Walk
+	200 : End Batch Post
+
+[Function:Remove Inventory]
+	Parameter:VoucherIdVar     : String
+	Parameter:RemoveItemName   : String 
+	Variables:vCountUpdate,GSTRate   : Number
+	Variable:ItemAmt,BillAmt,FinBillAmt :Amount
+	Variable:GSTAmt:Amount	
+	Variable:PTName:String
+	Variable:VCDate:Date
+	Variable:ItemLine  :Number:0
+       Variable:InvItem:Number:0
+       Variable:IsCanVch:Logical:Yes
+	
+	Objects:Voucher :##VoucherIdVar
+	;Action:000 : Log:##VoucherIdVar
+	Action:001 : Set: PTName	: $PartyLedgerName
+	Action:002 : Set: VCDate	: $Date
+	Action:010 : Start Batch Post
+	Action:020 : SET TARGET
+	Action:030 : SET OBJECT
+	Action:040 : Set: vCountUpdate : 0
+       Action:041 :Set: InvItem : $$NumItems:AllInventoryEntries
+       Action:042 :Log: ##InvItem  
+	Action:050 : Walk : All Inventory Entries
+	Action:051 :  If  	: @@StockItemNameFil 
+	Action:052 :   Set      : ItemAmt 	: $Amount
+	Action:053 :   Set  	: ItemLine  : $$LoopIndex
+	Action:054 :   Break
+	Action:055 :  End If 
+	Action:111 : End Walk
+;	Action:112 :   log:##ItemAmt 	 
+;	Action:113 :   log:##ItemLine  
+
+	Action:121 : Set	: GSTRate : $$GetInfoFromHierarchy:##RemoveItemName:"StockItem":"GSTRate":##VCDate:"GST":0:@@IGSTDutyHead
+	Action:122 : Set	: GSTAmt  : ##ItemAmt*##GSTRate%
+	
+	Action:200 : If   : (##ItemAmt!=0)
+       Action:201a : If   : (##InvItem=1)
+       Action:201b: SET TARGET
+	Action:201c : Cancel TARGET
+
+;       Action:203 : Msg Box:"":##VoucherIdVar
+;       Action:204 : Msg Box:"":$ISCANCELLED
+;        Action:205 : Msg Box:"":##IsCanVch
+;        
+;        ;Action:223 : SET TARGET:LedgerEntries[$$LoopIndex]
+;       Action:224 : Set Value:ISCANCELLED:##IsCanVch
+;       Action:225 : Set Value:VCHSTATUSISCANCELLED:##IsCanVch
+;       Action:226 : Msg Box:"":$ISCANCELLED
+;	Action:227: SET TARGET: ..
+;       Action:230 : ACCEPT ALTER
+	Action:240 : Else
+       ;Action:241 : Msg Box:"":"TEST" ;c
+ 	Action:250 : Walk : Ledger Entries
+  	;Action:255 : Log:$LEDGERNAME
+	Action:256 : Do If	: (##PTName=$LEDGERNAME) : Set : BillAmt : $Amount
+  	Action:260 :    SET TARGET:LedgerEntries[$$LoopIndex]
+	Action:261 : Set : FinBillAmt :   $$AsAmount:$Amount-$$AsAmount:@@VchItemAmt ;$$AsAmount:##BillAmt
+  	;Action:262   : Log :##FinBillAmt  
+;    Action:262a  : Log :##BillAmt
+;    Action:262b  : Log :@@VchItemAmt
+;       Action:262c : Log : ##GSTAmt 
+;	Action:262c  : Log :@@VchCGSTAmtVal
+;	Action:262d  : Log :@@VchSGSTAmtVal
+;	Action:262e  : Log :@@VchIGSTAmtVal
+ 	;Action:262e  : Log :
+
+	Action:263 : 	Do If	: (##PTName=$LEDGERNAME) 				: Set Value : Amount  : $$AsAmount:##FinBillAmt
+	Action:264 : 	Do If	: ("CGST"=@@LedDutyType)		       	: Set Value : Amount  : $$AsAmount:@@VchCGSTAmtVal
+	Action:265 : 	Do If	: ("SGST/UTGST"=@@LedDutyType)			: Set Value : Amount  : $$AsAmount:@@VchSGSTAmtVal
+	Action:266 : 	Do If	: ("IGST"=@@LedDutyType)			    : Set Value : Amount  : $$AsAmount:@@VchIGSTAmtVal 
+ 	Action:300 :    SET TARGET : ..
+ 	Action:320 : End Walk
+
+	Action:480 :  Do If : ($$NumItems:INVENTORYENTRIES != 0)  :  Delete Collection object  : INVENTORYENTRIES :  ##ItemLine ;@@StockItemNameFil
+	Action:530 : SET TARGET  : ..
+	Action:540 : ACCEPT ALTER
+	Action:541 : Do If	: ($$LastResult=No) : Call	: Error Update : $$LastError
+	Action:545 : End If
+	Action:546 : End If
+	Action:550 : Set: vCountUpdate : ##vCountUpdate+1
+	Action:560 : SET TARGET   : ..
+	Action:570 : Return: True
+	Action:580 : End Batch Post
+	;Action:590 : Log:@@StockItemNameFil
+	
+
+[Function:Error Update]
+	;Parameter:VoucherIdVar     : String
+	;Parameter:RemoveItemName   : String 
+	Parameter:LastErrorP:String
+	Variables:vCountUpdate,GSTRate   : Number
+	Variable:ItemAmt,BillAmt,FinBillAmt :Amount
+	Variable:GSTAmt:Amount	
+	Variable:PTName:String
+	Variable:VCDate:Date
+	Variable:ItemLine  :Number:0
+
+	Variable:MPTName:String
+	Variable:LastErrorVar:String
+	Variable:LastErrorAmt:Number
+
+	;Action:001 : Log: ##LastErrorP
+	Action:000 : Set: LastErrorVar : $$StringFindAndReplace:##LastErrorP:"Diff":"-" 
+	;Action:010 : Log: ##LastErrorVar  
+	Action:011 : Set: LastErrorVar : $$StringWordEx:##LastErrorVar:"-":"2" 
+	;Action:013 : log: ##LastErrorVar 
+	Action:022 : Set: LastErrorAmt : $$Number:##LastErrorVar 
+	;Action:023 : Log: ##LastErrorAmt
+
+	
+	Objects:Voucher :##VoucherIdVar
+	;Action:000 : Log:##VoucherIdVar
+	Action:101 : Set: PTName	: $PartyLedgerName
+	Action:102 : Set: VCDate	: $Date
+	Action:110 : Start Batch Post
+	Action:120 : SET TARGET
+	Action:130 : SET OBJECT
+	Action:140 : Set: vCountUpdate : 0
+	Action:150 : Walk : All Inventory Entries
+	Action:151 :  If  	: @@StockItemNameFil 
+	Action:152 :   Set      : ItemAmt 	: $Amount
+	Action:153 :   Set  	: ItemLine  : $$LoopIndex
+	Action:154 :   Break
+	Action:155 :  End If 
+	Action:211 : End Walk
+;	Action:112 :   log:##ItemAmt 	 
+;	Action:113 :   log:##ItemLine  
+
+	Action:221 : Set	: GSTRate : $$GetInfoFromHierarchy:##RemoveItemName:"StockItem":"GSTRate":##VCDate:"GST":0:@@IGSTDutyHead
+	Action:222 : Set	: GSTAmt  : ##ItemAmt*##GSTRate%
+	
+	Action:300 : If   : (##ItemAmt!=0)
+ 	Action:350 : Walk : Ledger Entries
+  	;Action:255 : Log:$LEDGERNAME
+	Action:356 : Do If	: (##PTName=$LEDGERNAME) : Set : BillAmt : $Amount
+  	Action:360 :    SET TARGET:LedgerEntries[$$LoopIndex]
+	Action:361 : Set : FinBillAmt :   $$AsAmount:$Amount-$$AsAmount:@@VchItemAmt-$$AsAmount:##LastErrorAmt ;$$AsAmount:##BillAmt
+  	;Action:362 : Log :##FinBillAmt  
+
+	Action:363 : 	Do If	: (##PTName=$LEDGERNAME) 				: Set Value : Amount  : $$AsAmount:##FinBillAmt
+	Action:364 : 	Do If	: ("CGST"=@@LedDutyType)		       	: Set Value : Amount  : $$AsAmount:@@VchCGSTAmtVal
+	Action:365 : 	Do If	: ("SGST/UTGST"=@@LedDutyType)			: Set Value : Amount  : $$AsAmount:@@VchSGSTAmtVal
+	Action:366 : 	Do If	: ("IGST"=@@LedDutyType)			    : Set Value : Amount  : $$AsAmount:@@VchIGSTAmtVal 
+ 	Action:400 :    SET TARGET : ..
+ 	Action:420 : End Walk
+
+	Action:580 :  Do If : ($$NumItems:INVENTORYENTRIES != 0)  :  Delete Collection object  : INVENTORYENTRIES :  ##ItemLine ;@@StockItemNameFil
+	Action:630 : SET TARGET  : ..
+	Action:640 : ACCEPT ALTER
+	Action:641 : Do If : ($$LastResult=Yes) : Log : "Update Successfully"
+	Action:645 : End If
+	Action:650 : Set: vCountUpdate : ##vCountUpdate+1
+	Action:660 : SET TARGET   : ..
+	Action:670 : Return: True
+	Action:680 : End Batch Post
+
+;	Action:301 : Set: MPTName	: $PartyLedgerName
+; 	Action:541 : SET TARGET
+; 	Action:542 : SET OBJECT
+; 	Action:551 : Walk : Ledger Entries
+;   	Action:552 :    SET TARGET:LedgerEntries[$$LoopIndex]		
+; 	Action:553 :  	Do If	: (##MPTName=$LEDGERNAME) : Set Value : Amount  : $$AsAmount:##FinBillAmt	;-$$AsAmount:##LastErrorAmt) 
+;  	Action:554 :    SET TARGET : ..
+;  	Action:555 : End Walk
+;  	Action:556 : ACCEPT ALTER
+;;	
+;	;Action:545 : Set: LastErrorVar : $$StringFindAndReplace:##LastErrorVar:"Diff":"-" 
+;	Action:566 : End If
+;	;Action:567 : End If
+
+
+[System:Formula]
+       VchCGSTAmtVal:$$AsAmount:$Amount-$$Asamount:(##GSTAmt/2)
+       VchSGSTAmtVal:$$AsAmount:$Amount-$$Asamount:(##GSTAmt/2)
+       VchIGSTAmtVal:$$AsAmount:$Amount-$$Asamount:(##GSTAmt)
+       
+       VchItemAmt         :$$AsAmount:##ItemAmt+$$AsAmount:##GSTAmt
+       
+[System:Formula]
+	StockItemNameFil:$StockItemName=##RemoveItemName	;"Item-A"
+	LedDutyType		:$GSTDutyHead:Ledger:$LEDGERNAME

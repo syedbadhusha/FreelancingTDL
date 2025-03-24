@@ -1,0 +1,15 @@
+[System:UDF]
+	EnablePainterModule:Logical:8516
+	LED SourceShop:String:8517
+	LED MappedSalesman:String:8518
+	GRP IsSalesmanGroup:Logical:8519
+	
+	Shops Aggr:Aggregate:8530
+	ShopName:String:8531
+	
+	Shop Boy Aggr:Aggregate:8540
+	ShopBoyName:String:8541
+	
+;	VchSalesManName:String:4043
+	PM_StockItemName:String:4044
+	PM_ItemRate:Number:4045

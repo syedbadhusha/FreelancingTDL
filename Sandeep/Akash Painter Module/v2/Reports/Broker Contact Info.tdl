@@ -1,0 +1,96 @@
+[Report: Broker Contact Info]
+	Form	: Broker Contact Info
+	
+[Form: Broker Contact Info]
+	Use    		: Vch SubForm Padding
+	Part		: BCF Title, BCF Body
+	Height		: 90% Screen
+	Width		: 90% Screen
+	Space Left	: 0.25
+	Space Right	: 0.25
+	Option		: Small Size Form
+	
+[Part: BCF Title]
+	Line	: BCF Title
+	Horizontal Alignment: Center
+	
+[Line: BCF Title]
+	Field	: Name Field
+	
+	Local	: Field: Name Field: Set as: "Salesman's Contact Info"
+	Local	: Field: Name Field: Style: Calibri Default Bold
+	Local	: Field: Name Field: Local: Style: Default: Height: 13
+	Local	: Field: Name Field: Full Width: Yes
+	Local	: Field: Name Field: Align: Center
+	Local	: Field: Name Field: Border: Thin Bottom
+	
+[Part: BCF Body]
+	Line	: BCF Column, BCF Body
+	Repeat	: BCF Body:Broker Contact Info
+	Scroll	: Vertical
+	Space Top	: 1
+	
+[Line: BCF Column]
+	Use		: BCF Body
+	
+	Local	: Field: Default: Type: String
+	Local	: Field: Default: Style: Calibri Default Bold
+	
+	Local	: Field: BCF BrokerName: 	Set as	: "Salesman Name"
+	Local	: Field: BCF Area: 			Set as	: "Salesman Area"
+	Local	: Field: BCF Address: 		Set as	: "Address"
+	Local	: Field: BCF State: 	 	Set as	: "State"
+	Local	: Field: BCF PinCode: 	 	Set as	: "Pincode"
+	Local	: Field: BCF MobileNo: 		Set as	: "Mobile"
+	Local	: Field: BCF GSTIN: 		Set as	: "GSTIN"
+	
+	
+	Border	: Column Titles
+	
+[Line: BCF Body]
+	Fields	: BCF BrokerName, BCF Area, BCF Address, BCF State, BCF PinCode, BCF MobileNo, BCF GSTIN 
+	
+	Local	: Field: Default: Style: Calibri Default
+	Local	: Field: Default: Local	: Style: Default: Height: 11
+	Space Top	: 0.2
+	Space Bottom	: 0.2
+	
+[Field: BCF BrokerName]
+	Use		: Name Field
+	Set as	: $Name
+	Full Width: Yes
+	
+[Field: BCF Area]
+	Use		: Name Field
+	Set as	: $BMBrokerArea
+	Width	: 18
+	Invisible	: Yes
+	
+[Field: BCF Address]
+	Use		: Name Field
+	Set as	: $$FullList:Address:$Address
+	Width	: 35
+	Format	: "Decimal:2"
+	Line	: 0
+	
+[Field: BCF State]
+	Use		: Name Field
+	Set as	: $LedStateName
+	Width	: 30
+	Format	: "Decimal:2"
+	
+[Field: BCF PinCode]
+	Use		: Name Field
+	Set as	: $PinCode
+	Width	: 10
+	
+[Field: BCF MobileNo]
+	Use		: Name Field
+	Set as	: $LedgerMobile
+	Width	: 15
+	
+[Field: BCF GSTIN]
+	Use		: Name Field
+	Set as	: $PartyGSTIN
+	Width	: 20
+	
