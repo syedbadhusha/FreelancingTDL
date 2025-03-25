@@ -194,7 +194,7 @@
 [Line: BarcodeLBPrintCmpName]
 	
 	Field		:	BarcodeLBPrintCmpName
-	Local	: Field:Default:Local:Style:Default:Height:5
+	Local	: Field:Default:Local:Style:Default:Height:7;5
 	Local	: Field:Default:Local:Style:Default:Bold:Yes
 	
 [Field: BarcodeLBPrintCmpName]
@@ -209,7 +209,7 @@
 [Line: BarcodeLBPrintItemName]
 	
 	Field		:	BarcodeLBPrintItemName
-	Local	: Field:Default:Local:Style:Default:Height:5
+	Local	: Field:Default:Local:Style:Default:Height:7;5
 	Local	: Field:Default:Local:Style:Default:Bold:Yes
 	
 [Field: BarcodeLBPrintItemName]
@@ -246,7 +246,7 @@
 [Line: BarcodeLBPrintCmpCRNCY]
 	
 	Field		:	BarcodeLBPrintCmpCRNCY
-	Local	: Field:Default:Local:Style:Default:Height:4
+	Local	: Field:Default:Local:Style:Default:Height:5;4
 	Local	: Field:Default:Local:Style:Default:Bold:No
 ;	Space Bottom:	0.2
 	
@@ -270,7 +270,7 @@
 [Style: Barcode1Style]
 
 	Font	    :	"IDAutomationHC39M"		;"IDAutomationHC39S"	
-	Height	    :	7
+	Height	    :	10;7
 
 
 
