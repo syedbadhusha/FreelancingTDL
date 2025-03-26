@@ -174,8 +174,8 @@
 	Height	:	25 MMS
 	Width	:	38 MMS
 	
-	Space Top	:	6 MMS
-	Space Left	:	5 MMS
+	Space Top	:	2 mms;6 MMS
+	Space Left	:	2 mms;5 MMS
 ;	Space Bottom: 	5 MMS
 ;	Vertical Align	:	Center
 ;	Horizontal Align:	Center
