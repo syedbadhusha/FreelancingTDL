@@ -189,7 +189,7 @@
 	
 [Line: BarcodeLBPrint]
 	
-	Line	:	BarcodeLBPrintCmpName,BarcodeLBPrintItemName,BarcodeLBPrintItemCode,BarcodeLBPrintCmpCRNCY
+	Line	:	BarcodeLBPrintCmpName,BarcodeLBPrintItemName,BarcodeLBPrintItemCode;,BarcodeLBPrintCmpCRNCY
 	
 [Line: BarcodeLBPrintCmpName]
 	
