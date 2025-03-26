@@ -1,0 +1,43 @@
+
+
+
+[#Part: MST LED Explode Sundry]
+	
+	Add	:	Line	:	At End	:	SM_MSTLEDSalesMan
+
+	[Line:SM_MSTLEDSalesMan]
+			
+		Field	:	Medium Prompt,SM_MSTLEDSalesMan
+		Local	:	Field	:	Default	:	Inactive	:	Not ($$IsBelongsTo:$$GroupSundryDebtors)
+		Local	:	Field	:	Medium Prompt	:	Set as	:	"Sales Man"
+		Local	:	Field	:	Medium Prompt	:	Width	:	60 MMS
+		
+		[Field:SM_MSTLEDSalesMan]
+			
+			Use	:	Name Field
+			Set Always	:	Yes
+			Storage	:	SM_MSTLEDSalesMan
+			Table	:	SM_CostCentre,NotApplicable
+			Show Table	:	Always
+			Key	:	Create Costcentre
+
+[Collection: SM_CostCentre]
+
+    Use     : Alias Collection
+    Title   : $$LocaleString:"List of Salesman"
+    Type    : Cost Centre
+    Format  : $Name
+    Unique  : $Name
+
+[#Field: VCHCostClass]
+	
+	Option	:	SM_VCHCostClass	:	@@Issales
+	
+[!Field:SM_VCHCostClass]
+	
+	Add	:	Set as	:	if $$IsNotApplicable:$SM_MSTLEDSalesMan:Ledger:$PartyLedgerName then $$Value else $SM_MSTLEDSalesMan:Ledger:$PartyLedgerName
+
+[System:UDF]
+	
+	SM_MSTLEDSalesMan	:	String	:	1000
+	
