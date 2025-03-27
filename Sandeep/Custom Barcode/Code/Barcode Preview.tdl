@@ -80,3 +80,5 @@
 	Local	: Field:Default:Local Formula:Weight:$$CollectionField:$Weight:@BoxNoIndex:ListBatchCollection
 	Local	: Field:Name Field:Set as:$$LocaleString:"Weight : "+$$LocaleString:@Weight
 	Local	: Field:Name Field:Local:Style:Default:Bold:Yes
+
+	Invisible:$$IsEmpty:$$CollectionField:$Weight:@BoxNoIndex:ListBatchCollection
