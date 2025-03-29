@@ -1,0 +1,38 @@
+
+
+
+
+[Part:BCBodyReadField]
+	
+	Line	:	BCBodyReadField
+	
+	[Line:BCBodyReadField]
+		
+		Field	:	Name Field
+
+		Local	:	Field	:	Name Field	:	Set as	:	"Click Here Update"
+		Local	:	Field	:	Name Field	:	Align	:	Center
+		Local	:	Field	:	Name Field	:	Full Width	:	Yes
+		Local	:	Field	:	Name Field	:	On:Accept:Yes:Call:ReadBatchFromField
+		Local	:	Field	:	Name Field	:	On:Accept:Yes:Field Accept
+		
+[Function:ReadBatchFromField]
+    Variable    : Counter   : Number    ;: 0
+    Variable    : LblCounter: Number 	;: 0
+	
+	00	: 	List Delete: DMItemDetails
+
+    01  :   Walk Collection: BarcodeLBPrintColl
+    02  :   If: Not ($$IsEmpty:$BDSetBarcodeQtyVal OR $BDSetBarcodeQtyVal=0)
+    03  :   Set: Counter    : $BDSetBarcodeQtyVal
+    04  :   While   : ##Counter > 0
+    05  :   Increment   : LblCounter
+    06  :   List Add Ex   : DMItemDetails
+    07  :   Set: DMItemDetails[##LblCounter].ItemName 	: $BDSetBarcodeItemNameVal
+    08  :   Set: DMItemDetails[##LblCounter].ItemCode  	: $BDSetBarcodeItemCodeVal	
+    10  :                   Decrement   : Counter
+    11  :               End While
+    12  :        End If
+    13  :   End Walk
+	
+

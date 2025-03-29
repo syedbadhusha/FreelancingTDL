@@ -4,7 +4,6 @@
 
 ;======================================== Single Strip Barcode Lable Print ======================================
 
-
 [#Menu: Gate Way of Tally]
 	
 	Add		: 	Item	: 	Before	: 	@@locQuit	:	"BarCode Lable Print"	:	Alter	:	BarCodePrintDTLS
@@ -24,8 +23,9 @@
 	Width	    :	50% Screen
 	Part	    :	BarCodePrintDTLSHead,BarCodePrintDTLS
 ;	On:Form Accept:Yes:Call:BarcodePrint:#BDSetBarcodeItemName:#BDSetBarcodeItemCode:#BDSetBarcodeQty
-	On:Form Accept:Yes:Call: BDUpdateLVForBarcode;:BarcodeLBPrint
 	On:Form Accept:Yes:Form Accept
+
+	On:Form Accept:Yes:Call: BDUpdateLVForBarcode;:BarcodeLBPrint
 	
 	
 [Part: BarCodePrintDTLSHead]

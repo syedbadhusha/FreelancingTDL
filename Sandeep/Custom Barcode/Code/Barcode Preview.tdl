@@ -20,7 +20,6 @@
 	
 [Form:Barcode Preview]
 	Part	: BP BarcodePrint
-	
 	Space Top:($Barcode_SpaceTop:Company:$$CurrentCompany) Inch
 	Space Bottom:($Barcode_SpaceTop:Company:$$CurrentCompany)  Inch
 	Space Left:($Barcode_SpaceLeft:Company:$$CurrentCompany)  Inch
