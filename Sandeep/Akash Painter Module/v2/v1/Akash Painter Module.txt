@@ -1,9 +1,9 @@
 
 
-;[Include:Update Inventory.txt]
-;[Include:Salesman Report.txt]
-;[Include:Remove StockItem.txt]
-;[Include:Auto Code Painter.txt]
+[Include:Update Inventory.txt]
+[Include:Salesman Report.txt]
+[Include:Remove StockItem.txt]
+[Include:Auto Code Painter.txt]
 
 ;------------------------------------------------------------
  [#Part	: CMP TallyShopFeatures Left]
