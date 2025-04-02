@@ -1,0 +1,1663 @@
+ 
+
+[#Menu: Gateway of Tally]
+	
+	Add	:Option: Gateway of Tally_ForSalesman: @@IsSModuleActive
+	
+[!Menu: Gateway of Tally_ForSalesman]
+	
+	Add  : Key Item : Before : @@locQuit	  : @@locSalesMenReport :M: Menu : AS_SalesmanModuleInfo 
+ 
+[System :Formula]
+
+		LocLoadReport     :$$LocaleString:"Loading Report"
+		LocSoOut		  :$$LocaleString:"Sales Order Outstandings"
+		
+[System :Formulae]
+	
+		    locSalesMenReport     : $$LocaleString:"Salesman Module"
+
+ [Menu :AS_SalesmanModuleInfo]
+	
+	Title 		: $$LocaleString:"Salesman Module"
+	Indent		: @@LocMasters
+	Key Item	: @@LocSalesmanMasterCreate			: S	: Menu		: SPM_Salesman Creation
+   	Key Item	: BLANK
+	Indent		: @@locIndentReports
+	Key Item	: BLANK
+ 	Key Item 	: "Salesman Qty Report"				: Q : Alter		: SPM_SalesmanTriggerReport
+	Key Item    : BLANK	
+	Key Item 	: "Salesman Item Profit Report" 	: I	: Alter 	: SPM_SalesmanProfitTriggerReport 
+	Key Item	: "Salesman Oustanding Report"		: O	: Display Collection:SPM_ Led outstandings
+	Key Item	: BLANK
+	Key Item	: "Salesman Collection Report"		: C	: Display	: SPM_SalesmanCollectionReport
+ 	Key Item 	: BLANK
+	Key Item	: @@LocQuit
+
+
+[#Form: CMP TallyShop Features]
+                
+ 	  Local       : Part   : CMP TallyShopFeatures Left          : Add  :  Lines : At End  : CMP Enable Salesman Module 
+
+[Line :CMP Enable Salesman Module]
+	
+		Fields      : Long Prompt, CMP Enable Salesman Module
+        Local       : Field : Long Prompt : Info    	: $$LocaleString:"Activate Salesman Module v2.0 ?"
+		Option		: Small Size Line
+		Space Top   : 0.4
+ 
+[Field :CMP Enable Salesman Module]
+	Use         : Logical Field
+	Type        : Logical : Forced
+    Storage     : EnableSalesmanModulev1
+	Key         : SML_CMP Auto Setup
+ 
+[Key : SML_CMP Auto Setup]
+	
+		Key	: Enter  
+		ActionEx:Action1:Call	: SML_MST Setup Main Func
+		ActionEx:Action2:Field Accept
+  
+[Function :SML_MST Setup Main Func]
+		
+	 	003	: CALL		: SML_MST Setup Main Func1	: "Salesman":$$SysName:Primary
+ 
+[Function: SML_MST Setup Main Func1]
+ 
+	Parameter: pGroupName	: String
+	Parameter: pParentName	: String
+  
+	00	: If	: $$IsEmpty:$Name:Group:##pGroupName
+	01	: NEW OBJECT	: Group         : ##pGroupName : Yes
+	02	: SET VALUE		: Name			: ##pGroupName
+	03	: SET VALUE		: Parent		: ##pParentName
+	04	: SAVE TARGET
+	20	: End If
+ 
+
+[Report: SPM_SalesmanTriggerReport]
+	
+	Use		: Collection Variable
+	Local	: Line	: Collection Variable:Field:Medium Prompt,SPM_SalesmanField
+	Local	: Field	: Medium Prompt	: Info		: "Salesman"
+	Local	: Field	: MV Title		: Info		: "Select Salesman"
+	Local	: Form: Modify Variables: On:Form Accept:Yes:Display:SPM_SalesmanItemAnalysisReport
+	Local	: Form: Modify Variables: On:Form Accept:Yes:Form Accept
+	
+[Field: SPM_SalesmanField]
+	
+	Use			: Name Field
+	Modifies	: SPM_SalesmanField :Yes
+	Table		: SPM_Salesman Coll
+	Show Table  : On Blank
+  
+[Report: SPM_SalesmanItemAnalysisReport]
+	
+	Title	: $$LocaleString:"Sales Item Analysis Report"
+	Use		: DSP Template
+	Variable: SPM_SalesmanField
+	Delete	: Form
+	Add		: Form			: SPM_SalesmanItemAnalysisReport
+	Set		: SVFromDate	: $$MonthStart:##SVCurrentDate
+	Set		: SVToDate		: $$MonthEnd:##SVCurrentDate
+	
+[Form: SPM_SalesmanItemAnalysisReport]
+	
+	Width		: 100 % Page
+	Height		: 100 % Page
+	Button		: Change Period,Export Button,Mail Button,Upload Button
+	Button		: ChangeCostCentre
+	Part		: Form SubTitle,SPM_CostCentreTitle,SPM_SalesmanItemTitle,SPM_SalesmanItemBody
+	Bottom Part : SPM_SalesmanItemTotal
+	Local	: Field		: Form SubTitle:Info	: "Sales Item Analysis Report"
+ 	Local	: Field		: Form SubTitle:Style	: Calibri 11B
+	
+[Button: ChangeCostCentre]
+	Title	: $$LocaleString:"Salesman"
+	Key		: F4
+	ActionEx: Action1	: Modify Variables:SPM_SalesmanInnerTrigger
+	ActionEx: Action2	: Refresh TDL
+	
+[Report: SPM_SalesmanInnerTrigger]
+	
+	Use		: Collection Variable
+	Local	: Line	: Collection Variable:Field:Medium Prompt,SPM_SalesmanField
+	Local	: Field	: Medium Prompt	: Info		: "Salesman"
+	Local	: Field	: MV Title		: Info		: "Select Salesman"
+	
+[Part: SPM_CostCentreTitle]
+	Line		: SPM_CostCentreTitle
+	
+[Part: SPM_SalesmanItemTitle]
+	
+	Line		 : SPM_SalesmanItemTitle
+	Common Border: Yes
+	
+[Line: SPM_CostCentreTitle]
+	
+	Field		: Medium Prompt,Name Field,SPM_SalesmanCodeInv
+	Right Field	: DSP MainDateTitle
+	Local		: Field		: Medium Prompt	: Info		: "Executive"
+	Local		: Field		: Name Field	: Set as	: #SPM_SalesmanField
+	Local		: Field		: Default		: Style		: Calibri 10B
+	Space Bottom: 0.5
+	
+[Field: SPM_SalesmanCodeInv]
+	
+	Use			: Name Field
+	Set Always	: Yes
+	Set as		: $SPMSalesmanCode:Group:##SPM_SalesmanField
+	Invisible	: Yes
+	
+[Line: SPM_SalesmanItemTitle]
+	
+	Field		: SPM_SlNo,SPM_SalesmanItemName
+	Right Field	: SPM_MplQty,SPM_MplValue
+	
+	Local		: Field		: SPM_SlNo				: Info	: "Sl No"
+	Local		: Field		: SPM_SalesmanItemName	: Info	: "Particulars"
+	Local		: Field		: SPM_MplQty			: Info	: "Quantity"
+	Local		: Field		: SPM_MplValue			: Info	: "Value"
+	Local		: Field		: Default				: Style	: Calibri 10B
+	Border		: Totals
+	Space Top	: 0.2
+	Space Bottom: 0.2
+	
+[Part: SPM_SalesmanItemBody]
+	
+	Line			: SPM_SalesmanItemBody
+	Repeat			: SPM_SalesmanItemBody : SPM_ItemMainColl
+	Scroll			: Vertical
+	Common Border	: Yes
+	Total			: SPM_MplQty,SPM_MplValue
+	Border			: Thin Bottom
+	
+[Line: SPM_SalesmanItemBody]
+	
+	Field		: SPM_SlNo,SPM_SalesmanItemName
+	Right Field	: SPM_MplQty,SPM_MplValue
+	Local		: Field		: Default				: Style	: Calibri 10B
+	Empty		: $$IsEmpty:$OpQty
+ 	Key			: SPM_DrilldownReport
+	Border		: Thin Bottom
+	Space Top	: 0.3
+	Space Bottom: 0.2
+	
+[Field: SPM_SlNo]
+	Use			: Name Field
+	Set as		: $$Line
+	Align		: Center
+	Width		: 04 % Page
+	Border		: Thin Left Right
+	
+[Field: SPM_SalesmanItemName]
+	
+	Use			: Name Field
+	Full Width	: Yes
+	Set as		: $Name
+ 	
+[Field: SPM_MplQty]
+	
+	Use			: Qty Primary Field
+	Width		: 09 % Page
+	Set as		: $OpQty
+	Border		: Thin Left
+	
+[Field: SPM_MplValue]
+	
+	Use			: Amount Field
+	Set as		: $OpValue
+	Width		: 09 % Page
+	Border		: Thin Left
+	
+[Part: SPM_SalesmanItemTotal]
+	Line		: SPM_SalesmanItemTotal
+	Common Border:Yes
+	
+[Line: SPM_SalesmanItemTotal]
+	Field		: SPM_SlNo,SPM_SalesmanItemName
+	Right Field	: SPM_MplQty,SPM_MplValue
+	
+	Local		: Field		: Default				: Set as	:""
+	Local		: Field		: SPM_SalesmanItemName	: Set as	:"Total"
+	Local		: Field		: SPM_MplQty			: Set as	:$$Total:SPM_MplQty
+	Local		: Field		: SPM_MplValue			: Set as	:$$Total:SPM_MplValue
+	Local		: Field		: Default				: Style		:Calibri 10B
+	Border		: Totals
+	Space Bottom: 0.2
+	Space Top	: 0.2
+	
+[Collection: SPM_ItemAnalysisCollectionSrc]
+	Type        : Voucher
+	Fetch		: CostCentreName,VoucherTypeName,EISalesmanInfoUniqueID
+ 	Filter		: IsSalesOrCreditNote
+	
+[Collection: SPM_ItemAnalysisCollection]
+	
+	Source Collection:SPM_ItemAnalysisCollectionSrc
+	Walk		: InventoryEntries
+	
+	By			: StockItemName	: $StockItemName
+	By			: EmpCode		: $$Upper:$..EISalesmanInfoUniqueID
+	Aggr Compute: BilledQty:SUM:$BilledQty
+	Aggr Compute: Amt	   :SUM:$Amount
+	Search Key	: $StockItemName+$EmpCode
+	Fetch		: *
+	
+[Collection: SPM_ItemMainColl]
+	Type		: StockItem
+	Compute		: OpQty		:$$ReportObject:$$CollectionFieldByKey:$BilledQty:@@LocSearchKey:SPM_ItemAnalysisCollection
+	Compute		: OpValue	:$$ReportObject:$$CollectionFieldByKey:$Amt:@@LocSearchKey:SPM_ItemAnalysisCollection
+	Fetch		: *
+
+
+[Key : SPM_DrilldownReport]
+	
+	Key		: Enter
+ 	Action  : Call  :SPM_DrilldownReport:$Name
+	
+[Function:SPM_DrilldownReport]
+	
+ 		Parameter   : pStockItemName  		: String
+	    Variable    : CostCentreName  		: String
+		Variable	: StockItemName  		: String
+		Variable	: PPSVToDate			: Date
+		
+  		0	: Set	:CostCentreName  :##SPM_SalesmanField
+		2	: Set	:StockItemName	 :##pStockItemName
+		3	: Set	:PPSVToDate  	 :##SVToDate
+		5	: Display  :SPM_DrilldownReport
+
+ [Report: SPM_DrilldownReport]
+
+    Family      : $$LocaleString:"Stock Voucher Details"
+
+    List Name   : $$LocaleString:"Voucher Details"
+
+    Variables   : SV CurrentCompany, SV FromDate, SV ToDate, SV SortMethod
+    Variable    : SVValuationMethod, SVCurrency, SVExchange, SVBudget, SVVariance
+    Variables   : StockItemName, ExplodeFlag, ExplodeNarrFlag, IsDayBook, IsLedgerReport, IsItemReport, IsCCReport, IsGrpReport
+    Variable    : DSPShowMonthly, DSPHasMultiLevel
+    Variable    : OnlyInVouchers, OnlyOutVouchers
+    Variable    : OnlyAccVouchers, OnlyInvVouchers
+    Variable    : IsStockReport, IsGodownReport
+    Variable    : DSPNotScaleable, DSPHasColumnTotal
+    Variable    : IsMultiPage, InNewPages
+    Variable    : VoucherTypeName, SVStockItem
+    Variable    : DSPGodownName, DSPShowOpBal
+
+    Variable    : DSPShowClosing, DSPShowInwards, DSPShowOutwards, DSPQtyAlternate
+    Variable    : DSPShowQty, DSPShowRate, DSPShowValue, StkvchCostExplodeFlag
+	Variable	: OnFocusInactiveDelete, IsItemBatchReport, DSPBatchName, IsItemBatchGdwnReport
+ 	Variable	: BMInNewPage	
+	Variables	: LedStarting, LedNameStartingFrom, LedNameStartingTo
+	Variable	: SVStockBalType
+	Variable	: IsStockFromParty,SLedger
+    
+    Set         : BMInNewPage		: No
+
+    Set         : SV SortMethod     : @@Default
+    Set         : Is Item Report    : Yes
+    Set         : Is StockReport    : Yes
+    Set         : DSPShowMonthly    : No
+    Set         : DSPHasMultiLevel  : No
+    Set         : DSPNotScaleable   : Yes
+    Set         : DSPHasColumnTotal : No
+    Set         : IsMultiPage       : No
+    Set         : InNewPages        : Yes
+    Set         : OnlyInVouchers    : No
+    Set         : OnlyOutVouchers   : No
+    Set         : VoucherTypeName   : ""
+    Set         : SVValuationMethod : ""
+    Set         : SVCurrency        : ""
+    Set         : SVExchange        : 1
+    Set         : DSPShowInwards    : ##STKVCHInwards
+    Set         : DSPShowOutwards   : ##STKVCHOutwards
+    Set         : DSPShowClosing    : ##STKVCHClosing
+    Set         : DSPShowQty        : ##STKVCHQuantity
+    Set         : DSPShowRate       : ##STKVCHRate
+    Set         : DSPShowValue      : ##STKVCHValue
+	Set			: OnFocusInactiveDelete	: No
+	Set 		: DSPBatchName : ##DSPBatchName
+	Set		 	: IsItemBatchReport	: ##IsItemBatchReport
+	Set         : IsItemBatchGdwnReport  : ##IsItemBatchGdwnReport
+	Set        	: DSPShowOpBal      : "No"
+	Set			: DSPShowInwards	: "No"
+    Add :variable  :CostCentreName,SvFromDate,SVTodate
+	Repeat  :CostCentreName,SvFromDate,SVTodate
+    PrintSet    : Report Title  : @@STKVCHReportTitle
+    PrintSet    : ReportSubTitle: If (##IsItemBatchReport) Then @@BATCHVCHReportSubTitle Else @@STKVCHReportSubTitle
+    Title       : If (##IsItemBatchReport) Then $$SPrintf:@@GdwnVoucherTitleFormat:@@BatchTitle Else If ##IsItemBatchGdwnReport Then $$LocaleString:"Batch Godown Vouchers" Else $$LocaleString:"Stock Vouchers"
+    Filtered    : Yes
+    Print       : STKVCH Print Configure
+	Switch		: BatchTitile	: STKVCH Batch Sub Title	: (##IsItemBatchReport OR ##IsItemBatchGdwnReport) AND $$InPrintMode
+	Switch		: BatchTitile	: STKVCH ValueTitle 		:  $$InPrintMode
+    Form        : Stock Vouchers
+
+    Option      : DSP VchToolBarButton
+    
+	Fetch Collection	: PendingInTrack
+	Fetch Collection	: PendingOutTrack
+
+	Fetch Object		: Company		: ##SVCurrentCompany	: StartingFrom, EndingAt
+	Local :Collection :Vouchers of Stock Item  :Add:Filter : IsCostCentreFilter,IsSalesOrCreditNote
+	
+	Set 	:SVFromDate		:##SVFromDate
+	Set 	:SVToDate		:##PPSVToDate
+	
+
+[System:Variables]
+	
+ 	SPM_SalesmanField	: ""
+	
+[Variable: SPM_SalesmanField]
+	Type		: String
+	Persistent	: Yes
+ 
+[System: Formulae]
+	
+ 	LocSalesmanMasterCreate	: $$LocaleString:"Create Salesman"
+	LocSalesmanOutstanding	: $$LocaleString:"Outstanding"
+	LocSalesmanItemwiseSales: $$LocaleString:"Sales Analysis"
+	LOcSalesmanProfitReport	: $$LocaleString:"Profit Analysis"
+	LocSalesmanCollection	: $$LocaleString:"Collection Analysis"
+	IsCostCentreFilter		: $$Upper:$EISalesmanInfoUniqueID=$$Upper:#SPM_SalesmanCodeInv
+	IsSalesOrCreditNote		: $$IsSales:$VoucherTypeName OR $$IsCreditNote:$VoucherTypeName
+	IsSModuleActive			: $EnableSalesmanModulev1:Company:$$CurrentCompany
+	IsCCUniqueFilter		: $SPMSalesmanCode=##pUniqueID
+	LocSearchKey			: ($$ReqObject:$Name)+$$Upper:($SPMSalesmanCode:Group:##SPM_SalesmanField)
+	IsStkItemFilter			: $$FilterCount:InventoryEntries:IsStkItemFilter1>0
+	IsStkItemFilter1		: $StockItemName=#SPM_MpProftItemNameVar
+	DCSMDayBkFil        	: (($$IsSales:$VoucherTypeName  OR $$IsCreditNote:$VoucherTypeName) AND $EISalesmanInfoUniqueID=$SPMSalesmanCode:Group:##CostCentreName ) OR ($$IsReceipt:$VoucherTypeName AND $EISalesmanInfoUniqueID=$SPMSalesmanCode:Group:##CostCentreName)
+
+
+
+
+[Report: SPM_SalesmanProfitTriggerReport]
+	
+	Use		: Collection Variable
+	Local	: Line	: Collection Variable:Field:Medium Prompt,SPM_SalesmanField
+	Local	: Field	: Medium Prompt	: Info		: "Salesman"
+	Local	: Field	: MV Title		: Info		: "Select Salesman"
+	Local	: Form: Modify Variables: On:Form Accept:Yes:Display:SPM_SalesmanItemProfitReport
+	Local	: Form: Modify Variables: On:Form Accept:Yes:Form Accept
+	
+ 
+[Report: SPM_SalesmanItemProfitReport]
+		
+	Use		: DSP Template
+	Variable: SPM_SalesmanField
+	Delete	: Form
+	Add		: Form			: SPM_SalesmanItemProfitReport
+	Set		: SVFromDate	: $$MonthStart:##SVCurrentDate
+	Set		: SVToDate		: $$MonthEnd:##SVCurrentDate
+	
+[Form: SPM_SalesmanItemProfitReport]
+	
+	Width		: 100 % Page
+	Height		: 100 % Page
+	Button		: Change Period,Upload Button,Print Button
+	Button		: ChangeCostCentre
+	Part		: Form SubTitle,SPM_CostCentreTitle,SPM_SalesProfitItemTitle,SPM_SalesProfitItemBody
+	Bottom Part : SPM_SalesProfitItemTotal
+	Local	: Field		: Form SubTitle:Info	: "Sales Item Profit Report"
+ 	Local	: Field		: Form SubTitle:Style	: Calibri 11B
+	
+[Part: SPM_SalesProfitItemTitle]
+	
+	Line		 : SPM_SalesProfitItemTitle
+	Common Border: Yes
+	
+[Line: SPM_SalesProfitItemTitle]
+	
+	Field		: SPM_SlNo,SPM_MpProftItemName
+	Right Field	: SPM_MpProftValue,SPM_MpProftValuePerc
+	
+	Local		: Field		: SPM_SlNo				: Info	: "Sl No"
+	Local		: Field		: SPM_MpProftItemName	: Info	: "Particulars"
+	Local		: Field		: SPM_MpProftValue		: Info	: "Profit Value"
+	Local		: Field		: SPM_MpProftValuePerc	: Info	: "Profit %"
+	Local		: Field		: Default				: Style	: Calibri 10B
+	Border		: Totals
+ 	Space Top	: 0.2
+	Space Bottom: 0.2
+	
+[Part: SPM_SalesProfitItemBody]
+	
+	Line			: SPM_SalesProfitItemBody
+	Repeat			: SPM_SalesProfitItemBody : SPM_ItemMainColl
+	Scroll			: Vertical
+	Common Border	: Yes
+	Total			: SPM_MpProftValue
+	Border			: Thin Bottom
+	
+[Line: SPM_SalesProfitItemBody]
+	
+	Field		: SPM_SlNo,SPM_MpProftItemName
+	Right Field	: SPM_MpProftValue,SPM_MpProftValuePerc
+	Local		: Field		: Default				: Style	: Calibri 10B
+	Empty		: $$IsEmpty:$OpQty
+	Option		: Display on Enter
+ 	Border		: Thin Bottom
+	Space Top	: 0.3
+	Space Bottom: 0.2
+  	
+[Field: SPM_MpProftItemName]
+	
+	Use			: Name Field
+	Full Width	: Yes
+	Set as		: $Name
+	Variable	: SPM_MpProftItemNameVar
+	Display		: SPM_SalesmanwiseDrilldownReport
+	Quick Search:Yes
+ 	
+[Field: SPM_MpProftValue]
+	
+	Use			: Amount Field
+	Width		: 09 % Page
+	Set as		: $$AsAmount:(@MyValue-@MyValue1)
+	MyQty		: $OpQty
+	MyValue		: $OpValue
+	MyValue1	: @MyQty*@PurcCost
+	PurcCost	: $$Number:$Consumption/$$Number:$StkOutQty
+	Border		: Thin Left
+	
+[Field: SPM_MpProftValuePerc]
+	
+	Use			: Number Field
+	Set as		: $$Number:@MyValue3
+	Format		: "NoZero,Decimal:2,Percentage"
+	Align		: Right
+	MyValue3	: (@MyValue4/@MyValue)*100
+	MyValue4	: (@MyValue-@MyValue1)
+	MyQty		: $OpQty
+	MyValue		: $OpValue
+	MyValue1	: @PurcRate*$$Number:@MyQty
+	PurcRate	: $$Number:$Consumption/$$Number:$StkOutQty
+	Width		: 09 % Page
+	Border		: Thin Left
+	
+[Part: SPM_SalesProfitItemTotal]
+	Line		: SPM_SalesProfitItemTotal
+	Common Border:Yes
+	
+[Line: SPM_SalesProfitItemTotal]
+	Field		: SPM_SlNo,SPM_MpProftItemName
+	Right Field	: SPM_MpProftValue,SPM_MpProftValuePerc
+	Local		: Field		: Default				: Style	: Calibri 10B
+	Local		: Field		: Default				: Set as	:""
+	Local		: Field		: SPM_MpProftItemName	: Set as	:"Total"
+	Local		: Field		: SPM_MpProftValue		: Set as	:$$Total:SPM_MpProftValue
+ 	Border		: Totals
+	Space Bottom: 0.2
+	Space Top	: 0.2
+
+
+[Report: SPM_SalesmanwiseDrilldownReport]
+	
+	Title		 : $$LocaleString:"Profit Analysis" 
+	Form		 : SPM_SalesmanwiseDrilldownReport
+	Variable	 : SPM_SalesmanField
+	
+	[Form:SPM_SalesmanwiseDrilldownReport]
+		
+		Part			: SPM_SalesManCCVTitleS,SPM_SalesMenSalesS
+		Height 			: 100% Screen
+		Width  			: 100% Screen
+		Button 			: Print Button,Export Button, F2ChangePeriod
+		Key        		: ChangePeriod
+		Space Top   	: If $$InPrintMode Then 0.5 Else 0 inches
+		Space Bottom	: If $$InPrintMode Then 0.5 Else 0 inches
+		Space Left  	: If $$InPrintMode AND $$InPixelMode Then 0.5 Else 0 inches
+		Space Right 	: If $$InPrintMode AND $$InPixelMode Then 0.25 Else 0 inches
+		
+		[Part:SPM_SalesManCCVTitleS]
+
+			Option  : DB PrnTitle    		   		: $$InPrintMode
+			Option  : SPM_SalesManCCVScrTitleS      : NOT $$InPrintMode
+
+			[!Part:SPM_SalesManCCVScrTitleS]
+
+				Line        : SPM_SalesManCCVScrTitleS,SPM_SalesManCCVScrTitleS1
+
+				[Line:SPM_SalesManCCVScrTitleS]
+					
+					Space Top 		: .5
+ 					Field       	: Simple Field,PE DB Salesman Profit1 
+					Right Field		: DSP MainDateTitle          
+					Local : Field   : Simple Field   : Set as    : "Sales Man : " 
+					Local : Field   : Default		 : Style     : Small Bold
+ 	
+			[Field:PE DB Salesman Profit1]
+				
+				Use         : Name Field 
+				Set As      : ##SPM_SalesmanField 
+ 	        
+		[Line: SPM_SalesManCCVScrTitleS1]
+			Field   : Simple Field,PE DB Salesman Profit1 
+			Local	: Field		: Simple Field:Set as	: "Item Name : "
+			Local	: Field		: PE DB Salesman Profit1 : Set as	: #SPM_MpProftItemNameVar
+			Local : Field   : Default		 : Style     : Small Bold
+			Space Bottom 	: .5
+			
+		[Part:SPM_SalesMenSalesS]
+	
+			Line 		  : SPM_SalesMenSalesTitleS,SPM_SalesMenSalesTitleS1,SPM_SalesMensalesS
+			Repeat  	  : SPM_SalesMensalesS : SPM_SalesPrftDrillColln
+			Bottom Line   : SPM_SalesMenSalesTotalS
+			Total 		  : SPM_VchTransValue,SPM_VchGrsRev,SPM_VchConsumption,SPM_VchGrossProfit  
+			Scroll 		  : Vertical 
+			Common Border : yes
+			Local : Field : Default : Style : Small Bold
+			
+			[Line:SPM_SalesMenSalesTitleS]
+				
+				Field 		  : SPM_VchDate,SPM_VchLedNmae
+				Right Field	  : SPM_VchType,SPM_VchNo,SPM_VchTransValue,SPM_VchGrsRev,SPM_VchConsumption,SPM_VchGrossProfit,SPM_VchProfitPercent
+				Border 		  : Thin Top 
+				
+				Local : Field : Default						: Type   : String 
+				Local : Field : Default 					: Style  : Small Bold
+				Local : Field : SPM_VchDate					: Set As : "Date"
+				Local : Field : SPM_VchLedNmae		   		: Set AS : "Particulars"
+				Local : Field : SPM_VchType					: Set AS : "Vch Type"
+				Local : Field : SPM_VchNo					: Set AS : "Vch No"
+				Local : Field : SPM_VchTransValue			: Set AS : "Transaction"
+				Local : Field : SPM_VchGrsRev				: Set AS : "Gorss"
+				Local : Field : SPM_VchConsumption			: Set AS : "Cosumption"
+				Local : Field : SPM_VchGrossProfit			: Set as : "Gross Profit" 
+				Local : Field : SPM_VchProfitPercent		: Set as : "Perc %"  
+				
+			[Line:SPM_SalesMenSalesTitleS1]
+				
+				Field 		  : SPM_VchDate,SPM_VchLedNmae
+				Right Field	  : SPM_VchType,SPM_VchNo,SPM_VchTransValue,SPM_VchGrsRev,SPM_VchConsumption,SPM_VchGrossProfit,SPM_VchProfitPercent
+				Border 		  : Thin Bottom 
+				
+				Local : Field : Default						: Type   : String 
+				Local : Field : Default 					: Style  : Small Bold
+				Local : Field : SPM_SalesMensalesAmt		: Align  : Centre
+				Local : Field : SPM_VchDate					: Set As : ""
+				Local : Field : SPM_VchLedNmae		   		: Set AS : ""
+				Local : Field : SPM_VchType					: Set AS : ""
+				Local : Field : SPM_VchNo					: Set AS : ""
+				Local : Field : SPM_VchTransValue			: Set AS : "Value"
+				Local : Field : SPM_VchGrsRev				: Set AS : "Revenue"
+				Local : Field : SPM_VchConsumption			: Set AS : ""
+				Local : Field : SPM_VchGrossProfit			: Set as : ""
+				Local : Field : SPM_VchProfitPercent		: Set as : ""
+				
+
+			[Line:SPM_SalesMensalesS]
+				
+				
+				Field 		  : SPM_VchDate,SPM_VchLedNmae
+				Right Field	  : SPM_VchType,SPM_VchNo,SPM_VchTransValue,SPM_VchGrsRev,SPM_VchConsumption,SPM_VchGrossProfit,SPM_VchProfitPercent,SPMVchMasterID
+				Local : Field : Default : Style : Small  
+				Option		  : SPLStockVouchers:Yes
+				
+
+				[Field:SPM_VchDate]
+					
+					Use			: Name Field
+					Width		: 8
+					Set as		: $Date
+					Set Always	: Yes
+
+				[Field:SPM_VchLedNmae]
+					
+					Use			: Name Field
+					Full Width	: Yes
+					Set as		: $PartyLedgerName
+					Set Always	: Yes
+ 
+				[Field:SPM_VchType]
+					
+					Use			: Name Field
+					Width		: 10
+					Set as		: $VoucherTypeName
+					Set Always	: Yes
+ 
+				[Field:SPM_VchNo]
+					
+					Use			: Name Field
+					Width		: 10
+					Set as		: $VoucherNumber
+					Set Always	: Yes
+					
+				[Field:SPM_VchTransValue]
+					
+					Use			: Amount Field
+					Width		: 11 % Page
+					Set as		: $InventoryEntries[1,$StockItemName=#SPM_MpProftItemNameVar].Amount
+					Set Always	: Yes
+									
+				[Field:SPM_VchGrsRev]
+					
+					Use			: Amount Base Field 
+					Width		: 11 % Page
+ 					Set as		: $InventoryEntries[1,$StockItemName=#SPM_MpProftItemNameVar].Amount
+					Set Always	: Yes
+ 				
+				[Field:SPM_VchConsumption]
+					
+					Use			: Amount Field
+					Width		: 11 % Page
+					Set as		: $InventoryEntries[1,$StockItemName=#SPM_MpProftItemNameVar].SPLItemCons 
+ 		
+				[Field:SPM_VchGrossProfit]
+					
+ 					Use			: Amount Field
+					Width		: 11 % Page
+					Set as		: #SPM_VchGrsRev-#SPM_VchConsumption
+ 						
+				[Field:SPM_VchProfitPercent]
+					
+					Use			: Number Field
+					Width		: 8
+					Align		: Centre
+					Format		: "No Zero,Percentage,Decimal:2"	
+					Set as		: If $SPMVchInvTotal = 0 Then "100" Else @MyVal
+					MyVal 		: ($$Number:#SPM_VchGrossProfit/$$Number:#SPM_VchGrsRev)*100 
+		
+				[Field:SPMVchMasterID]
+					
+					Use        	: Name Field
+					Set As     	: $$SPrintf:@@VchMasterId:$MasterID
+					Border     	: Thin Left
+					Style      	: Small
+					Variable   	: SPMVchMasterID
+					Invisible  	: Yes
+
+			[Line:SPM_SalesMenSalesTotalS]
+				
+				Field 		  : SPM_VchDate,SPM_VchLedNmae
+				Right Field	  : SPM_VchType,SPM_VchNo,SPM_VchTransValue,SPM_VchGrsRev,SPM_VchConsumption,SPM_VchGrossProfit,SPM_VchProfitPercent,SPMVchMasterID
+				Border		  : Column Titles 
+				Local : Field : Default 					: Style  : Small Bold
+				
+				Local : Field : SPM_VchDate					: Set As : "Total:"
+				Local : Field : SPM_VchLedNmae		   		: Set AS : ""
+				Local : Field : SPM_VchType					: Set AS : ""
+				Local : Field : SPM_VchNo					: Set AS : ""
+				Local : Field : SPM_VchTransValue			: Set AS : $$Total:SPM_VchTransValue
+				Local : Field : SPM_VchGrsRev				: Set AS : $$Total:SPM_VchGrsRev
+				Local : Field : SPM_VchConsumption			: Set AS : $$Total:SPM_VchConsumption
+				Local : Field : SPM_VchGrossProfit			: Set as : $$Total:SPM_VchGrossProfit
+				Local : Field : SPM_VchProfitPercent		: Set as : (($$Total:SPM_VchGrossProfit / $$Total:SPM_VchGrsRev ) * 100) 
+ 
+[Collection:SPM_SalesPrftDrillSColln]
+
+	Type        : Vouchers 
+	Fetch       : *,MasterId,PartyLedgerName,Date,VoucherTypeName,VoucherNumber,Amount,GrossRevenue,SPMVchInvTotal,IsCancelled
+	Compute		: SPMVchInvTotal	: $$CollAmtTotal:InventoryEntries:$Amount
+ 	Fetch		: EISalesmanInfoUniqueID
+	Filter		: SPM_SalesCreditFilter
+	Filter		: IsStkItemFilter
+	
+[Collection:SPM_SalesPrftDrillColln]
+
+	Source Collection	: SPM_SalesPrftDrillSColln
+	Fetch				: *,SPMVchInvTotal,MasterId,PartyLedgerName,Date,VoucherTypeName,VoucherNumber,Amount,GrossRevenue,SPLVchItemCons,SPMVchInvTotal,SPLVchItemGross
+	Fetch			    : *,InventoryEntries.*
+ 
+[System:Formulae]
+	
+	SPM_SalesCreditFilter	: ($$IsSales:$VoucherTypeName or  $$IsCreditNote:$VoucherTypeName ) AND ($EISalesmanInfoUniqueID = ($SPMSalesmanCode:Group:##SPM_SalesmanField)) AND NOT $IsCancelled
+  
+[#Object:Inventory Entry]
+	
+	SPLItemCons   		: $$CollAmtTotal:BatchAllocations:$ResidualValueForBatchGodown
+ 
+[#Object:Voucher]
+	
+	SPLVchItemCons		: $$CollAmtTotal:InventoryEntries:$SPLItemCons  
+	SPLVchItemGross		: $$Negative:$$FilterAmtTotal:InventoryEntries:VCHOwnItemOutEntries:$Amount  
+
+
+[System:Formula]
+	
+	VCHOwnItemOutEntries	: NOT $$IsInwards:$ActualQty
+
+;;;;;;;;
+
+[!Line:SPLStockVouchers]
+	
+	Key : SPLStockVouchers
+	
+    [Key:SPLStockVouchers]
+			
+		Key     : Enter
+		Action  : Alter : SMP_ProfitDrilldownVoucher
+		Mode    : Display
+	
+		[Report:SMP_ProfitDrilldownVoucher]
+		
+			Title	: $$LocaleString:"Voucher"
+			Use     : Voucher
+			Form    : Voucher
+			Object  : Voucher:#SPMVchMasterID
+ 
+
+[Menu: SPM_Salesman Creation]     
+	
+	Title :$$LocaleString:"Salesman"
+	Indent		: "Salesman Master"
+	Item		: BLANK
+    Key Item    : Create    		: C : Create Collection : SPM_Salesman Coll
+	Item		: BLANK
+    Key Item    : Display   		: D : Display Collection: SPM_Salesman Coll
+	Item		: BLANK
+    Key Item    : Alter     		: A : Alter Collection  : SPM_Salesman Coll
+	Item		: BLANK
+ 
+[Collection : SPM_Salesman Coll]
+	
+	Use         : Alias Collection
+	Title 		: "List of Salesman"
+    Type        : Group
+    Report      : SPM_ Salesman Report
+    Variable    : SPM_SalesmanName
+    Trigger     : SPM_SalesmanGroup
+ 
+    Fetch       : Name, Language Name
+	Fetch		: Parent, ReserveName, IsRevenue,MasterID
+	Fetch		: ParentStructure,SPMSalesmanCode
+ 	Compute		: PrimaryGrpParent	: $Parent:Group:$_PrimaryGroup
+	Child Of    : "Salesman"
+	Belongs To  : Yes
+	Filter      : SPM_SalesmanFil
+	
+ [Variable: SPM_SalesmanName]   
+	 
+	Type:String
+	
+ [Report: SPM_SalesmanGroup]    ;;Auto Report
+		        
+            Use     : Collection Variable
+			Title   : $$LocaleString:"Select Salesman"
+            Local   : Line : Collection Variable : Field :SPM_SalesmanName
+    		Local   : Field: MV Title            : Info  : $$LocaleString:"Name of Salesman"
+			 
+
+ [Field: SPM_SalesmanName]
+
+                Use         : Name Field
+                Key         : SPM_ Create Salesman,SPM_ Alter Salesman
+                Set as      : ##SPM_SalesmanName 
+                Modifies    : SPM_SalesmanName
+                Table       : SPM_ Salesman Coll
+                Show Table  : Always
+                CommonTable : No
+		
+  [Key: SPM_ Create Salesman]
+
+            Key     : Alt+C
+            Action  : Create : SPM_ Salesman Report
+
+[Key: SPM_ Alter Salesman ]
+
+    Key     : Ctrl+Enter
+	Action  : Alter :  SPM_SVAlterSalesman
+    Inactive: $$IsEmpty:$$Value OR $$IsSysName:$$Value
+	
+
+[Report: SPM_SVAlterSalesman]
+	
+	Use		: SPM_ Salesman Report
+	Delete	: Object
+	Add		: Object	: Group  
+	Delete	: Form
+	Add		: Form		: SPM_SVAlterSalesman
+	
+[Form: SPM_SVAlterSalesman]
+	
+	Use		: SPM_ Salesman Report
+
+[Report:SPM_ Salesman Report]
+
+    Use         : Master Report
+    Family      : $$Translate:"Accounts Masters"
+    Title       : $$LocaleString:"Salesman" + @@ModeName + @@SubModeName
+	Variable	: SPM_SalesmanName
+	Object		: Group	: ##SPM_SalesmanName
+	Set			: SVInventory		: No
+	Set			: SVAccounts		: Yes
+	Set			: SVStatutory		: No
+	Set 		: SVTallyShop		: No
+	Full Screen	: NOT ##SVAlwaysShowInfoWinInRep	 
+
+	Set				: SVMstParent			: If $$InCreateMode Then ##DEFGroupParentName else $Parent	
+	PreFetch Object	: Group 				: ##SVMstParent	: LanguageName, Parent, SortPosition, TrackNegativeBalances, ReserveName
+	Fetch Values	: IsReserved, ReserveName, GrpIsStockLedger, GrpIsStockGroup, MasterID;;, CanDelete, ReservedName
+	Form :SPM_ Salesman Report
+	
+
+[Form :SPM_ Salesman Report]
+	  Use         : Master Accounting Form
+    NormalColor : @@SV_COSTCATEGORY 
+    
+    Parts       : MST Basic,MST Parent,SPMSalesmanCode
+	Local :Line :MST GrandParent  :Invisible  :Yes
+    Delete      : Bottom Button : Master Configure
+    Add         : Bottom Button : Group Master Configure   
+    Set         : Master Type   : "Group"    
+    
+    Local       : Field : MST Parent      : Table		: SPM_ List of Salesman Extract ,Primary         ;;  : $$InCreateMode;; AND NOT ##AdvancedAccMasterMode 
+ 	Local       : Line : MST Parent 	  : Space Top	: 2
+    Local       : Field : MST Parent      : Key         : Create SPM_Salesman, Alter SPM_Salesman
+    Local       : Field : MST Parent      : Variable    : SV Group
+    Local       : Field : MST Parent      : Skip on     : Yes
+    Local       : Field : MST Parent	  : Set as: $$LocaleString:"Salesman"
+    Local       : Field : MST Parent      : Modifies    : DEFGroupParentName
+	Local		: Field	: MST Parent	  : Fetch Object	: Group	: $$Value	: LanguageName, Parent, SortPosition, TrackNegativeBalances, ReserveName
+	Local		: Field	: Master GrandParent: Set as: if (@@HasNoParent) OR ($$IsSysName:$Parent:Group:#MstParent) then "" else ("(" + ($Parent:Group:#MstParent) + ")") 
+	
+    Local       : Button: Master Group    				: Inactive	: Yes
+	Local		: Field	: MST SortPosition Prompt		: Width		: @@LongWidth + @@ShortWidth
+	Local		: Line	: Default		  				: NoCursor	: Yes
+    Switch		: MSTGrpOutPut				: MSTSimpleOutput		: NOT (##UseLangAliasesInMaster OR ##MSTHasLangAliases)
+    Switch		: MSTGrpOutPut				: MSTLangAliasOutput	: ##UseLangAliasesInMaster OR ##MSTHasLangAliases
+	Option      : SortButton : $$InAlterMode
+	
+ [Field: SPM_ Salesman Parent]
+	 
+		Use		 : Name Field
+		Storage  : SPM_ Salesman Parent
+		Info  	 : "Salesman"
+ 
+[Collection: SPM_ List of Salesman  Extract]
+    
+    Option              : SPM_ List of Salesman Extract Server : NOT $$IsRemoteCompany
+    Option              : SPM_ List of Salesman  Extract Remote : $$IsRemoteCompany        
+    
+[!Collection: SPM_ List of Salesman  Extract Server]
+	
+    Title       	: $$LocaleString:"List of Salesman"
+    Use             : List of Groups
+	Child Of        : "Salesman" 
+	Belongs To      : Yes
+ 
+[Collection: CM Group Stock for Parent Extract]
+
+	Use					: ExtractAlias Collection
+    Title       		: $$LocaleString:"List of Salesman"
+	Source Collection	: List of Groups
+    Fetch       		: Name, ReserveName, ParentStructure
+	Keep Source			: ..
+	Client Only			: Yes
+	Child Of        	: $$GroupSuspense 
+	Belongs To      	: Yes
+
+[!Collection: SPM_ List of Salesman Extract Remote]
+
+	Use					: ExtractAlias Collection
+    Title       		: $$LocaleString:"List of Salesman"
+	Source Collection	: List of Groups
+    Fetch       		: Name,Parent
+	Keep Source			: ..
+	Client Only			: Yes
+	Child Of        	: "Salesman" 
+	Belongs To      	: Yes
+  
+[Key:  Create SPM_Salesman]
+
+            Key     : Alt+C
+            Action  : Create : SPM_ Salesman Report
+ 
+[Key: Alter SPM_Salesman]
+
+    Key     : Ctrl+Enter
+	Action  : Alter : SPM_VSalesmanRep
+    Inactive: $$IsEmpty:$$Value OR $$IsSysName:$$Value
+
+[Report: SPM_VSalesmanRep]
+	
+	Use		: Group
+	Delete	: Object
+	Add		: Object	: Group
+	Delete	: Form
+	Add		: Form		: SPM_ Salesman Report
+
+
+[System :Formula]
+	
+	SPM_SalesmanFil  		: $Parent="Salesman"  
+	
+ [Part  : SPMSalesmanCode]
+	 
+		Line: SPMSalesmanCode
+ 
+[Line: SPMSalesmanCode]
+	
+		Field 	  : SPMSalesmanCode
+		Invisible : Yes
+  
+[Field: SPMSalesmanCode]
+	
+	Use			: Name Field
+	Set As  	: $$MakeUniqueID
+	Storage  	: SPMSalesmanCode
+
+
+[#Part: EI Price Level]
+	
+	Add  :Option  :LM EI Consignee  :(@@IsSales OR @@IsSalesOrder OR @@IsCreditNote  ) AND @@IsSModuleActive
+  
+[!Part: LM EI Consignee]
+	Add	: Line	  :At End	: LM_SalesmanAdditionalInfo 
+	
+[Line: LM_SalesmanAdditionalInfo]
+	
+	Add:Line  : At End	: EI SalesmanInfo
+	
+[Line: EI SalesmanInfo]
+	
+	Right Field	: Medium Prompt,EI SalesmanInfo,EI SalesmanInfoUniqueID
+	Local		: Field		: Medium Prompt		: Info		: "Executive"
+ 	Local       : Field	    : Medium Prompt		: Width		: @@VchLeftPromptWidth % Page
+	Local       : Field	    : EI SalesmanInfo	: Width		: @@VchRightDataFldWidth % Page
+	
+[Field: EI SalesmanInfo]
+	Use			: Name Field
+	Set Always	: Yes
+	Table		: SPM_Salesman Coll,Not Applicable
+	Show Table	: On Blank
+	Dynamic		: ""
+	Set as		: If $$InCreateMode Then $$Value Else $$RetunSalesManInfo:$EISalesmanInfoUniqueID
+	
+[Field: EI SalesmanInfoUniqueID]
+	Use			: Name Field
+	Type		: String:Forced
+	Storage		: EISalesmanInfoUniqueID
+	Set Always	: Yes
+	Set as		: $$Table:EISalesmanInfo:$SPMSalesmanCode
+	Invisible	: Yes
+	Background	: RED
+
+[Function: RetunSalesManInfo]
+	Parameter	: pUniqueID	: String
+	
+	00: Return: $$FilterValue:$Name:SPM_SalesmanColl:1:IsCCUniqueFilter
+	
+
+
+[#Line:ACLSFixedLed]
+	
+	Option:ACLSFixedLedRcpt:@@IsReceipt
+	
+[!Line:ACLSFixedLedRcpt]
+	
+   Add:Field:At End:SM_Prompt,EI SalesmanInfo,EI SalesmanInfoUniqueID
+ 
+
+[Field:SM_Prompt]
+	
+  Use	 : Short Prompt
+  Set as : "Executive"
+
+
+
+ 
+
+
+
+
+
+
+[System: UDF]
+	
+EISalesmanInfoUniqueID		: String	: 35000
+SPMSalesmanCode		  		: String	: 35001
+EnableSalesmanModulev1		: Logical	: 35002
+
+
+SML_CostCentreName          : String  	: 35003
+SML_CostCentreUniqID        : String  	: 35004
+SML_CostCentreIDName	   	: String 	: 35005
+SPM_RcptSLCode		   		: String    : 35007
+
+[Style: Calibri 8B]
+	
+	Font	: "Calibri"
+	Height	: 8
+	Bold	: Yes
+	
+[Style: Calibri 9]
+	
+	Font	: "Calibri"
+	Height	: 9
+	
+[Style: Calibri 9B]
+	
+	Font	: "Calibri"
+	Height	: 9
+	Bold	: Yes
+	
+[Style: Calibri 10]
+	
+	Font	: "Calibri"
+	Height	: 10
+	
+[Style: Calibri 10B]
+	
+	Font	: "Calibri"
+	Height	: 10
+	Bold	: Yes
+	
+[Style: Calibri 10I]
+	
+	Font	: "Calibri"
+	Height	: 10
+	Italic	: Yes
+	
+[Style: Calibri 11]
+	
+	Font	: "Calibri"
+	Height	: 11
+	
+[Style: Calibri 11B]
+	
+	Font	: "Calibri"
+	Height	: 11
+	Bold	: Yes
+	
+[Style: Calibri 10BI]
+	
+	Font	: "Calibri"
+	Height	: 10
+	Italic	: Yes
+	Bold	: Yes
+	
+[Style: Calibri 11I]
+	
+	Font	: "Calibri"
+	Height	: 11
+	Italic	: Yes
+	
+[Style: Calibri 12]
+	
+	Font	: "Calibri"
+	Height	: 12
+	
+[Style: Calibri 12B]
+	
+	Font	: "Calibri"
+	Height	: 12
+	Bold	: Yes
+	
+[Style: Calibri 12I]
+	
+	Font	: "Calibri"
+	Height	: 12
+	Italic	: Yes
+	
+[Style: Calibri 13]
+	
+	Font	: "Calibri"
+	Height	: 13
+	
+[Style: Calibri 13B]
+	
+	Font	: "Calibri"
+	Height	: 13
+	Bold	: Yes
+	
+[Style: Calibri 14]
+	
+	Font	: "Calibri"
+	Height	: 14
+	
+[Style: Calibri 14B]
+	
+	Font	: "Calibri"
+	Height	: 14
+	Bold	: Yes
+	
+[Style: Calibri 16B]
+	
+	Font	: "Calibri"
+	Height	: 16
+	Bold	: Yes
+	
+[Style: Times New Roman 12]
+	
+	Font	: "Times New Roman"
+	Height	: 12
+	
+[Style: Times New Roman 12B]
+	
+	Font	: "Times New Roman"
+	Height	: 12
+	Bold	: Yes
+	
+[Style: Times New Roman 14]
+	
+	Font	: "Times New Roman"
+	Height	: 14
+	
+[Style: Times New Roman 14B]
+	
+	Font	: "Times New Roman"
+	Height	: 14
+	Bold	: Yes
+	
+[Style: Arial 12]
+	
+	Font	: "Arial"
+	Height	: 12
+	
+[Color: SANDAL COLOR]
+	
+	RGB		: 255,222,173
+	
+[Border: SANDAL COLOR]
+	
+	Use		: thin Box
+	Color	: SANDAL COLOR
+	
+[Color: Rosybrown]
+	
+	RGB		: 255,193,193	
+	
+[Color: Darkolivegreen]
+	
+	RGB		: 202,255,112	
+	
+[Color: Banana]
+
+	RGB		: 227,207,87
+	
+[Color: LightblueColor]
+	
+	RGB		: 238,216,174	
+	
+[Color: NavajoWhite]
+	
+	RGB		: 238,207,161
+	
+[Color: Flash Color]
+	
+	RGB		: 238,203,173	
+	
+[Color: Deep Pink]
+	
+	RGB		: 255,20,147	
+	
+[Color: SlsOrderClr]
+	
+		RGB:237,235,159
+		
+[Border: Deep Pink Box]
+	
+	Use		: Thin Box
+	Color	: Deep Pink
+	
+[Color: Pale Color]
+	
+	RGB		: 187,255,255
+	
+[Color: Mediumorchid]
+	
+	RGB		: 224,102,255
+	
+[Color: Bisque2]
+	
+	RGB		: 152,245,255
+	
+[Color: Pale turquoise]	
+	
+	RGB		: 175,238,238
+	
+[Color: Plum]
+	
+	RGB		: 221,160,221
+	
+[Color: Moccasin]
+	
+	RGB		: 255,228,181
+	
+[Color: Medium aqua marine]
+	
+	RGB		: 102,205,170
+	
+[Color: Light Goldenrod]
+	
+	RGB		: 238,221,130
+	
+[Color: Beige]
+	
+	RGB		: 245,245,220
+	
+[Color: Old lace]
+	
+	RGB		: 253,245,230
+	
+[Color: RX Alice blue]
+	
+	RGB		: 240,248,255
+	
+[Color: White smoke]
+	
+	RGB		: 245,245,245
+	
+;; End-of-file
+
+
+
+
+[Collection:SPM_Ledoutstandings]
+	
+	Source Collection	: SPM_Salesman Coll
+	Collection 			: Primary
+	Title               : $$LocaleString:"List of Sales Man "
+	Fetch   			: Name, Language Name,  Parent, MasterId 
+  	Variable   			: SLedger
+    Report      		: SPM_led Outstandings
+	Trigger     		: SPMOutLedgerName
+	Unique  			: $Name
+ 
+[Report:SPMOutLedgerName]   ;;Auto Report
+
+	Use   : Collection Variable
+
+    Local : Line  : Collection Variable : Field  : SLedger
+    Local : Field : MV Title            : Info   : $$LocaleString:"Name of Salesman"
+	Local : Field : SLedger 			: Delete : Table
+	Local : Field : SLedger 			: Add    : Table   : SPM_ Salesman Coll,Primary
+  
+[Report:SPM_ LedOutstandings]
+	
+		Repeat  	: SLedger
+		Use			: Bills Receivable
+		Set         : ShowOpBillAmt     : Yes
+		Delete      : Form
+		Add  :Form  : Bills Outstanding
+		
+		Local :Line		:BILLMainTitle:Local:Field:SimpleField	: Set as	: "Salesman :"
+		Local :Line		:BILLMainTitle:Local:Field:Name Field 	: Set as   	: If $$IsSysName:##SLedger Then $$SysName:AllItems Else ##SLedger
+		Local :Collection  :Company Receivables  		:Add :Filter  :SLManFilterValue
+		Local :Collection  :CompanyLedgerReceivables    :Add :Filter  :SLManFilterValue
+ 
+[*Collection: Company Receivables]
+
+    Type    : Bills
+	Compute	: PartyName				: $$FuncDSPAccName:$Parent  
+	Compute	: DSPNameStyle			: ##DSPNameStyle
+
+	Switch	: RemoteCmpReceivables	: RemoteCmpReceivables : $$IsRemoteCompany ;; Temporary solution to improve performance in server
+	Compute	: GrpName				: ##GroupName ;; Dummy Compute to send the Variable to the Client side.
+	Fetch   : SML_CostCentreUniqID
+    Filter  : IsReceivable, DueBillsFilter, AgeFilter, BillsOfGroupName
+
+    Sort    : @@Default             : $BillDate, $Parent
+    Sort    : @@DateIncr            : $BillDate, $Parent
+    Sort    : @@DateDecr            : -$BillDate, -$Parent
+    Sort    : @@PartyIncr           : $Parent, $BillDate
+    Sort    : @@PartyDecr           : -$Parent, -$BillDate
+    Sort    : @@RefNoIncr           : $$Name, $BillDate
+    Sort    : @@RefNoDecr           : -$$Name, -$BillDate
+    Sort    : @@AmtIncr             : $$Abs:$ClosingBalance, $BillDate
+    Sort    : @@AmtDecr             : -$$Abs:$ClosingBalance, -$BillDate
+    Sort    : @@DueDateIncr         : @@CreditPeriod, $BillDate
+    Sort    : @@DueDateDecr         : -@@CreditPeriod, -$BillDate
+    Sort    : @@CurrencyIncr        : $$Currency:$OpeningBalance
+    Sort    : @@CurrencyDecr        : -$$Currency:$OpeningBalance
+
+	ColumnVar: AgeFrom, AgeTo
+ 
+[*Collection: Company LedgerReceivables]
+
+	ParmVar	: pvParent				: String	: $Parent
+
+    Type    : Bills
+	Childof	: ##pvParent
+
+	Compute	: PartyName				: $$FuncDSPAccName:$Parent ;;$DSPAccName:Ledger:$Parent
+	Compute	: DSPNameStyle			: ##DSPNameStyle
+
+	Switch	: RemoteCmpReceivables	: RemoteCmpReceivables : $$IsRemoteCompany ;; Temporary solution to improve performance in server
+	Compute	: GrpName				: ##GroupName ;; Dummy Compute to send the Variable to the Client side.
+	Fetch   : SML_CostCentreUniqID
+    Filter  : IsReceivable, DueBillsFilter, AgeFilter, BillsOfGroupName
+
+	Sort	: @@Default        		: $BillDate
+	Sort	: @@DateIncr        	: $BillDate
+	Sort	: @@DateDecr        	: -$BillDate
+	Sort	: @@RefNoIncr			: $$Name, $BillDate
+	Sort	: @@RefNoDecr 			: -$$Name, $BillDate
+	Sort	: @@AmtIncr				: $$Abs:$ClosingBalance, $BillDate
+	Sort	: @@AmtDecr 			: -$$Abs:$ClosingBalance, $BillDate
+	Sort	: @@DueDateIncr			: @@CreditPeriod, $BillDate
+	Sort	: @@DueDateDecr			: -@@CreditPeriod, $BillDate
+	Sort	: @@CurrencyIncr		: $$Currency:$OpeningBalance
+	Sort	: @@CurrencyDecr		: -$$Currency:$OpeningBalance
+
+	ColumnVar: AgeFrom, AgeTo
+
+[System :Formula]
+	
+	SLManFilterValue   	: If ##SLedger="" OR $$IsSysNameEqual:Primary:##SLedger Then Yes Else $SML_CostCentreUniqID=$SPMSalesmanCode:Group:##SLedger
+   
+
+
+[Report : SPM_SalesmanCollectionReport]
+	
+	Title 		: "Salesman wise Collection Report"
+	Form 		: SPM_SalesmanCollectionReport
+	Variables	: SV FromDate,SV ToDate
+	Set			: SVFromDate				: $$MonthStart:##SVCurrentDate
+	Set     	: SVTodate					: $$MonthEnd:##SVCurrentDate
+	PrintSet    : Report Title  : "Salesman wise Collection Report"
+ 
+[Form : SPM_SalesmanCollectionReport]
+	
+	Part 					: SPM_CCV Title,SPM_CollectionBodyMain
+	Height 					: 100% Screen
+	Width  					: 100% Screen
+	Button 					: Print Button,Export Button, F2ChangePeriod
+ 	Key        				: ChangePeriod
+	Space Top   			: If $$InPrintMode Then 0.5 Else 0 inches
+	Space Bottom			: If $$InPrintMode Then 0.5 Else 0 inches
+	Space Left  			: If $$InPrintMode AND $$InPixelMode Then 0.5 Else 0 inches
+	Space Right 			: If $$InPrintMode AND $$InPixelMode Then 0.25 Else 0 inches
+	Background	:White
+
+[Part: SPM_CCV Title]
+
+    Option  : DB PrnTitle    	 : $$InPrintMode
+    Option  : SPM_CCV ScrTitle   : NOT $$InPrintMode
+
+    [!Part: SPM_CCV ScrTitle]
+
+        Line        : SPM_CCV ScrTitle
+
+        [Line  : SPM_CCV ScrTitle]
+			
+			Space Top 		: .5
+			Space Bottom 	: .5
+            Field       : Simple Field
+            Right Field : DSP MainDateTitle          
+            Local       : Field : Simple Field  : Set as    : "Salesman wise Collection Report"  
+            Local       : Field : Default		 : Style     : Small Bold
+         
+[Part : SPM_CollectionBodyMain]
+	
+	LIne 		 : SPM_CCRptTitle,SPM_CCRptTitle1, SPM_CollectionBodyMain
+	Repeat 		 : SPM_CollectionBodyMain : SPM_ Salesman Coll 
+	Bottom Line  : SPM_CollectionBodyMain Total
+	Total 		 : Sales Men sales Amt,Sales Men sales Comm Amt,Sales Men Receipt Amt   
+	Scroll 		 : Vertical 
+	Common Border : yes
+	Local : Field : Default : Style : Small Bold
+	
+
+[Field  :Sales Men Receipt Amt]
+	use 	: Amount Field
+ 	Set as  : $$ReportObject:$$CollectionFieldByKey:$SAmt:@LocSearchKey:ItemwisesalesMenReceipt
+	Border  : Thin Left Right
+	LocSearchKey  :#SalesMensalesName1
+ 
+
+[Collection :Item wise sales Men Receipt SColl]
+		Type  		 : Vouchers  :VoucherType
+		Child Of 	 : $$VchTypeReceipt
+		Belongs To   : Yes
+		Fetch  		 : *,EISalesmanInfoUniqueID
+		Fetch		 : LedgerEntries.*
+		Compute		 : CBAmt: $LedgerEntries[1,@@IsCashBankLed].Amount
+	
+[Collection :Item wise sales Men Receipt]
+	Source Collection :Item wise sales Men Receipt SColl
+	
+ 	
+	By  :SCode  :$$Upper:$EISalesmanInfoUniqueID
+	Aggr Compute  :SAmt  :Sum :$CBAmt
+	Fetch:EISalesmanInfoUniqueID,Amount,CBAmt
+	Search Key:$SCode
+ 
+[Line  : SPM_CollectionBodyMain Total]
+	
+	Right Field: Sales Men sales Name
+	Right Field: Sales Men sales Amt,Sales Men Receipt Amt    
+	Border : Totals
+	
+	
+	Local : Field : Default : Style : Small Bold
+	Local : Field : Sales Men sales Name	: set as : "Total"
+	Local : Field : Sales Men sales Name	: Delete : Border : Thin Left
+	Local : Field : Sales Men sales Amt			: set as : $$Total:SalesMensalesAmt
+	Local : Field : Sales Men sales Comm Per	: Type : String
+	Local : Field : Sales Men sales Comm Per	: Set as : " "
+	Local : Field : Sales Men sales Comm Amt	: Set as : $$Total:SalesMensalesCommAmt
+	Local : Field :Sales Men Receipt Amt        :Set AS  :$$Total:SalesMenReceiptAmt 
+	
+[Line : SPM_CCRptTitle]
+	
+	Field : Sales Men sales Name
+	Right Field : Sales Men sales Amt,Sales Men Receipt Amt 
+	Border : Thin Top
+	
+	Local : Field : Default : Type : String 
+	Local : Field : Default : Style : Small Bold
+	Local : Field : Sales Men sales Amt			: Align  : Centre
+ 
+	Local : Field  : Sales Men sales Name	 	: set as : "Sales Man's Name"
+	Local : Field  : Sales Men sales Amt			: set as : "Sales"
+ 	Local : Field  : Sales Men Receipt Amt        : Set as : "Receipt"
+	Local	:Field : Sales Men Receipt Amt		: Align  : Centre
+	
+[Line : SPM_CCRptTitle1]
+	
+	Field : Sales Men sales Name
+	Right Field : Sales Men sales Amt,Sales Men Receipt Amt 
+	Border : Double Bottom
+	
+	Local : Field : Default : Type : String 
+	Local : Field : Default : Style : Small Bold
+
+	Local : Field : Sales Men sales Amt			: Align  : Centre
+	Local : Field : Sales Men sales Comm Per	: Align  : Centre
+	Local : Field : Sales Men sales Comm Amt	: Align  : Centre
+	Local  :Field : Sales Men sales Name:Set As:""
+	
+	Local : Field : Sales Men sales Amt			: set as : "Amount"
+ 	Local : Field :Sales Men Receipt Amt        : Set AS  : "Amount"
+	Local	:Field :Sales Men Receipt Amt		: Align  :Centre
+
+[Line : SPM_CollectionBodyMain]
+	
+	Field 		  : Sales Men sales Name1, Sales Men sales Name
+	Right Field   : Sales Men sales Amt,Sales Men Receipt Amt 
+	Local 		  : Field : Default : Style : Small Bold
+ 	
+[Field : Sales Men sales Name]
+	
+	Use			: Name Field
+	Set as 		: $Name 
+ 	Variable    : CostCentreName	
+	Border 		: Thin Left
+	Display 	: SML_CollectionDrilldown
+ 
+ [Field :Sales Men sales Name1]
+	 
+	Use			: Name field
+	Set Always  : Yes
+	Set As		: $$Upper:$SPMSalesmanCode 
+	Invisible   : Yes
+ 
+ [Field : Sales Men sales Amt]
+	 
+	Use 	: Amount Field
+ 	Border  : Thin Left Right
+	Set as	: $$ReportObject:$$CollectionFieldByKey:$SAmount:@LocSearchKey:SalesMensalesColl
+	LocSearchKey :$$Upper:#SalesMensalesName1
+
+[Collection : Sales Men sales Coll]
+	Source Collection	:SPM_SalesCollectionSrc
+	Fetch       : VoucherTypeName,Amount,TTVchSalesmanName,SlName
+
+	By					: SName	:$$Upper:$EISalesmanInfoUniqueID 
+	Aggr Compute		: SAmount		: SUM	: $Amount	
+	Fetch:Amount
+	Search Key	:$SName
+	
+ [Collection	: SPM_SalesCollectionSrc]
+		Type	:Voucher
+		Fetch       : VoucherTypeName,Amount,TTVchSalesmanName
+		 Filter		: salesmenIsSalesVT,PEVchSalesmanNonEmpty
+ 
+[System: Formula]
+
+	salesmenIsSalesVT	: ($$IsSales:$VoucherTypeName ) OR $$IsCreditNote:$VoucherTypeName 
+	PEVchSalesmanNonEmpty:NOT $$IsEmpty:$EISalesmanInfoUniqueID
+
+ 
+
+
+[#Part: VCHBILL Allocation]
+	
+	Add :Option  :SI VCHBILL Allocation  :(@@IsSales OR @@IsSalesOrder OR @@IsCreditNote) AND @@IsSModuleActive
+	Add :Option  :SI Jrnl VCHBILL Allocation  :(@@IsJournal OR @@IsReceipt) AND @@IsSModuleActive
+ 
+[!Part:SI Jrnl VCHBILL Allocation]
+
+ 	Local :Line: VCHBILL MainLine  		:Add:Field 		: After  :VCHBILLName  :SML_CostCentreName,SML_CostCentreUniqID
+	Local :Line: VCHBILL MainLine  		:Local :Field   : VCHBILLName :Delete:Table :Pending Bills		
+	Local :Line: VCHBILL MainLine  		:Local :Field   : VCHBILLName :Add  :Table          : DG Pending Bills					: ##VCHShowBillTables AND ($$IsSysNameEqual:AgstRef:$BillType OR $$IsSysNameEqual:TDS:$BillType) 
+ 
+[Field: SML_CostCentreName]
+	
+		Use			: Name Field
+		Set As		: If $$IsSysNameEqual:AgstRef:$BillType Then @MyVal Else $$Value 
+		Set Always  : Yes
+		Storage  	: SML_CostCentreName
+	    Invisible   : Yes
+	    Table		: SPM_ SalesMan Coll,Not Applicable
+	    Show Table	: On Blank
+		Skip		: $$IsSysNameEqual:AgstRef:$BillType AND NOT $$IsEmpty:$$Table:VchBillName:$SML_CostCentreUniqID
+		MyVal 		: $$Table:VCHBillName:$Slname 
+ 		Add  		: option  :SML_SLOption : $$InAlterMode  OR $$InDisplayMode
+  
+[!Field : SML_SLOption]
+	
+	Set As  	:$$FilterValue:$Name:SPM_SalesmanColl:First:SMJrnlLedFil
+	Set Always  :Yes
+	Show Table  :On Blank
+ 
+[System:Formula]
+	
+	SMJrnlLedFil   :$SPMSalesmanCode=#SML_CostCentreUniqID
+ 
+[Field: SML_CostCentreUniqID]
+	
+		Use:Name Field
+		Type:String:Forced  
+		Set As:$SPMSalesmanCode:Group:#SML_CostCentreName 
+		Set Always  :Yes
+		Storage  :SML_CostCentreUniqID
+ 		Invisible	:Yes
+
+[!Part :SI VCHBILL RecAllocation]
+	
+	Local :Line: VCHBILL MainLine  :Add:Field :after  :VCHBILLName  :SML_CostCentreUniqID1 
+	Local :Line: VCHBILL MainLine  :Local :Field :VCHBILLName :Delete:Table :Pending Bills		
+	Local :Line: VCHBILL MainLine  :Local :Field :VCHBILLName :Add  :Table          : DG Pending Bills					: ##VCHShowBillTables AND ($$IsSysNameEqual:AgstRef:$BillType OR $$IsSysNameEqual:TDS:$BillType) 
+ 		
+[Field:SML_CostCentreUniqID1]
+	
+	    Use:Name Field
+		Set As:$$Table:VchBillName:$SML_CostCentreUniqID
+		Set Always  :Yes
+		Storage  :SML_CostCentreUniqID
+	    Invisible  :Yes
+		Background:RED
+		 
+
+
+
+[!Part :SI VCHBILL Allocation]
+		Local :Line: VCHBILL MainLine  :Add:Field :after  :VCHBILLName  :SML_VCHCostCentreUnqID 
+
+[#Line: EIDefaultBill]
+		Add :Option  :SI VCHBILL Allocation1  :(@@IsSales  OR @@IsSalesOrder) AND @@IsSModuleActive
+		
+[!Line:SI VCHBILL Allocation1 ]
+		
+		Add :Field :After  :EIBillName  :SMPSIVCHBILLNum1 
+ 
+[Field:SMPSIVCHBILLNum1]
+		Use:Name Field
+		Set As:#EISalesmanInfoUniqueID
+		Set Always  :Yes
+		Invisible  :Yes
+		Storage     : SML_CostCentreUniqID : BillAllocations : First : NOT @@IsTDSSTParty
+		Background:RED
+  
+[Field: SML_VCHCostCentreUnqID]
+		Use:Name Field
+		Set As:#EISalesmanInfoUniqueID
+		Set Always  :Yes
+		Type	:String	:Forced
+		Storage  :SML_CostCentreUniqID
+		Invisible  :YES
+		Background:RED
+ 
+[Collection:DG Pending Bills]
+
+	Title		: $$LocaleString:"Pending Billsa"
+	Sub Title   : $$LocaleString:"Name", $$LocaleString:"Date",  $$LocaleString:"Balance",$$LocaleString:"Executive"
+	Source Collection : Pending Bills SRC
+	Fetch		: Name, BillDate, BillCreditPeriod, BaseClosing, FinalBalance,SML_CostCentreUniqID
+    Unique      : $$Name
+    Format      : $$Name, 10
+    Format      : $BillDate, 8      : Universal Date
+     Format      : $BaseClosing,-30  : "AllSymbols, DrCr"
+	Format		:$Slname
+ 	Client Only : Yes
+	Keep Source	: ....    
+	
+	Compute	:Slname  :$$ReturnSalesmanName:$SML_CostCentreUniqID
+	
+ [Function	:ReturnSalesmanName]
+	
+	Parameter	:MiD:String
+	Return	:String
+	00:Return:$$ReportObject:$$FilterValue:$Name:SPM_SalesmanColl:First:SMJrnlLedFil1
+	
+[System	:Formula]
+	
+	SMJrnlLedFil1   :$SPMSalesmanCode=##MiD
+ 
+ [#Line: VCHBILL ExplLine]
+	 
+		 Add :Option  :SPM_VCHBILL ExplLine  :(@@IsJournal OR @@IsReceipt) AND @@IsSModuleActive
+ 
+[!Line:SPM_VCHBILL ExplLine ]
+ 	   
+		 Local :Field :VCHBILLName  :Delete :Table
+		 Add:Field :after  :VCHBILLName  : SML_CostCentreName,SML_CostCentreUniqID
+ 		 Local :Field :VCHBILLName  : Add  :Table          : DG Pending Bills					: ##VCHShowBillTables AND ($$IsSysNameEqual:AgstRef:$BillType OR $$IsSysNameEqual:TDS:$BillType) 
+		 Local	:Line: VCHBILL DueDateLine  :Add:Field :Before  :VCHBILL DueDate  : SPM_VchTempBill
+
+[Field: SPM_VchTempBill]
+	
+		Use		: Name Field
+		Skip	: Yes
+		Width	: @@NameWidth*2
+
+
+[Report  : SML_CollectionDrilldown]
+	
+		Use		: DayBook
+		Add 	: Variable  : CostCentreName,SvFromDate,SVTodate 
+		Repeat  : CostCentreName,SvFromDate,SVTodate
+		Set			: SVFromDate				: ##SVFromDate 
+		Set     	: SVTodate					: ##SVToDate 
+		Local	: Line:DB SubTitle:Local:Field: Name Field : Set as	: "Executive : "+##CostCentreName
+		Local	: Line:DB SubTitle:Local:Field:Default:Style:Small Bold
+  		Local :Form :Day Book  :Local :Part  :Db Body:Total:DSP DBDrAmt,DSPDBCrAmt
+		Local :Collection :Daybook Vouchers of Company  :Add:Fetch:EISalesmanInfoUniqueID
+  		Local :Collection :Daybook Vouchers of Company  :Filter : DCSMDayBkFil 
+ 
+ 
