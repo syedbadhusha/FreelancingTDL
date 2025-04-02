@@ -1,3 +1,7 @@
+[Include:Broker Contact Info.tdl]
+[Include:Broker Outstanding Report.tdl]
+[Include:Broker Wise Sales Report.tdl]
+
 [Report: Broker Commission on Receipt]
 	Variable: SVFromDate, SVToDate
 	Form	: Broker Commission on Receipt

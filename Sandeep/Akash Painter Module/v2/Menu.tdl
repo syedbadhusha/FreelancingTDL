@@ -1,3 +1,18 @@
+[Include:Addon Feature.tdl]
+[Include:Collection.tdl]
+[Include:Default Report Modification.tdl]
+[Include:Formula.tdl]
+[Include:Helper Function.tdl]
+[Include:Ledger XML.tdl]
+[Include:New Changes.txt]
+[Include:Shop Boy Master.tdl]
+[Include:Shop Master.tdl]
+[Include:UDF.tdl]
+[Include:Update Stock Item Value.tdl]
+
+[Include:Reports/Broker Commission on Receipt.tdl]
+[Include:v1/Akash Painter Module.txt]
+
 [#Menu:Gateway of Tally]
 Option:Gateway of Tally Painter:yes;@@IsPainterModuleEnabled
 
