@@ -17,20 +17,17 @@
 			Use	:	Name Field
 			Set Always	:	Yes
 			Storage	:	SM_MSTLEDSalesMan
-			Table	:	SM_CostCentre,NotApplicable
+			Table	:	SPM_SalesmanColl,NotApplicable
 			Show Table	:	Always
-			Key	:	Create Costcentre
+			Key	:	CreateSalesMan
 
-[Collection: SM_CostCentre]
-
-    Use     : Alias Collection
-    Title   : $$LocaleString:"List of Salesman"
-    Type    : Cost Centre
-    Format  : $Name
-    Unique  : $Name
-
-[#Field: VCHCostClass]
+[Key:CreateSalesMan]
 	
+	Key	:	Alt + C
+	Action	:	Create Collection	:	SPM_SalesmanColl
+
+[#Field:EI SalesmanInfo]
+
 	Option	:	SM_VCHCostClass	:	@@Issales
 	
 [!Field:SM_VCHCostClass]
