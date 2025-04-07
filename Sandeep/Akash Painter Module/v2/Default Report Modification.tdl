@@ -54,7 +54,7 @@
 
 [#Form:Ledger]
 On:Form Accept:Yes:Form Accept
-On:Form Accept:@@IsPainterModuleEnabled AND ($$IsEqual:$Parent:"Salesman"):Call:ReplicateInOtherCompanies:$Name
+;On:Form Accept:@@IsPainterModuleEnabled AND ($$IsEqual:$Parent:"Salesman"):Call:ReplicateInOtherCompanies:$Name
 	
 
 [#Form:Sales Color]
@@ -65,7 +65,7 @@ On:Form Accept:@@IsPainterModuleEnabled AND ($$IsEqual:$Parent:"Salesman"):Call:
 Add:Button:Update Stock Item Value
 
 [Button:Update Stock Item Value]
-Title:"Update Stock Item Value"
+Title:"Update Stock Item Price";Value
 Key:Alt + 3
 Action:Alter:Update Stock Item Rate
 
@@ -80,12 +80,12 @@ Object:Voucher:##VoucherId
 000:Set Target
 010:Set Object
 020:Walk Collection:InventoryEntries
-021:Log:$StockItemName
 030:	If:($$IsEqual:$StockItemName:##ItemName)
+021:Log:$StockItemName
 040:		Set Target:InventoryEntries[$$LoopIndex]
 041:		Set:PreviousAmount:$Amount
 042:		Set:Amount:$$Number:$ActualQty*##NewRate
-045:		Set:DiffAmount:##vAmount - ##PreviousAmount
+045:		Set:DiffAmount:##Amount - ##PreviousAmount
 050:		Set Value:Rate:$$TgtObject:$$AsRate:##NewRate
 051:		Set Value:Amount:If $IsDeemedPositive Then $$AsAmount:##Amount*-1 Else $$AsAmount:##Amount
 060:		Walk Collection:BatchAllocations
@@ -132,8 +132,8 @@ Object:Voucher:##VoucherId
 	
 
 [#Form:Daybook]
-	Local:Collection:Default:Add:Fetch:VchSalesManName
+	Local:Collection:Default:Add:Fetch:VchSalesManName, PM_MobileNo
 	
 [#Collection: Daybook Vouchers of Company]                                       ;;Under Default daybook collection fetch the UDF value 
 
-	  Add: Fetch  :VchSalesManName
+	  Add: Fetch  :VchSalesManName, PM_MobileNo

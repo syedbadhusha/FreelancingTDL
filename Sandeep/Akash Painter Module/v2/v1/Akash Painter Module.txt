@@ -116,9 +116,12 @@
        105 : Set : totlines:$$NumItems:TSPLTrans 
        110 : Start Progress:##totlines:"Updating Salesman Name In Vouchers "
        115 : Set : CurrCmpName:##SvCurrentCompany
+;	   lg	:	Log	:	##VCHSalemanNameVAR
        120 : Walk Collection:TSPL Trans
        130 : Start Batch Post
+	   lv	:	Do If	:	Not ($$IsVoucher and $UseVchTypeYN:VoucherType:$VoucherTypeName) :	Continue
        140	:	Set 	: vchmid   : "ID:"+$$string:$MasterId
+	   141	:	Do If	:	(Not $$IsCmpOwner and not $$IsEmpty:$(Voucher,##VchMID).VchSalesManName)	:	Continue
        155 :	Modify Object:(Voucher,##VchMID).VchSalesManName[1].VchSalesManName:##VCHSalemanNameVAR
        182	:   Increment:counter
        185	:	Show Progress:##counter:($$String:##counter)+"/"+($$String:##totlines)
@@ -221,18 +224,20 @@
 		Add: Option : DSP VchDetail Option	: Yes
 		
 	[!Line	: DSP VchDetail Option]
-		Add:  Fields	: At End : DSP VchType Status1,DSP VchType Status2
+		Add:  Fields	: At End : DSP VchType Status1,DSP VchType Status2, PM_DSPMobileNo
 
    [#Line: DBTitle1]
-		Add:  Fields: After :   DSP VchAcctTitle: DSP VchType Status1,DSP VchType Status2 
+		Add:  Fields: After :   DSP VchAcctTitle: DSP VchType Status1,DSP VchType Status2, PM_DSPMobileNo
 		Local		: Field	: DSP VchType Status1	: Set as	: "Salesman"
 		Local		: Field	: DSP VchType Status2	: Set as	: "Updated"
-
+		Local		: Field	: PM_DSPMobileNo		: Set as	: "Mobile"
+		
    [#Line: DBTitle2]
-		Add:  Fields: After :   DSP VchAcctTitle: DSP VchType Status1,DSP VchType Status2 
+		Add:  Fields: After :   DSP VchAcctTitle: DSP VchType Status1,DSP VchType Status2, PM_DSPMobileNo
 		Local		: Field	: DSP VchType Status1	: Set as	: "Name"
 		Local		: Field	: DSP VchType Status2	: Set as	: "Entry"
-
+		Local		: Field	: PM_DSPMobileNo		: Set as	: "No"
+		
 [Field: DSP VchType Status1]
 	Use         : Short Name Field
 	Width       : @@DSPNumberWidth +15 
@@ -248,6 +253,14 @@
 	Color		: Blue
 	Align		: Center
 	Set as		: $VchUIActualInvYN
+	
+[Field:PM_DSPMobileNo]
+	Use         : Short Name Field
+	Width       : 15
+	Style       : Small Bold
+	Color		: Blue
+	Align		: Center
+	Set as		: $PM_MobileNo
 	
 ;==========================================================================================================
 [#Form: Ledger]

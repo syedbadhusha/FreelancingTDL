@@ -13,7 +13,7 @@
               Add:Part:Before:Led Notes:LED Auto Barcode
               
 [Part:LED Auto Barcode]
-       Line:LED Auto Barcode, LED Mobile No1
+       Line:LED Auto Barcode, LED Mobile No1, PM_LEDShop
 
     [Line: LED Auto Barcode]
         Field         	: Short Prompt, LED Auto Barcode
@@ -29,7 +29,13 @@
         Local   	: Field: Default:Color:Blue
         Local   	: Field: Default:Inactive:$Parent!="Salesman" 
               
-
+	[Line:PM_LEDShop]
+		Field         	: Short Prompt, PM_LEDShop
+        Local   	: Field: Short Prompt   : Setas : $$LocaleString:"Painter Shop"
+        Local   	: Field: Default:Style:Normal Bold
+        Local   	: Field: Default:Color:Blue
+        Local   	: Field: Default:Inactive:$Parent!="Salesman" 
+       
 [Field: LED Auto Barcode]
        Use                    : Short Name Field
 	Use			: First Upper Case Field
@@ -42,7 +48,14 @@
     Use         : Name Field
     Style       : Small Bold
     Storage     : LedgerMobileNo
-              
+     
+[Field:PM_LEDShop]
+    Use         : Name Field
+    Style       : Small Bold
+	Storage		: PM_LEDShop
+	Table		: Company, NotApplicable
+	Show Table	: Always
+	
 [Function	: GetBatchName]
 	Parameter:LastBatchName : Number
 	Variable:FinBatchName:String
@@ -72,7 +85,8 @@
 	LastBatchSaleYN	: Logical	: 4006
 	
        Heading Color Name:String:4012
-       
+       PM_LEDShop	:	String	: 4013
+	   
 [System:Formula]
 	LastItemBatch	:$LastItemBatch:Company:##SVCurrentCompany	 
 	FillWithZero	:$FillWithZero:Company:##SVCurrentCompany	 	 

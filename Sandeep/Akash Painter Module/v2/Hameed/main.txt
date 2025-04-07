@@ -1,0 +1,5 @@
+<DefType:Include>
+
+[Include:POS Invoice print.txt]
+
+[Include:POS Invoice Entry.txt]

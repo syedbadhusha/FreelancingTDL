@@ -1,0 +1,22 @@
+[#Form:POSInvoicePrint]
+	Option		:	PM_PainterInvoicePrint		:	@@ActiveWetYNF or @@IsPainterModuleEnabled
+	
+[!Form:PM_PainterInvoicePrint]
+	Add			:	Part		:	At Beginning:	PM_Header
+	
+[Part:PM_Header]
+	Invisible	:	$$IsEmpty:##SALogoPath
+	
+	Horizontal Align	:	Center
+	Part		:	PM_HeaderLogo
+	Space Bottom:	2 mms
+	
+[Part:PM_HeaderLogo]
+	Width		:	50 % Page
+	Height		:	25 mms
+	
+	Line		:	Empty
+	
+	Graph Type	:	##SALogoPath
+	
+	Horizontal Align	:	Center

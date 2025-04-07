@@ -13,6 +13,8 @@
 [Include:Reports/Broker Commission on Receipt.tdl]
 [Include:v1/Akash Painter Module.txt]
 
+[Include:Hameed/main.txt]
+
 [#Menu:Gateway of Tally]
 Option:Gateway of Tally Painter:yes;@@IsPainterModuleEnabled
 

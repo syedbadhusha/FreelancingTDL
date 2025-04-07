@@ -13,3 +13,4 @@
 ;	VchSalesManName:String:4043
 	PM_StockItemName:String:4044
 	PM_ItemRate:Number:4045
+	PM_MobileNo:String:4046

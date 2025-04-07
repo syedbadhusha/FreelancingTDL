@@ -21,15 +21,15 @@
 	Variable:SalesManFilter
 	Variable:SuperVisorFilter
 	Variable:MobileFilter
-	Variable:ShopFilter
+	Variable:ShopFilter, StockItemName
 ;	Variable   : ExplodeFlag
-On:Load:Yes:Set:SVFromdate:##svcurrentdate
-On:Load:Yes:Set:SVTodate:##svcurrentdate
- 	On:Load:Yes:Set:SalesManFilter:$$SysName:AllItems
-	On:Load:Yes:Set:SuperVisorFilter:$$SysName:AllItems
-	On:Load:Yes:Set:MobileFilter:$$SysName:AllItems
-	on:Load:Yes:Set:ShopFilter:$$SysName:AllItems
-	
+	Set:SVFromdate:##svcurrentdate
+	Set:SVTodate:##svcurrentdate
+ 	Set:SalesManFilter:$$SysName:AllItems
+	Set:SuperVisorFilter:$$SysName:AllItems
+	Set:MobileFilter:$$SysName:AllItems
+	Set:ShopFilter:$$SysName:AllItems
+	Set:StockItemName:$$SysName:AllItems
 
 [Button:SalesManFilter]
 	Title:"Sales man"
@@ -68,13 +68,13 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	
 
 [Function:DisplayDetailed]
-	Variable:Sman:String
-	Variable:Cmpname:String
+;	Variable:Sman:String
+;	Variable:Cmpname:String
 	
 	
 01:Walk Collection:DisplayDetailed
-02:Set:Sman:$VchEntrySMan
-03:Set:Cmpname:$CMPName
+02:Set:SalesManName:$VchEntrySMan
+;03:Set:Cmpname:$CMPName
 04:Display:SalesMainDetailedReport
 05:End Walk
 	
@@ -82,9 +82,21 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 
 [Form	: Salesman Report Data]
        Part : Salesman ReportTitle,Salesman Report Data Main
-       Button		: F2ChangePeriod ,SalesManFilter,SuperVisorFilter,MobileFilter,ShopFilter,DisplayDetailed
+       Button		: F2ChangePeriod ,SalesManFilter,SuperVisorFilter,MobileFilter,ShopFilter,DisplayDetailed, PM_ChangeStockItem
        Set Always	: ReportTitle : "SALESMAN REPORT" 
+		Key	:	ExplodeFlag
 
+[Button:PM_ChangeStockItem]
+	Key		:	ctrl + 6
+	Action  : Modify Variable : PM_Stock Item Name
+    Title   : $$LocaleString:"Stock Item"
+
+[Report:PM_Stock Item Name]
+	Use		:	Stock Item Name
+	
+	Local	:	Field		:	Stock Item Name	: Delete:	Table
+	Local	:	Field		:	Stock Item Name	: Add	:	Table	:	List of Extract Stock Items, Create Master, AllItems
+	
 [Part	: Salesman ReportTitle]
        Lines       : DSP ReportName, DSP ReportPeriod
        Local		: Field	: DSP ReportName : Style	: Extra Large Bold
@@ -146,7 +158,7 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 
 [Field  : SalesShopName]
 					Use		: Name field
-					Set as	: $CMPName;$ShopName:Ledger:$VchEntrySMan	
+					Set as	: $BasicCompanyFormalName:Company:$PM_LEDShop:Ledger:#SalesmanPName	;$CMPName;$ShopName:Ledger:$VchEntrySMan	
 					Width	: 20% page                        
 						
        Border		: Column Titles
@@ -168,7 +180,9 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 				;Key:DisplayAnotherReport
 				;Option		: AlterOnEnter
 				;Local:Field:default:Align:Center
-				;Explode:DetailSalesMan
+				Option	:	DisplayOnAltEnter
+				Option	:	ExplodeOnEnter
+				Explode:DetailSalesMan:##ExplodeFlag or $$KeyExplode
 				
 				[Field	: Salesman SrNo]
 					Use		: Name field
@@ -211,9 +225,11 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 					Use		: Name field
 					Set as	: $VchEntrySMan	
 					Width	: 15% page 
+					Variable: SalesManName
+					Display:SalesMainDetailedReport
 					;Variable:SalesManName
-					Modifies:SalesManName:Yes
-					Key:DisplayAnotherReport
+;					Modifies:SalesManName:Yes
+;					Key:DisplayAnotherReport
 					
 [Variable:SalesManName]
 	Type:String
@@ -223,9 +239,9 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	SalesManName:""
 					
 
-[Key:DisplayAnotherReport]
-	Key:Enter
-	Action:Display:SalesMainDetailedReport
+;[Key:DisplayAnotherReport]
+;	Key:Enter
+;	Action:Display:SalesMainDetailedReport
 	
 	
 
@@ -300,23 +316,23 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 [Collection: Salesman Vouchers]
 	Source Collection: Salesman Vouchers SRC
 	Fetch			 : *.* 
-	Keep Source		 : Yes
+	Keep Source		 : ().
+	Client Only	:Yes
 
 
 [Collection: Salesman Vouchers Coll]
 	Source Collection: Salesman Vouchers
 	Walk			 : VchInventoryData
 	By				 : VchEntrySMan		: $$Owner:$VchSalesManName
-    Aggr Compute	 : VchEntrySQty		: Sum	 : $VchInvQty	 
-    Aggr Compute	 : VchEntrySAmt		: Sum	 : $VchInvAmount 
-	By:CMPName:$SalesCmpName
+    Aggr Compute	 : VchEntrySQty		: Sum	 : If $$IsSysName:##StockItemName or $VchInvName = ##StockItemName then $VchInvQty else 0
+    Aggr Compute	 : VchEntrySAmt		: Sum	 : If $$IsSysName:##StockItemName or $VchInvName = ##StockItemName then $VchInvAmount else 0
+;	By:CMPName:$SalesCmpName
 	Compute:Supname:$LedSupervisorName:Ledger:($$Owner:$VchSalesManName)
 	compute:mob:$LedgerMobileNo:Ledger:($$Owner:$VchSalesManName)
 	Add:Option:SalesManFilter:##SalesManFilter!=$$SysName:AllItems
 	Add:Option:SuperVisorFilter:##SuperVisorFilter!=$$SysName:AllItems
 	Add:Option:MobileFilter:##MobileFilter!=$$SysName:AllItems
 	Add:Option:ShopFilter:##ShopFilter!=$$SysName:Allitems
-	
 
 [!Collection:SalesManFilter]
 	Add:Filter:SalesManFilter
@@ -330,12 +346,15 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 [!Collection:ShopFilter]
 	Add:Filter:ShopFilter
 	
+[!Collection:ItemFilter]
+	Add:Filter:ItemFilter
+	
 [System:Formula]	
 	SalesManFilter:$VchEntrySMan=##SalesManFilter
 	SuperVisorFilter:$Supname=##SuperVisorFilter
 	MobileFilter:$mob=##MobileFilter
-	ShopFilter:$CMPName=##ShopFilter
-	
+	ShopFilter:$PM_LEDShop:Ledger:$VchEntrySMan=##ShopFilter
+	ItemFilter:$EstockitemName = ##StockItemName
 ;select $CMPName,$VchEntrySQty from SalesmanVouchersColl
 	
 
@@ -351,10 +370,12 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	Compute:Edate:$$Owner:$date
 	Compute:CMPName:$SalesCmpName
 	Filter:sManfil
-	Filter:Cmp
+	Add:Option:ItemFilter:##StockItemName!=$$SysName:Allitems
+
+;	Filter:Cmp
 	
 [System:Formula]
-	sManfil:$VchEntrySMan=##Sman
+	sManfil:If $$IsEmpty:$$ReqObject:$VchEntrySMan then $VchEntrySMan=##SalesManName else $VchEntrySMan=$$ReqObject:$VchEntrySMan;##Sman
 	cmp:$CMPName=##Cmpname
 	
 	
@@ -365,17 +386,22 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	Form:SalesMainDetailedReport
 	Variable:SalesManName
 	Variable:SVFromdate,SVTodate
-	On:Load:Yes:Set:SVFromdate:##svcurrentdate-30
-On:Load:Yes:Set:SVTodate:##svcurrentdate
+	Variable:StockitemName
+;	Set:SVFromdate:##svcurrentdate-30
+;	Set:SVTodate:##svcurrentdate
 	
 
 [Form:SalesMainDetailedReport]
-	Part:DetailSalesMan
-	Button:ChangePeriod
+	Part:DetailSalesManTitle, DetailSalesMan
+	Button:ChangePeriod, PM_ChangeStockItem
 	Height:100% screen
 	Width:100% screen
 
-
+[Part:DetailSalesManTitle]
+	Line		:	FormSubtitle, PlainSubtitle
+	
+	Local		:	Field		:	FormSubtitle		:	Set as		:	$$Sprintf:"Salesman: %s":##SalesManName
+	Local		:	Field		:	PlainSubtitle		:	Set as		:	@@DSPDateStr
 
 [Part:DetailSalesMan]
 	Line:DetailSalesManTitle,DetailSalesMan
@@ -401,6 +427,7 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	local:Field:DetailSalesManRate:set as:"Rate"
 	local:Field:DetailSalesManAmount  :set as:"Amount"
 	Border:thin box
+	Local		:	Field		:	Default		:	Style		:	SmallBold
 	
 [Line:DetailTotal]
 	Use:DetailSalesMan
@@ -417,35 +444,35 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	local:Field:DetailSalesManRate:set as:"";$$Total:DetailSalesManRate
 	local:Field:DetailSalesManAmount  :set as:$$Total:DetailSalesManAmount
 	Border:thin box
-
+	Local		:	Field		:	Default		:	Style		:	SmallBold
 
 [Line:DetailSalesMan]
+	
+	Local		:	Field		:	Default		:	Style		:	SmallItalic
 	Field:DetailSalesManDate
 	Field:DetailSalesManVchNumber
 	Field:DetailSalesManVCHType
-	Field:DetailSalesManname
-	Field:DetailShopname
+;	Field:DetailSalesManname
+;	Field:DetailShopname
 	Field:DetailSalesManItemName
-	Field:DetailSalesManQTy
-	Field:DetailSalesManRate
-	Field:DetailSalesManAmount
+	Right Field:DetailSalesManQTy, DetailSalesManRate, DetailSalesManAmount
 	
 
 
     [Field:DetailSalesManDate]
 		Use:Name field
 		Set as:$$String:$EDate
-		Width:30
+		Width:5 % Page;12
 
 	[Field:DetailSalesManVchNumber]
 		use:Name field
 		Set as:$EVoucherNumber
-		Width:30
+		Width:15 % Page;25
 
 	[Field:DetailSalesManVCHType]
 		Use:name field
 		Set as:$EVoucherTypeName
-		Width:30
+		Width:15 % Page;25
 		
     [Field:DetailSalesManname]
 		Use:name field
@@ -463,24 +490,24 @@ On:Load:Yes:Set:SVTodate:##svcurrentdate
 	[Field:DetailSalesManItemName]
 		Use:name field
 		Set as:$EStockItemName
-		Width:30
-
+		Width:25 % Page;30
+				
 		[Field:DetailSalesManQTy]
 			Use:Number field
 			Set as:$EBilledQty
-			Width:30
+			Width:10 % Page;30
 			Align:Right
 		
 		[Field:DetailSalesManRate]
 			Use:Number field
 			Set as:$Eamount/$EBilledQty
-			Width:30
+			Width:10 % Page;30
 			Align:Right
 		
 		[Field:DetailSalesManAmount]
 			Use:Number field
 			Set as:$Eamount
-			Width:30
+			Width:10 % Page;30
 			Align:Right
 		
 

@@ -1,0 +1,19 @@
+[#Part: POS PartyNameInfo]
+	Option		:	PM_MobileNo		:	@@VchPOSInvoice
+	
+[!Part:PM_MobileNo]
+	Line		:	PM_MobileNo
+	
+[Line:PM_MobileNo]
+	Field		:	MediumPrompt, PM_MobileNo
+	
+	Local		:	Field		:	Default				:	Color		:	RoyalBlue
+	
+	Local		:	Field		:	MediumPrompt		:	Set as		:	"Mobile No"
+	Local		:	Field		:	MediumPrompt		:	Width		:	@@VCHLeftPromptWidth % Page
+	
+[Field:PM_MobileNo]
+	Use			:	NameField
+	Storage		:	PM_MobileNo
+	Case		:	Normal
+	
